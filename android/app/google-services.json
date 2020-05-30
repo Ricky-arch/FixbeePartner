@@ -1,0 +1,93 @@
+{
+  "project_info": {
+    "project_number": "725060559794",
+    "firebase_url": "https://fixbee-e7600.firebaseio.com",
+    "project_id": "fixbee-e7600",
+    "storage_bucket": "fixbee-e7600.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725060559794:android:9fb33813f639e038c63aab",
+        "android_client_info": {
+          "package_name": "in.fixbee.fixbee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "725060559794-ndpqhhuk6387pb349ccbnpui9c3a77q9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.fixbee.fixbee",
+            "certificate_hash": "ce5ee3dc8649da94a9df48bac74d11c5c78c1cd3"
+          }
+        },
+        {
+          "client_id": "725060559794-452j2269qhrrtd6qj70kakobhnrodje1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.fixbee.fixbee",
+            "certificate_hash": "232b3cb38f6b67557bf0d08db730fcdb7bba6f83"
+          }
+        },
+        {
+          "client_id": "725060559794-jcqobr36kppf66olhdn02toi5i8m2kkh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRkOecSGF4vRMhGnulUqWBq5tIjYclNOI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "725060559794-jcqobr36kppf66olhdn02toi5i8m2kkh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725060559794:android:645c0a6348f1470cc63aab",
+        "android_client_info": {
+          "package_name": "in.fixbee.fixbee_partner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "725060559794-saunvuf68h5v5g720bl3dfmhtjnr104d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.fixbee.fixbee_partner",
+            "certificate_hash": "e8583e90c2deadf4cb3398aa05eec5ee6d98893a"
+          }
+        },
+        {
+          "client_id": "725060559794-jcqobr36kppf66olhdn02toi5i8m2kkh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRkOecSGF4vRMhGnulUqWBq5tIjYclNOI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "725060559794-jcqobr36kppf66olhdn02toi5i8m2kkh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
