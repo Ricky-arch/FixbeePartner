@@ -10,7 +10,7 @@ class DatePicker extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePicker> {
-  final format = DateFormat("dd-MM-yyyy");
+  final format = DateFormat("yyyy-MM-dd");
   DateTime _currentDate= DateTime.now();
 
   @override

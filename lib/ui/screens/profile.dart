@@ -43,7 +43,7 @@ class _ProfileState extends State<Profile> {
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text(
-                    DataStore.me.ratings,
+                    DataStore.me.ratings??"",
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,

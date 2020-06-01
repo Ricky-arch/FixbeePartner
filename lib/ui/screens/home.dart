@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/blocs/home_bloc.dart';
 import 'package:fixbee_partner/events/home_events.dart';
 import 'package:fixbee_partner/models/home_model.dart';
@@ -32,19 +34,6 @@ class _HomeState extends State<Home> {
     _bloc.fire(HomeEvents.activityStatusRequested, onHandled: (e, m) {
       if (m.activeStatus) {
         _bloc.subscribeToNotifications();
-        new Timer.periodic(
-            tenSec,
-            (Timer t) => _getLocation().then((value) {
-                  print(value.latitude);
-                  print(value.longitude);
-                  latitude = value.latitude;
-                  longitude = value.longitude;
-                  _bloc.fire(HomeEvents.updateLiveLocation, message: {
-                    'latitude': value.latitude,
-                    'longitude': value.longitude
-                  });
-                }));
-
       }
     });
     super.initState();
@@ -123,8 +112,11 @@ class _HomeState extends State<Home> {
                                         message: {'status': value},
                                         onHandled: (e, m) {
                                       if (m.activeStatus) {
+
                                         _bloc.subscribeToNotifications();
                                       } else {
+                                        if(_bloc.locationTimer!=null && _bloc.locationTimer.isActive)
+                                          _bloc.locationTimer.cancel();
                                         _bloc.unSubscribe();
                                       }
                                     });
@@ -161,16 +153,5 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
-  }
-
-  Future<Position> _getLocation() async {
-    var currentLocation;
-    try {
-      currentLocation = await geoLocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best);
-    } catch (e) {
-      currentLocation = null;
-    }
-    return currentLocation;
   }
 }

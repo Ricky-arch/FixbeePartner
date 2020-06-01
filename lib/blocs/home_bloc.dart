@@ -1,14 +1,22 @@
+import 'dart:async';
+
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/home_events.dart';
 import 'package:fixbee_partner/models/home_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'flavours.dart';
 
 class HomeBloc extends Bloc<HomeEvents, HomeModel>
     with Trackable<HomeEvents, HomeModel>, SecondaryStreamable<HomeModel> {
   //String token="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYmVlIiwiX2lkIjoiNWU0MmI4YTg2YTYxYjMwMDFlMWQyMTM4IiwiaWF0IjoxNTgxNDMxMDg3LCJleHAiOjE1ODQwMjMwODcsImF1ZCI6IkZJWEJFRSIsImlzcyI6IkZJWEJFRSIsInN1YiI6IiJ9.PK_9WC8-Qa1pz1OKosCb58sBxtPW62YndFmaH7cQ4LhsktP5dr1IT0fS7RA8qER3FQQBqQonuj01C6aCM6t2jrrnmon45IyPwMJX81i5Y-5JMvbsvVYG-r3DNa_0ec9o4lnxaVLTTp_wdEFxTb85FHNw4wnqRA8JsigYW0PpnDA";
-  HomeBloc(HomeModel genesisViewModel) : super(genesisViewModel);
+  HomeBloc(HomeModel genesisViewModel) : super(genesisViewModel) {
+    _geolocator = Geolocator();
+  }
+
+  Geolocator _geolocator;
+  Timer locationTimer;
 
   @override
   Future<HomeModel> mapEventToViewModel(
@@ -127,16 +135,28 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     Stream<FetchResult> sub = CustomGraphQLClient.instance
         .subscribe(CustomGraphQLClient.instance.wsClient, query);
 
-
-
+    locationTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+      Position location = await _getLocation();
+      updateLiveLocation(
+          {'latitude': location.latitude, 'longitude': location.longitude});
+    });
 
     addSecondaryStream(sub);
   }
 
+  Future<Position> _getLocation() async {
+    var currentLocation;
+    try {
+      currentLocation = await _geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best);
+    } catch (e) {
+      currentLocation = null;
+    }
+    return currentLocation;
+  }
+
   @override
   HomeModel mapSubResultToModel(Map result) {
-
-
     return latestViewModel;
   }
 
@@ -156,9 +176,9 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     }
   }
 }''';
-    Map response= await CustomGraphQLClient.instance.query(query);
+    Map response = await CustomGraphQLClient.instance.query(query);
     return latestViewModel
-      ..latitude = response['Me']['LiveLocation']['Latitude']??	23.829321
-      ..latitude = response['Me']['LiveLocation']['Longitude']??91.277847;
+      ..latitude = response['Me']['LiveLocation']['Latitude'] ?? 23.829321
+      ..latitude = response['Me']['LiveLocation']['Longitude'] ?? 91.277847;
   }
 }

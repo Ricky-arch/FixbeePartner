@@ -275,6 +275,7 @@ class _RegistrationState extends State<Registration> {
     Navigator.push(
         context,
         MaterialPageRoute(
+
             builder: (context) => OtpForLogin(
                   phoneNumber: phoneNumber.text,
                 )));

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/registration_events.dart';
@@ -15,8 +17,7 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
       RegistrationEvents event, Map<String, dynamic> message) async {
     if (event == RegistrationEvents.registrationFieldSet) {
       return await registerBee(message);
-    }
-    else if (event == RegistrationEvents.requestOtp) {
+    } else if (event == RegistrationEvents.requestOtp) {
       return await requestOtp(message);
     }
     return latestViewModel;
@@ -40,7 +41,7 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
       'dob': message['dateofbirth']
     }).makeRequest();
     print(response.containsValue('created'));
-    print('Null : ${latestViewModel==null}');
+    print('Null : ${latestViewModel == null}');
 
     if (response.containsKey('created')) {
       return (latestViewModel..registered = true);
@@ -52,11 +53,10 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
     Map responseOtp = await RequestMaker(
         endpoint: EndPoints.REQUEST_OTP,
         body: {'phone': message['phonenumber']}).makeRequest();
-    if(responseOtp.containsKey('sent') && responseOtp['sent']){
-      return latestViewModel..sent=true;
-    }
-    else
-      return latestViewModel..sent=false;
+    if (responseOtp.containsKey('sent') && responseOtp['sent']) {
+      log(responseOtp['otp'], name: "OTP");
+      return latestViewModel..sent = true;
+    } else
+      return latestViewModel..sent = false;
   }
 }
-
