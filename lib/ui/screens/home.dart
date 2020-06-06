@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:fixbee_partner/blocs/home_bloc.dart';
+import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/home_events.dart';
 import 'package:fixbee_partner/models/home_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/job_notification.dart';
@@ -25,8 +26,6 @@ class _HomeState extends State<Home> {
   double latitude;
   double longitude;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -37,7 +36,7 @@ class _HomeState extends State<Home> {
       }
     });
     super.initState();
-  // set customer location
+    // set customer location
     var marker = Marker(
         markerId: MarkerId("Your Location"),
         position: LatLng(latitude ?? 23.829321, longitude ?? 91.277847));
@@ -108,14 +107,15 @@ class _HomeState extends State<Home> {
                                   inactiveTrackColor: Colors.white,
                                   activeColor: Colors.brown,
                                   onChanged: (bool value) {
+                                    print(DataStore.token);
                                     _bloc.fire(HomeEvents.activityStatusSet,
                                         message: {'status': value},
                                         onHandled: (e, m) {
                                       if (m.activeStatus) {
-
                                         _bloc.subscribeToNotifications();
                                       } else {
-                                        if(_bloc.locationTimer!=null && _bloc.locationTimer.isActive)
+                                        if (_bloc.locationTimer != null &&
+                                            _bloc.locationTimer.isActive)
                                           _bloc.locationTimer.cancel();
                                         _bloc.unSubscribe();
                                       }
@@ -136,14 +136,16 @@ class _HomeState extends State<Home> {
                 viewModel.activeStatus
                     ? Expanded(child: mapWidget)
                     : Column(
-                      children: <Widget>[
-                        SizedBox(height: MediaQuery.of(context).size.height/3,),
-                        Center(
+                        children: <Widget>[
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 3,
+                          ),
+                          Center(
                             child: Text("You are not eligible to aquire jobs",
                                 style: TextStyle(color: Colors.brown)),
                           ),
-                      ],
-                    ),
+                        ],
+                      ),
                 viewModel.activeStatus ? JobNotification() : Container(),
 
                 //model.activeStatus ?  updateLocation() : Container();

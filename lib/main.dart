@@ -1,6 +1,7 @@
 
 import 'package:fixbee_partner/ui/screens/custom_registration_screen.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
+import 'package:fixbee_partner/ui/screens/otp_for_login.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +20,7 @@ void main() {
       home: Scaffold(
           backgroundColor: Color(0x2551771),
         body:
+        //OtpForLogin(phoneNumber: "8787300192R",),
         //Registration()
         //HistoryScreen()
         //WalletScreen()

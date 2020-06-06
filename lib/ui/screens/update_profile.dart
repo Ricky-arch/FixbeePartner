@@ -93,10 +93,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           size: 25,
                         ),
                         onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Profile()));
+                          Navigator.pop(context);
                         },
                       ),
                       SizedBox(width: MediaQuery.of(context).size.width / 20),

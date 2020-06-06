@@ -2,6 +2,7 @@ import 'package:fixbee_partner/blocs/otp_login_bloc.dart';
 import 'package:fixbee_partner/events/otp_events.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_field.dart';
+import 'package:fixbee_partner/ui/custom_widget/otp_insert.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class OtpForLogin extends StatefulWidget {
 
 class _OtpForLoginState extends State<OtpForLogin> {
   OTPController _otpController = OTPController();
+  TextEditingController _otpInsertController = TextEditingController();
   OtpLoginBloc _bloc;
 
   @override
@@ -43,55 +45,17 @@ class _OtpForLoginState extends State<OtpForLogin> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Container(
-                  height: 50,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "OTP Verification",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                OTPInsert(
+                  controller: _otpInsertController,
+                  onOTPOfInvalidLength: () {
+                    _bloc.pushViewModel(viewModel..enableButton = false);
+                  },
+                  onOTPOfValidLength: (otp) {
+                    _bloc.pushViewModel(viewModel..enableButton = true);
+                  },
                 ),
                 SizedBox(
                   height: 10,
-                ),
-                RichText(
-                  text: TextSpan(
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: "Enter the OTP sent to ",
-                          style: TextStyle(color: Colors.white70)),
-                      TextSpan(
-                        text: "${widget.phoneNumber}",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 40,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: OTPField(
-                    otpController: _otpController,
-                    onOTPEntered: (lengthIsValid) {
-                      _bloc.pushViewModel(
-                          viewModel..enableButton = lengthIsValid);
-                      print("${_otpController.getInputOTP()}");
-                    },
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
