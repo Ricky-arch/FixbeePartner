@@ -90,14 +90,15 @@ class _OtpForLoginState extends State<OtpForLogin> {
                             OtpEvents.onOtpVerify,
                             message: {
                               'phone': widget.phoneNumber,
-                              'otp': _otpController.getInputOTP()
+                              'otp': _otpInsertController.text
                             },
                             onHandled: (e, m) {
                               if (!m.exist) {
+                                print("otpppp: "+_otpInsertController.text);
                                 goToRegistrationScreen(ctx);
                               } else {
                                 if (m.valid) {
-                                  goToHomeScreen(ctx);
+                                  goToNavigationScreen(ctx);
                                 } else {
                                   Scaffold.of(ctx).showSnackBar(
                                     SnackBar(
@@ -120,7 +121,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
     );
   }
 
-  void goToHomeScreen(BuildContext context) {
+  void goToNavigationScreen(BuildContext context) {
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => NavigationScreen()));
   }

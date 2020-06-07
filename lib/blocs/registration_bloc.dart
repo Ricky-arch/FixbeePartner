@@ -1,10 +1,13 @@
 import 'dart:developer';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/registration_events.dart';
+import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/registration_model.dart';
 import 'package:fixbee_partner/utils/request_maker.dart';
+import '../data_store.dart';
 import 'flavours.dart';
 
 class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
@@ -31,15 +34,30 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
   }
 
   Future<RegistrationModel> registerBee(Map<String, dynamic> message) async {
+    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    String fcmToken = await _firebaseMessaging.getToken();
+
+    DataStore.fcmToken = fcmToken;
+    log(fcmToken,name: 'FCM TOKEN');
+
     Map response = await RequestMaker(endpoint: EndPoints.REGISTER, body: {
       'name': {
         'firstname': message['firstname'],
         'middlename': message['middlename'],
         'lastname': message['lastname']
       },
+      'scm_token': fcmToken,
       'phone': message['phonenumber'],
       'dob': message['dateofbirth']
     }).makeRequest();
+    Bee bee = Bee()
+      ..firstName = message['firstname']
+      ..middleName = message['middlename'] ?? ''
+      ..lastName = message['lastname'] ?? ''
+      ..phoneNumber = message['number']
+      ..verified = message['verified'];
+
+    DataStore.me = bee;
     print(response.containsValue('created'));
     print('Null : ${latestViewModel == null}');
 

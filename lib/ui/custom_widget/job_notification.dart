@@ -5,8 +5,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 class JobNotification extends StatefulWidget {
   final bool loading;
+  final Function onDecline;
+  final Function onConfirm;
 
-  const JobNotification({this.loading = false});
+  const JobNotification({this.loading = false, this.onDecline, this.onConfirm});
 
   @override
   _JobNotificationState createState() => _JobNotificationState();
@@ -114,12 +116,7 @@ class _JobNotificationState extends State<JobNotification> {
                           child: RaisedButton(
                             textColor: Colors.white,
                             color: Colors.green,
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => WorkScreen()));
-                            },
+                            onPressed:widget.onConfirm,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
@@ -136,13 +133,7 @@ class _JobNotificationState extends State<JobNotification> {
                           child: OutlineButton(
                             highlightedBorderColor: Colors.red,
                             textColor: Colors.red,
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          NavigationScreen()));
-                            },
+                            onPressed: widget.onDecline,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(

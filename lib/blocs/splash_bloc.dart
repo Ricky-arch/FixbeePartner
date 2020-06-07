@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/event.dart';
@@ -13,7 +14,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data_store.dart';
 
 class SplashBloc extends Bloc<Event, SplashModel> {
-  SplashBloc(ViewModel genesisViewModel) : super(genesisViewModel);
+  SplashBloc(ViewModel genesisViewModel) : super(genesisViewModel) {
+    getMessage();
+  }
 
   @override
   Future<SplashModel> mapEventToViewModel(
@@ -80,4 +83,35 @@ class SplashBloc extends Bloc<Event, SplashModel> {
 
     return bee;
   }
+
+  void getMessage() {
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+      },
+      onBackgroundMessage: myBackgroundMessageHandler,
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+      },
+    );
+  }
+}
+
+Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+  if (message.containsKey('data')) {
+    // Handle data message
+    final dynamic data = message['data'];
+  }
+
+  if (message.containsKey('notification')) {
+    // Handle notification message
+    final dynamic notification = message['notification'];
+  }
+  log(message.toString(), name: "ON BACKGROUND");
+  // Or do other work.
+  return Future.value(true);
 }

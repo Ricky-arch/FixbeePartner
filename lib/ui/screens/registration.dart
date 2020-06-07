@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/blocs/registration_bloc.dart';
+import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/registration_events.dart';
 import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/registration_model.dart';
@@ -19,11 +20,7 @@ class Registration extends StatefulWidget {
 
 class _RegistrationState extends State<Registration> {
   RegistrationBloc _bloc;
-  String _message = "";
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  _register() {
-    _firebaseMessaging.getToken().then((value) => print("fcm token"+value));
-  }
+
 
   final firstName = TextEditingController();
   final middleName = TextEditingController();
@@ -44,22 +41,22 @@ class _RegistrationState extends State<Registration> {
   void initState() {
     super.initState();
     _bloc = RegistrationBloc(RegistrationModel());
-    _getMessage();
+//    _getMessage();
   }
 
-  void _getMessage() {
-    _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-      print('on message $message');
-      setState(() => _message = message["notification"]["title"]);
-    }, onResume: (Map<String, dynamic> message) async {
-      print('on resume $message');
-      setState(() => _message = message["notification"]["title"]);
-    }, onLaunch: (Map<String, dynamic> message) async {
-      print('on launch $message');
-      setState(() => _message = message["notification"]["title"]);
-    });
-  }
+//  void _getMessage() {
+//    _firebaseMessaging.configure(
+//        onMessage: (Map<String, dynamic> message) async {
+//      print('on message $message');
+//      setState(() => _message = message["notification"]["title"]);
+//    }, onResume: (Map<String, dynamic> message) async {
+//      print('on resume $message');
+//      setState(() => _message = message["notification"]["title"]);
+//    }, onLaunch: (Map<String, dynamic> message) async {
+//      print('on launch $message');
+//      setState(() => _message = message["notification"]["title"]);
+//    });
+//  }
 
   @override
   void dispose() {
@@ -258,7 +255,6 @@ class _RegistrationState extends State<Registration> {
                                 'dateofbirth': dateOfBirth.text
                               }, onHandled: (e, m) {
                             if (m.registered) {
-                              _register();
                               _bloc.fire(RegistrationEvents.requestOtp,
                                   message: {'phonenumber': phoneNumber.text},
                                   onHandled: (e, m) {

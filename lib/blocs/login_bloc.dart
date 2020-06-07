@@ -35,6 +35,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginModel>
     if (!response.containsKey('sent') || !response['sent']) {
       return latestViewModel..exist = false;
     } else {
+
       return latestViewModel..exist = true;
     }
   }

@@ -5,4 +5,5 @@ class DataStore{
   static String token;
   static Bee me;
   static JobModel user;
+  static String fcmToken;
 }

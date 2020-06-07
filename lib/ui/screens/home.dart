@@ -146,7 +146,7 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                viewModel.activeStatus ? JobNotification() : Container(),
+              //  viewModel.activeStatus ? JobNotification() : Container(),
 
                 //model.activeStatus ?  updateLocation() : Container();
               ],
