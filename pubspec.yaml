@@ -63,6 +63,7 @@ flutter:
   assets:
     - assets/images/one.png
     - assets/custom_icons/value.svg
+    - assets/custom_icons/bee.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

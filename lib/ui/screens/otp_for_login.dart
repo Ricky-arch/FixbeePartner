@@ -3,8 +3,8 @@ import 'package:fixbee_partner/events/otp_events.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_field.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_insert.dart';
-import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
+import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
 
 class OtpForLogin extends StatefulWidget {
@@ -95,10 +95,12 @@ class _OtpForLoginState extends State<OtpForLogin> {
                             onHandled: (e, m) {
                               if (!m.exist) {
                                 print("otpppp: "+_otpInsertController.text);
-                                goToRegistrationScreen(ctx);
+                                SnackBar(
+                                  content: Text('OTP invalid or expired.'),
+                                );
                               } else {
                                 if (m.valid) {
-                                  goToNavigationScreen(ctx);
+                                  goToJobSelectionScreen(ctx);
                                 } else {
                                   Scaffold.of(ctx).showSnackBar(
                                     SnackBar(
@@ -121,9 +123,9 @@ class _OtpForLoginState extends State<OtpForLogin> {
     );
   }
 
-  void goToNavigationScreen(BuildContext context) {
+  void goToJobSelectionScreen(BuildContext context) {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => NavigationScreen()));
+        context, MaterialPageRoute(builder: (context) => ServiceSelectionScreen()));
   }
 
   void goToRegistrationScreen(BuildContext context) {

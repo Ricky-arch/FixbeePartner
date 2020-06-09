@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-class WalletScreen extends StatefulWidget {
+import '../../Constants.dart';
 
+class WalletScreen extends StatefulWidget {
   const WalletScreen();
   @override
   _WalletScreenState createState() => _WalletScreenState();
@@ -19,28 +20,23 @@ class _WalletScreenState extends State<WalletScreen> {
             children: <Widget>[
               Container(
                 height: 60,
-                color: Colors.yellow[600],
+                color: PrimaryColors.backgroundColor,
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
                     children: <Widget>[
-//                      Container(
-//                        height: 50,
-//                        width: 50,
-//                        decoration: BoxDecoration(
-//                            image: DecorationImage(
-//                                image: AssetImage(
-//                                    'assets/custom_icons/value.svg'), fit: BoxFit.cover)),
-//                      ),
-                    Icon(Icons.monetization_on),
-                      SizedBox(width: MediaQuery.of(context).size.width / 20),
+                      Icon(
+                        Icons.attach_money,
+                        color: Colors.yellow,
+                      ),
+                      SizedBox(width: MediaQuery.of(context).size.width / 40),
                       Center(
                           child: Text(
-                        "Wallet",
+                        "Your Wallet",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
+                            color: Colors.yellow,
+                            fontSize: 20,
                             fontWeight: FontWeight.w600),
                       )),
                     ],
@@ -54,7 +50,6 @@ class _WalletScreenState extends State<WalletScreen> {
                   textAlign: TextAlign.left,
                   text: TextSpan(
                     children: <TextSpan>[
-
                       TextSpan(
                         text: "Your wallet amount   ",
                         style: TextStyle(
@@ -72,10 +67,11 @@ class _WalletScreenState extends State<WalletScreen> {
                     ],
                   ),
                 ),
-
               ),
-              Divider(height: 10, thickness: 2,color: Colors.yellow[600],),
-              SizedBox(height: 50,),
+
+              SizedBox(
+                height: 50,
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
@@ -94,14 +90,10 @@ class _WalletScreenState extends State<WalletScreen> {
                         ),
                         SizedBox(width: 10),
                         GestureDetector(
-                          onTap: (){
-
-                          },
+                          onTap: () {},
                           child: Text(
                             "Add to your Wallet?",
                             style: TextStyle(color: Colors.black, fontSize: 15),
-
-
                           ),
                         )
                       ],
@@ -109,7 +101,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
@@ -128,14 +122,10 @@ class _WalletScreenState extends State<WalletScreen> {
                         ),
                         SizedBox(width: 10),
                         GestureDetector(
-                          onTap: (){
-
-                          },
+                          onTap: () {},
                           child: Text(
                             "Bank Transfer?",
                             style: TextStyle(color: Colors.black, fontSize: 15),
-
-
                           ),
                         )
                       ],

@@ -1,14 +1,20 @@
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class JobNotification extends StatefulWidget {
   final bool loading;
   final Function onDecline;
   final Function onConfirm;
+  final LatLng userLocation;
+  final String serviceName;
+  final String amount;
+  final String otp;
+  final bool cashOnDelivery;
 
-  const JobNotification({this.loading = false, this.onDecline, this.onConfirm});
+  const JobNotification({this.loading = false, this.onDecline, this.onConfirm, this.userLocation, this.serviceName, this.amount, this.otp, this.cashOnDelivery});
 
   @override
   _JobNotificationState createState() => _JobNotificationState();
@@ -114,6 +120,7 @@ class _JobNotificationState extends State<JobNotification> {
                       children: <Widget>[
                         Expanded(
                           child: RaisedButton(
+
                             textColor: Colors.white,
                             color: Colors.green,
                             onPressed:widget.onConfirm,

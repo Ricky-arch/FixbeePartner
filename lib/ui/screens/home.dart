@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/home_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/home_events.dart';
@@ -74,7 +75,7 @@ class _HomeState extends State<Home> {
                 Container(
                   height: 60,
                   decoration: BoxDecoration(
-                      color: Colors.amber,
+                      color: PrimaryColors.backgroundColor,
                       boxShadow: [BoxShadow(color: Colors.brown)]),
                   child: Row(
                     children: <Widget>[
@@ -87,7 +88,7 @@ class _HomeState extends State<Home> {
                           padding: const EdgeInsets.only(left: 8.0),
                           child: Text("Set Your Activity Status",
                               style: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.yellow,
                                   fontSize: 17,
                                   fontWeight: FontWeight.bold)),
                         ),
@@ -103,9 +104,9 @@ class _HomeState extends State<Home> {
                           child: !viewModel.loading
                               ? Switch(
                                   value: viewModel.activeStatus,
-                                  inactiveThumbColor: Colors.brown[300],
+                                  inactiveThumbColor: Colors.green,
                                   inactiveTrackColor: Colors.white,
-                                  activeColor: Colors.brown,
+                                  activeColor: Colors.red,
                                   onChanged: (bool value) {
                                     print(DataStore.token);
                                     _bloc.fire(HomeEvents.activityStatusSet,

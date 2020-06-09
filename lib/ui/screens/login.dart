@@ -6,6 +6,7 @@ import 'package:fixbee_partner/ui/custom_widget/bloc_widget.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../Constants.dart';
 import 'otp_for_login.dart';
 
 TextEditingController textEditingController;
@@ -29,7 +30,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.amber,
+        backgroundColor: PrimaryColors.backgroundColor,
         body: SafeArea(
           child: BlocWidget<LoginEvents, LoginModel>(
             bloc: _bloc,
@@ -57,13 +58,13 @@ class _LoginState extends State<Login> {
                                   style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.black),
+                                      color: Colors.yellow),
                                 ),
                                 TextSpan(
                                   text: "sign in to continue",
                                   style: TextStyle(
                                       fontSize: 23,
-                                      color: Colors.red,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.w500),
                                 ),
                               ],
@@ -177,8 +178,8 @@ class _LoginState extends State<Login> {
                                               }
                                             : null,
                                         child: Text("Get OTP"),
-                                        textColor: Colors.white,
-                                        color: Colors.yellowAccent[700],
+                                        textColor: PrimaryColors.backgroundColor,
+                                        color: Colors.yellow,
                                         shape: new RoundedRectangleBorder(
                                             borderRadius:
                                                 new BorderRadius.circular(

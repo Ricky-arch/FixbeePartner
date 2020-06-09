@@ -12,5 +12,8 @@ class JobModel{
   String landmark;
   String userPhoneNumber;
   LatLng latLng;
+  String otp;
+  bool gotJob=false;
+
 
 }

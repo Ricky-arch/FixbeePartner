@@ -1,4 +1,3 @@
-import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/ui/custom_widget/image_picker.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
@@ -33,7 +32,9 @@ class _ProfileState extends State<Profile> {
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
-                    DataStore.me.firstName + " " + DataStore.me.lastName,
+                    "Mr Bee",
+//                    DataStore.me.firstName.isEmpty?"Mr Bee":
+//                    DataStore.me.firstName + " " + DataStore.me.lastName,
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

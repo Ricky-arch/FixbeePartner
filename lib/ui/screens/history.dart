@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../Constants.dart';
+
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen();
   @override
@@ -18,28 +20,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
           children: <Widget>[
             Container(
               height: 60,
-              color: Colors.yellow[600],
+              color: PrimaryColors.backgroundColor,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Row(
                   children: <Widget>[
-//                      Container(
-//                        height: 50,
-//                        width: 50,
-//                        decoration: BoxDecoration(
-//                            image: DecorationImage(
-//                                image: AssetImage(
-//                                    'assets/custom_icons/value.svg'), fit: BoxFit.cover)),
-//                      ),
-                    Icon(Icons.event),
-                    SizedBox(width: MediaQuery.of(context).size.width / 20),
+
+                    Icon(Icons.event, color: Colors.yellow,),
+                    SizedBox(width: MediaQuery.of(context).size.width / 40),
                     Center(
                         child: Text(
                           "History",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 22,
+                              color: Colors.yellow,
+                              fontSize: 20,
                               fontWeight: FontWeight.w600),
                         )),
                   ],

@@ -6,8 +6,10 @@ import 'package:fixbee_partner/ui/custom_widget/bottom_nav_bar.dart';
 import 'package:fixbee_partner/ui/custom_widget/job_notification.dart';
 import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/profile.dart';
+import 'package:fixbee_partner/ui/screens/profile_new.dart';
 
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
+import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
 import 'history.dart';
 
@@ -19,11 +21,11 @@ class NavigationScreen extends StatefulWidget {
   _NavigationScreenState createState() => _NavigationScreenState();
 }
 
-const List<Widget> pages = [
+List<Widget> pages = [
   const Home(),
   const HistoryScreen(),
   const WalletScreen(),
-  const Profile(),
+  ProfileNew(),
 ];
 
 class _NavigationScreenState extends State<NavigationScreen> {
@@ -33,27 +35,28 @@ class _NavigationScreenState extends State<NavigationScreen> {
   void _getMessage() {
     _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
-      log(message.toString(), name: "ON MESSAGE");
-      setState(() {
-        _gotJob = true;
-      });
-    },
-      onBackgroundMessage: myBackgroundMessageHandler,
+          log(message.toString(), name: "ON MESSAGE");
+          setState(() {
+            _gotJob = true;
+          });
+        },
+        onBackgroundMessage: myBackgroundMessageHandler,
         onResume: (Map<String, dynamic> message) async {
-      log(message.toString(), name: "ON RESUME");
-      setState(() {
-        _gotJob = true;
-      });
-    }, onLaunch: (message) async {
-      log(message.toString(), name: "ON LAUNCH");
-      Scaffold.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message.toString(),
-          ),
-        ),
-      );
-    });
+          log(message.toString(), name: "ON RESUME");
+          setState(() {
+            _gotJob = true;
+          });
+        },
+        onLaunch: (message) async {
+          log(message.toString(), name: "ON LAUNCH");
+          Scaffold.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message.toString(),
+              ),
+            ),
+          );
+        });
   }
 
   @override
@@ -81,7 +84,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
           Expanded(child: pages[_currentIndex]),
           _gotJob
               ? JobNotification(
-                  onConfirm: () {},
+                  onConfirm: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => WorkScreen()));
+                  },
                   onDecline: () {
                     setState(() {
                       _gotJob = false;

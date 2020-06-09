@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 class Constants{
   static const String HOST_IP="192.168.43.3";
   static const String PROTOCOL="http";
@@ -13,4 +15,7 @@ class EndPoints{
 
 class SharedPrefKeys{
   static const TOKEN='token@bee';
+}
+class PrimaryColors{
+  static Color backgroundColor = Color.fromRGBO(0, 7, 17, 9);
 }

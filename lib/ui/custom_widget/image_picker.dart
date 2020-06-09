@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fixbee_partner/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart' as img;
 
@@ -14,42 +14,34 @@ class _ImagePickerState extends State<ImagePicker> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 150,
-      width: 150,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: Colors.yellow[900],
-            blurRadius: 10.0,
-          ),
-        ],
-      ),
-      child: Stack(
-        children: <Widget>[
-          CircleAvatar(
-            radius: 75,
-            backgroundImage: (_image != null)
-                ? FileImage(_image)
-                : NetworkImage(
-                    "https://image.flaticon.com/icons/png/128/1077/1077012.png",
+      height: 100,
+      width: 80,
+      child: GestureDetector(
+        onTap: () {
+          getImage();
+        },
+        child: (_image != null)
+            ? FileImage(_image)
+            : Stack(
+                children: [
+                  Image.asset(
+                    "assets/custom_icons/bee.png",
+                    height: 80,
+                    width: 70,
+                    fit: BoxFit.fill,
                   ),
-          ),
-          Positioned(
-            bottom: -1,
-            right: -10,
-            child: IconButton(
-              icon: Icon(
-                Icons.add_a_photo,
-                size: 28,
-                color: Colors.black,
+                  Positioned(
+                    top: 50,
+                    bottom: 0,
+                    child: Icon(Icons.add_a_photo, color: Colors.orange,),
+                  )
+                ],
               ),
-              onPressed: (){
-                getImage();
-              },
-            ),
-          )
-        ],
+      ),
+      decoration: BoxDecoration(
+        color: PrimaryColors.backgroundColor,
+        shape: BoxShape.circle,
+
       ),
     );
   }
