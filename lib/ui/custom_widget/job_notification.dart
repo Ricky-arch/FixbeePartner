@@ -8,13 +8,15 @@ class JobNotification extends StatefulWidget {
   final bool loading;
   final Function onDecline;
   final Function onConfirm;
+  final Function startTimer;
   final LatLng userLocation;
   final String serviceName;
   final String amount;
   final String otp;
   final bool cashOnDelivery;
 
-  const JobNotification({this.loading = false, this.onDecline, this.onConfirm, this.userLocation, this.serviceName, this.amount, this.otp, this.cashOnDelivery});
+
+  const JobNotification({this.loading = false, this.onDecline, this.onConfirm, this.userLocation, this.serviceName, this.amount, this.otp, this.cashOnDelivery, this.startTimer});
 
   @override
   _JobNotificationState createState() => _JobNotificationState();
@@ -23,6 +25,7 @@ class JobNotification extends StatefulWidget {
 class _JobNotificationState extends State<JobNotification> {
   @override
   void initState() {
+    widget.startTimer();
     // TODO: implement initState
     super.initState();
   }

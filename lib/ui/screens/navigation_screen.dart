@@ -33,6 +33,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   bool _gotJob;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   void _getMessage() {
+
     _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
           log(message.toString(), name: "ON MESSAGE");
@@ -84,6 +85,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
           Expanded(child: pages[_currentIndex]),
           _gotJob
               ? JobNotification(
+                  startTimer: (){
+
+                  },
                   onConfirm: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => WorkScreen()));

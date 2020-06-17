@@ -44,34 +44,54 @@ class _LoginState extends State<Login> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(40.0, 40,0,20),
+                        child: Container(
+                            height: 80,
+                            width: 80,
+                            decoration: BoxDecoration(
+                                color: Colors.white, shape: BoxShape.circle),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Image.asset(
+                                "assets/custom_icons/bee.png",
+                                height: 70,
+                              ),
+                            )),
+                      ),
                       Padding(
                           padding: const EdgeInsets.only(
                             left: 40,
-                            top: 80,
+
                           ),
-                          child: RichText(
-                            textAlign: TextAlign.start,
-                            text: TextSpan(
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: "Hello! bee,\n",
-                                  style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.yellow),
+                          child: Column(
+                            children: [
+                              RichText(
+                                textAlign: TextAlign.start,
+                                text: TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: "Hello! bee,\n",
+                                      style: TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.yellow),
+                                    ),
+                                    TextSpan(
+                                      text: "sign in to continue",
+                                      style: TextStyle(
+                                          fontSize: 23,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
                                 ),
-                                TextSpan(
-                                  text: "sign in to continue",
-                                  style: TextStyle(
-                                      fontSize: 23,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           )),
                       SizedBox(
-                        height: 80,
+                        height: 50,
                       ),
                       Container(
                           height: MediaQuery.of(context).size.height,

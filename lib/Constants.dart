@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 class Constants{
-  static const String HOST_IP="192.168.43.3";
+  static const String HOST_IP="192.168.43.216";
   static const String PROTOCOL="http";
   static const WS_PROTOCOL='ws';
 }

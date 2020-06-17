@@ -95,9 +95,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                             onHandled: (e, m) {
                               if (!m.exist) {
                                 print("otpppp: "+_otpInsertController.text);
-                                SnackBar(
-                                  content: Text('OTP invalid or expired.'),
-                                );
+                                goToRegistrationScreen(context);
                               } else {
                                 if (m.valid) {
                                   goToJobSelectionScreen(ctx);
