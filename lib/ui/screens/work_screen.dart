@@ -1,10 +1,14 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class WorkScreen extends StatefulWidget {
   @override
@@ -12,13 +16,32 @@ class WorkScreen extends StatefulWidget {
 }
 
 class _WorkScreenState extends State<WorkScreen> {
+  String _scanBarcode = 'Unknown';
+  int rating;
   TextEditingController otpController;
+  TextEditingController additionalReview;
   bool isButtonEnabled = false;
 
   GoogleMapController mapController;
   GoogleMap mapWidget;
   Set<Marker> markers = Set();
   Geolocator geoLocator = Geolocator();
+
+  Future<void> scanBarcode() async {
+    String barcodeScanRes;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          "#ff6666", "Cancel", true, ScanMode.BARCODE);
+      print(barcodeScanRes);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+    if (!mounted) return;
+    setState(() {
+      _scanBarcode = barcodeScanRes;
+    });
+  }
 
   @override
   void initState() {
@@ -126,7 +149,112 @@ class _WorkScreenState extends State<WorkScreen> {
     showModalBottomSheet(
         context: context,
         builder: (context) {
-          return Container();
+          return ListView(
+            scrollDirection: Axis.vertical,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.green,
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text(
+                        "Rate User",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w300),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RatingBar(
+                      itemCount: 5,
+                      initialRating: 5,
+                      itemBuilder: (context, index) {
+                        switch (index) {
+                          case 0:
+                            return Icon(
+                              Icons.sentiment_very_dissatisfied,
+                              color: Colors.red,
+                            );
+                          case 1:
+                            return Icon(
+                              Icons.sentiment_dissatisfied,
+                              color: Colors.redAccent,
+                            );
+                          case 2:
+                            return Icon(
+                              Icons.sentiment_neutral,
+                              color: Colors.amber,
+                            );
+                          case 3:
+                            return Icon(
+                              Icons.sentiment_satisfied,
+                              color: Colors.lightGreen,
+                            );
+                          case 4:
+                            return Icon(
+                              Icons.sentiment_very_satisfied,
+                              color: Colors.green,
+                            );
+                        }
+                        return Container();
+                      },
+                      onRatingUpdate: (double value) {
+                        print(value);
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Add an additional review?",
+                      style: TextStyle(color: Colors.black, fontSize: 18),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
+                    child: TextFormField(
+                      controller: additionalReview,
+                      decoration: InputDecoration(hintText: "Write here..."),
+                      maxLines: null,
+                      textAlign: TextAlign.left,
+                      autofocus: false,
+                      enabled: true,
+                      keyboardType: TextInputType.text,
+                      inputFormatters: [LengthLimitingTextInputFormatter(60)],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Center(
+                      child: RaisedButton(
+                    color: Colors.pink,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Confirm",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ))
+                ],
+              )
+            ],
+          );
         });
   }
 
@@ -386,7 +514,56 @@ class _WorkScreenState extends State<WorkScreen> {
             ),
           ),
           Divider(),
-          Expanded(child: mapWidget),
+          Expanded(
+              child: Stack(
+            children: [
+              mapWidget,
+              Positioned(
+                top: 80,
+                left: 300,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.add_circle,
+                    size: 40,
+                    color: Colors.green.withOpacity(0.5),
+                  ),
+                  onPressed: () {
+                    _showNewJobDialogBox();
+                  },
+                ),
+              ),
+              Positioned(
+                top: 130,
+                left: 240,
+                child: RaisedButton(
+                  color: Colors.green.withOpacity(.5),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          "Scan",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onPressed: () {
+                    scanBarcode();
+                    print(_scanBarcode + " Barcode");
+                  },
+                ),
+              )
+            ],
+          )),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
@@ -447,6 +624,32 @@ class _WorkScreenState extends State<WorkScreen> {
             ],
           );
         });
+  }
 
+  _showNewJobDialogBox() {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text("Accept the New Job?"),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("No"),
+              ),
+              FlatButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => NavigationScreen()));
+                },
+                child: Text("Yes"),
+              ),
+            ],
+          );
+        });
   }
 }

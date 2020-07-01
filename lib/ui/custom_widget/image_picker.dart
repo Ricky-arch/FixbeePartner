@@ -10,7 +10,7 @@ class ImagePicker extends StatefulWidget {
 }
 
 class _ImagePickerState extends State<ImagePicker> {
-  File _image;
+  dynamic _image;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -47,7 +47,7 @@ class _ImagePickerState extends State<ImagePicker> {
   }
 
   Future getImage() async {
-    File image =
+    var image =
         await img.ImagePicker.pickImage(source: img.ImageSource.gallery);
 
     setState(() {
