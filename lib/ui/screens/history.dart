@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
+import '../../test.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen();
@@ -25,23 +26,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 padding: const EdgeInsets.all(12.0),
                 child: Row(
                   children: <Widget>[
-
-                    Icon(Icons.event, color: Colors.yellow,),
+                    Icon(
+                      Icons.event,
+                      color: Colors.yellow,
+                    ),
                     SizedBox(width: MediaQuery.of(context).size.width / 40),
                     Center(
                         child: Text(
-                          "History",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.yellow,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600),
-                        )),
+                      "History",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.yellow,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600),
+                    )),
                   ],
                 ),
               ),
             ),
-
+            ListView(
+              scrollDirection: Axis.vertical,
+              children: [
+                ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: Test.notifications.length,
+                    itemBuilder: (BuildContext context, int index) {
+                  return Card();
+                })
+              ],
+            )
           ],
         ),
       ),
