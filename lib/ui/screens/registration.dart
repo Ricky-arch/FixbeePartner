@@ -62,20 +62,7 @@ class _RegistrationState extends State<Registration> {
   void dispose() {
     // Clean up the controller when the widget is disposed.
     _bloc?.extinguish();
-    firstName.dispose();
-    middleName.dispose();
-    lastName.dispose();
-    phoneNumber.dispose();
-    alternatePhoneNumber.dispose();
-    email.dispose();
-    address.dispose();
-    pinCode.dispose();
-    dateOfBirth.dispose();
-    districtController.dispose();
-    genderController.dispose();
-    bankAccountNumber.dispose();
-    ifscCode.dispose();
-    accountHoldersName.dispose();
+
     super.dispose();
   }
 
