@@ -17,6 +17,7 @@ class User {
   String middlename;
   String lastname;
   String phoneNumber;
+  String profilePicUrl;
 
 }
 class Location{
@@ -41,4 +42,7 @@ class Order {
   String orderId;
   String status;
   bool cashOnDelivery;
+  bool slotted;
+  DateTime slot;
+  String quantity;
 }

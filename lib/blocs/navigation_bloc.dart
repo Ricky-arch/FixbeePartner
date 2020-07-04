@@ -1,6 +1,3 @@
-import 'dart:developer';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
@@ -12,31 +9,17 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
   @override
   Future<NavigationModel> mapEventToViewModel(
       NavigationEvent event, Map<String, dynamic> message) async {
-    if (event == NavigationEvent.gotJobNotificationID)
-      return await getNotificationID();
-    if (event == NavigationEvent.getJobNotification)
-      return await getInitialJobDetails(message['ID']);
-
+    if (event == NavigationEvent.onMessage) {
+      return await onMessage(message);
+    }
+    if (event == NavigationEvent.onConfirmDeclineJob) {
+      return await onConfirmDeclineJob(message);
+    }
     return latestViewModel;
   }
 
-  Future<NavigationModel> getNotificationID() async {
-    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-    _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-          return latestViewModel
-            ..jobId = message['notification']['data']['id'].toString();
-        },
-        onBackgroundMessage: myBackgroundMessageHandler,
-        onResume: (Map<String, dynamic> message) async {
-          return latestViewModel
-            ..jobId = message['notification']['data']['id'].toString();
-        },
-        onLaunch: (message) async {
-          return latestViewModel
-            ..jobId = message['notification']['data']['id'].toString();
-        });
-    return latestViewModel;
+  Future<NavigationModel> onMessage(Map<String, dynamic> message) async {
+    return await getInitialJobDetails(message['order_id']);
   }
 
   Future<NavigationModel> getInitialJobDetails(String id) async {
@@ -62,6 +45,9 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
         TaxPercent
       }
     }
+    QuantityInfo{
+      Quantity
+    }
     Status
     User {
       ID
@@ -70,54 +56,70 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
         Middlename
         Lastname
       }
+      DisplayPicture{
+        filename
+        id
+      }
       Phone {
         Number
       }
     }
     CashOnDelivery
     OrderId
+    Slot{
+      Slotted
+      At
+    }
   }
 }
     ''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    Map location= response['data']['Order']['Location'];
-    Map service= response['data']['Order']['Service'];
-    Map user=response['data']['Order']['User'];
-    latestViewModel..order.graphQLId=response['data']['Order']['ID']
-    ..location.locationId=location['ID']
-    ..location.locationName=location['Name']
-    ..location.addressLine=location['Address']['Line1']
-    ..location.googlePlaceId=location['GooglePlaceID']
-    ..service.serviceId=service['ID']
-    ..service.serviceName=service['Name']
-    ..service.priceable=service['Pricing']['Priceable']
-    ..service.basePrice=service['Pricing']['BasePrice']
-    ..service.serviceCharge=service['Pricing']['ServiceCharge']
-    ..service.taxPercent=service['Pricing']['TaxPercent']
-    ..order.status=response['data']['Order']['Status']
-    ..user.userId=user['ID']
-    ..user.firstname=user['Name']['Firstname']
-    ..user.middlename=user['Name']['Middlename']
-    ..user.lastname=user['Name']['LastName']
-    ..user.phoneNumber=user['Phone']['Number']
-    ..order.cashOnDelivery=response['data']['Order']['CashOnDelivery']
-    ..order.orderId=response['data']['Order']['OrderId'];
+    Map location = response['data']['Order']['Location'];
+    Map service = response['data']['Order']['Service'];
+    Map user = response['data']['Order']['User'];
+    latestViewModel
+      ..gotJob = true
+      ..order.graphQLId = response['data']['Order']['ID']
+      ..location.locationId = location['ID']
+      ..location.locationName = location['Name']
+      ..location.addressLine = location['Address']['Line1']
+      ..location.googlePlaceId = location['GooglePlaceID']
+      ..service.serviceId = service['ID']
+      ..service.serviceName = service['Name']
+      ..service.priceable = service['Pricing']['Priceable']
+      ..service.basePrice = service['Pricing']['BasePrice']
+      ..service.serviceCharge = service['Pricing']['ServiceCharge']
+      ..service.taxPercent = service['Pricing']['TaxPercent']
+      ..order.status = response['data']['Order']['Status']
+      ..user.userId = user['ID']
+      ..user.firstname = user['Name']['Firstname']
+      ..user.middlename = user['Name']['Middlename']
+      ..user.lastname = user['Name']['LastName']
+      ..user.phoneNumber = user['Phone']['Number']
+      ..user.profilePicUrl = user['DisplayPicture']['id']
+      ..order.cashOnDelivery = response['data']['Order']['CashOnDelivery']
+      ..order.orderId = response['data']['Order']['OrderId']
+      ..order.slotted = response['data']['Order']['Slot']['Slotted']
+      ..order.slot = response['data']['Order']['Slot']['At']
+      ..order.quantity = response['data']['Order']['QuantityInfo']['Quantity'];
+
     return latestViewModel;
   }
-}
 
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
+  Future<NavigationModel> onConfirmDeclineJob(
+      Map<String, dynamic> message) async {
+    String orderId = message['orderId'];
+    bool accept = message['Accept'];
+    String query = '''mutation {
+	    AnswerOrderRequest(_id:"$orderId", input: { Accept: $accept }){
+		  ID
+		  Location {
+			  Name
+			  GooglePlaceID
+		  }
+	  }
+    }''';
+    await CustomGraphQLClient.instance.mutate(query);
+    return latestViewModel;
   }
-
-  if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
-  }
-  log(message.toString(), name: "ON BACKGROUND");
-
-  // Or do other work.
-  return Future.value(true);
 }

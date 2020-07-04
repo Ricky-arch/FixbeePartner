@@ -1,22 +1,35 @@
-import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
-import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class JobNotification extends StatefulWidget {
   final bool loading;
   final Function onDecline;
   final Function onConfirm;
-  final Function startTimer;
-  final LatLng userLocation;
+  final String userName;
+  final String addressLine;
+  final String paymentMode;
+  final String profilePicUrl;
   final String serviceName;
-  final String amount;
-  final String otp;
-  final bool cashOnDelivery;
+  final String quantity;
+  final String userNumber;
+  final bool slotted;
+  final DateTime slot;
 
-
-  const JobNotification({this.loading = false, this.onDecline, this.onConfirm, this.userLocation, this.serviceName, this.amount, this.otp, this.cashOnDelivery, this.startTimer});
+  const JobNotification(
+      {Key key,
+      this.loading = false,
+      this.onDecline,
+      this.onConfirm,
+      this.userName,
+      this.addressLine,
+      this.paymentMode,
+      this.serviceName,
+      this.quantity,
+      this.userNumber,
+      this.slot,
+      this.profilePicUrl,
+      this.slotted = false})
+      : super(key: key);
 
   @override
   _JobNotificationState createState() => _JobNotificationState();
@@ -25,7 +38,6 @@ class JobNotification extends StatefulWidget {
 class _JobNotificationState extends State<JobNotification> {
   @override
   void initState() {
-    widget.startTimer();
     // TODO: implement initState
     super.initState();
   }
@@ -60,7 +72,7 @@ class _JobNotificationState extends State<JobNotification> {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -89,26 +101,80 @@ class _JobNotificationState extends State<JobNotification> {
                   widget.loading
                       ? SizedBox()
                       : Container(
-                          width: MediaQuery.of(context).size.width - 112,
+                          //width: MediaQuery.of(context).size.width - 112,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                //crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  Text(
-                                    'Holy Jesus',
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
+                                  SizedBox(
+                                    height: 5,
                                   ),
-                                  Text('Rated 4.5 stars'),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        widget.userName == null
+                                            ? 'Holy Jesus'
+                                            : widget.userName,
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                      ),
+                                      GestureDetector(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Colors.green),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Icon(
+                                              Icons.phone,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          _callPhone(widget.userNumber == null
+                                              ? "tel:+918132802897"
+                                              : widget.userNumber);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 2,
+                                  ),
+                                  Text(widget.addressLine == null
+                                      ? 'AddressLine'
+                                      : widget.addressLine),
+                                  Text(
+                                    widget.serviceName == null
+                                        ? "Plumbing"
+                                        : widget.serviceName +
+                                            " - " +
+                                            widget.paymentMode,
+                                    textAlign: TextAlign.left,
+                                    maxLines: null,
+                                  ),
+                                  widget.slotted
+                                      ? Text(
+                                          'Scheduled at:\n' +
+                                              widget.slot.toIso8601String(),
+                                          textAlign: TextAlign.left,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                          maxLines: null,
+                                        )
+                                      : SizedBox(),
                                 ],
                               ),
-//                              GestureDetector(child: Icon(Icons.phone),
-//                              onTap: (){
-//                                _callPhone("tel:+918132802897");
-//                              },),
                             ],
                           ),
                         ),
@@ -123,10 +189,9 @@ class _JobNotificationState extends State<JobNotification> {
                       children: <Widget>[
                         Expanded(
                           child: RaisedButton(
-
                             textColor: Colors.white,
                             color: Colors.green,
-                            onPressed:widget.onConfirm,
+                            onPressed: widget.onConfirm,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(

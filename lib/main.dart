@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/ui/custom_widget/job_notification.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/otp_for_login.dart';
 import 'package:fixbee_partner/ui/screens/profile.dart';
@@ -19,7 +20,7 @@ void main() {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Color(0x2551771),
+//        backgroundColor: Color(0x2551771),
         body:
             //OtpForLogin(phoneNumber: "8787300192R",),
             //Registration()
@@ -39,7 +40,8 @@ void main() {
             //WorkScreen()
             //NavigationScreen()
             //ProfileNew(),
-        SplashScreen()
+        JobNotification()
+        //SplashScreen()
         //Profile()//ServiceSelectionScreen()
         //padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
         //padding: EdgeInsets.all(20),
