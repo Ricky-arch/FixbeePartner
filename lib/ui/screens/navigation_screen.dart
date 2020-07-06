@@ -33,7 +33,7 @@ List<Widget> pages = [
 ];
 
 class _NavigationScreenState extends State<NavigationScreen> {
-  JobModel _jobModel;
+
   NavigationBloc _bloc;
   int _currentIndex = 0;
   bool _jobDeclined;
@@ -41,9 +41,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
   Timer _timer;
   int _start = 150;
 
+
   @override
   void initState() {
-    _jobModel = JobModel();
     _bloc = NavigationBloc(NavigationModel());
     _setupFCM();
     _jobDeclined = widget.jobDeclined;
@@ -84,29 +84,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       _bloc.fire(
         NavigationEvent.onMessage,
         message: {'order_id': orderID},
-        onHandled: (e, m) {
-          _gotJob = m.gotJob;
-          _jobModel.graphQLId = m.order.graphQLId;
-          _jobModel.locationId = m.location.locationId;
-          _jobModel.locationName = m.location.locationName;
-          _jobModel.addressLine = m.location.addressLine;
-          _jobModel.googlePlaceId = m.location.googlePlaceId;
-          _jobModel.serviceId = m.service.serviceId;
-          _jobModel.serviceName = m.service.serviceName;
-          _jobModel.priceable = m.service.priceable;
-          _jobModel.basePrice = m.service.basePrice;
-          _jobModel.serviceCharge = m.service.serviceCharge;
-          _jobModel.taxPercent = m.service.taxPercent;
-          _jobModel.userId = m.user.userId;
-          _jobModel.userFirstname = m.user.firstname;
-          _jobModel.userMiddlename = m.user.middlename;
-          _jobModel.userLastname = m.user.lastname;
-          _jobModel.userPhoneNumber = m.user.phoneNumber;
-          _jobModel.cashOnDelivery = m.order.cashOnDelivery;
-          _jobModel.orderId = m.order.orderId;
-          _jobModel.userProfilePicUrl = m.user.profilePicUrl;
-          _jobModel.quantity = m.order.quantity;
-        },
+        
       );
   }
 
@@ -155,27 +133,43 @@ class _NavigationScreenState extends State<NavigationScreen> {
               Expanded(child: pages[_currentIndex]),
               (!_jobDeclined && _gotJob)
                   ? JobNotification(
-                      userName: _jobModel.userFirstname +
+                      userName: viewModel.user.firstname +
                           " " +
-                          _jobModel.userMiddlename +
+                          viewModel.user.middlename +
                           " " +
-                          _jobModel.userLastname,
+                          viewModel.user.lastname,
                       paymentMode:
-                          _jobModel.cashOnDelivery ? "COD" : "Online Payment",
-                      profilePicUrl: _jobModel.userProfilePicUrl,
-                      addressLine: _jobModel.addressLine,
-                      userNumber: _jobModel.userPhoneNumber,
+                          viewModel.order.cashOnDelivery ? "COD" : "Online Payment",
+                      profilePicUrl: viewModel.user.profilePicUrl,
+                      addressLine: viewModel.location.addressLine,
+                      userNumber: viewModel.user.phoneNumber,
                       onConfirm: () {
                         _bloc.fire(NavigationEvent.onConfirmDeclineJob,
                             message: {
-                              "orderId": _jobModel.orderId,
+                              "orderId": viewModel.order.orderId,
                               "Accept": "true"
                             });
-                        if (!_jobModel.slotted) {
+                        if (!viewModel.order.slotted) {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => WorkScreen()));
+                                  builder: (context) => WorkScreen(
+                                    userFirstname: viewModel.user.firstname,
+                                    userMiddlename: viewModel.user.middlename,
+                                    userLastname: viewModel.user.lastname,
+                                    userId: viewModel.user.userId,
+                                    userProfilePicUrl: viewModel.user.profilePicUrl,
+                                    userPhoneNumber: viewModel.user.phoneNumber,
+                                    serviceName: viewModel.service.serviceName,
+                                    serviceId: viewModel.service.serviceId,
+                                    cashOnDelivery: viewModel.order.cashOnDelivery,
+                                    orderId: viewModel.order.orderId,
+                                    otp: viewModel.order.otp,
+                                    googlePlaceId: viewModel.location.googlePlaceId,
+                                    addressLine: viewModel.location.addressLine,
+                                    locationId: viewModel.location.locationId,
+                                    locationName: viewModel.location.locationName,
+                                  )));
                         } else {
                           setState(() {
                             _gotJob = false;

@@ -119,6 +119,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
 		  }
 	  }
     }''';
+    latestViewModel..order.otp=message['data']['Order']['OTP'];
     await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../Constants.dart';
+
 class JobNotification extends StatefulWidget {
   final bool loading;
   final Function onDecline;
@@ -40,6 +42,42 @@ class _JobNotificationState extends State<JobNotification> {
   void initState() {
     // TODO: implement initState
     super.initState();
+  }
+
+  _showDetailsModalSheet(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Wrap(
+            children:[Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "Additional Job Details",
+                        style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Divider(),
+                  ),
+                  Container(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("The job is very very very very easy"),
+                    ),
+                  )
+                ],
+              ),
+            )] ,
+          );
+        });
   }
 
   @override
@@ -90,8 +128,14 @@ class _JobNotificationState extends State<JobNotification> {
                         child: widget.loading
                             ? CircularProgressIndicator()
                             : SizedBox(),
-                        backgroundImage: NetworkImage(
-                            'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'),
+                        backgroundImage: widget.profilePicUrl != null
+                            ? NetworkImage('http://' +
+                                Constants.HOST_IP +
+                                '//document?id=' +
+                                (widget.profilePicUrl))
+                            : AssetImage(
+                                "assets/custom_icons/user.png",
+                              ),
                       ),
                     ),
                   ),
@@ -154,14 +198,24 @@ class _JobNotificationState extends State<JobNotification> {
                                   Text(widget.addressLine == null
                                       ? 'AddressLine'
                                       : widget.addressLine),
-                                  Text(
-                                    widget.serviceName == null
-                                        ? "Plumbing"
-                                        : widget.serviceName +
-                                            " - " +
-                                            widget.paymentMode,
-                                    textAlign: TextAlign.left,
-                                    maxLines: null,
+                                  Row(
+                                    children: [
+                                      Text(
+                                        widget.serviceName == null
+                                            ? "Plumbing"
+                                            : widget.serviceName +
+                                                " - " +
+                                                widget.paymentMode,
+                                        textAlign: TextAlign.left,
+                                        maxLines: null,
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.arrow_drop_up),
+                                        onPressed: () {
+                                          _showDetailsModalSheet(context);
+                                        },
+                                      )
+                                    ],
                                   ),
                                   widget.slotted
                                       ? Text(

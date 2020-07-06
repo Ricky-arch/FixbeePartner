@@ -45,4 +45,5 @@ class Order {
   bool slotted;
   DateTime slot;
   String quantity;
+  String otp;
 }

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,23 +11,115 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:http/http.dart' as http;
 
 class WorkScreen extends StatefulWidget {
+  final String userProfilePicUrl;
+  final String userFirstname;
+  final String userMiddlename;
+  final String userLastname;
+  final String userRating;
+  final String userId;
+  final String serviceName;
+  final String locationId;
+  final String locationName;
+  final String addressLine;
+  final String googlePlaceId;
+  final String address;
+  final String landmark;
+  final String userPhoneNumber;
+  final LatLng latLng;
+  final String otp;
+  final String serviceId;
+  final bool priceable;
+  final String basePrice;
+  final String serviceCharge;
+  final String taxPercent;
+  final String graphQLId;
+  final String orderId;
+  final String status;
+  final bool cashOnDelivery;
+  final bool slotted;
+  final DateTime slot;
+  final String quantity;
+
+  const WorkScreen(
+      {Key key,
+      this.userProfilePicUrl,
+      this.userFirstname,
+      this.userMiddlename,
+      this.userLastname,
+      this.userRating,
+      this.userId,
+      this.serviceName,
+      this.locationId,
+      this.locationName,
+      this.addressLine,
+      this.googlePlaceId,
+      this.address,
+      this.landmark,
+      this.userPhoneNumber,
+      this.latLng,
+      this.otp,
+      this.serviceId,
+      this.priceable,
+      this.basePrice,
+      this.serviceCharge,
+      this.taxPercent,
+      this.graphQLId,
+      this.orderId,
+      this.status,
+      this.cashOnDelivery,
+      this.slotted,
+      this.slot,
+      this.quantity})
+      : super(key: key);
   @override
   _WorkScreenState createState() => _WorkScreenState();
 }
 
 class _WorkScreenState extends State<WorkScreen> {
+  String gid, session, fields, key;
+  String formattedAddress;
+  String latitude, longitude;
+  double lat, lng;
+
   String _scanBarcode = 'Unknown';
   int rating;
   TextEditingController otpController;
   TextEditingController additionalReview;
   bool isButtonEnabled = false;
+  Map locationData;
 
   GoogleMapController mapController;
   GoogleMap mapWidget;
   Set<Marker> markers = Set();
   Geolocator geoLocator = Geolocator();
+  //lat: 23.8086376,lng: 91.2612741,
+
+  fetchLocationData() async {
+    gid = widget.googlePlaceId;
+    session = Constants.googleSessionToken;
+    fields = Constants.fields;
+    key = Constants.googleApiKey;
+    //https://maps.googleapis.com/maps/api/place/details/json?place_id=$gid&fields=$fields&key=$key&sessiontoken=$session
+    //https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJizXpb6X1UzcRA5qlSx3e5Ak&fields=name,formatted_address,geometry&key=AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI&sessiontoken=12345
+    http.Response response = await http.get(
+        'https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJizXpb6X1UzcRA5qlSx3e5Ak&fields=name,formatted_address,geometry&key=AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI&sessiontoken=12345');
+    setState(() {
+      locationData = json.decode(response.body);
+
+      print("xxxxx" + locationData.toString());
+      latitude =
+          locationData['result']['geometry']['location']['lat'].toString();
+      longitude =
+          locationData['result']['geometry']['location']['lng'].toString();
+      print("xxx" +
+          locationData['result']['geometry']['location']['lng'].toString());
+      lat = double.parse(latitude);
+      lng = double.parse(longitude);
+    });
+  }
 
   Future<void> scanBarcode() async {
     String barcodeScanRes;
@@ -46,19 +140,24 @@ class _WorkScreenState extends State<WorkScreen> {
   @override
   void initState() {
     super.initState();
+    fetchLocationData();
+
     otpController = TextEditingController();
 
     var marker = Marker(
         markerId: MarkerId("User Location"),
-        position: LatLng(23.829321, 91.277847));
+        position: LatLng(
+            lat == null ? 23.8086376 : lat, lng == null ? 91.2612741 : lng));
     markers.add(marker);
     mapWidget = GoogleMap(
       markers: markers,
       onMapCreated: (GoogleMapController googleMapController) {
         mapController = googleMapController;
       },
-      initialCameraPosition:
-          CameraPosition(target: LatLng(23.829321, 91.277847), zoom: 18),
+      initialCameraPosition: CameraPosition(
+          target: LatLng(
+              lat == null ? 23.8086376 : lat, lng == null ? 91.2612741 : lng),
+          zoom: 16),
     );
   }
 
@@ -72,67 +171,75 @@ class _WorkScreenState extends State<WorkScreen> {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
-          return ListView(
-            scrollDirection: Axis.vertical,
-            children: <Widget>[
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.green,
-                    child: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Text(
-                        "Enter Otp from User",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w300),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 100,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextFormField(
-                        onChanged: isOtpValid,
-                        decoration: InputDecoration(
-                            hintText: "Type Here",
-                            errorStyle: TextStyle(color: Colors.red),
-                            border: new UnderlineInputBorder(
-                                borderSide:
-                                    new BorderSide(color: Colors.green))),
-                        controller: otpController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [LengthLimitingTextInputFormatter(6)],
-                      ),
-                    ),
-                  ),
-                  OutlineButton(
-                    borderSide: BorderSide(width: 2, color: Colors.green),
-                    textColor: Colors.green,
-                    onPressed: isButtonEnabled
-                        ? () {
-                            Navigator.pop(context);
-                          }
-                        : null,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Text(
-                        "Check Otp",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
+          return Container(
+            child: ListView(
+              scrollDirection: Axis.vertical,
+              children: [
+                Wrap(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          color: Colors.green,
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Text(
+                              "Enter Otp from User",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w300),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            ],
+                        Container(
+                          height: 100,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              onChanged: isOtpValid,
+                              decoration: InputDecoration(
+                                  hintText: "Type Here",
+                                  errorStyle: TextStyle(color: Colors.red),
+                                  border: new UnderlineInputBorder(
+                                      borderSide:
+                                          new BorderSide(color: Colors.green))),
+                              controller: otpController,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(6)
+                              ],
+                            ),
+                          ),
+                        ),
+                        OutlineButton(
+                          borderSide: BorderSide(width: 2, color: Colors.green),
+                          textColor: Colors.green,
+                          onPressed: isButtonEnabled
+                              ? () {
+                                  Navigator.pop(context);
+                                }
+                              : null,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            child: Text(
+                              "Check Otp",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                )
+              ],
+            ),
           );
         });
   }
@@ -517,9 +624,8 @@ class _WorkScreenState extends State<WorkScreen> {
           Expanded(
               child: Stack(
             children: [
-              mapWidget,
+              lat == null ? CircularProgressIndicator() : mapWidget,
               Positioned(
-                top: 80,
                 left: 300,
                 child: IconButton(
                   icon: Icon(
@@ -533,7 +639,7 @@ class _WorkScreenState extends State<WorkScreen> {
                 ),
               ),
               Positioned(
-                top: 130,
+                top: 45,
                 left: 240,
                 child: RaisedButton(
                   color: Colors.green.withOpacity(.5),
