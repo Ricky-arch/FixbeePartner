@@ -82,7 +82,6 @@ class _WorkScreenState extends State<WorkScreen> {
   String gid, session, fields, key;
   String formattedAddress;
   String latitude, longitude;
-  double lat, lng;
 
   String _scanBarcode = 'Unknown';
   int rating;
@@ -97,7 +96,9 @@ class _WorkScreenState extends State<WorkScreen> {
   Geolocator geoLocator = Geolocator();
   //lat: 23.8086376,lng: 91.2612741,
 
-  fetchLocationData() async {
+  Future<LatLng> fetchLocationData() async {
+    double lat, lng;
+
     gid = widget.googlePlaceId;
     session = Constants.googleSessionToken;
     fields = Constants.fields;
@@ -106,19 +107,18 @@ class _WorkScreenState extends State<WorkScreen> {
     //https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJizXpb6X1UzcRA5qlSx3e5Ak&fields=name,formatted_address,geometry&key=AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI&sessiontoken=12345
     http.Response response = await http.get(
         'https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJizXpb6X1UzcRA5qlSx3e5Ak&fields=name,formatted_address,geometry&key=AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI&sessiontoken=12345');
-    setState(() {
-      locationData = json.decode(response.body);
+    locationData = json.decode(response.body);
 
-      print("xxxxx" + locationData.toString());
-      latitude =
-          locationData['result']['geometry']['location']['lat'].toString();
-      longitude =
-          locationData['result']['geometry']['location']['lng'].toString();
-      print("xxx" +
-          locationData['result']['geometry']['location']['lng'].toString());
-      lat = double.parse(latitude);
-      lng = double.parse(longitude);
-    });
+    print("xxxxx" + locationData.toString());
+    latitude = locationData['result']['geometry']['location']['lat'].toString();
+    longitude =
+        locationData['result']['geometry']['location']['lng'].toString();
+    print("xxx" +
+        locationData['result']['geometry']['location']['lng'].toString());
+    lat = double.parse(latitude);
+    lng = double.parse(longitude);
+    LatLng ltng = LatLng(lat, lng);
+    return ltng;
   }
 
   Future<void> scanBarcode() async {
@@ -140,25 +140,23 @@ class _WorkScreenState extends State<WorkScreen> {
   @override
   void initState() {
     super.initState();
-    fetchLocationData();
+//    mapWidget = GoogleMap(
+//      markers: markers,
+//      onMapCreated: (GoogleMapController googleMapController) {
+//        mapController = googleMapController;
+//      },
+//      initialCameraPosition:
+//          CameraPosition(target: LatLng(38.8977, 77.0365), zoom: 16),
+//    );
+    fetchLocationData().then((value) {
+      mapController.animateCamera(CameraUpdate.newLatLng(value));
+      var marker = Marker(markerId: MarkerId("User Location"), position: value);
+      setState(() {
+        markers.add(marker);
+      });
+    });
 
     otpController = TextEditingController();
-
-    var marker = Marker(
-        markerId: MarkerId("User Location"),
-        position: LatLng(
-            lat == null ? 23.8086376 : lat, lng == null ? 91.2612741 : lng));
-    markers.add(marker);
-    mapWidget = GoogleMap(
-      markers: markers,
-      onMapCreated: (GoogleMapController googleMapController) {
-        mapController = googleMapController;
-      },
-      initialCameraPosition: CameraPosition(
-          target: LatLng(
-              lat == null ? 23.8086376 : lat, lng == null ? 91.2612741 : lng),
-          zoom: 16),
-    );
   }
 
   @override
@@ -624,7 +622,14 @@ class _WorkScreenState extends State<WorkScreen> {
           Expanded(
               child: Stack(
             children: [
-              lat == null ? CircularProgressIndicator() : mapWidget,
+              mapWidget = GoogleMap(
+                markers: markers,
+                onMapCreated: (GoogleMapController googleMapController) {
+                  mapController = googleMapController;
+                },
+                initialCameraPosition:
+                    CameraPosition(target: LatLng(38.8977, 77.0365), zoom: 16),
+              ),
               Positioned(
                 left: 300,
                 child: IconButton(

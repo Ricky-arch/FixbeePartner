@@ -37,11 +37,11 @@ void main() {
             //WorkScreen()
             //CustomRegistrationScreen()
             //UpdateProfile()
-            WorkScreen()
+            //WorkScreen()
             //NavigationScreen()
             //ProfileNew(),
         //JobNotification()
-        //SplashScreen()
+        SplashScreen()
         //Profile()//ServiceSelectionScreen()
         //padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
         //padding: EdgeInsets.all(20),
