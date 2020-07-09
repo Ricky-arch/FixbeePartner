@@ -1,11 +1,5 @@
-import 'package:fixbee_partner/ui/custom_widget/job_notification.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
-import 'package:fixbee_partner/ui/screens/otp_for_login.dart';
-import 'package:fixbee_partner/ui/screens/profile.dart';
-import 'package:fixbee_partner/ui/screens/profile_new.dart';
-import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
-import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

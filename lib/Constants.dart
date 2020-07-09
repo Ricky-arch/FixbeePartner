@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 class Constants{
-  static const String HOST_IP="192.168.43.216";
+  static const String HOST_IP="192.168.43.204";
   static const String PROTOCOL="http";
   static const WS_PROTOCOL='ws';
   static const googleApiKey='AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI';
@@ -14,6 +14,7 @@ class EndPoints{
   static const REGISTER="${Constants.PROTOCOL}://${Constants.HOST_IP}/bee/register";
   static const GRAPHQL="${Constants.PROTOCOL}://${Constants.HOST_IP}/graphql";
   static const GRAPHQL_WS="${Constants.WS_PROTOCOL}://${Constants.HOST_IP}/graphql";
+  static const DOCUMENT="${Constants.PROTOCOL}://${Constants.HOST_IP}/document";
 }
 
 class SharedPrefKeys{

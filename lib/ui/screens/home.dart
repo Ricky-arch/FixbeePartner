@@ -18,6 +18,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool _verified = false;
   HomeBloc _bloc;
   GoogleMapController mapController;
   GoogleMap mapWidget;
@@ -36,6 +37,7 @@ class _HomeState extends State<Home> {
         _bloc.subscribeToNotifications();
       }
     });
+    _bloc.fire(HomeEvents.getDocumentVerificationStatus);
     super.initState();
     // set customer location
     var marker = Marker(
@@ -109,6 +111,7 @@ class _HomeState extends State<Home> {
                                   activeColor: Colors.red,
                                   onChanged: (bool value) {
                                     print(DataStore.token);
+                                    _bloc.fire(HomeEvents.getDocumentVerificationStatus);
                                     _bloc.fire(HomeEvents.activityStatusSet,
                                         message: {'status': value},
                                         onHandled: (e, m) {
@@ -134,7 +137,7 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-                viewModel.activeStatus
+                (viewModel.activeStatus && viewModel.verifiedBee)
                     ? Expanded(child: mapWidget)
                     : Column(
                         children: <Widget>[
@@ -142,12 +145,12 @@ class _HomeState extends State<Home> {
                             height: MediaQuery.of(context).size.height / 3,
                           ),
                           Center(
-                            child: Text("You are not eligible to aquire jobs",
+                            child: Text("You are not eligible to acquire jobs",
                                 style: TextStyle(color: Colors.brown)),
                           ),
                         ],
                       ),
-              //  viewModel.activeStatus ? JobNotification() : Container(),
+                //  viewModel.activeStatus ? JobNotification() : Container(),
 
                 //model.activeStatus ?  updateLocation() : Container();
               ],

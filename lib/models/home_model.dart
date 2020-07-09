@@ -8,7 +8,7 @@ class HomeModel extends ViewModel {
 
   double latitude;
   double longitude;
-
+  bool verifiedBee=false;
 
 
 //order

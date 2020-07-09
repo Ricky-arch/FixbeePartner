@@ -3,15 +3,14 @@ import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/blocs/navigation_bloc.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
-import 'package:fixbee_partner/models/job_model.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/bottom_nav_bar.dart';
 import 'package:fixbee_partner/ui/custom_widget/job_notification.dart';
 import 'package:fixbee_partner/ui/screens/home.dart';
-import 'package:fixbee_partner/ui/screens/profile_new.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
+import 'custom_profile.dart';
 import 'history.dart';
 
 class NavigationScreen extends StatefulWidget {
@@ -29,18 +28,16 @@ List<Widget> pages = [
   const Home(),
   const HistoryScreen(),
   const WalletScreen(),
-  ProfileNew(),
+  CustomProfile(),
 ];
 
 class _NavigationScreenState extends State<NavigationScreen> {
-
   NavigationBloc _bloc;
   int _currentIndex = 0;
   bool _jobDeclined;
   bool _gotJob;
   Timer _timer;
   int _start = 150;
-
 
   @override
   void initState() {
@@ -84,7 +81,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
       _bloc.fire(
         NavigationEvent.onMessage,
         message: {'order_id': orderID},
-        
       );
   }
 
@@ -138,8 +134,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
                           viewModel.user.middlename +
                           " " +
                           viewModel.user.lastname,
-                      paymentMode:
-                          viewModel.order.cashOnDelivery ? "COD" : "Online Payment",
+                      paymentMode: viewModel.order.cashOnDelivery
+                          ? "COD"
+                          : "Online Payment",
                       profilePicUrl: viewModel.user.profilePicUrl,
                       addressLine: viewModel.location.addressLine,
                       userNumber: viewModel.user.phoneNumber,
@@ -154,22 +151,31 @@ class _NavigationScreenState extends State<NavigationScreen> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => WorkScreen(
-                                    userFirstname: viewModel.user.firstname,
-                                    userMiddlename: viewModel.user.middlename,
-                                    userLastname: viewModel.user.lastname,
-                                    userId: viewModel.user.userId,
-                                    userProfilePicUrl: viewModel.user.profilePicUrl,
-                                    userPhoneNumber: viewModel.user.phoneNumber,
-                                    serviceName: viewModel.service.serviceName,
-                                    serviceId: viewModel.service.serviceId,
-                                    cashOnDelivery: viewModel.order.cashOnDelivery,
-                                    orderId: viewModel.order.orderId,
-                                    otp: viewModel.order.otp,
-                                    googlePlaceId: viewModel.location.googlePlaceId,
-                                    addressLine: viewModel.location.addressLine,
-                                    locationId: viewModel.location.locationId,
-                                    locationName: viewModel.location.locationName,
-                                  )));
+                                        userFirstname: viewModel.user.firstname,
+                                        userMiddlename:
+                                            viewModel.user.middlename,
+                                        userLastname: viewModel.user.lastname,
+                                        userId: viewModel.user.userId,
+                                        userProfilePicUrl:
+                                            viewModel.user.profilePicUrl,
+                                        userPhoneNumber:
+                                            viewModel.user.phoneNumber,
+                                        serviceName:
+                                            viewModel.service.serviceName,
+                                        serviceId: viewModel.service.serviceId,
+                                        cashOnDelivery:
+                                            viewModel.order.cashOnDelivery,
+                                        orderId: viewModel.order.orderId,
+                                        otp: viewModel.order.otp,
+                                        googlePlaceId:
+                                            viewModel.location.googlePlaceId,
+                                        addressLine:
+                                            viewModel.location.addressLine,
+                                        locationId:
+                                            viewModel.location.locationId,
+                                        locationName:
+                                            viewModel.location.locationName,
+                                      )));
                         } else {
                           setState(() {
                             _gotJob = false;

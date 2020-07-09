@@ -30,8 +30,27 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     } else if (event == HomeEvents.getLiveLocation) {
       return await getLiveLocation();
     }
+    if (event == HomeEvents.getDocumentVerificationStatus) {
+      return await _getDocumentVerificationStatus();
+    }
 
     return latestViewModel;
+  }
+
+  Future<HomeModel> _getDocumentVerificationStatus() async {
+    String query = '''{
+  Me{
+    ... on Bee{
+      DocumentVerification{
+      Status
+      }
+    }
+  }
+} ''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+
+
+    return latestViewModel..verifiedBee=response['Me']['DocumentVerification']['Status'];
   }
 
   Future<HomeModel> _setActivityStatus(Map<String, dynamic> message) async {

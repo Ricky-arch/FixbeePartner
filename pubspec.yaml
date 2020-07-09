@@ -38,6 +38,9 @@ dependencies:
   geolocator: ^5.3.0
   flutter_rating_bar: ^3.0.1+1
   flutter_barcode_scanner: ^1.0.1
+  line_awesome_flutter: ^1.0.1
+  flutter_screenutil: ^1.0.2
+  animated_theme_switcher: ^1.0.5
   flutter:
     sdk: flutter
 
@@ -67,6 +70,7 @@ flutter:
     - assets/custom_icons/value.svg
     - assets/custom_icons/bee.png
     - assets/custom_icons/user.png
+    - assets/images/avatar.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

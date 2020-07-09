@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/service_selection_events.dart';
@@ -49,9 +50,12 @@ class SetServicesBloc extends Bloc<ServiceSelectionEvents, ServiceOptionModels>
       });
       serviceModel.serviceName = service['Name'];
       serviceModel.id = service['ID'];
-      serviceModel.imageLink =
-          'https://images.pexels.com/photos/3706707/pexels-photo-3706707.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500';
-
+      (service['Image']['id'] == null)
+          ? serviceModel.imageLink =
+              'https://images.pexels.com/photos/162553/keys-workshop-mechanic-tools-162553.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
+          : serviceModel.imageLink =
+              "${EndPoints.DOCUMENT}?id=${service['Image']['id']}";
+      //"${EndPoints.DOCUMENT}?id=${service['Image']['id']}"
       models.add(serviceModel);
     });
 

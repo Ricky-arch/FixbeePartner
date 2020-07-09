@@ -74,12 +74,12 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
 }
     ''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    Map location = response['data']['Order']['Location'];
-    Map service = response['data']['Order']['Service'];
-    Map user = response['data']['Order']['User'];
+    Map location = response['Order']['Location'];
+    Map service = response['Order']['Service'];
+    Map user = response['Order']['User'];
     latestViewModel
       ..gotJob = true
-      ..order.graphQLId = response['data']['Order']['ID']
+      ..order.graphQLId = response['Order']['ID']
       ..location.locationId = location['ID']
       ..location.locationName = location['Name']
       ..location.addressLine = location['Address']['Line1']
@@ -90,18 +90,18 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
       ..service.basePrice = service['Pricing']['BasePrice']
       ..service.serviceCharge = service['Pricing']['ServiceCharge']
       ..service.taxPercent = service['Pricing']['TaxPercent']
-      ..order.status = response['data']['Order']['Status']
+      ..order.status = response['Order']['Status']
       ..user.userId = user['ID']
       ..user.firstname = user['Name']['Firstname']
       ..user.middlename = user['Name']['Middlename']
       ..user.lastname = user['Name']['LastName']
       ..user.phoneNumber = user['Phone']['Number']
       ..user.profilePicUrl = user['DisplayPicture']['id']
-      ..order.cashOnDelivery = response['data']['Order']['CashOnDelivery']
-      ..order.orderId = response['data']['Order']['OrderId']
-      ..order.slotted = response['data']['Order']['Slot']['Slotted']
-      ..order.slot = response['data']['Order']['Slot']['At']
-      ..order.quantity = response['data']['Order']['QuantityInfo']['Quantity'];
+      ..order.cashOnDelivery = response['Order']['CashOnDelivery']
+      ..order.orderId = response['Order']['OrderId']
+      ..order.slotted = response['Order']['Slot']['Slotted']
+      ..order.slot = response['Order']['Slot']['At']
+      ..order.quantity = response['Order']['QuantityInfo']['Quantity'];
 
     return latestViewModel;
   }
@@ -119,7 +119,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
 		  }
 	  }
     }''';
-    latestViewModel..order.otp=message['data']['Order']['OTP'];
+    latestViewModel..order.otp = message['data']['Order']['OTP'];
     await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
