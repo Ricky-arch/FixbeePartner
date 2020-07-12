@@ -14,6 +14,7 @@ class SkillSetBottomSheet extends StatefulWidget {
 }
 
 class _SkillSetBottomSheetState extends State<SkillSetBottomSheet> {
+  bool selectedAll = false;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,8 +30,33 @@ class _SkillSetBottomSheetState extends State<SkillSetBottomSheet> {
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     "What are you skilled at?",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w600),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Row(
+                  children: [
+                    Container(
+                      child: Text("Select All"),
+                    ),
+                    SizedBox(
+                      width: 3,
+                    ),
+                    Switch(
+                      value: selectedAll,
+                      inactiveThumbColor: Colors.black12,
+                      inactiveTrackColor: Colors.white70,
+                      activeColor: Colors.red,
+                      onChanged: (bool value) {
+                        setState(() {
+                          selectedAll = value;
+                        });
+                      },
+                    )
+                  ],
                 ),
               ),
               Container(
@@ -45,9 +71,10 @@ class _SkillSetBottomSheetState extends State<SkillSetBottomSheet> {
                 return Row(
                   children: <Widget>[
                     Checkbox(
-                      value: subService.selected,
+                      value: (selectedAll) ? true : subService.selected,
                       onChanged: (bool value) {
                         setState(() {
+                          if(!value)selectedAll=false;
                           subService.selected = value;
                           widget.onServiceChecked(subService, value);
                         });

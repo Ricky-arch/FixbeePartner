@@ -35,6 +35,8 @@ class SetServicesBloc extends Bloc<ServiceSelectionEvents, ServiceOptionModels>
     }
   }
 }''';
+
+
     Map response = await CustomGraphQLClient.instance.query(query);
     List<ServiceOptionModel> models = [];
     List services = response['Services'];

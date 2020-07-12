@@ -46,7 +46,7 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
         'middlename': message['middlename'],
         'lastname': message['lastname']
       },
-      'scm_token': fcmToken,
+      'fcm_token': fcmToken,
       'phone': message['phonenumber'],
       'dob': message['dateofbirth']
     }).makeRequest();

@@ -33,6 +33,9 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     if (event == HomeEvents.getDocumentVerificationStatus) {
       return await _getDocumentVerificationStatus();
     }
+    if(event == HomeEvents.getLiveLocation){
+      return await _getDeviceLocation();
+    }
 
     return latestViewModel;
   }
@@ -163,6 +166,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     addSecondaryStream(sub);
   }
 
+
   Future<Position> _getLocation() async {
     var currentLocation;
     try {
@@ -172,6 +176,16 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
       currentLocation = null;
     }
     return currentLocation;
+  }
+  Future<HomeModel> _getDeviceLocation() async{
+    var currentDeviceLocation;
+    try {
+      currentDeviceLocation = await _geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best);
+    } catch (e) {
+      currentDeviceLocation = null;
+    }
+    return latestViewModel..deviceLocation=currentDeviceLocation;
   }
 
   @override

@@ -12,6 +12,7 @@ class UpdateProfileModel extends ViewModel{
   String address1;
   String address2;
   String pinCode;
+  String dob;
   DateTime dateOfBirth;
   String district;
   String gender;

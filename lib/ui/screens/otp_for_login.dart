@@ -98,6 +98,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                 goToRegistrationScreen(context);
                               } else {
                                 if (m.valid) {
+                                  FocusScope.of(context).requestFocus(FocusNode());
                                   goToJobSelectionScreen(ctx);
                                 } else {
                                   Scaffold.of(ctx).showSnackBar(

@@ -18,7 +18,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool _verified = false;
+
+
   HomeBloc _bloc;
   GoogleMapController mapController;
   GoogleMap mapWidget;
@@ -27,7 +28,6 @@ class _HomeState extends State<Home> {
   static const tenSec = const Duration(seconds: 10);
   double latitude;
   double longitude;
-
   @override
   void initState() {
     super.initState();

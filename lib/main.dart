@@ -1,4 +1,3 @@
-import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +34,8 @@ void main() {
             //NavigationScreen()
             //ProfileNew(),
         //JobNotification()
+        //CustomProfile()
+       //AvailableAccounts()
         SplashScreen()
         //Profile()//ServiceSelectionScreen()
         //padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),

@@ -211,46 +211,46 @@ class ProfileListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: kSpacingUnit.w * 5.5,
-      margin: EdgeInsets.symmetric(
-        horizontal: kSpacingUnit.w * 4,
-      ).copyWith(
-        bottom: kSpacingUnit.w * 2,
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: kSpacingUnit.w * 2,
-      ),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(kSpacingUnit.w * 3),
-        color: PrimaryColors.backgroundColor,
-      ),
-      child: Row(
-        children: <Widget>[
-          Icon(
-            this.icon,
-            size: kSpacingUnit.w * 2.5,
-            color: Colors.yellow,
-          ),
-          SizedBox(width: kSpacingUnit.w * 1.5),
-          Text(
-            this.text,
-            style: kTitleTextStyle.copyWith(
-              fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: task,
+      child: Container(
+        height: kSpacingUnit.w * 5.5,
+        margin: EdgeInsets.symmetric(
+          horizontal: kSpacingUnit.w * 4,
+        ).copyWith(
+          bottom: kSpacingUnit.w * 2,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: kSpacingUnit.w * 2,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(kSpacingUnit.w * 3),
+          color: PrimaryColors.backgroundColor,
+        ),
+        child: Row(
+          children: <Widget>[
+            Icon(
+              this.icon,
+              size: kSpacingUnit.w * 2.5,
+              color: Colors.yellow,
             ),
-          ),
-          Spacer(),
-          (this.hasNavigation)
-              ? GestureDetector(
-                  child: Icon(
-                    LineAwesomeIcons.angle_right,
-                    size: kSpacingUnit.w * 2.5,
-                    color: Colors.yellow,
-                  ),
-                  onTap: task,
+            SizedBox(width: kSpacingUnit.w * 1.5),
+            Text(
+              this.text,
+              style: kTitleTextStyle.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Spacer(),
+            (this.hasNavigation)
+                ? Icon(
+                  LineAwesomeIcons.angle_right,
+                  size: kSpacingUnit.w * 2.5,
+                  color: Colors.yellow,
                 )
-              : SizedBox()
-        ],
+                : SizedBox()
+          ],
+        ),
       ),
     );
   }

@@ -44,9 +44,8 @@ class _LoginState extends State<Login> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(40.0, 40,0,20),
+                        padding: const EdgeInsets.fromLTRB(40.0, 40, 0, 20),
                         child: Container(
                             height: 80,
                             width: 80,
@@ -63,7 +62,6 @@ class _LoginState extends State<Login> {
                       Padding(
                           padding: const EdgeInsets.only(
                             left: 40,
-
                           ),
                           child: Column(
                             children: [
@@ -198,7 +196,8 @@ class _LoginState extends State<Login> {
                                               }
                                             : null,
                                         child: Text("Get OTP"),
-                                        textColor: PrimaryColors.backgroundColor,
+                                        textColor:
+                                            PrimaryColors.backgroundColor,
                                         color: Colors.yellow,
                                         shape: new RoundedRectangleBorder(
                                             borderRadius:
@@ -255,6 +254,4 @@ class _LoginState extends State<Login> {
                   phoneNumber: textEditingController.text,
                 )));
   }
-
-  void goToRegisterScreen(BuildContext context) {}
 }

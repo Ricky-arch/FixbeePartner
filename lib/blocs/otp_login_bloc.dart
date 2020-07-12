@@ -30,9 +30,13 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
         endpoint: EndPoints.LOGIN,
         body: {'phone': phone, 'otp': otp}).makeRequest();
 
-    if (response.containsKey('error') &&
-        response['error'] == 'No such account exists') {
-      return latestViewModel..exist = false;
+    if (response.containsKey('error')) {
+      if(response['error']=='No such account exists'){
+        return latestViewModel..exist = false;
+      } else if(response['error']=='OTP invalid or past expiration'){
+        return latestViewModel..exist=true;
+      }
+
     }
 
     if (response.containsKey('token')) {

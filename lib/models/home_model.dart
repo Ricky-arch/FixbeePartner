@@ -1,4 +1,5 @@
 import 'package:fixbee_partner/models/view_model.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
@@ -9,6 +10,7 @@ class HomeModel extends ViewModel {
   double latitude;
   double longitude;
   bool verifiedBee=false;
+  Position deviceLocation;
 
 
 //order

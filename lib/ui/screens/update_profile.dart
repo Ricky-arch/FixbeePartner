@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:fixbee_partner/blocs/update_profile_block.dart';
+import 'package:fixbee_partner/blocs/update_profile_bloc.dart';
 import 'package:fixbee_partner/events/update_profile_event.dart';
 import 'package:fixbee_partner/models/update_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/date_picker.dart';
@@ -26,8 +26,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController address2 = TextEditingController();
   TextEditingController pinCode = TextEditingController();
   TextEditingController dateOfBirth = TextEditingController();
-
   TextEditingController genderController = TextEditingController();
+   DateTime dt;
 
   @override
   void initState() {
@@ -45,6 +45,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
       address2 = TextEditingController(text: m.address2);
       pinCode = TextEditingController(text: m.pinCode);
       genderController = TextEditingController(text: m.gender);
+      dateOfBirth = TextEditingController(text: m.dob);
     });
   }
 
@@ -341,17 +342,18 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                     _bloc.fire(UpdateProfileEvent.updateProfile,
                                         message: {
                                           'firstName': firstName.text,
-                                          'middlName': middleName.text,
+                                          'middleName': middleName.text,
                                           'lastName': lastName.text,
                                           'alternatePhoneNumber':
                                               alternatePhoneNumber.text,
                                           'email': email.text,
                                           'address': address1.text,
-                                          'pincode': pinCode.text,
+                                          'pin-code': pinCode.text,
                                           'dateOfBirth': dateOfBirth.text,
-                                          'gender': genderController.text,
-                                        });
-                                    Navigator.pop(context);
+                                          'gender': gender[_selectedGender],
+                                        }, onHandled: (e, m) {
+                                      Navigator.pop(context);
+                                    });
                                   }
                                 },
                                 child: Padding(
