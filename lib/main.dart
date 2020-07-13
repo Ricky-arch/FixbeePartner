@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/ui/screens/custom_profile.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

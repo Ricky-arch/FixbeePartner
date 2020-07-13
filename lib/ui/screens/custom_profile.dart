@@ -1,4 +1,5 @@
 import 'package:fixbee_partner/Constants.dart';
+import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:flutter/material.dart';
@@ -59,30 +60,28 @@ class _CustomProfileState extends State<CustomProfile> {
             margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
             child: Stack(
               children: <Widget>[
-                CircleAvatar(
-                  radius: kSpacingUnit.w * 5,
-                  backgroundImage: AssetImage('assets/images/avatar.png'),
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Container(
-                    height: kSpacingUnit.w * 2.5,
-                    width: kSpacingUnit.w * 2.5,
-                    decoration: BoxDecoration(
-                      color: PrimaryColors.backgroundColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      heightFactor: kSpacingUnit.w * 1.5,
-                      widthFactor: kSpacingUnit.w * 1.5,
-                      child: Icon(
-                        LineAwesomeIcons.pen,
-                        color: Colors.yellow,
-                        size: ScreenUtil().setSp(kSpacingUnit.w * 1.5),
-                      ),
-                    ),
-                  ),
-                ),
+//                CircleAvatar(child: AssetImage(""),),
+              DisplayPicture(),
+//                Align(
+//                  alignment: Alignment.bottomRight,
+//                  child: Container(
+//                    height: kSpacingUnit.w * 2.5,
+//                    width: kSpacingUnit.w * 2.5,
+//                    decoration: BoxDecoration(
+//                      color: PrimaryColors.backgroundColor,
+//                      shape: BoxShape.circle,
+//                    ),
+//                    child: Center(
+//                      heightFactor: kSpacingUnit.w * 1.5,
+//                      widthFactor: kSpacingUnit.w * 1.5,
+//                      child: Icon(
+//                        LineAwesomeIcons.pen,
+//                        color: Colors.yellow,
+//                        size: ScreenUtil().setSp(kSpacingUnit.w * 1.5),
+//                      ),
+//                    ),
+//                  ),
+//                ),
               ],
             ),
           ),
@@ -244,10 +243,10 @@ class ProfileListItem extends StatelessWidget {
             Spacer(),
             (this.hasNavigation)
                 ? Icon(
-                  LineAwesomeIcons.angle_right,
-                  size: kSpacingUnit.w * 2.5,
-                  color: Colors.yellow,
-                )
+                    LineAwesomeIcons.angle_right,
+                    size: kSpacingUnit.w * 2.5,
+                    color: Colors.yellow,
+                  )
                 : SizedBox()
           ],
         ),

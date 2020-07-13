@@ -5,7 +5,7 @@ import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
 class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
   BankDetailsBloc(BankDetailsModel genesisViewModel) : super(genesisViewModel);
-
+  List<BankModel> models = [];
   @override
   Future<BankDetailsModel> mapEventToViewModel(
       BankDetailsEvent event, Map<String, dynamic> message) async {
@@ -13,7 +13,7 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
       return await fetchAllAccounts();
     if (event == BankDetailsEvent.deleteBankAccount)
       return await deleteAccount(message);
-    if(event == BankDetailsEvent.updateBankAccount)
+    if (event == BankDetailsEvent.updateBankAccount)
       return await updateBankAccount(message);
     return null;
   }
@@ -33,7 +33,7 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
     }
   }
 }''';
-    List<BankModel> models = [];
+
     Map response = await CustomGraphQLClient.instance.query(query);
     List accounts = response['Me']['BankAccounts'];
     latestViewModel..numberOfAccounts = accounts.length;
@@ -59,10 +59,13 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
   }
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
-    return latestViewModel;
+
+    return latestViewModel
+      ..bankAccountList.removeWhere((element) => element.accountID == id);
   }
 
-  Future<BankDetailsModel> updateBankAccount(Map<String, dynamic> message) async{
+  Future<BankDetailsModel> updateBankAccount(
+      Map<String, dynamic> message) async {
     String accountHoldersName = message['accountHoldersName'],
         accountNumber = message['accountNumber'],
         ifsc = message['ifscCode'];
@@ -78,12 +81,36 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
   ){
     ... on Bee{
       ID
+      BankAccounts{
+        ID
+        IFSC
+        AccountNumber
+        AccountHolderName
+        Verified
+      }
     }
   }
   
 }
     ''';
+
     Map response = await CustomGraphQLClient.instance.mutate(query);
-    return latestViewModel;
+    if (response.containsKey('errors'))
+      latestViewModel..updated = false;
+    else {
+      latestViewModel..updated = true;
+    }
+    List accounts = response['Update']['BankAccounts'];
+    latestViewModel..numberOfAccounts = accounts.length;
+    accounts.forEach((account) {
+      BankModel bm = BankModel();
+      bm.accountHoldersName = account['AccountHolderName'];
+      bm.ifscCode = account['IFSC'];
+      bm.accountVerified = account['Verified'];
+      bm.accountID = account['ID'];
+      bm.bankAccountNumber = account['AccountNumber'];
+      models.add(bm);
+    });
+    return latestViewModel..bankAccountList = models;
   }
 }
