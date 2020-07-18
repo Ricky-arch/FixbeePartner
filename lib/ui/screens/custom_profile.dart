@@ -1,10 +1,14 @@
 import 'package:fixbee_partner/Constants.dart';
+import 'package:fixbee_partner/blocs/custom_profile_bloc.dart';
+import 'package:fixbee_partner/events/custom_profile_event.dart';
+import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 
 const kSpacingUnit = 10;
 const kDarkPrimaryColor = Color(0xFF212121);
@@ -43,71 +47,28 @@ final kDarkTheme = ThemeData(
 );
 
 class CustomProfile extends StatefulWidget {
+
   @override
   _CustomProfileState createState() => _CustomProfileState();
 }
 
 class _CustomProfileState extends State<CustomProfile> {
+  CustomProfileBloc _bloc;
+  @override
+  void initState() {
+    _bloc= CustomProfileBloc(CustomProfileModel());
+    _bloc.fire(CustomProfileEvent.downloadDp);
+    super.initState();
+  }
+  @override
+  void dispose() {
+   _bloc.extinguish();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
-    var profileInfo = Expanded(
-      child: Column(
-        children: <Widget>[
-          Container(
-            height: kSpacingUnit.w * 10,
-            width: kSpacingUnit.w * 10,
-            margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
-            child: Stack(
-              children: <Widget>[
-//                CircleAvatar(child: AssetImage(""),),
-              DisplayPicture(),
-//                Align(
-//                  alignment: Alignment.bottomRight,
-//                  child: Container(
-//                    height: kSpacingUnit.w * 2.5,
-//                    width: kSpacingUnit.w * 2.5,
-//                    decoration: BoxDecoration(
-//                      color: PrimaryColors.backgroundColor,
-//                      shape: BoxShape.circle,
-//                    ),
-//                    child: Center(
-//                      heightFactor: kSpacingUnit.w * 1.5,
-//                      widthFactor: kSpacingUnit.w * 1.5,
-//                      child: Icon(
-//                        LineAwesomeIcons.pen,
-//                        color: Colors.yellow,
-//                        size: ScreenUtil().setSp(kSpacingUnit.w * 1.5),
-//                      ),
-//                    ),
-//                  ),
-//                ),
-              ],
-            ),
-          ),
-          SizedBox(height: kSpacingUnit.w * 2),
-          Text(
-            'Chota Bheem',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: ScreenUtil().setSp(kSpacingUnit.w * 2),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: kSpacingUnit.w * 1),
-        ],
-      ),
-    );
 
-    var header = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        SizedBox(width: kSpacingUnit.w * 3),
-        profileInfo,
-        SizedBox(width: kSpacingUnit.w * 3),
-      ],
-    );
 
     return Scaffold(
       appBar: AppBar(
@@ -152,49 +113,93 @@ class _CustomProfileState extends State<CustomProfile> {
           ],
         ),
       ),
-      body: Column(
-        children: <Widget>[
-          header,
-          Expanded(
-            child: ListView(
-              children: <Widget>[
-                ProfileListItem(
-                  icon: LineAwesomeIcons.user_shield,
-                  text: 'Update Profile',
-                  task: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                      return UpdateProfile();
-                    }));
-                  },
+      body: _bloc.widget(onViewModelUpdated: (ctx, viewModel){
+        return Column(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(width: kSpacingUnit.w * 3),
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        height: kSpacingUnit.w * 10,
+                        width: kSpacingUnit.w * 10,
+                        margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
+                        child: Stack(
+                          children: <Widget>[
+                            DisplayPicture(onImagePicked: onImagePicked,imageURl: viewModel.imageUrl,loading: false,),
+
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: kSpacingUnit.w * 2),
+                      Text(
+                        'Chota Bheem',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: ScreenUtil().setSp(kSpacingUnit.w * 2),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: kSpacingUnit.w * 1),
+                    ],
+                  ),
                 ),
-                ProfileListItem(
-                  icon: LineAwesomeIcons.question_circle,
-                  text: 'Help & Support',
-                ),
-                ProfileListItem(
-                  icon: LineAwesomeIcons.cog,
-                  text: 'Update bank details',
-                  task: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                      return BankDetails();
-                    }));
-                  },
-                ),
-                ProfileListItem(
-                  icon: LineAwesomeIcons.user_plus,
-                  text: 'Invite a Friend',
-                ),
-                ProfileListItem(
-                  icon: LineAwesomeIcons.alternate_sign_out,
-                  text: 'Logout',
-                  hasNavigation: false,
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
+                SizedBox(width: kSpacingUnit.w * 3),
+              ],),
+            Expanded(
+              child: ListView(
+                children: <Widget>[
+                  ProfileListItem(
+                    icon: LineAwesomeIcons.user_shield,
+                    text: 'Update Profile',
+                    task: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (ctx) {
+                        return UpdateProfile();
+                      }));
+                    },
+                  ),
+                  ProfileListItem(
+                    icon: LineAwesomeIcons.folder,
+                    text: 'Upload Verification Documents',
+                    task: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (ctx) {
+                        return VerificationDocuments();
+                      }));
+                    },
+                  ),
+                  ProfileListItem(
+                    icon: LineAwesomeIcons.cog,
+                    text: 'Update bank details',
+                    task: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (ctx) {
+                        return BankDetails();
+                      }));
+                    },
+                  ),
+                  ProfileListItem(
+                    icon: LineAwesomeIcons.user_plus,
+                    text: 'Invite a Friend',
+                  ),
+                  ProfileListItem(
+                    icon: LineAwesomeIcons.alternate_sign_out,
+                    text: 'Logout',
+                    hasNavigation: false,
+                  ),
+                ],
+              ),
+            )
+          ],
+        );
+      })
     );
+  }
+
+  onImagePicked(String path) {
+    _bloc.fire(CustomProfileEvent.updateDp,message: {"path":"$path","file":"partnerDP"});
   }
 }
 

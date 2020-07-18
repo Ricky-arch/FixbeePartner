@@ -63,18 +63,22 @@ class CustomGraphQLClient {
     return result.data as Map;
   }
 
-  Future<Map> mutate(String queryString) async {
-    log('auth:${DataStore.token}\n$queryString',name: 'MUTATION');
-    MutationOptions options = MutationOptions(documentNode: gql(queryString));
+  Future<Map> mutate(String queryString, {var variables}) async {
+    log(queryString, name: "MUTATION GQL");
+    MutationOptions options;
+    if (variables != null)
+      options =
+          MutationOptions(documentNode: gql(queryString), variables: variables);
+    else
+      options = MutationOptions(documentNode: gql(queryString));
     QueryResult result = await _graphQLClient.mutate(options);
     if (result.hasException) {
-      log('${result.exception}', time: DateTime.now(), name: 'ERROR');
-      throw Exception(result.exception.toString());
+      log(result.exception.toString(), name: 'ERROR MUTATION');
+      throw (result.exception.toString());
     }
-    log('${result.data as Map}', time: DateTime.now(), name: 'Response');
+    log((result.data as Map).toString(), name: "RESPONSE GQL");
     return result.data as Map;
   }
-
   Stream<FetchResult> subscribe(GraphQLClient wsClient, String queryString) {
     Operation operation = Operation(documentNode: gql(queryString));
     return wsClient.subscribe(operation);

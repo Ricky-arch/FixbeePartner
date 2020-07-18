@@ -76,7 +76,7 @@ class _SkillSetBottomSheetState extends State<SkillSetBottomSheet> {
                         setState(() {
                           if(!value)selectedAll=false;
                           subService.selected = value;
-                          widget.onServiceChecked(subService, value);
+                          widget.onServiceChecked(subService, (selectedAll) ? true:value);
                         });
                       },
                     ),

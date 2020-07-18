@@ -1,5 +1,5 @@
 import 'package:fixbee_partner/ui/screens/custom_profile.dart';
-import 'package:fixbee_partner/ui/screens/splash_screen.dart';
+import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -37,7 +37,8 @@ void main() {
         //JobNotification()
         //CustomProfile()
        //AvailableAccounts()
-        SplashScreen()
+        //SplashScreen()
+        VerificationDocuments()
         //Profile()//ServiceSelectionScreen()
         //padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
         //padding: EdgeInsets.all(20),
