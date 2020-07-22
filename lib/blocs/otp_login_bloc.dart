@@ -94,7 +94,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       }
       Email
       Phone{Number}
-      Email
+      FCMToken
       DOB
       Services{
         ID
@@ -116,6 +116,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       ..lastName = response['Me']['Name']['Lastname'] ?? ''
       ..phoneNumber = response['Me']['Phone']['Number'];
     DataStore.me = bee;
+    DataStore.fcmToken = response['Me']['FCMToken'];
     return latestViewModel;
   }
 }

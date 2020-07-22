@@ -36,10 +36,8 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
   Future<RegistrationModel> registerBee(Map<String, dynamic> message) async {
     final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     String fcmToken = await _firebaseMessaging.getToken();
-
     DataStore.fcmToken = fcmToken;
-    log(fcmToken,name: 'FCM TOKEN');
-
+    log(fcmToken, name: 'FCM TOKEN');
     Map response = await RequestMaker(endpoint: EndPoints.REGISTER, body: {
       'name': {
         'firstname': message['firstname'],
