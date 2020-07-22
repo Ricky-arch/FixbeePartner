@@ -1,4 +1,7 @@
 import 'package:fixbee_partner/ui/screens/custom_profile.dart';
+import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
+import 'package:fixbee_partner/ui/screens/service_selection.dart';
+import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,11 +38,11 @@ void main() {
             //NavigationScreen()
             //ProfileNew(),
         //JobNotification()
-        //CustomProfile()
+       // CustomProfile()
        //AvailableAccounts()
-        //SplashScreen()
-        VerificationDocuments()
-        //Profile()//ServiceSelectionScreen()
+        SplashScreen()
+        //VerificationDocuments()
+        //ServiceSelectionScreen()
         //padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
         //padding: EdgeInsets.all(20),
 //           Login(

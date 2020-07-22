@@ -184,7 +184,8 @@ class _LoginState extends State<Login> {
                                                               .text
                                                     }, onHandled: (e, m) {
                                                   if (m.exist) {
-                                                    goToOtpScreen(context);
+                                                    goToOtpScreen(
+                                                        context, m.exist);
                                                   } else {
                                                     Navigator.push(context,
                                                         MaterialPageRoute(
@@ -246,7 +247,7 @@ class _LoginState extends State<Login> {
     });
   }
 
-  void goToOtpScreen(BuildContext context) {
+  void goToOtpScreen(BuildContext context, bool exist) {
     Navigator.push(
         context,
         MaterialPageRoute(

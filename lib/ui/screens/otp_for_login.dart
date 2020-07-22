@@ -3,6 +3,7 @@ import 'package:fixbee_partner/events/otp_events.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_field.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_insert.dart';
+import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
@@ -94,12 +95,22 @@ class _OtpForLoginState extends State<OtpForLogin> {
                             },
                             onHandled: (e, m) {
                               if (!m.exist) {
-                                print("otpppp: "+_otpInsertController.text);
+                                print("otpppp: " + _otpInsertController.text);
                                 goToRegistrationScreen(context);
                               } else {
                                 if (m.valid) {
-                                  FocusScope.of(context).requestFocus(FocusNode());
-                                  goToJobSelectionScreen(ctx);
+                                  FocusScope.of(context)
+                                      .requestFocus(FocusNode());
+                                  _bloc.fire(OtpEvents.checkForServiceSelected,
+                                      onHandled: (e, m) {
+                                    if (m.serviceSelected) {
+                                      _bloc.fire(OtpEvents.fetchSaveBeeDetails,
+                                          onHandled: (e, m) {
+                                        goToNavigationScreen(ctx);
+                                      });
+                                    } else
+                                      goToJobSelectionScreen(ctx);
+                                  });
                                 } else {
                                   Scaffold.of(ctx).showSnackBar(
                                     SnackBar(
@@ -123,12 +134,17 @@ class _OtpForLoginState extends State<OtpForLogin> {
   }
 
   void goToJobSelectionScreen(BuildContext context) {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ServiceSelectionScreen()));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ServiceSelectionScreen()));
   }
 
   void goToRegistrationScreen(BuildContext context) {
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => Registration()));
+  }
+
+  void goToNavigationScreen(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => NavigationScreen()));
   }
 }

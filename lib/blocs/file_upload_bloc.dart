@@ -9,6 +9,7 @@ import '../Constants.dart';
 
 class FileUploadBloc extends Bloc<FileUploadEvent, FileModel> {
   FileUploadBloc(FileModel genesisViewModel) : super(genesisViewModel);
+  List<File> files = [];
 
   @override
   Future<FileModel> mapEventToViewModel(
@@ -42,16 +43,15 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel> {
       query,
       variables: {'file': multipartFile},
     );
-
-    if (response.containsKey('Update')) {
-      String id = response['Update']['Document']['id'];
-      String _fileUrl = '${EndPoints.DOCUMENT}?id=$id';
-      print("xxx:" + id);
-      print("imageUrl" + _fileUrl);
-      return latestViewModel
-        ..fileUrl = _fileUrl
-        ..fileName = fileName;
-    } else
-      return latestViewModel;
+    print(response);
+    List documents = response['Update']['Documents'];
+    latestViewModel..numberOfFiles = response.length;
+    documents.forEach((document) {
+      File file = File();
+      file.fileName = document['filename'];
+      file.fileId = document['id'];
+      files.add(file);
+    });
+    return latestViewModel..files = files;
   }
 }

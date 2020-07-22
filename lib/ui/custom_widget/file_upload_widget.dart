@@ -6,13 +6,14 @@ import '../../Constants.dart';
 
 class FileUploadWidget extends StatelessWidget {
   final Function(String path) onImagePicked;
+  final String inputString;
   final String imageURl;
   final bool loading;
   final ImagePicker _imagePicker = ImagePicker();
   final Widget text;
 
   FileUploadWidget(
-      {Key key, this.onImagePicked, this.imageURl, this.loading = true, this.text})
+      {Key key, this.onImagePicked, this.imageURl, this.loading = true, this.text, this.inputString})
       : super(key: key);
 
   @override
@@ -27,7 +28,7 @@ class FileUploadWidget extends StatelessWidget {
         child: Row(
           children: <Widget>[
             (imageURl == null || imageURl.isEmpty)
-                ? Text('Upload your aadhaar card')
+                ? Text(inputString)
                 : text,
             Spacer(),
             InkWell(
@@ -46,4 +47,5 @@ class FileUploadWidget extends StatelessWidget {
       ),
     );
   }
+
 }

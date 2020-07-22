@@ -32,9 +32,9 @@ class Service {
   String serviceId;
   String serviceName;
   bool priceable;
-  String basePrice;
-  String serviceCharge;
-  String taxPercent;
+  int basePrice;
+  int serviceCharge;
+  int taxPercent;
 }
 
 class Order {

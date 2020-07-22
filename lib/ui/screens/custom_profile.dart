@@ -1,6 +1,8 @@
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/custom_profile_bloc.dart';
+import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/custom_profile_event.dart';
+import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
@@ -47,7 +49,6 @@ final kDarkTheme = ThemeData(
 );
 
 class CustomProfile extends StatefulWidget {
-
   @override
   _CustomProfileState createState() => _CustomProfileState();
 }
@@ -56,150 +57,163 @@ class _CustomProfileState extends State<CustomProfile> {
   CustomProfileBloc _bloc;
   @override
   void initState() {
-    _bloc= CustomProfileBloc(CustomProfileModel());
+    _bloc = CustomProfileBloc(CustomProfileModel());
     _bloc.fire(CustomProfileEvent.downloadDp);
     super.initState();
   }
+
   @override
   void dispose() {
-   _bloc.extinguish();
+    _bloc.extinguish();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
 
-
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: PrimaryColors.backgroundColor,
-        automaticallyImplyLeading: false,
-        //backgroundColor: Data.backgroundColor,
-        title: Stack(
-          children: <Widget>[
-            Container(
-                decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                            color: Colors.white, shape: BoxShape.circle),
-                        child: Padding(
-                          padding: const EdgeInsets.all(3.0),
-                          child: Image.asset(
-                            "assets/custom_icons/bee.png",
-                            fit: BoxFit.cover,
-                          ),
-                        )),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        children: <TextSpan>[
-                          TextSpan(
-                              text: 'Profile',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.yellow,
-                                  fontSize: 22)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ))
-          ],
-        ),
-      ),
-      body: _bloc.widget(onViewModelUpdated: (ctx, viewModel){
-        return Column(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: kSpacingUnit.w * 3),
-                Expanded(
-                  child: Column(
+        appBar: AppBar(
+          backgroundColor: PrimaryColors.backgroundColor,
+          automaticallyImplyLeading: false,
+          //backgroundColor: Data.backgroundColor,
+          title: Stack(
+            children: <Widget>[
+              Container(
+                  decoration:
+                      BoxDecoration(color: PrimaryColors.backgroundColor),
+                  child: Row(
                     children: <Widget>[
                       Container(
-                        height: kSpacingUnit.w * 10,
-                        width: kSpacingUnit.w * 10,
-                        margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
-                        child: Stack(
-                          children: <Widget>[
-                            DisplayPicture(onImagePicked: onImagePicked,imageURl: viewModel.imageUrl,loading: false,),
-
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                              color: Colors.white, shape: BoxShape.circle),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3.0),
+                            child: Image.asset(
+                              "assets/custom_icons/bee.png",
+                              fit: BoxFit.cover,
+                            ),
+                          )),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                                text: 'Profile',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.yellow,
+                                    fontSize: 22)),
                           ],
                         ),
                       ),
-                      SizedBox(height: kSpacingUnit.w * 2),
-                      Text(
-                        'Chota Bheem',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: ScreenUtil().setSp(kSpacingUnit.w * 2),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(height: kSpacingUnit.w * 1),
                     ],
+                  ))
+            ],
+          ),
+        ),
+        body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+          return Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(width: kSpacingUnit.w * 3),
+                  Expanded(
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          height: kSpacingUnit.w * 10,
+                          width: kSpacingUnit.w * 10,
+                          margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
+                          child: Stack(
+                            children: <Widget>[
+                              DisplayPicture(
+                                onImagePicked: onImagePicked,
+                                imageURl: viewModel.imageUrl,
+                                loading: false,
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: kSpacingUnit.w * 1),
+                        Text(
+                          DataStore.me.firstName +
+                              " " +
+                              DataStore.me.middleName +
+                              " " +
+                              DataStore.me.lastName,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: ScreenUtil().setSp(kSpacingUnit.w * 2),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: kSpacingUnit.w * 1),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: kSpacingUnit.w * 3),
-              ],),
-            Expanded(
-              child: ListView(
-                children: <Widget>[
-                  ProfileListItem(
-                    icon: LineAwesomeIcons.user_shield,
-                    text: 'Update Profile',
-                    task: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                        return UpdateProfile();
-                      }));
-                    },
-                  ),
-                  ProfileListItem(
-                    icon: LineAwesomeIcons.folder,
-                    text: 'Upload Verification Documents',
-                    task: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                        return VerificationDocuments();
-                      }));
-                    },
-                  ),
-                  ProfileListItem(
-                    icon: LineAwesomeIcons.cog,
-                    text: 'Update bank details',
-                    task: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                        return BankDetails();
-                      }));
-                    },
-                  ),
-                  ProfileListItem(
-                    icon: LineAwesomeIcons.user_plus,
-                    text: 'Invite a Friend',
-                  ),
-                  ProfileListItem(
-                    icon: LineAwesomeIcons.alternate_sign_out,
-                    text: 'Logout',
-                    hasNavigation: false,
-                  ),
+                  SizedBox(width: kSpacingUnit.w * 3),
                 ],
               ),
-            )
-          ],
-        );
-      })
-    );
+              Expanded(
+                child: ListView(
+                  children: <Widget>[
+                    ProfileListItem(
+                      icon: LineAwesomeIcons.user_shield,
+                      text: 'Update Profile',
+                      task: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (ctx) {
+                          return UpdateProfile();
+                        }));
+                      },
+                    ),
+                    ProfileListItem(
+                      icon: LineAwesomeIcons.folder,
+                      text: 'Upload Verification Documents',
+                      task: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (ctx) {
+                          return VerificationDocuments();
+                        }));
+                      },
+                    ),
+                    ProfileListItem(
+                      icon: LineAwesomeIcons.cog,
+                      text: 'Update bank details',
+                      task: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (ctx) {
+                          return BankDetails();
+                        }));
+                      },
+                    ),
+                    ProfileListItem(
+                      icon: LineAwesomeIcons.user_plus,
+                      text: 'Invite a Friend',
+                    ),
+                    ProfileListItem(
+                      icon: LineAwesomeIcons.alternate_sign_out,
+                      text: 'Logout',
+                      hasNavigation: false,
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
   }
 
   onImagePicked(String path) {
-    _bloc.fire(CustomProfileEvent.updateDp,message: {"path":"$path","file":"partnerDP"});
+    _bloc.fire(CustomProfileEvent.updateDp,
+        message: {"path": "$path", "file": "partnerDP"});
   }
 }
 

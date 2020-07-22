@@ -12,6 +12,7 @@ import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
 import 'custom_profile.dart';
 import 'history.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class NavigationScreen extends StatefulWidget {
   final bool jobDeclined;
@@ -38,7 +39,15 @@ class _NavigationScreenState extends State<NavigationScreen> {
   bool _gotJob;
   Timer _timer;
   int _start = 150;
-
+  String orderId,
+      userId,
+      serviceId,
+      placeId,
+      quantityInfo,
+      userName,
+      billingAddress,
+      phoneNumber;
+  bool slotted, paymentMode;
   @override
   void initState() {
     _bloc = NavigationBloc(NavigationModel());
@@ -52,6 +61,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
+        FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_MESSAGE');
         _getJobDetails(message);
         _startTimer();
@@ -70,18 +80,51 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   void _getJobDetails(Map<String, dynamic> message) {
-    String orderID;
+    setState(() {
+      _gotJob = true;
+    });
     if (message.containsKey('data')) {
       Map data = message['data'];
-      if (data.containsKey('id')) {
-        orderID = data['id'];
+      if (data.containsKey('order_id')) {
+        orderId = data['order_id'];
+        print(orderId + "xxxx");
+      }
+      if (data.containsKey('service_id')) {
+        serviceId = data['service_id'];
+      }
+      if (data.containsKey('user_id')) {
+        userId = data['user_id'];
+      }
+      if (data.containsKey('name')) {
+        userName = data['name'];
+      }
+      if (data.containsKey('place_id')) {
+        placeId = data['place_id'];
+      }
+      if (data.containsKey('billing_address')) {
+        billingAddress = data['billing_address'];
+      }
+      if (data.containsKey('quantity_info')) {
+        quantityInfo = data['quantity_info'];
+      }
+      if (data.containsKey('slotted')) {
+        slotted = data['slotted'];
+      }
+      if (data.containsKey('phone_number')) {
+        phoneNumber = data['phone_number'];
+      }
+      if (data.containsKey('payment_mode')) {
+        paymentMode = data['payment_mode'];
       }
     }
-    if (orderID != null)
-      _bloc.fire(
-        NavigationEvent.onMessage,
-        message: {'order_id': orderID},
-      );
+    if (serviceId != null) {
+      _bloc.fire(NavigationEvent.getServiceData, message: {"id": serviceId});
+    }
+//    if (orderId != null)
+//      _bloc.fire(
+//        NavigationEvent.onMessage,
+//        message: {'order_id': orderId},
+//      );
   }
 
   void _startTimer() {
@@ -129,62 +172,61 @@ class _NavigationScreenState extends State<NavigationScreen> {
               Expanded(child: pages[_currentIndex]),
               (!_jobDeclined && _gotJob)
                   ? JobNotification(
-                      userName: viewModel.user.firstname +
-                          " " +
-                          viewModel.user.middlename +
-                          " " +
-                          viewModel.user.lastname,
-                      paymentMode: viewModel.order.cashOnDelivery
-                          ? "COD"
-                          : "Online Payment",
-                      profilePicUrl: viewModel.user.profilePicUrl,
-                      addressLine: viewModel.location.addressLine,
-                      userNumber: viewModel.user.phoneNumber,
+                      serviceName: viewModel.service.serviceName,
+                      quantity: quantityInfo,
+                      userName: userName,
+                      paymentMode: (paymentMode.toString() == 'false')
+                          ? "Online Payment"
+                          : "COD",
+                      addressLine: billingAddress,
+                      userNumber: phoneNumber,
+                      slotted: slotted,
                       onConfirm: () {
-                        _bloc.fire(NavigationEvent.onConfirmDeclineJob,
-                            message: {
-                              "orderId": viewModel.order.orderId,
-                              "Accept": "true"
-                            });
-                        if (!viewModel.order.slotted) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => WorkScreen(
-                                        userFirstname: viewModel.user.firstname,
-                                        userMiddlename:
-                                            viewModel.user.middlename,
-                                        userLastname: viewModel.user.lastname,
-                                        userId: viewModel.user.userId,
-                                        userProfilePicUrl:
-                                            viewModel.user.profilePicUrl,
-                                        userPhoneNumber:
-                                            viewModel.user.phoneNumber,
-                                        serviceName:
-                                            viewModel.service.serviceName,
-                                        serviceId: viewModel.service.serviceId,
-                                        cashOnDelivery:
-                                            viewModel.order.cashOnDelivery,
-                                        orderId: viewModel.order.orderId,
-                                        otp: viewModel.order.otp,
-                                        googlePlaceId:
-                                            viewModel.location.googlePlaceId,
-                                        addressLine:
-                                            viewModel.location.addressLine,
-                                        locationId:
-                                            viewModel.location.locationId,
-                                        locationName:
-                                            viewModel.location.locationName,
-                                      )));
-                        } else {
-                          setState(() {
-                            _gotJob = false;
-                          });
-                        }
+//                        _bloc.fire(NavigationEvent.onConfirmDeclineJob,
+//                            message: {
+//                              "orderId": viewModel.order.orderId,
+//                              "Accept": "true"
+//                            });
+//                        if (!viewModel.order.slotted) {
+//                          Navigator.push(
+//                              context,
+//                              MaterialPageRoute(
+//                                  builder: (context) => WorkScreen(
+//                                        userFirstname: viewModel.user.firstname,
+//                                        userMiddlename:
+//                                            viewModel.user.middlename,
+//                                        userLastname: viewModel.user.lastname,
+//                                        userId: viewModel.user.userId,
+//                                        userProfilePicUrl:
+//                                            viewModel.user.profilePicUrl,
+//                                        userPhoneNumber:
+//                                            viewModel.user.phoneNumber,
+//                                        serviceName:
+//                                            viewModel.service.serviceName,
+//                                        serviceId: viewModel.service.serviceId,
+//                                        cashOnDelivery:
+//                                            viewModel.order.cashOnDelivery,
+//                                        orderId: viewModel.order.orderId,
+//                                        otp: viewModel.order.otp,
+//                                        googlePlaceId:
+//                                            viewModel.location.googlePlaceId,
+//                                        addressLine:
+//                                            viewModel.location.addressLine,
+//                                        locationId:
+//                                            viewModel.location.locationId,
+//                                        locationName:
+//                                            viewModel.location.locationName,
+//                                      )));
+//                        } else {
+//                          setState(() {
+//                            _gotJob = false;
+//                          });
+//                        }
                       },
                       onDecline: () {
                         setState(() {
                           _jobDeclined = false;
+                          Navigator.pop(context);
                         });
                       },
                     )

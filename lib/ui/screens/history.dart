@@ -44,17 +44,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
               ),
             ),
-            ListView(
-              scrollDirection: Axis.vertical,
-              children: [
-                ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: Test.notifications.length,
-                    itemBuilder: (BuildContext context, int index) {
-                  return Card();
-                })
-              ],
-            )
           ],
         ),
       ),

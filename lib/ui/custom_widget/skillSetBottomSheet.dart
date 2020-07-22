@@ -14,7 +14,30 @@ class SkillSetBottomSheet extends StatefulWidget {
 }
 
 class _SkillSetBottomSheetState extends State<SkillSetBottomSheet> {
-  bool selectedAll = false;
+  bool selectedAll;
+    void checkAll() {
+    int i = 0;
+    for (int x = 0; x < widget.subServices.length; x++) {
+      if (widget.subServices[i].selected == true) i++;
+    }
+    if (i == widget.subServices.length)
+     setState(() {
+       selectedAll=true;
+     });
+    else{
+      setState(() {
+        selectedAll=false;
+      });
+    }
+  }
+  @override
+  void initState() {
+      checkAll();
+    // TODO: implement initState
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,8 +53,7 @@ class _SkillSetBottomSheetState extends State<SkillSetBottomSheet> {
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     "What are you skilled at?",
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -51,6 +73,11 @@ class _SkillSetBottomSheetState extends State<SkillSetBottomSheet> {
                       inactiveTrackColor: Colors.white70,
                       activeColor: Colors.red,
                       onChanged: (bool value) {
+                        for (int i = 0; i < widget.subServices.length; i++) {
+                          widget.subServices[i].selected = value;
+                          widget.onServiceChecked(widget.subServices[i],
+                              widget.subServices[i].selected);
+                        }
                         setState(() {
                           selectedAll = value;
                         });
@@ -74,9 +101,10 @@ class _SkillSetBottomSheetState extends State<SkillSetBottomSheet> {
                       value: (selectedAll) ? true : subService.selected,
                       onChanged: (bool value) {
                         setState(() {
-                          if(!value)selectedAll=false;
+                          if (!value) selectedAll = false;
                           subService.selected = value;
-                          widget.onServiceChecked(subService, (selectedAll) ? true:value);
+                          widget.onServiceChecked(subService, value);
+                          checkAll();
                         });
                       },
                     ),

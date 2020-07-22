@@ -15,6 +15,9 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
     if (event == NavigationEvent.onConfirmDeclineJob) {
       return await onConfirmDeclineJob(message);
     }
+    if (event == NavigationEvent.getServiceData) {
+      return await getServiceData(message);
+    }
     return latestViewModel;
   }
 
@@ -45,9 +48,6 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
         TaxPercent
       }
     }
-    QuantityInfo{
-      Quantity
-    }
     Status
     User {
       ID
@@ -74,35 +74,36 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
 }
     ''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    Map location = response['Order']['Location'];
-    Map service = response['Order']['Service'];
-    Map user = response['Order']['User'];
-    latestViewModel
-      ..gotJob = true
-      ..order.graphQLId = response['Order']['ID']
-      ..location.locationId = location['ID']
-      ..location.locationName = location['Name']
-      ..location.addressLine = location['Address']['Line1']
-      ..location.googlePlaceId = location['GooglePlaceID']
-      ..service.serviceId = service['ID']
-      ..service.serviceName = service['Name']
-      ..service.priceable = service['Pricing']['Priceable']
-      ..service.basePrice = service['Pricing']['BasePrice']
-      ..service.serviceCharge = service['Pricing']['ServiceCharge']
-      ..service.taxPercent = service['Pricing']['TaxPercent']
-      ..order.status = response['Order']['Status']
-      ..user.userId = user['ID']
-      ..user.firstname = user['Name']['Firstname']
-      ..user.middlename = user['Name']['Middlename']
-      ..user.lastname = user['Name']['LastName']
-      ..user.phoneNumber = user['Phone']['Number']
-      ..user.profilePicUrl = user['DisplayPicture']['id']
-      ..order.cashOnDelivery = response['Order']['CashOnDelivery']
-      ..order.orderId = response['Order']['OrderId']
-      ..order.slotted = response['Order']['Slot']['Slotted']
-      ..order.slot = response['Order']['Slot']['At']
-      ..order.quantity = response['Order']['QuantityInfo']['Quantity'];
-
+//   if(response.isNotEmpty)
+//     print(response.toString()+"xxx");
+//    Map location = response['Order']['Location'];
+//    Map service = response['Order']['Service'];
+//    Map user = response['Order']['User'];
+//    latestViewModel
+//      ..gotJob = true
+//      ..order.graphQLId = response['Order']['ID']
+//      ..location.locationId = location['ID']
+//      ..location.locationName = location['Name']
+//      ..location.addressLine = location['Address']['Line1']
+//      ..location.googlePlaceId = location['GooglePlaceID']
+//      ..service.serviceId = service['ID']
+//      ..service.serviceName = service['Name']
+//      ..service.priceable = service['Pricing']['Priceable']
+//      ..service.basePrice = service['Pricing']['BasePrice']
+//      ..service.serviceCharge = service['Pricing']['ServiceCharge']
+//      ..service.taxPercent = service['Pricing']['TaxPercent']
+//      ..order.status = response['Order']['Status']
+//      ..user.userId = user['ID']
+//      ..user.firstname = user['Name']['Firstname']
+//      ..user.middlename = user['Name']['Middlename']
+//      ..user.lastname = user['Name']['LastName']
+//      ..user.phoneNumber = user['Phone']['Number']
+//      ..user.profilePicUrl = user['DisplayPicture']['id']
+//      ..order.cashOnDelivery = response['Order']['CashOnDelivery']
+//      ..order.orderId = response['Order']['OrderId']
+//      ..order.slotted = response['Order']['Slot']['Slotted']
+//      ..order.slot = response['Order']['Slot']['At'];
+//
     return latestViewModel;
   }
 
@@ -123,4 +124,25 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
     await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
+
+  Future<NavigationModel> getServiceData(Map<String, dynamic> message) async {
+    String id = message['id'];
+    String query = '''{
+  Service(_id:"$id"){
+    ID
+    Name
+    Image{
+      filename
+      id
+      mimetype
+      encoding
+    }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    return latestViewModel
+      ..service.serviceName = response['Service']['Name']
+      ..service.serviceId = response['Service']['ID'];
+  }
+
 }

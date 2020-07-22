@@ -42,7 +42,8 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                 backgroundColor: Colors.orange,
                 label: Text("View All"),
                 onPressed: () {
-                  _bloc.fire(ServiceSelectionEvents.saveSelectedServices,onHandled: (e,m){
+                  _bloc.fire(ServiceSelectionEvents.saveSelectedServices,
+                      onHandled: (e, m) {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -58,23 +59,26 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                   viewModel.serviceOptions,
                   onServiceSelected: (subServices) {
                     showModalBottomSheet(
-                        isDismissible: false,
-                        context: ctx,
-                        builder: (ctx) {
-                          return SkillSetBottomSheet(
-                            onNext: ()=>Navigator.pop(ctx),
-                            subServices: subServices,
-                            onServiceChecked: (subService, value) {
-                              if (value) {
-                                viewModel.selectedServices.add(subService);
-                                _bloc.pushViewModel(viewModel);
-                              } else {
-                                viewModel.selectedServices.remove(subService);
-                                _bloc.pushViewModel(viewModel);
-                              }
-                            },
-                          );
-                        },);
+                      isDismissible: false,
+                      context: ctx,
+                      builder: (ctx) {
+                        return SkillSetBottomSheet(
+                          onNext: () {
+                            Navigator.pop(ctx);
+                          },
+                          subServices: subServices,
+                          onServiceChecked: (subService, value) {
+                            if (value) {
+                              viewModel.selectedServices.add(subService);
+                              _bloc.pushViewModel(viewModel);
+                            } else {
+                              viewModel.selectedServices.remove(subService);
+                              _bloc.pushViewModel(viewModel);
+                            }
+                          },
+                        );
+                      },
+                    );
                   },
                 ),
               ),

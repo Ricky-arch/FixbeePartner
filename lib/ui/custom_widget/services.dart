@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbee_partner/models/service_options.dart';
 import 'package:flutter/material.dart';
 
+import '../../Constants.dart';
+
 class Services extends StatefulWidget {
   final List<ServiceOptionModel> serviceModels;
   final Function(List<ServiceOptionModel>) onServiceSelected;
@@ -19,21 +21,26 @@ class _ServicesState extends State<Services> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          decoration: BoxDecoration(color: Colors.yellow),
-          height: 55,
-          width: double.infinity,
+          height: 60,
+          color: PrimaryColors.backgroundColor,
           child: Padding(
-            padding: const EdgeInsets.only(left: 16.0, top: 10, bottom: 8),
-            child: Text(
-              "Services",
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600),
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              children: <Widget>[
+                SizedBox(width: MediaQuery.of(context).size.width / 40),
+                Center(
+                    child: Text(
+                  "Available Services",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: Colors.yellow,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600),
+                )),
+              ],
             ),
           ),
         ),
-
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

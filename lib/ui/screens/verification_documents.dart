@@ -72,10 +72,59 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
+                  inputString: "Upload your Aadhaar-Card",
                   onImagePicked: onImagePicked,
-                  imageURl: viewModel.fileUrl,
+                  //imageURl: viewModel.fileUrl,
                   loading: false,
-                  text: Text(viewModel.fileName==null?"Document":viewModel.fileName),
+                  text: Text(viewModel.files == null
+                      ? "Document"
+                      : "Aadhaar Card uploaded"),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                onTap: () {},
+                child: FileUploadWidget(
+                  inputString: "Upload any Age-proof Certificate",
+                  onImagePicked: onImagePicked,
+                  //imageURl: viewModel.fileUrl,
+                  loading: false,
+                  text: Text(viewModel.files == null
+                      ? "Document"
+                      : "Age proof certificate uploaded"),
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                onTap: () {},
+                child: FileUploadWidget(
+                  inputString: "Upload any address-proof certificate",
+                  onImagePicked: onImagePicked,
+                  //imageURl: viewModel.fileUrl,
+                  loading: false,
+                  text: Text(viewModel.files == null
+                      ? "Document"
+                      : "Address proof certificate uploaded"),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                onTap: () {},
+                child: FileUploadWidget(
+                  inputString: "Upload any additional Certifications",
+                  onImagePicked: onImagePicked,
+                  //imageURl: viewModel.fileUrl,
+                  loading: false,
+                  text: Text(viewModel.files == null
+                      ? "Document"
+                      : "Additional Certifications uploaded"),
                 ),
               ),
             ),
