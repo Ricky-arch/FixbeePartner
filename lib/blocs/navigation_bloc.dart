@@ -140,6 +140,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
   }
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
+    print(response['Service']['Name']+"serviceName");
     return latestViewModel
       ..service.serviceName = response['Service']['Name']
       ..service.serviceId = response['Service']['ID'];

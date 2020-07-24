@@ -106,6 +106,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                     if (m.serviceSelected) {
                                       _bloc.fire(OtpEvents.fetchSaveBeeDetails,
                                           onHandled: (e, m) {
+                                        _bloc.fire(OtpEvents.getFcmToken);
                                         goToNavigationScreen(ctx);
                                       });
                                     } else

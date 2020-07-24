@@ -5,6 +5,7 @@ class OtpEvents extends Event{
   static final OtpEvents onOtpVerified = OtpEvents(101);
   static final OtpEvents checkForServiceSelected=OtpEvents(102);
   static final OtpEvents fetchSaveBeeDetails=OtpEvents(103);
+  static final OtpEvents getFcmToken=OtpEvents(104);
   OtpEvents(int eventId) : super(eventId);
 
 }

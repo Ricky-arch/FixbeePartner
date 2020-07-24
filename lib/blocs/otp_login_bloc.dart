@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
@@ -25,6 +28,9 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     }
     if (event == OtpEvents.fetchSaveBeeDetails) {
       return await fetchSaveBeeDetails();
+    }
+    if (event == OtpEvents.getFcmToken) {
+      return await getFcmToken();
     }
     return latestViewModel;
   }
@@ -117,6 +123,25 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       ..phoneNumber = response['Me']['Phone']['Number'];
     DataStore.me = bee;
     DataStore.fcmToken = response['Me']['FCMToken'];
+    print("xxxxx" + response['Me']['FCMToken']);
+    return latestViewModel;
+  }
+
+  Future<OtpModel> getFcmToken() async {
+    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    String fcmToken = await _firebaseMessaging.getToken();
+    DataStore.fcmToken = fcmToken;
+    log(fcmToken, name: 'FCM TOKEN');
+    String query='''mutation{
+  Update(input:{
+    FCMToken:"$fcmToken"
+  }){
+  ...on Bee{
+    ID
+  }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
 }

@@ -202,7 +202,7 @@ class _JobNotificationState extends State<JobNotification> {
                                     children: [
                                       Text(
                                         widget.serviceName == null
-                                            ? "Plumbing"
+                                            ? "Ghor Porishkar"
                                             : widget.serviceName +
                                                 " - " +
                                                 widget.paymentMode,
@@ -217,16 +217,16 @@ class _JobNotificationState extends State<JobNotification> {
                                       )
                                     ],
                                   ),
-                                  widget.slotted
-                                      ? Text(
-                                          'Scheduled at:\n' +
-                                              widget.slot.toIso8601String(),
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500),
-                                          maxLines: null,
-                                        )
-                                      : SizedBox(),
+//                                  widget.slotted
+//                                      ? Text(
+//                                          'Scheduled at:\n' +
+//                                              widget.slot.toIso8601String(),
+//                                          textAlign: TextAlign.left,
+//                                          style: TextStyle(
+//                                              fontWeight: FontWeight.w500),
+//                                          maxLines: null,
+//                                        )
+//                                      : SizedBox(),
                                 ],
                               ),
                             ],
@@ -262,7 +262,7 @@ class _JobNotificationState extends State<JobNotification> {
                           child: OutlineButton(
                             highlightedBorderColor: Colors.red,
                             textColor: Colors.red,
-                            onPressed: widget.onDecline,
+                            onPressed: (){},
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(

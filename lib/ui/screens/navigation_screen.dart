@@ -15,12 +15,9 @@ import 'history.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class NavigationScreen extends StatefulWidget {
-  final bool jobDeclined;
   final bool gotJob;
 
-  const NavigationScreen(
-      {Key key, this.jobDeclined = false, this.gotJob = false})
-      : super(key: key);
+  const NavigationScreen({Key key, this.gotJob = false}) : super(key: key);
   @override
   _NavigationScreenState createState() => _NavigationScreenState();
 }
@@ -33,12 +30,9 @@ List<Widget> pages = [
 ];
 
 class _NavigationScreenState extends State<NavigationScreen> {
+  bool _visible;
   NavigationBloc _bloc;
   int _currentIndex = 0;
-  bool _jobDeclined;
-  bool _gotJob;
-  Timer _timer;
-  int _start = 150;
   String orderId,
       userId,
       serviceId,
@@ -52,9 +46,17 @@ class _NavigationScreenState extends State<NavigationScreen> {
   void initState() {
     _bloc = NavigationBloc(NavigationModel());
     _setupFCM();
-    _jobDeclined = widget.jobDeclined;
-    _gotJob = widget.gotJob;
+
+    _visible = widget.gotJob;
     super.initState();
+
+    Future.delayed(const Duration(seconds: 150), () {
+      if (this.mounted) {
+        setState(() {
+          _visible = false;
+        });
+      }
+    });
   }
 
   void _setupFCM() {
@@ -64,33 +66,34 @@ class _NavigationScreenState extends State<NavigationScreen> {
         FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_MESSAGE');
         _getJobDetails(message);
-        _startTimer();
+//        _startTimer();
       },
       onResume: (Map<String, dynamic> message) async {
         log(message.toString(), name: 'ON_RESUME');
         _getJobDetails(message);
-        _startTimer();
+        //_startTimer();
       },
       onLaunch: (message) async {
         log(message.toString(), name: 'ON_LAUNCH');
         _getJobDetails(message);
-        _startTimer();
+        //_startTimer();
       },
     );
   }
 
   void _getJobDetails(Map<String, dynamic> message) {
     setState(() {
-      _gotJob = true;
+      _visible = true;
     });
     if (message.containsKey('data')) {
       Map data = message['data'];
       if (data.containsKey('order_id')) {
         orderId = data['order_id'];
-        print(orderId + "xxxx");
       }
       if (data.containsKey('service_id')) {
         serviceId = data['service_id'];
+        print(serviceId + "serviceId");
+        _bloc.fire(NavigationEvent.getServiceData, message: {"id": serviceId});
       }
       if (data.containsKey('user_id')) {
         userId = data['user_id'];
@@ -117,38 +120,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
         paymentMode = data['payment_mode'];
       }
     }
-    if (serviceId != null) {
-      _bloc.fire(NavigationEvent.getServiceData, message: {"id": serviceId});
-    }
-//    if (orderId != null)
-//      _bloc.fire(
-//        NavigationEvent.onMessage,
-//        message: {'order_id': orderId},
-//      );
-  }
-
-  void _startTimer() {
-    const oneSec = const Duration(seconds: 1);
-    _timer = new Timer.periodic(
-      oneSec,
-      (Timer timer) => setState(
-        () {
-          if (_start < 1) {
-            setState(() {
-              _jobDeclined = true;
-            });
-            timer.cancel();
-          } else {
-            _start = _start - 1;
-          }
-        },
-      ),
-    );
   }
 
   @override
   void dispose() {
-    _timer.cancel();
     super.dispose();
   }
 
@@ -170,18 +145,23 @@ class _NavigationScreenState extends State<NavigationScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: pages[_currentIndex]),
-              (!_jobDeclined && _gotJob)
-                  ? JobNotification(
-                      serviceName: viewModel.service.serviceName,
-                      quantity: quantityInfo,
-                      userName: userName,
-                      paymentMode: (paymentMode.toString() == 'false')
-                          ? "Online Payment"
-                          : "COD",
-                      addressLine: billingAddress,
-                      userNumber: phoneNumber,
-                      slotted: slotted,
-                      onConfirm: () {
+              _visible
+                  ? Visibility(
+                      visible: _visible,
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: JobNotification(
+                        serviceName: viewModel.service.serviceName,
+                        quantity: quantityInfo,
+                        userName: userName,
+                        paymentMode: (paymentMode.toString() == 'false')
+                            ? "Online Payment"
+                            : "COD",
+                        addressLine: billingAddress,
+                        userNumber: phoneNumber,
+                        slotted: slotted,
+                        onConfirm: () {
 //                        _bloc.fire(NavigationEvent.onConfirmDeclineJob,
 //                            message: {
 //                              "orderId": viewModel.order.orderId,
@@ -222,15 +202,15 @@ class _NavigationScreenState extends State<NavigationScreen> {
 //                            _gotJob = false;
 //                          });
 //                        }
-                      },
-                      onDecline: () {
-                        setState(() {
-                          _jobDeclined = false;
-                          Navigator.pop(context);
-                        });
-                      },
+                        },
+                        onDecline: () {
+                          setState(() {
+                            _visible = false;
+                          });
+                        },
+                      ),
                     )
-                  : SizedBox(),
+                  : SizedBox()
             ],
           );
         }),
