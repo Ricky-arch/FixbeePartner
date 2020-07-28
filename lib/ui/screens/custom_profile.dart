@@ -166,7 +166,7 @@ class _CustomProfileState extends State<CustomProfile> {
                   children: <Widget>[
                     ProfileListItem(
                       icon: LineAwesomeIcons.user_shield,
-                      text: 'Update Profile',
+                      text: 'Update Personal',
                       task: () {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (ctx) {

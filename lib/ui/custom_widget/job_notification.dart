@@ -14,8 +14,9 @@ class JobNotification extends StatefulWidget {
   final String serviceName;
   final String quantity;
   final String userNumber;
-  final bool slotted;
-  final DateTime slot;
+  final String slotted;
+  final String slot;
+  final String orderId;
 
   const JobNotification(
       {Key key,
@@ -30,7 +31,8 @@ class JobNotification extends StatefulWidget {
       this.userNumber,
       this.slot,
       this.profilePicUrl,
-      this.slotted = false})
+      this.slotted,
+      this.orderId})
       : super(key: key);
 
   @override
@@ -49,33 +51,35 @@ class _JobNotificationState extends State<JobNotification> {
         context: context,
         builder: (context) {
           return Wrap(
-            children:[Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Additional Job Details",
-                        style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Additional Job Details",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500),
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Divider(),
-                  ),
-                  Container(
-                    child: Padding(
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Text("The job is very very very very easy"),
+                      child: Divider(),
                     ),
-                  )
-                ],
-              ),
-            )] ,
+                    Container(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("The job is very very very very easy"),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
           );
         });
   }
@@ -89,7 +93,6 @@ class _JobNotificationState extends State<JobNotification> {
           children: <Widget>[
             Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
                   borderRadius: BorderRadius.only(
                       topRight: Radius.circular(10),
                       topLeft: Radius.circular(10))),
@@ -98,7 +101,7 @@ class _JobNotificationState extends State<JobNotification> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                 child: Text(
-                  'Got a job for you',
+                  "#Order: " + widget.orderId,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -135,6 +138,7 @@ class _JobNotificationState extends State<JobNotification> {
                                 (widget.profilePicUrl))
                             : AssetImage(
                                 "assets/custom_icons/user.png",
+
                               ),
                       ),
                     ),
@@ -179,7 +183,7 @@ class _JobNotificationState extends State<JobNotification> {
                                             padding: const EdgeInsets.all(8.0),
                                             child: Icon(
                                               Icons.phone,
-                                              size: 20,
+                                              size: 18,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -217,16 +221,17 @@ class _JobNotificationState extends State<JobNotification> {
                                       )
                                     ],
                                   ),
-//                                  widget.slotted
-//                                      ? Text(
-//                                          'Scheduled at:\n' +
+                                  (widget.slotted.toString() == 'true')
+                                      ? Text(
+                                          'Scheduled at: \n' +
 //                                              widget.slot.toIso8601String(),
-//                                          textAlign: TextAlign.left,
-//                                          style: TextStyle(
-//                                              fontWeight: FontWeight.w500),
-//                                          maxLines: null,
-//                                        )
-//                                      : SizedBox(),
+                                              widget.slot,
+                                          textAlign: TextAlign.justify,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500),
+                                          maxLines: null,
+                                        )
+                                      : SizedBox(),
                                 ],
                               ),
                             ],
@@ -262,7 +267,7 @@ class _JobNotificationState extends State<JobNotification> {
                           child: OutlineButton(
                             highlightedBorderColor: Colors.red,
                             textColor: Colors.red,
-                            onPressed: (){},
+                            onPressed: widget.onDecline,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(

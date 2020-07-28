@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbee_partner/Constants.dart';
+import 'package:fixbee_partner/blocs/workscreen_bloc.dart';
+import 'package:fixbee_partner/events/workscreen_event.dart';
+import 'package:fixbee_partner/models/workscreen_model.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,71 +18,16 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
 
 class WorkScreen extends StatefulWidget {
-  final String userProfilePicUrl;
-  final String userFirstname;
-  final String userMiddlename;
-  final String userLastname;
-  final String userRating;
-  final String userId;
-  final String serviceName;
-  final String locationId;
-  final String locationName;
-  final String addressLine;
-  final String googlePlaceId;
-  final String address;
-  final String landmark;
-  final String userPhoneNumber;
-  final LatLng latLng;
-  final String otp;
-  final String serviceId;
-  final bool priceable;
-  final String basePrice;
-  final String serviceCharge;
-  final String taxPercent;
-  final String graphQLId;
   final String orderId;
-  final String status;
-  final bool cashOnDelivery;
-  final bool slotted;
-  final DateTime slot;
-  final String quantity;
 
-  const WorkScreen(
-      {Key key,
-      this.userProfilePicUrl,
-      this.userFirstname,
-      this.userMiddlename,
-      this.userLastname,
-      this.userRating,
-      this.userId,
-      this.serviceName,
-      this.locationId,
-      this.locationName,
-      this.addressLine,
-      this.googlePlaceId,
-      this.address,
-      this.landmark,
-      this.userPhoneNumber,
-      this.latLng,
-      this.otp,
-      this.serviceId,
-      this.priceable,
-      this.basePrice,
-      this.serviceCharge,
-      this.taxPercent,
-      this.graphQLId,
-      this.orderId,
-      this.status,
-      this.cashOnDelivery,
-      this.slotted,
-      this.slot,
-      this.quantity})
-      : super(key: key);
+  const WorkScreen({Key key, this.orderId}) : super(key: key);
   @override
   _WorkScreenState createState() => _WorkScreenState();
 }
 
 class _WorkScreenState extends State<WorkScreen> {
+  WorkScreenBloc _bloc;
+
   String gid, session, fields, key;
   String formattedAddress;
   String latitude, longitude;
@@ -94,32 +43,29 @@ class _WorkScreenState extends State<WorkScreen> {
   GoogleMap mapWidget;
   Set<Marker> markers = Set();
   Geolocator geoLocator = Geolocator();
-  //lat: 23.8086376,lng: 91.2612741,
-
-  Future<LatLng> fetchLocationData() async {
-    double lat, lng;
-
-    gid = widget.googlePlaceId;
-    session = Constants.googleSessionToken;
-    fields = Constants.fields;
-    key = Constants.googleApiKey;
-    //https://maps.googleapis.com/maps/api/place/details/json?place_id=$gid&fields=$fields&key=$key&sessiontoken=$session
-    //https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJizXpb6X1UzcRA5qlSx3e5Ak&fields=name,formatted_address,geometry&key=AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI&sessiontoken=12345
-    http.Response response = await http.get(
-        'https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJizXpb6X1UzcRA5qlSx3e5Ak&fields=name,formatted_address,geometry&key=AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI&sessiontoken=12345');
-    locationData = json.decode(response.body);
-
-    print("xxxxx" + locationData.toString());
-    latitude = locationData['result']['geometry']['location']['lat'].toString();
-    longitude =
-        locationData['result']['geometry']['location']['lng'].toString();
-    print("xxx" +
-        locationData['result']['geometry']['location']['lng'].toString());
-    lat = double.parse(latitude);
-    lng = double.parse(longitude);
-    LatLng ltng = LatLng(lat, lng);
-    return ltng;
-  }
+//  Future<LatLng> fetchLocationData() async {
+//    double lat, lng;
+//
+//    gid = "ChIJD9gXJm_0UzcRjqQr9ygS2kU";
+//    session = Constants.googleSessionToken;
+//    fields = Constants.fields;
+//    key = Constants.googleApiKey;
+//
+//    http.Response response = await http.get(
+//        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$gid&fields=$fields&key=$key&sessiontoken=$session');
+//    locationData = json.decode(response.body);
+//
+//    print("xxxxx" + locationData.toString());
+//    latitude = locationData['result']['geometry']['location']['lat'].toString();
+//    longitude =
+//        locationData['result']['geometry']['location']['lng'].toString();
+//    print("xxx" +
+//        locationData['result']['geometry']['location']['lng'].toString());
+//    lat = double.parse(latitude);
+//    lng = double.parse(longitude);
+//    LatLng ltng = LatLng(lat, lng);
+//    return ltng;
+//  }
 
   Future<void> scanBarcode() async {
     String barcodeScanRes;
@@ -140,21 +86,17 @@ class _WorkScreenState extends State<WorkScreen> {
   @override
   void initState() {
     super.initState();
-//    mapWidget = GoogleMap(
-//      markers: markers,
-//      onMapCreated: (GoogleMapController googleMapController) {
-//        mapController = googleMapController;
-//      },
-//      initialCameraPosition:
-//          CameraPosition(target: LatLng(38.8977, 77.0365), zoom: 16),
-//    );
-    fetchLocationData().then((value) {
-      mapController.animateCamera(CameraUpdate.newLatLng(value));
-      var marker = Marker(markerId: MarkerId("User Location"), position: value);
-      setState(() {
-        markers.add(marker);
-      });
-    });
+    String orderId = widget.orderId;
+    _bloc = WorkScreenBloc(WorkScreenModel());
+    _bloc.fire(WorkScreenEvents.fetchOrderDetails,
+        message: {"orderId": "$orderId"});
+//    fetchLocationData().then((value) {
+//      mapController.animateCamera(CameraUpdate.newLatLng(value));
+//      var marker = Marker(markerId: MarkerId("User Location"), position: value);
+//      setState(() {
+//        markers.add(marker);
+//      });
+//    });
 
     otpController = TextEditingController();
   }
@@ -162,6 +104,7 @@ class _WorkScreenState extends State<WorkScreen> {
   @override
   void dispose() {
     otpController.dispose();
+    _bloc.extinguish();
     super.dispose();
   }
 
@@ -376,329 +319,373 @@ class _WorkScreenState extends State<WorkScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-            child: Row(
-              children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
+      body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+        return SafeArea(
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundImage: (viewModel.jobModel.userProfilePicUrl !=
+                              null)
+                          ? CachedNetworkImage(
+                              imageUrl: viewModel.jobModel.userProfilePicUrl,
+                            )
+                          : NetworkImage(
+                              'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'),
+                    ),
                   ),
-                  child: CircleAvatar(
-                    radius: 35,
-                    backgroundImage: NetworkImage(
-                        'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'),
+                  SizedBox(
+                    width: 8,
                   ),
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width - 114,
-                  child: Row(
+                  Container(
+                    width: MediaQuery.of(context).size.width - 114,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "${viewModel.jobModel.userFirstname} ${viewModel.jobModel.userMiddlename} ${viewModel.jobModel.userLastname}",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                            Text('Rated 4.5 stars'),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                color: Colors.green),
+                            child: GestureDetector(
+                              child: Icon(
+                                Icons.phone,
+                                color: Colors.white,
+                              ),
+                              onTap: () {
+                                (viewModel.jobModel.userPhoneNumber != null)
+                                    ? _callPhone(
+                                        viewModel.jobModel.userPhoneNumber)
+                                    : Scaffold.of(context).showSnackBar(
+                                        new SnackBar(
+                                            content: new Text(
+                                                'Phone NUmber Empty')));
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(
+              thickness: 1,
+            ),
+            Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Donald Trump',
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+                        child: Text(
+                          "Address:",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Container(
+                        width: 250,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                          child: Text(
+                            'Hello World',
+                            maxLines: null,
+                            //textAlign: TextAlign.justify,
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w600),
+                                fontSize: 16, fontWeight: FontWeight.w300),
                           ),
-                          Text('Rated 4.5 stars'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 0, 8, 8),
+                        child: Text(
+                          "Location-Name:",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Container(
+                        width: 250,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
+                          child: Text(
+                            'Bridge',
+                            overflow: TextOverflow.clip,
+                            textAlign: TextAlign.justify,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w300),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+                        child: Text(
+                          "Service:",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Container(
+                        width: 250,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                          child: Text(
+                            viewModel.jobModel.serviceName,
+                            maxLines: null,
+                            //textAlign: TextAlign.justify,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w300),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+                            child: Text(
+                              "Quantity:",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                          Container(
+                            width: 250,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                              child: Text(
+                                "1",
+                                maxLines: null,
+                                //textAlign: TextAlign.justify,
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w300),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              color: Colors.green),
-                          child: GestureDetector(
-                            child: Icon(
-                              Icons.phone,
-                              color: Colors.white,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+                            child: Text(
+                              "Amount:",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.w600),
                             ),
-                            onTap: () {
-                              _callPhone("tel:+918132802897");
-                            },
+                          ),
+                          Container(
+                            width: 250,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                              child: Text(
+                                'Rs.' + viewModel.jobModel.totalAmount,
+                                maxLines: null,
+                                //textAlign: TextAlign.justify,
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w300),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.tealAccent,
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      RaisedButton(
+                        textColor: Colors.white,
+                        color: Color.fromRGBO(3, 9, 23, 1),
+                        onPressed: () {
+                          _showOtpModalBottomSheet(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          child: Text(
+                            "Enter Otp",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      RaisedButton(
+                        textColor: Colors.white,
+                        color: Color.fromRGBO(3, 9, 23, 1),
+                        onPressed: () {
+                          _showUserRatingModalSheet(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          child: Text(
+                            "Rate User",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      RaisedButton(
+                        textColor: Colors.white,
+                        color: Color.fromRGBO(3, 9, 23, 1),
+                        onPressed: () {
+                          _showCancelModalSheet(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          Divider(
-            thickness: 1,
-          ),
-          Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
-                      child: Text(
-                        "Address:",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    Container(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                        child: Text(
-                          "Battala, Agartala, Tripura(West), Pin-777777, India(North-East), Asia, Earth, Solar System",
-                          maxLines: null,
-                          //textAlign: TextAlign.justify,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w300),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 8, 8),
-                      child: Text(
-                        "Land-Mark:",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    Container(
-                      width: 250,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
-                        child: Text(
-                          "Battala Shoshan",
-                          overflow: TextOverflow.clip,
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w300),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
-                      child: Text(
-                        "Work:",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    Container(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                        child: Text(
-                          "Plumbing",
-                          maxLines: null,
-                          //textAlign: TextAlign.justify,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w300),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
-                      child: Text(
-                        "Quantity:",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                    Container(
-                      width: 250,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                        child: Text(
-                          "1",
-                          maxLines: null,
-                          //textAlign: TextAlign.justify,
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w300),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                  color: Colors.tealAccent,
-                  borderRadius: BorderRadius.all(Radius.circular(20))),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    RaisedButton(
-                      textColor: Colors.white,
-                      color: Color.fromRGBO(3, 9, 23, 1),
-                      onPressed: () {
-                        _showOtpModalBottomSheet(context);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        child: Text(
-                          "Enter Otp",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    RaisedButton(
-                      textColor: Colors.white,
-                      color: Color.fromRGBO(3, 9, 23, 1),
-                      onPressed: () {
-                        _showUserRatingModalSheet(context);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        child: Text(
-                          "Rate User",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    RaisedButton(
-                      textColor: Colors.white,
-                      color: Color.fromRGBO(3, 9, 23, 1),
-                      onPressed: () {
-                        _showCancelModalSheet(context);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
-          ),
-          Divider(),
-          Expanded(
-              child: Stack(
-            children: [
-              mapWidget = GoogleMap(
-                markers: markers,
-                onMapCreated: (GoogleMapController googleMapController) {
-                  mapController = googleMapController;
-                },
-                initialCameraPosition:
-                    CameraPosition(target: LatLng(38.8977, 77.0365), zoom: 16),
-              ),
-              Positioned(
-                left: 300,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.add_circle,
-                    size: 40,
-                    color: Colors.green.withOpacity(0.5),
-                  ),
-                  onPressed: () {
-                    _showNewJobDialogBox();
+            Divider(),
+            Expanded(
+                child: Stack(
+              children: [
+                mapWidget = GoogleMap(
+                  markers: markers,
+                  onMapCreated: (GoogleMapController googleMapController) {
+                    mapController = googleMapController;
                   },
+                  initialCameraPosition: CameraPosition(
+                      target: LatLng(38.8977, 77.0365), zoom: 16),
                 ),
-              ),
-              Positioned(
-                top: 45,
-                left: 240,
+                Positioned(
+                  left: 300,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.add_circle,
+                      size: 40,
+                      color: Colors.green.withOpacity(0.5),
+                    ),
+                    onPressed: () {
+                      _showNewJobDialogBox();
+                    },
+                  ),
+                ),
+                Positioned(
+                  top: 45,
+                  left: 240,
+                  child: RaisedButton(
+                    color: Colors.green.withOpacity(.5),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            "Scan",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      scanBarcode();
+                      print(_scanBarcode + " Barcode");
+                    },
+                  ),
+                )
+              ],
+            )),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
                 child: RaisedButton(
-                  color: Colors.green.withOpacity(.5),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          "Scan",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ],
-                    ),
-                  ),
+                  elevation: 5,
+                  textColor: Colors.white,
+                  color: Colors.green,
                   onPressed: () {
-                    scanBarcode();
-                    print(_scanBarcode + " Barcode");
+                    _showAlertDialogBox();
                   },
-                ),
-              )
-            ],
-          )),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              child: RaisedButton(
-                elevation: 5,
-                textColor: Colors.white,
-                color: Colors.green,
-                onPressed: () {
-                  _showAlertDialogBox();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Text(
-                    "Done with the fixing?",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Text(
+                      "Done with the fixing?",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      )),
+          ],
+        ));
+      }),
     );
   }
 

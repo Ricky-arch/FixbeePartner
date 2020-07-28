@@ -12,22 +12,19 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 
 class Home extends StatefulWidget {
-  const Home();
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-
-
-  HomeBloc _bloc;
-  GoogleMapController mapController;
-  GoogleMap mapWidget;
-  Set<Marker> markers = Set();
-  Geolocator geoLocator = Geolocator();
+  static HomeBloc _bloc;
+  static GoogleMapController mapController;
+  static GoogleMap mapWidget;
+  static Set<Marker> markers = Set();
+  static Geolocator geoLocator = Geolocator();
   static const tenSec = const Duration(seconds: 10);
-  double latitude;
-  double longitude;
+  static double latitude;
+  static double longitude;
   @override
   void initState() {
     super.initState();
@@ -40,7 +37,7 @@ class _HomeState extends State<Home> {
     _bloc.fire(HomeEvents.getDocumentVerificationStatus);
     super.initState();
     // set customer location
-    var marker = Marker(
+     var marker = Marker(
         markerId: MarkerId("Your Location"),
         position: LatLng(latitude ?? 23.829321, longitude ?? 91.277847));
     markers.add(marker);
@@ -111,7 +108,8 @@ class _HomeState extends State<Home> {
                                   activeColor: Colors.red,
                                   onChanged: (bool value) {
                                     print(DataStore.token);
-                                    _bloc.fire(HomeEvents.getDocumentVerificationStatus);
+                                    _bloc.fire(HomeEvents
+                                        .getDocumentVerificationStatus);
                                     _bloc.fire(HomeEvents.activityStatusSet,
                                         message: {'status': value},
                                         onHandled: (e, m) {

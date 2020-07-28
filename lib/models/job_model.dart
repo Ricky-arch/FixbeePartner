@@ -13,7 +13,7 @@ class JobModel extends ViewModel{
   String addressLine;
   String googlePlaceId;
   String address;
-  String landmark;
+  String addressName;
   String userPhoneNumber;
   LatLng latLng;
   String otp;
@@ -29,5 +29,7 @@ class JobModel extends ViewModel{
   bool slotted;
   DateTime slot;
   String quantity;
+  String totalAmount;
+  DateTime timeStamp;
 }
 

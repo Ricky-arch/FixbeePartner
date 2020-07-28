@@ -12,11 +12,14 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
     if (event == NavigationEvent.onMessage) {
       return await onMessage(message);
     }
-    if (event == NavigationEvent.onConfirmDeclineJob) {
+    if (event == NavigationEvent.onConfirmJob) {
       return await onConfirmDeclineJob(message);
     }
     if (event == NavigationEvent.getServiceData) {
       return await getServiceData(message);
+    }
+    if(event== NavigationEvent.getUserData){
+      return await getUserData(message);
     }
     return latestViewModel;
   }
@@ -120,8 +123,8 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
 		  }
 	  }
     }''';
-    latestViewModel..order.otp = message['data']['Order']['OTP'];
-    await CustomGraphQLClient.instance.mutate(query);
+    Map response=await CustomGraphQLClient.instance.mutate(query);
+    print(response.toString()+"oooo");
     return latestViewModel;
   }
 
@@ -144,6 +147,12 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
     return latestViewModel
       ..service.serviceName = response['Service']['Name']
       ..service.serviceId = response['Service']['ID'];
+  }
+
+  Future<NavigationModel> getUserData(Map<String, dynamic> message) async{
+    String query='''''';
+
+    return latestViewModel;
   }
 
 }

@@ -6,6 +6,6 @@ class NavigationEvent extends Event{
   static final NavigationEvent onMessage=NavigationEvent(100);
   static final NavigationEvent getServiceData= NavigationEvent(102);
   static final NavigationEvent getUserData= NavigationEvent(103);
-  static final NavigationEvent onConfirmDeclineJob=NavigationEvent(101);
+  static final NavigationEvent onConfirmJob=NavigationEvent(101);
 
 }

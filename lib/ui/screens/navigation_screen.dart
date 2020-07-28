@@ -23,13 +23,14 @@ class NavigationScreen extends StatefulWidget {
 }
 
 List<Widget> pages = [
-  const Home(),
-  const HistoryScreen(),
-  const WalletScreen(),
+  Home(),
+  HistoryScreen(),
+  WalletScreen(),
   CustomProfile(),
 ];
 
 class _NavigationScreenState extends State<NavigationScreen> {
+  PageController _pageController;
   bool _visible;
   NavigationBloc _bloc;
   int _currentIndex = 0;
@@ -40,10 +41,13 @@ class _NavigationScreenState extends State<NavigationScreen> {
       quantityInfo,
       userName,
       billingAddress,
-      phoneNumber;
-  bool slotted, paymentMode;
+      phoneNumber,
+      slot,
+      slotted,
+      paymentMode;
   @override
   void initState() {
+    _pageController = PageController();
     _bloc = NavigationBloc(NavigationModel());
     _setupFCM();
 
@@ -101,6 +105,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       if (data.containsKey('name')) {
         userName = data['name'];
       }
+
       if (data.containsKey('place_id')) {
         placeId = data['place_id'];
       }
@@ -112,6 +117,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
       }
       if (data.containsKey('slotted')) {
         slotted = data['slotted'];
+        if (slotted.toString() == 'true') {
+          slot = data['slot'];
+        }
       }
       if (data.containsKey('phone_number')) {
         phoneNumber = data['phone_number'];
@@ -124,6 +132,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   @override
   void dispose() {
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -152,61 +161,31 @@ class _NavigationScreenState extends State<NavigationScreen> {
                       maintainAnimation: true,
                       maintainState: true,
                       child: JobNotification(
+                        orderId: orderId,
                         serviceName: viewModel.service.serviceName,
                         quantity: quantityInfo,
                         userName: userName,
-                        paymentMode: (paymentMode.toString() == 'false')
-                            ? "Online Payment"
-                            : "COD",
+                        paymentMode:
+                            (paymentMode == 'false') ? "Online Payment" : "COD",
                         addressLine: billingAddress,
                         userNumber: phoneNumber,
                         slotted: slotted,
+                        slot: slot,
                         onConfirm: () {
-//                        _bloc.fire(NavigationEvent.onConfirmDeclineJob,
-//                            message: {
-//                              "orderId": viewModel.order.orderId,
-//                              "Accept": "true"
-//                            });
-//                        if (!viewModel.order.slotted) {
-//                          Navigator.push(
-//                              context,
-//                              MaterialPageRoute(
-//                                  builder: (context) => WorkScreen(
-//                                        userFirstname: viewModel.user.firstname,
-//                                        userMiddlename:
-//                                            viewModel.user.middlename,
-//                                        userLastname: viewModel.user.lastname,
-//                                        userId: viewModel.user.userId,
-//                                        userProfilePicUrl:
-//                                            viewModel.user.profilePicUrl,
-//                                        userPhoneNumber:
-//                                            viewModel.user.phoneNumber,
-//                                        serviceName:
-//                                            viewModel.service.serviceName,
-//                                        serviceId: viewModel.service.serviceId,
-//                                        cashOnDelivery:
-//                                            viewModel.order.cashOnDelivery,
-//                                        orderId: viewModel.order.orderId,
-//                                        otp: viewModel.order.otp,
-//                                        googlePlaceId:
-//                                            viewModel.location.googlePlaceId,
-//                                        addressLine:
-//                                            viewModel.location.addressLine,
-//                                        locationId:
-//                                            viewModel.location.locationId,
-//                                        locationName:
-//                                            viewModel.location.locationName,
-//                                      )));
-//                        } else {
-//                          setState(() {
-//                            _gotJob = false;
-//                          });
-//                        }
+                          _bloc.fire(NavigationEvent.onConfirmJob,
+                              message: {"orderId": orderId, "Accept": true});
+                          if (slotted == 'true') {
+                            setState(() {
+                              _visible = false;
+                            });
+                          } else {
+//                            Route route = MaterialPageRoute(
+//                                builder: (context) => WorkScreen(orderId: viewModel.order.orderId,));
+//                            Navigator.pushReplacement(context, route);
+                          }
                         },
                         onDecline: () {
-                          setState(() {
-                            _visible = false;
-                          });
+                          _showCancelBox();
                         },
                       ),
                     )
@@ -216,5 +195,32 @@ class _NavigationScreenState extends State<NavigationScreen> {
         }),
       ),
     );
+  }
+
+  _showCancelBox() {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text("Are you sure about declining?"),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  setState(() {
+                    _visible = false;
+                  });
+                  Navigator.pop(context);
+                },
+                child: Text("Yes"),
+              ),
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("No"),
+              ),
+            ],
+          );
+        });
   }
 }
