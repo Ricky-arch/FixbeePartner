@@ -188,10 +188,13 @@ class _JobNotificationState extends State<JobNotification> {
                                             ),
                                           ),
                                         ),
-                                        onTap: () {
-                                          _callPhone(widget.userNumber == null
-                                              ? "tel:+918132802897"
-                                              : widget.userNumber);
+                                        onTap: () async{
+
+                                          if (await canLaunch(widget.userNumber) && (widget.userNumber!=null)) {
+                                            await launch(widget.userNumber);
+                                          } else {
+                                            throw 'Could not Call Phone';
+                                          }
                                         },
                                       ),
                                     ],

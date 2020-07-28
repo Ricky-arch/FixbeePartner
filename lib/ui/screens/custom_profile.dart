@@ -6,11 +6,13 @@ import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
+import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const kSpacingUnit = 10;
 const kDarkPrimaryColor = Color(0xFF212121);
@@ -66,6 +68,32 @@ class _CustomProfileState extends State<CustomProfile> {
   void dispose() {
     _bloc.extinguish();
     super.dispose();
+  }
+  _showLogoutDialogBox() {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text("Are you sure, you want to log out?"),
+            actions: [
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("No"),
+              ),
+              FlatButton(
+                onPressed: () async {
+                  SharedPreferences preferences = await SharedPreferences.getInstance();
+                  await preferences.clear();
+                  Route route = MaterialPageRoute(builder: (context) => SplashScreen());
+                  Navigator.pushReplacement(context, route);
+                },
+                child: Text("Yes"),
+              ),
+            ],
+          );
+        });
   }
 
   @override
@@ -202,6 +230,7 @@ class _CustomProfileState extends State<CustomProfile> {
                       icon: LineAwesomeIcons.alternate_sign_out,
                       text: 'Logout',
                       hasNavigation: false,
+                      task: _showLogoutDialogBox
                     ),
                   ],
                 ),
@@ -209,6 +238,7 @@ class _CustomProfileState extends State<CustomProfile> {
             ],
           );
         }));
+
   }
 
   onImagePicked(String path) {
@@ -272,4 +302,5 @@ class ProfileListItem extends StatelessWidget {
       ),
     );
   }
+
 }

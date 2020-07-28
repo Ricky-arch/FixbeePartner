@@ -1,5 +1,8 @@
+import 'package:fixbee_partner/blocs/login_bloc.dart';
 import 'package:fixbee_partner/blocs/otp_login_bloc.dart';
+import 'package:fixbee_partner/events/login_events.dart';
 import 'package:fixbee_partner/events/otp_events.dart';
+import 'package:fixbee_partner/models/login_model.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_field.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_insert.dart';
@@ -20,10 +23,12 @@ class _OtpForLoginState extends State<OtpForLogin> {
   OTPController _otpController = OTPController();
   TextEditingController _otpInsertController = TextEditingController();
   OtpLoginBloc _bloc;
+  LoginBloc _loginBloc;
 
   @override
   void initState() {
     _bloc = OtpLoginBloc(OtpModel());
+    _loginBloc = LoginBloc(LoginModel());
     super.initState();
   }
 
@@ -70,6 +75,12 @@ class _OtpForLoginState extends State<OtpForLogin> {
                       width: 5,
                     ),
                     GestureDetector(
+                      onTap: () {
+                        _loginBloc.fire(
+                          LoginEvents.onLogIn,
+                          message: {'phone': widget.phoneNumber},
+                        );
+                      },
                       child: Text(
                         "Resend Code",
                         style: TextStyle(

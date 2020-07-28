@@ -29,7 +29,7 @@ class LoginBloc extends Bloc<LoginEvents, LoginModel>
     Map response = await RequestMaker(
             endpoint: EndPoints.REQUEST_OTP, body: {'phone': message['phone']})
         .makeRequest()
-        .timeout(Duration(seconds: 60));
+        .timeout(Duration(seconds: 5));
 
     if (!response.containsKey('sent') || !response['sent']) {
       return latestViewModel..exist = false;

@@ -75,8 +75,11 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
     Map response = await CustomGraphQLClient.instance.query(query);
     String id = response['Me']['DisplayPicture']['id'];
     print("xxx" + id);
-    return latestViewModel
-      ..imageId = response['Me']['DisplayPicture']['id']
-      ..imageUrl = '${EndPoints.DOCUMENT}?id=$id';
+    if (id != null) {
+      return latestViewModel
+        ..imageId = response['Me']['DisplayPicture']['id']
+        ..imageUrl = '${EndPoints.DOCUMENT}?id=$id';
+    }
+    return latestViewModel;
   }
 }

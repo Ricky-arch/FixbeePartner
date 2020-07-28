@@ -246,7 +246,7 @@ class _RegistrationState extends State<Registration> {
                                   message: {'phonenumber': phoneNumber.text},
                                   onHandled: (e, m) {
                                 if (m.sent) {
-                                  print("Hello World");
+
                                   goToOtpLoginScreen(ctx);
                                 } else {
                                   Scaffold.of(ctx).showSnackBar(SnackBar(

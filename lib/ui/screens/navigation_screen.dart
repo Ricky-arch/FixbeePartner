@@ -123,6 +123,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       }
       if (data.containsKey('phone_number')) {
         phoneNumber = data['phone_number'];
+        print(phoneNumber+"pppp");
       }
       if (data.containsKey('payment_mode')) {
         paymentMode = data['payment_mode'];
@@ -170,6 +171,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                         addressLine: billingAddress,
                         userNumber: phoneNumber,
                         slotted: slotted,
+
                         slot: slot,
                         onConfirm: () {
                           _bloc.fire(NavigationEvent.onConfirmJob,
