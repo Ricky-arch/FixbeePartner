@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/home_events.dart';
@@ -27,13 +28,13 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
       return await _getActivityStatus();
     } else if (event == HomeEvents.updateLiveLocation) {
       return await updateLiveLocation(message);
-    } else if (event == HomeEvents.getLiveLocation) {
+    } else if (event == HomeEvents.getDeviceLocation) {
       return await getLiveLocation();
     }
     if (event == HomeEvents.getDocumentVerificationStatus) {
       return await _getDocumentVerificationStatus();
     }
-    if(event == HomeEvents.getLiveLocation){
+    if (event == HomeEvents.getDeviceLocation) {
       return await _getDeviceLocation();
     }
 
@@ -52,8 +53,8 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
 } ''';
     Map response = await CustomGraphQLClient.instance.query(query);
 
-
-    return latestViewModel..verifiedBee=response['Me']['DocumentVerification']['Status'];
+    return latestViewModel
+      ..verifiedBee = response['Me']['DocumentVerification']['Status'];
   }
 
   Future<HomeModel> _setActivityStatus(Map<String, dynamic> message) async {
@@ -156,16 +157,16 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
 
     Stream<FetchResult> sub = CustomGraphQLClient.instance
         .subscribe(CustomGraphQLClient.instance.wsClient, query);
-
+    Position location;
     locationTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
-      Position location = await _getLocation();
+      location = await _getLocation();
+
       updateLiveLocation(
           {'latitude': location.latitude, 'longitude': location.longitude});
     });
 
     addSecondaryStream(sub);
   }
-
 
   Future<Position> _getLocation() async {
     var currentLocation;
@@ -177,15 +178,13 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     }
     return currentLocation;
   }
-  Future<HomeModel> _getDeviceLocation() async{
-    var currentDeviceLocation;
-    try {
-      currentDeviceLocation = await _geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best);
-    } catch (e) {
-      currentDeviceLocation = null;
-    }
-    return latestViewModel..deviceLocation=currentDeviceLocation;
+
+  Future<HomeModel> _getDeviceLocation() async {
+    Position location = await _getLocation();
+
+    return latestViewModel
+      ..latitude = location.latitude
+      ..longitude = location.longitude;
   }
 
   @override

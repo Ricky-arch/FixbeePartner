@@ -1,8 +1,12 @@
+import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
 import 'package:fixbee_partner/ui/screens/custom_profile.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
+import 'package:fixbee_partner/ui/screens/otp_for_login.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
+import 'package:fixbee_partner/ui/screens/history_screen.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
+import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -22,8 +26,8 @@ void main() {
             //OtpForLogin(phoneNumber: "8787300192R",),
             //Registration()
             //HistoryScreen()
-            //WalletScreen()
-            //OtpForLogin(phoneNumber: "4545454545",)
+           // WalletScreen()
+            //OtpForLogin(),
             //ServiceSelectionScreen()
             //BankDetails()
             //NavigationScreen()
@@ -40,6 +44,8 @@ void main() {
         //JobNotification()
        // CustomProfile()
        //AvailableAccounts()
+        //WorkAnimation()
+        //HistoryScreen()
         SplashScreen()
         //VerificationDocuments()
         //ServiceSelectionScreen()

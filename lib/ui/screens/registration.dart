@@ -11,9 +11,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:string_validator/string_validator.dart';
 
+import '../../Constants.dart';
+
 Bee addBee;
 
 class Registration extends StatefulWidget {
+  final String phoneNumber;
+
+  const Registration({Key key, this.phoneNumber}) : super(key: key);
   @override
   _RegistrationState createState() => _RegistrationState();
 }
@@ -21,11 +26,10 @@ class Registration extends StatefulWidget {
 class _RegistrationState extends State<Registration> {
   RegistrationBloc _bloc;
 
-
   final firstName = TextEditingController();
   final middleName = TextEditingController();
   final lastName = TextEditingController();
-  final phoneNumber = TextEditingController();
+  TextEditingController _phoneNumberController;
   final alternatePhoneNumber = TextEditingController();
   final email = TextEditingController();
   final address = TextEditingController();
@@ -41,28 +45,16 @@ class _RegistrationState extends State<Registration> {
   void initState() {
     super.initState();
     _bloc = RegistrationBloc(RegistrationModel());
+    _phoneNumberController = TextEditingController(text: widget.phoneNumber);
 //    _getMessage();
   }
 
-//  void _getMessage() {
-//    _firebaseMessaging.configure(
-//        onMessage: (Map<String, dynamic> message) async {
-//      print('on message $message');
-//      setState(() => _message = message["notification"]["title"]);
-//    }, onResume: (Map<String, dynamic> message) async {
-//      print('on resume $message');
-//      setState(() => _message = message["notification"]["title"]);
-//    }, onLaunch: (Map<String, dynamic> message) async {
-//      print('on launch $message');
-//      setState(() => _message = message["notification"]["title"]);
-//    });
-//  }
 
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
     _bloc?.extinguish();
-
+    _phoneNumberController.dispose();
     super.dispose();
   }
 
@@ -73,46 +65,52 @@ class _RegistrationState extends State<Registration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: PrimaryColors.backgroundColor,
+        automaticallyImplyLeading: false,
+        //backgroundColor: Data.backgroundColor,
+        title: Stack(
+          children: <Widget>[
+            Container(
+                decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
+                child: Row(
+                  children: <Widget>[
+                    SizedBox(
+                      width: 5,
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'You look like a new Bee!',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.yellow,
+                                  fontSize: 18)),
+                        ],
+                      ),
+                    ),
+                    Spacer(),
+                    IconButton(
+                      icon: Icon(
+                        Icons.info_outline,
+                        color: Colors.yellow,
+                      ),
+                      onPressed: () {},
+                    )
+                  ],
+                ))
+          ],
+        ),
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(child: _bloc.widget(
         onViewModelUpdated: (ctx, viewModel) {
           return ListView(
             scrollDirection: Axis.vertical,
             children: <Widget>[
-              Container(
-                height: 60,
-                color: Colors.yellow[600],
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: <Widget>[
-                      GestureDetector(
-                        child: Icon(
-                          Icons.arrow_left,
-                          color: Colors.black,
-                          size: 25,
-                        ),
-                        onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => Login()));
-                        },
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width / 20),
-                      Center(
-                          child: Text(
-                        "Register",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600),
-                      )),
-                    ],
-                  ),
-                ),
-              ),
               SizedBox(
-                height: 5,
+                height: 30,
               ),
               Form(
                   key: _formKey,
@@ -193,7 +191,8 @@ class _RegistrationState extends State<Registration> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: TextFormField(
-                          controller: phoneNumber,
+                          enabled: false,
+                          controller: _phoneNumberController,
                           validator: (value) {
                             if (!isNumeric(value.trim())) {
                               return 'Please Enter Valid Phone Number';
@@ -238,15 +237,14 @@ class _RegistrationState extends State<Registration> {
                                 'firstname': firstName.text,
                                 'middlename': middleName.text,
                                 'lastname': lastName.text,
-                                'phonenumber': phoneNumber.text,
+                                'phonenumber': _phoneNumberController.text,
                                 'dateofbirth': dateOfBirth.text
                               }, onHandled: (e, m) {
                             if (m.registered) {
                               _bloc.fire(RegistrationEvents.requestOtp,
-                                  message: {'phonenumber': phoneNumber.text},
+                                  message: {'phonenumber': _phoneNumberController.text},
                                   onHandled: (e, m) {
                                 if (m.sent) {
-
                                   goToOtpLoginScreen(ctx);
                                 } else {
                                   Scaffold.of(ctx).showSnackBar(SnackBar(
@@ -281,7 +279,7 @@ class _RegistrationState extends State<Registration> {
         context,
         MaterialPageRoute(
             builder: (context) => OtpForLogin(
-                  phoneNumber: phoneNumber.text,
+                  phoneNumber: _phoneNumberController.text,
                 )));
   }
 }

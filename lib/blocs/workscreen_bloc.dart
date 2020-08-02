@@ -14,6 +14,12 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     if (event == WorkScreenEvents.fetchOrderDetails) {
       return await fetchOrderDetails(message);
     }
+    if (event == WorkScreenEvents.verifyOtpToStartService) {
+      return await verifyOtpToStartService(message);
+    }
+    if (event == WorkScreenEvents.rateUser) {
+      return await rateUser(message);
+    }
     return latestViewModel;
   }
 
@@ -60,7 +66,7 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     Map order = response['Order'];
     Map user = order['User'];
     Map location = order['Location'];
-    print(location['Address']['Line1']+"llll");
+    print(location['Address']['Line1'] + "llll");
 
     return latestViewModel
       ..jobModel.userFirstname = user['Name']["Firstname"]
@@ -70,10 +76,36 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
       ..jobModel.serviceName = response['Order']['Service']["Name"]
       ..jobModel.address = location['Address']['Line1']
       ..jobModel.googlePlaceId = location['GooglePlaceID']
-      ..jobModel.userProfilePicUrl = '${EndPoints.DOCUMENT}?id=${user['DisplayPicture']['id']}'
+      ..jobModel.userProfilePicUrl =
+          '${EndPoints.DOCUMENT}?id=${user['DisplayPicture']['id']}'
       ..jobModel.totalAmount = order['Amount']
       ..jobModel.cashOnDelivery = order['CashOnDelivery']
       ..jobModel.timeStamp = order['Timestamp'];
   }
 
+  Future<WorkScreenModel> verifyOtpToStartService(
+      Map<String, dynamic> message) async {
+    String id = message['orderId'];
+    int otp = message['otp'];
+    String query = '''mutation{
+  ResolveOrder(_id:"$id",input:{OTP:$otp}){
+    OrderId
+    Bee{
+      ID
+    }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.mutate(query);
+    if (response.containsKey('errors')) {
+      latestViewModel..otpValid = false;
+    } else {
+      latestViewModel..onServiceStarted = true;
+    }
+    return latestViewModel;
+  }
+
+  Future<WorkScreenModel> rateUser(Map<String, dynamic> message) async {
+
+    return latestViewModel;
+  }
 }

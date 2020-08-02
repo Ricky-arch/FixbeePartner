@@ -68,6 +68,12 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     pref.setString(SharedPrefKeys.TOKEN, token);
   }
 
+  _saveBee(Bee bee) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString(SharedPrefKeys.BEENAME,
+        bee.firstName + " " + bee.middleName + " " + bee.lastName);
+  }
+
   Future<OtpModel> checkForServiceSelected() async {
     String query = '''{
   Me{
@@ -117,7 +123,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
     Bee bee = Bee()
-      ..firstName = response['Me']['Name']['Firstname'] ?? ''
+      ..firstName = response['Me']['Name']['Firstname']
       ..middleName = response['Me']['Name']['Middlename'] ?? ''
       ..lastName = response['Me']['Name']['Lastname'] ?? ''
       ..phoneNumber = response['Me']['Phone']['Number'];
@@ -132,7 +138,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     String fcmToken = await _firebaseMessaging.getToken();
     DataStore.fcmToken = fcmToken;
     log(fcmToken, name: 'FCM TOKEN');
-    String query='''mutation{
+    String query = '''mutation{
   Update(input:{
     FCMToken:"$fcmToken"
   }){

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-class NavigationItem{
+class BottomNavigationItem{
   final Icon icon;
   final Text title;
 
-  NavigationItem(this.icon, this.title);
-
+  BottomNavigationItem(this.icon, this.title);
 }

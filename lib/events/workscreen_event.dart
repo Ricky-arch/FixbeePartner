@@ -4,4 +4,8 @@ class WorkScreenEvents extends Event{
   WorkScreenEvents(int eventId) : super(eventId);
   static final WorkScreenEvents fetchOrderDetails= WorkScreenEvents(100);
   static final WorkScreenEvents fetchUserDp= WorkScreenEvents(101);
+  static final WorkScreenEvents verifyOtpToStartService=WorkScreenEvents(102);
+  static final WorkScreenEvents rateUser=WorkScreenEvents(103);
+  static final WorkScreenEvents cancelAcceptedJob= WorkScreenEvents(104);
+  static final WorkScreenEvents onJobCompletion=WorkScreenEvents(105);
 }

@@ -8,6 +8,8 @@ import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
+import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -69,6 +71,7 @@ class _CustomProfileState extends State<CustomProfile> {
     _bloc.extinguish();
     super.dispose();
   }
+
   _showLogoutDialogBox() {
     return showDialog(
         context: context,
@@ -84,9 +87,14 @@ class _CustomProfileState extends State<CustomProfile> {
               ),
               FlatButton(
                 onPressed: () async {
-                  SharedPreferences preferences = await SharedPreferences.getInstance();
+                  SharedPreferences preferences =
+                      await SharedPreferences.getInstance();
                   await preferences.clear();
-                  Route route = MaterialPageRoute(builder: (context) => SplashScreen());
+                  CustomGraphQLClient.instance.invalidateWSClient();
+                  CustomGraphQLClient.instance.invalidateClient();
+
+                  Route route =
+                      MaterialPageRoute(builder: (context) => SplashScreen());
                   Navigator.pushReplacement(context, route);
                 },
                 child: Text("Yes"),
@@ -159,21 +167,29 @@ class _CustomProfileState extends State<CustomProfile> {
                           height: kSpacingUnit.w * 10,
                           width: kSpacingUnit.w * 10,
                           margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
-                          child: Stack(
-                            children: <Widget>[
-                              DisplayPicture(
-                                onImagePicked: onImagePicked,
-                                imageURl: viewModel.imageUrl,
-                                loading: false,
-                              ),
-                            ],
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              border:
+                              Border.all(color: PrimaryColors.backgroundColor, width: 1)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(1.0),
+                            child: Stack(
+                              children: <Widget>[
+                                DisplayPicture(
+                                  onImagePicked: onImagePicked,
+                                  imageURl: viewModel.imageUrl,
+                                  loading: false,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                         SizedBox(height: kSpacingUnit.w * 1),
                         Text(
                           DataStore.me.firstName +
                               " " +
-                              DataStore.me.middleName +
+                              DataStore.me.middleName+
                               " " +
                               DataStore.me.lastName,
                           style: TextStyle(
@@ -227,18 +243,16 @@ class _CustomProfileState extends State<CustomProfile> {
                       text: 'Invite a Friend',
                     ),
                     ProfileListItem(
-                      icon: LineAwesomeIcons.alternate_sign_out,
-                      text: 'Logout',
-                      hasNavigation: false,
-                      task: _showLogoutDialogBox
-                    ),
+                        icon: LineAwesomeIcons.alternate_sign_out,
+                        text: 'Logout',
+                        hasNavigation: false,
+                        task: _showLogoutDialogBox),
                   ],
                 ),
               )
             ],
           );
         }));
-
   }
 
   onImagePicked(String path) {
@@ -302,5 +316,4 @@ class ProfileListItem extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -2,11 +2,14 @@ import 'dart:ui';
 
 import 'package:fixbee_partner/blocs/update_profile_bloc.dart';
 import 'package:fixbee_partner/events/update_profile_event.dart';
+import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/update_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:string_validator/string_validator.dart';
+
+import '../../data_store.dart';
 
 class UpdateProfile extends StatefulWidget {
   @override
@@ -27,7 +30,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController pinCode = TextEditingController();
   TextEditingController dateOfBirth = TextEditingController();
   TextEditingController genderController = TextEditingController();
-   DateTime dt;
+  DateTime dt;
 
   @override
   void initState() {
@@ -35,13 +38,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
     _bloc = UpdateProfileBloc(UpdateProfileModel());
     _bloc.fire(UpdateProfileEvent.fetchProfile, onHandled: (e, m) {
       firstName = TextEditingController(text: m.firstName);
-      middleName = TextEditingController(text: m.middleName);
-      lastName = TextEditingController(text: m.lastName);
+      middleName = TextEditingController(text: m.middleName ?? "");
+      lastName = TextEditingController(text: m.lastName ?? "");
       phoneNumber = TextEditingController(text: m.phoneNumber);
       alternatePhoneNumber =
-          TextEditingController(text: m.alternatePhoneNumber);
-      email = TextEditingController(text: m.emailAddress);
-      address1 = TextEditingController(text: m.address1);
+          TextEditingController(text: m.alternatePhoneNumber??"");
+      email = TextEditingController(text: m.emailAddress??"");
+      address1 = TextEditingController(text: m.address1??"");
       address2 = TextEditingController(text: m.address2);
       pinCode = TextEditingController(text: m.pinCode);
       genderController = TextEditingController(text: m.gender);
@@ -342,8 +345,8 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                     _bloc.fire(UpdateProfileEvent.updateProfile,
                                         message: {
                                           'firstName': firstName.text,
-                                          'middleName': middleName.text,
-                                          'lastName': lastName.text,
+                                          'middleName': middleName.text ?? "",
+                                          'lastName': lastName.text ?? "",
                                           'alternatePhoneNumber':
                                               alternatePhoneNumber.text,
                                           'email': email.text,
@@ -352,6 +355,15 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                           'dateOfBirth': dateOfBirth.text,
                                           'gender': gender[_selectedGender],
                                         }, onHandled: (e, m) {
+                                      Bee bee = Bee()
+                                        ..firstName = firstName.text
+                                        ..middleName = middleName.text ?? ''
+                                        ..lastName = lastName.text ?? ''
+                                        ..emailAddress = email.text
+                                        ..address = address1.text
+                                        ..pinCode = pinCode.text
+                                        ..gender = gender[_selectedGender];
+                                      DataStore.me = bee;
                                       Navigator.pop(context);
                                     });
                                   }

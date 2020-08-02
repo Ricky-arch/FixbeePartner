@@ -1,3 +1,5 @@
+
+
 import 'package:fixbee_partner/events/update_profile_event.dart';
 import 'package:fixbee_partner/models/update_profile_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
@@ -42,22 +44,31 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> {
   
 }}}''';
     Map response = await CustomGraphQLClient.instance.query(query);
+    List allLocations= response['Me']['Locations'];
+    List<Address> locations=[];
+    int noOfAddress=0;
+
+    allLocations.forEach((location) {
+      Address address= Address();
+      address.addressLine=location['Address']['Line1'];
+      address.locationId=location['ID'];
+      locations.add(address);
+    });
+    noOfAddress=allLocations.length-1;
 
     return latestViewModel
       ..firstName = response['Me']['Name']['Firstname']
-      ..middleName = response['Me']['Name']['Middlename']
-      ..lastName = response['Me']['Name']['Lastname']
+      ..middleName = response['Me']['Name']['Middlename']??""
+      ..lastName = response['Me']['Name']['Lastname']??""
       ..emailAddress = response['Me']['Email']
-      ..dob = response['Me']['DOB'];
+      ..dob = response['Me']['DOB']..address1=locations[noOfAddress].addressLine;
   }
 
   Future<UpdateProfileModel> updateBeeDetails(
       Map<String, dynamic> message) async {
     String firstName = message['firstName'],
-        middleName = (message['secondName'].toString().length == 0)
-            ? ""
-            : message['secondName'],
-        lastName = message['lastName'],
+        middleName = (message['secondName'])??"",
+        lastName = message['lastName']??"",
         email = message['email'],
         address = message['address'],
         pinCode = message['pin-code'],

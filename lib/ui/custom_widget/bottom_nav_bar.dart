@@ -14,18 +14,18 @@ class _BottomNavBarState extends State<BottomNavBar>
     with AutomaticKeepAliveClientMixin {
   Color backgroundColor = PrimaryColors.backgroundColor;
   int selectedItem = 0;
-  List<NavigationItem> items = [
-    NavigationItem(
+  List<BottomNavigationItem> items = [
+    BottomNavigationItem(
         Icon(
           Icons.home,
         ),
         Text("Home")),
-    NavigationItem(Icon(Icons.event), Text("History")),
-    NavigationItem(Icon(Icons.monetization_on), Text("Wallet")),
-    NavigationItem(Icon(Icons.person_outline), Text("Profile")),
+    BottomNavigationItem(Icon(Icons.event), Text("History")),
+    BottomNavigationItem(Icon(Icons.monetization_on), Text("Wallet")),
+    BottomNavigationItem(Icon(Icons.person_outline), Text("Profile")),
   ];
 
-  Widget buildItem(NavigationItem item, bool isSelected) {
+  Widget buildItem(BottomNavigationItem item, bool isSelected) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 200),
       padding: isSelected

@@ -192,160 +192,156 @@ class _BankDetailsState extends State<BankDetails> {
       isScrollControlled: true,
         context: context,
         builder: (context) {
-          return Wrap(children: [
+          return Wrap(children: <Widget>[
             Container(
               child: Column(
                 children: [
-                ListView(
-                  children: [
-                    Container(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "Add your bank details",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Form(
-                      key: _formKey,
-                      autovalidate: _validate,
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: TextFormField(
-                              controller: _bankAccountNumber,
-                              validator: (value) {
-                                if (!isNumeric(value.trim())) {
-                                  return 'Please Enter Your Bank Account Number';
-                                }
-                                return null;
-                              },
-                              style: TextStyle(color: Colors.black),
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                  errorStyle: TextStyle(color: Colors.black),
-                                  labelText: "Bank Account Number",
-                                  labelStyle: TextStyle(color: Colors.black54),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        color: Colors.deepOrange, width: 2.0),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  )),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: TextFormField(
-                              controller: _ifscCode,
-                              validator: (value) {
-                                if (!isAlphanumeric(value.trim())) {
-                                  return 'Please Enter Your Bank IfSC Code';
-                                }
-                                return null;
-                              },
-                              style: TextStyle(color: Colors.black),
-                              keyboardType: TextInputType.text,
-                              decoration: InputDecoration(
-                                  errorStyle: TextStyle(color: Colors.black),
-                                  labelText: "IFSC Code",
-                                  labelStyle: TextStyle(color: Colors.black54),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        color: Colors.deepOrange, width: 2.0),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  )),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: TextFormField(
-                              controller: _accountHoldersName,
-                              validator: (value) {
-                                if (value.trim().isEmpty) {
-                                  return 'Please Enter Your Bank Account Holders Name';
-                                }
-                                return null;
-                              },
-                              style: TextStyle(color: Colors.black),
-                              keyboardType: TextInputType.text,
-                              decoration: InputDecoration(
-                                  errorStyle: TextStyle(color: Colors.black),
-                                  labelText: "Bank Account Holders Name",
-                                  labelStyle: TextStyle(color: Colors.black54),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        color: Colors.deepOrange, width: 2.0),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  )),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
+                  Container(
+                    child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: RaisedButton(
-                              textColor: Colors.white,
-                              color: Colors.green,
-                              onPressed: () {
-                                if (_formKey.currentState.validate()) {
-                                  _bloc.fire(BankDetailsEvent.updateBankAccount,
-                                      message: {
-                                        'accountHoldersName':
-                                        _accountHoldersName.text,
-                                        'ifscCode': _ifscCode.text,
-                                        'accountNumber': _bankAccountNumber.text
-                                      }, onHandled: (e, m) {
-                                        Navigator.pop(context);
-                                      });
-                                }
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                child: Text(
-                                  "CONFIRM",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 16,
-                          ),
-                          Expanded(
-                            child: OutlineButton(
-                              highlightedBorderColor: Colors.red,
-                              textColor: Colors.red,
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                child: Text(
-                                  'DECLINE',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        "Add your bank details",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w500),
                       ),
                     ),
-                  ],
-                )
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Form(
+                    key: _formKey,
+                    autovalidate: _validate,
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: TextFormField(
+                            controller: _bankAccountNumber,
+                            validator: (value) {
+                              if (!isNumeric(value.trim())) {
+                                return 'Please Enter Your Bank Account Number';
+                              }
+                              return null;
+                            },
+                            style: TextStyle(color: Colors.black),
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                                errorStyle: TextStyle(color: Colors.black),
+                                labelText: "Bank Account Number",
+                                labelStyle: TextStyle(color: Colors.black54),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                      color: Colors.deepOrange, width: 2.0),
+                                  borderRadius: BorderRadius.circular(15.0),
+                                )),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: TextFormField(
+                            controller: _ifscCode,
+                            validator: (value) {
+                              if (!isAlphanumeric(value.trim())) {
+                                return 'Please Enter Your Bank IfSC Code';
+                              }
+                              return null;
+                            },
+                            style: TextStyle(color: Colors.black),
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                                errorStyle: TextStyle(color: Colors.black),
+                                labelText: "IFSC Code",
+                                labelStyle: TextStyle(color: Colors.black54),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                      color: Colors.deepOrange, width: 2.0),
+                                  borderRadius: BorderRadius.circular(15.0),
+                                )),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: TextFormField(
+                            controller: _accountHoldersName,
+                            validator: (value) {
+                              if (value.trim().isEmpty) {
+                                return 'Please Enter Your Bank Account Holders Name';
+                              }
+                              return null;
+                            },
+                            style: TextStyle(color: Colors.black),
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                                errorStyle: TextStyle(color: Colors.black),
+                                labelText: "Bank Account Holders Name",
+                                labelStyle: TextStyle(color: Colors.black54),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                      color: Colors.deepOrange, width: 2.0),
+                                  borderRadius: BorderRadius.circular(15.0),
+                                )),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: RaisedButton(
+                            textColor: Colors.white,
+                            color: Colors.green,
+                            onPressed: () {
+                              if (_formKey.currentState.validate()) {
+                                _bloc.fire(BankDetailsEvent.updateBankAccount,
+                                    message: {
+                                      'accountHoldersName':
+                                      _accountHoldersName.text,
+                                      'ifscCode': _ifscCode.text,
+                                      'accountNumber': _bankAccountNumber.text
+                                    }, onHandled: (e, m) {
+                                      Navigator.pop(context);
+                                    });
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                "CONFIRM",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 16,
+                        ),
+                        Expanded(
+                          child: OutlineButton(
+                            highlightedBorderColor: Colors.red,
+                            textColor: Colors.red,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                'DECLINE',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             )
-          ]);
+          ],);
         });
   }
   _bankAccountInfo(context) {

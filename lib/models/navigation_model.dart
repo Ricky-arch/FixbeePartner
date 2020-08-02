@@ -18,11 +18,12 @@ class User {
   String lastname;
   String phoneNumber;
   String profilePicUrl;
+  String profilePicId;
 
 }
 class Location{
   String locationId;
-  String locationName;
+  String landmark;
   String addressLine;
   String googlePlaceId;
   String userRating;
@@ -43,7 +44,9 @@ class Order {
   String status;
   bool cashOnDelivery;
   bool slotted;
-  DateTime slot;
+  DateTime slottedAt;
   String quantity;
   String otp;
+  String timeStamp;
+  int price;
 }

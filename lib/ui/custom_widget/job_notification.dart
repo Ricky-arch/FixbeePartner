@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../Constants.dart';
@@ -138,7 +140,6 @@ class _JobNotificationState extends State<JobNotification> {
                                 (widget.profilePicUrl))
                             : AssetImage(
                                 "assets/custom_icons/user.png",
-
                               ),
                       ),
                     ),
@@ -149,6 +150,7 @@ class _JobNotificationState extends State<JobNotification> {
                   widget.loading
                       ? SizedBox()
                       : Container(
+
                           //width: MediaQuery.of(context).size.width - 112,
                           child: Row(
                             children: <Widget>[
@@ -159,60 +161,64 @@ class _JobNotificationState extends State<JobNotification> {
                                   SizedBox(
                                     height: 5,
                                   ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        widget.userName == null
-                                            ? 'Holy Jesus'
-                                            : widget.userName,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                3,
-                                      ),
-                                      GestureDetector(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Colors.green),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Icon(
-                                              Icons.phone,
-                                              size: 18,
-                                              color: Colors.white,
-                                            ),
+                                  Container(
+                                    height: 35,
+                                    width: MediaQuery.of(context).size.width-110,
+                                    child: Stack(
+                                      children: <Widget>[
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                widget.userName == null
+                                                    ? 'Holy Jesus'
+                                                    : widget.userName,
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600),
+                                              ),
+                                              SizedBox(
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width /
+                                                    3,
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        onTap: () async{
-
-                                          if (await canLaunch(widget.userNumber) && (widget.userNumber!=null)) {
-                                            await launch(widget.userNumber);
-                                          } else {
-                                            throw 'Could not Call Phone';
-                                          }
-                                        },
-                                      ),
-                                    ],
+                                        Positioned(
+                                          left: 200,
+                                          child: GestureDetector(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.deepPurple),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Icon(
+                                                  Icons.phone,
+                                                  size: 18,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                            onTap: () => launch(
+                                                "tel://${widget.userNumber}"),
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                  SizedBox(
-                                    height: 2,
-                                  ),
-                                  Text(widget.addressLine == null
-                                      ? 'AddressLine'
-                                      : widget.addressLine),
                                   Row(
                                     children: [
                                       Text(
                                         widget.serviceName == null
                                             ? "Ghor Porishkar"
                                             : widget.serviceName +
-                                                " - " +
-                                                widget.paymentMode,
+                                            " - " +
+                                            widget.paymentMode,
                                         textAlign: TextAlign.left,
                                         maxLines: null,
                                       ),
@@ -224,6 +230,10 @@ class _JobNotificationState extends State<JobNotification> {
                                       )
                                     ],
                                   ),
+                                  Text(widget.addressLine == null
+                                      ? 'AddressLine'
+                                      : widget.addressLine),
+
                                   (widget.slotted.toString() == 'true')
                                       ? Text(
                                           'Scheduled at: \n' +
@@ -252,7 +262,7 @@ class _JobNotificationState extends State<JobNotification> {
                         Expanded(
                           child: RaisedButton(
                             textColor: Colors.white,
-                            color: Colors.green,
+                            color: Colors.deepPurple,
                             onPressed: widget.onConfirm,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -268,6 +278,8 @@ class _JobNotificationState extends State<JobNotification> {
                         ),
                         Expanded(
                           child: OutlineButton(
+                            borderSide:
+                                BorderSide(color: Colors.deepPurple, width: 2),
                             highlightedBorderColor: Colors.red,
                             textColor: Colors.red,
                             onPressed: widget.onDecline,
@@ -275,7 +287,9 @@ class _JobNotificationState extends State<JobNotification> {
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
                                 'DECLINE',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    color: Colors.deepPurple,
+                                    fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),

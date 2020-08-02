@@ -4,4 +4,8 @@ import 'bee_model.dart';
 
 class WorkScreenModel extends ViewModel {
   JobModel jobModel= JobModel();
+  bool onServiceStarted=false;
+  bool otpValid=false;
+  int userRating;
+  bool slotted=false;
 }

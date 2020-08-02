@@ -16,6 +16,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
   @override
   void initState() {
     _bloc = FileUploadBloc(FileModel());
+
     super.initState();
   }
 
@@ -73,7 +74,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                 onTap: () {},
                 child: FileUploadWidget(
                   inputString: "Upload your Aadhaar-Card",
-                  onImagePicked: onImagePicked,
+                  onImagePicked: onImagePicked1,
                   //imageURl: viewModel.fileUrl,
                   loading: false,
                   text: Text(viewModel.files == null
@@ -88,7 +89,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                 onTap: () {},
                 child: FileUploadWidget(
                   inputString: "Upload any Age-proof Certificate",
-                  onImagePicked: onImagePicked,
+                  onImagePicked: onImagePicked2,
                   //imageURl: viewModel.fileUrl,
                   loading: false,
                   text: Text(viewModel.files == null
@@ -104,7 +105,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                 onTap: () {},
                 child: FileUploadWidget(
                   inputString: "Upload any address-proof certificate",
-                  onImagePicked: onImagePicked,
+                  onImagePicked: onImagePicked3,
                   //imageURl: viewModel.fileUrl,
                   loading: false,
                   text: Text(viewModel.files == null
@@ -119,7 +120,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                 onTap: () {},
                 child: FileUploadWidget(
                   inputString: "Upload any additional Certifications",
-                  onImagePicked: onImagePicked,
+                  onImagePicked: onImagePicked4,
                   //imageURl: viewModel.fileUrl,
                   loading: false,
                   text: Text(viewModel.files == null
@@ -134,8 +135,20 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
     );
   }
 
-  onImagePicked(String path) {
+  onImagePicked1(String path) {
     _bloc.fire(FileUploadEvent.uploadFile,
-        message: {"path": "$path", "file": "document"});
+        message: {"path": "$path", "file": "aadhaar"});
+  }
+  onImagePicked2(String path) {
+    _bloc.fire(FileUploadEvent.uploadFile,
+        message: {"path": "$path", "file": "age_proof"});
+  }
+  onImagePicked3(String path) {
+    _bloc.fire(FileUploadEvent.uploadFile,
+        message: {"path": "$path", "file": "address_proof"});
+  }
+  onImagePicked4(String path) {
+    _bloc.fire(FileUploadEvent.uploadFile,
+        message: {"path": "$path", "file": "additional_certificate"});
   }
 }

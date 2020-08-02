@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -38,7 +39,7 @@ class _OTPInsertState extends State<OTPInsert> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Column(
       children: <Widget>[
         Container(
           child: Row(
@@ -187,7 +188,7 @@ class OTPDigit extends StatelessWidget {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white),
+                  color: PrimaryColors.backgroundColor),
             ),
             SizedBox(
               height: 4,
@@ -197,7 +198,7 @@ class OTPDigit extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5)),
                 color: onFocus
-                    ? Theme.of(context).accentColor
+                    ? PrimaryColors.backgroundColor
                     : Colors.grey.withOpacity(0.3),
               ),
               width: onFocus ? 21 : 12,

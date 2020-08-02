@@ -29,6 +29,9 @@ class CustomGraphQLClient {
     (_wsClient.link as WebSocketLink)?.dispose();
     _wsClient = null;
   }
+  void invalidateClient(){
+    _instance=null;
+  }
 
   CustomGraphQLClient._privateConstructor() {
     if (DataStore.token == null) {
@@ -37,6 +40,7 @@ class CustomGraphQLClient {
 
     _link = HttpLink(
         uri: EndPoints.GRAPHQL, headers: {'authorization': DataStore.token});
+
 
     _graphQLClient = GraphQLClient(
         cache: OptimisticCache(dataIdFromObject: typenameDataIdFromObject),

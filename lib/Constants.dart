@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:fixbee_partner/models/bee_model.dart';
+
 class Constants{
   static const String HOST_IP="192.168.43.3";
   static const String PROTOCOL="http";
@@ -19,6 +21,7 @@ class EndPoints{
 
 class SharedPrefKeys{
   static const TOKEN='token@bee';
+  static const BEENAME='name';
 }
 class PrimaryColors{
   static Color backgroundColor = Color.fromRGBO(0, 7, 17, 9);

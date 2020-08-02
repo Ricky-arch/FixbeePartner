@@ -16,6 +16,8 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel> {
       FileUploadEvent event, Map<String, dynamic> message) async {
     if (event == FileUploadEvent.uploadFile)
       return await uploadFile(message['path'], message['file']);
+    if(event== FileUploadEvent.checkUploaded)
+      return await checkUploaded();
     return latestViewModel;
   }
 
@@ -53,5 +55,10 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel> {
       files.add(file);
     });
     return latestViewModel..files = files;
+  }
+
+  Future<FileModel> checkUploaded() async{
+
+    return latestViewModel;
   }
 }

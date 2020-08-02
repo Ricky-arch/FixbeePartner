@@ -190,13 +190,13 @@ class _LoginState extends State<Login> {
                                                     Navigator.push(context,
                                                         MaterialPageRoute(
                                                             builder: (ctx) {
-                                                      return Registration();
+                                                      return Registration(phoneNumber: textEditingController.text,);
                                                     }));
                                                   }
                                                 });
                                               }
                                             : null,
-                                        child: Text("Get OTP"),
+                                        child: Text("Next"),
                                         textColor:
                                             PrimaryColors.backgroundColor,
                                         color: Colors.yellow,
@@ -207,25 +207,7 @@ class _LoginState extends State<Login> {
                                   ),
                                 ),
                               ),
-                              Center(
-                                child: Padding(
-                                  padding: EdgeInsets.only(top: 50),
-                                  child: GestureDetector(
-                                      child: Text(
-                                        "Don't have an Account?",
-                                        style: TextStyle(
-                                            color: Color(0xff1d1b27),
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 20),
-                                      ),
-                                      onTap: () {
-                                        Navigator.push(context,
-                                            MaterialPageRoute(builder: (ctx) {
-                                          return Registration();
-                                        }));
-                                      }),
-                                ),
-                              )
+
                             ],
                           )),
                     ],

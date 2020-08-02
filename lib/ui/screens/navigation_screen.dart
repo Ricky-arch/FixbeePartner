@@ -11,7 +11,7 @@ import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
 import 'custom_profile.dart';
-import 'history.dart';
+import 'history_screen.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class NavigationScreen extends StatefulWidget {
@@ -45,6 +45,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
       slot,
       slotted,
       paymentMode;
+
+
+
+
+
+
   @override
   void initState() {
     _pageController = PageController();
@@ -123,7 +129,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       }
       if (data.containsKey('phone_number')) {
         phoneNumber = data['phone_number'];
-        print(phoneNumber+"pppp");
+        print(phoneNumber + "pppp");
       }
       if (data.containsKey('payment_mode')) {
         paymentMode = data['payment_mode'];
@@ -171,20 +177,37 @@ class _NavigationScreenState extends State<NavigationScreen> {
                         addressLine: billingAddress,
                         userNumber: phoneNumber,
                         slotted: slotted,
-
                         slot: slot,
                         onConfirm: () {
                           _bloc.fire(NavigationEvent.onConfirmJob,
-                              message: {"orderId": orderId, "Accept": true});
-                          if (slotted == 'true') {
-                            setState(() {
-                              _visible = false;
-                            });
-                          } else {
-//                            Route route = MaterialPageRoute(
-//                                builder: (context) => WorkScreen(orderId: viewModel.order.orderId,));
-//                            Navigator.pushReplacement(context, route);
-                          }
+                              message: {"orderId": orderId, "Accept": true},
+                              onHandled: (e, m) {
+                            if (!m.order.slotted) {
+                              Route route = MaterialPageRoute(
+                                  builder: (context) => WorkScreen(
+                                        orderId: m.order.orderId,
+                                        googlePlaceId: m.location.googlePlaceId,
+                                        phoneNumber: m.user.phoneNumber,
+                                        userName: m.user.firstname +
+                                            " " +
+                                            m.user.middlename +
+                                            " " +
+                                            m.user.lastname,
+                                        userProfilePicUrl: m.user.profilePicUrl,
+                                        addressLine: m.location.addressLine,
+                                        landmark: m.location.landmark,
+                                        serviceName: m.service.serviceName,
+                                        timeStamp: m.order.timeStamp,
+                                        amount: m.order.price,
+                                        userProfilePicId: m.user.profilePicId,
+                                      ));
+                              Navigator.pushReplacement(context, route);
+                            } else {
+                              setState(() {
+                                _visible = false;
+                              });
+                            }
+                          });
                         },
                         onDecline: () {
                           _showCancelBox();
