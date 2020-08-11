@@ -59,7 +59,7 @@ class _HomeState extends State<Home> {
     // set customer location
     var marker = Marker(
         markerId: MarkerId("Your Location"),
-        position: LatLng(latitude ?? 23.829321, longitude ?? 91.277847));
+        position: LatLng(23.829321, 91.277847));
     markers.add(marker);
     mapWidget = GoogleMap(
       markers: markers,
@@ -67,7 +67,7 @@ class _HomeState extends State<Home> {
         mapController = googleMapController;
       },
       initialCameraPosition: CameraPosition(
-          target: LatLng(latitude ?? 23.829321, longitude ?? 91.277847),
+          target: LatLng( 23.829321,91.277847),
           zoom: 15),
     );
   }
@@ -127,8 +127,7 @@ class _HomeState extends State<Home> {
                                   inactiveTrackColor: Colors.white,
                                   activeColor: Colors.red,
                                   onChanged: (bool value) {
-                                    _getCurrentLocation();
-                                    print(DataStore.beePosition.longitude);
+                                    print("HELLO WORLD");
                                     print(DataStore.token);
                                     _bloc.fire(HomeEvents
                                         .getDocumentVerificationStatus);

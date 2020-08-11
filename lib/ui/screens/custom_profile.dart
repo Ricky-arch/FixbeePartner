@@ -2,13 +2,11 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/custom_profile_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/custom_profile_event.dart';
-import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
-import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -170,8 +168,9 @@ class _CustomProfileState extends State<CustomProfile> {
                           decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white,
-                              border:
-                              Border.all(color: PrimaryColors.backgroundColor, width: 1)),
+                              border: Border.all(
+                                  color: PrimaryColors.backgroundColor,
+                                  width: 1)),
                           child: Padding(
                             padding: const EdgeInsets.all(1.0),
                             child: Stack(
@@ -189,7 +188,7 @@ class _CustomProfileState extends State<CustomProfile> {
                         Text(
                           DataStore.me.firstName +
                               " " +
-                              DataStore.me.middleName+
+                              DataStore.me.middleName +
                               " " +
                               DataStore.me.lastName,
                           style: TextStyle(

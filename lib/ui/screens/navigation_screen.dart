@@ -95,7 +95,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       Map data = message['data'];
       orderId = data['id'];
       userName = data['name'];
-      billingAddress = data['address'];
+      billingAddress = data['address']['Address']['Line1'];
       paymentMode = data['mode'];
     }
   }
@@ -119,67 +119,112 @@ class _NavigationScreenState extends State<NavigationScreen> {
       ),
       body: SafeArea(
         child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-          return Stack(
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: pages[_currentIndex]),
               _visible
-                  ? Align(
-                      alignment: Alignment.center,
-                      child: Visibility(
-                          visible: _visible,
-                          maintainSize: true,
-                          maintainAnimation: true,
-                          maintainState: true,
-                          child: NewServiceNotification(
-                            orderId: orderId,
-                            userName: userName,
-                            address: billingAddress,
-                            paymentMode: paymentMode,
-                            onConfirm: () {
-                              _bloc.fire(NavigationEvent.onConfirmJob,
-                                  message: {"orderId": orderId, "Accept": true},
-                                  onHandled: (e, m) {
-                                if (!m.order.slotted) {
-                                  Route route = MaterialPageRoute(
-                                      builder: (context) => WorkScreen(
-                                            orderId: m.order.orderId,
-                                            googlePlaceId:
-                                                m.location.googlePlaceId,
-                                            phoneNumber: m.user.phoneNumber,
-                                            userName: m.user.firstname +
-                                                " " +
-                                                m.user.middlename +
-                                                " " +
-                                                m.user.lastname,
-                                            userProfilePicUrl:
-                                                m.user.profilePicUrl,
-                                            addressLine: m.location.addressLine,
-                                            landmark: m.location.landmark,
-                                            serviceName: m.service.serviceName,
-                                            timeStamp: m.order.timeStamp,
-                                            amount: m.order.price,
-                                            userProfilePicId:
-                                                m.user.profilePicId,
-                                          ));
-                                  Navigator.pushReplacement(context, route);
-                                } else {
-                                  setState(() {
-                                    _visible = false;
-                                  });
-                                }
-                              });
-                            },
-                            onDecline: () {
-                              _showCancelBox();
-                            },
-                          )),
-                    )
+                  ? Visibility(
+                      visible: _visible,
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: Dialog(
+                        child: NewServiceNotification(
+                          orderId: orderId,
+                          userName: userName,
+                          address: billingAddress,
+                          paymentMode: paymentMode,
+                          onConfirm: () {
+                            _bloc.fire(NavigationEvent.onConfirmJob,
+                                message: {"orderId": orderId, "Accept": true},
+                                onHandled: (e, m) {
+                              if (!m.order.slotted) {
+                                Route route = MaterialPageRoute(
+                                    builder: (context) => WorkScreen(
+                                          orderId: m.order.orderId,
+                                          googlePlaceId:
+                                              m.location.googlePlaceId,
+                                          phoneNumber: m.user.phoneNumber,
+                                          userName: m.user.firstname +
+                                              " " +
+                                              m.user.middlename +
+                                              " " +
+                                              m.user.lastname,
+                                          userProfilePicUrl:
+                                              m.user.profilePicUrl,
+                                          addressLine: m.location.addressLine,
+                                          landmark: m.location.landmark,
+                                          serviceName: m.service.serviceName,
+                                          timeStamp: m.order.timeStamp,
+                                          amount: m.order.price,
+                                          userProfilePicId: m.user.profilePicId,
+                                        ));
+                                Navigator.pushReplacement(context, route);
+                              } else {
+                                setState(() {
+                                  _visible = false;
+                                });
+                              }
+                            });
+                          },
+                          onDecline: () {
+                            _showCancelModalSheet(context);
+                          },
+                        ),
+                      ))
                   : SizedBox()
             ],
           );
         }),
       ),
     );
+  }
+
+  _showCancelModalSheet(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: Wrap(
+              children: <Widget>[
+                Container(
+                    child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("Do you really want to cancel the order?"),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        RaisedButton(
+                          color: Colors.transparent,
+                          onPressed: () {
+                            setState(() {
+                              _visible = false;
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: Text("Yes"),
+                        ),
+                        RaisedButton(
+                          color: Colors.transparent,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("No"),
+                        ),
+                      ],
+                    )
+                  ],
+                ))
+              ],
+            ),
+          );
+        });
   }
 
   _showCancelBox() {
