@@ -1,12 +1,6 @@
-import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
-import 'package:fixbee_partner/ui/screens/custom_profile.dart';
-import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
-import 'package:fixbee_partner/ui/screens/otp_for_login.dart';
-import 'package:fixbee_partner/ui/screens/service_selection.dart';
+
+import 'package:fixbee_partner/ui/custom_widget/new_service_notification.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
-import 'package:fixbee_partner/ui/screens/history_screen.dart';
-import 'package:fixbee_partner/ui/screens/verification_documents.dart';
-import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -47,6 +41,8 @@ void main() {
         //WorkAnimation()
         //HistoryScreen()
         SplashScreen()
+        //NewServiceNotification(),
+        //TestLocation()
         //VerificationDocuments()
         //ServiceSelectionScreen()
         //padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),

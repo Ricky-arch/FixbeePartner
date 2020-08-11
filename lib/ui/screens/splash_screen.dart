@@ -1,11 +1,13 @@
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/animations/faded_animations.dart';
 import 'package:fixbee_partner/blocs/splash_bloc.dart';
+import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/models/splash_model.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:page_transition/page_transition.dart';
 
 import 'login.dart';
@@ -29,6 +31,21 @@ class _SplashScreenState extends State<SplashScreen>
   Animation<double> _positionAnimation;
 
   bool hideIcon = false;
+  Position _currentPosition;
+  String _currentAddress;
+  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+
+  _getCurrentLocation() {
+    geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position) {
+      setState(() {
+        _currentPosition = position;
+      });
+    }).catchError((e) {
+      print(e);
+    });
+  }
 
   @override
   void initState() {
@@ -41,11 +58,15 @@ class _SplashScreenState extends State<SplashScreen>
               PageTransition(
                   type: PageTransitionType.fade,
                   child: ServiceSelectionScreen()));
-        else
+        else {
+          _getCurrentLocation();
+          if (_currentPosition != null)
+            DataStore.beePosition = _currentPosition;
           Navigator.push(
               context,
               PageTransition(
                   type: PageTransitionType.fade, child: NavigationScreen()));
+        }
       } else
         Navigator.push(context,
             PageTransition(type: PageTransitionType.fade, child: Login()));
@@ -168,7 +189,6 @@ class _SplashScreenState extends State<SplashScreen>
                                 fit: BoxFit.cover)),
                       )),
                 ),
-
                 Center(
                   child: Container(
                     padding: EdgeInsets.all(20.0),
@@ -188,7 +208,6 @@ class _SplashScreenState extends State<SplashScreen>
                                 height: 70,
                               ),
                             )),
-
                         SizedBox(height: 20),
                         FadeAnimation(
                             1,
@@ -223,7 +242,9 @@ class _SplashScreenState extends State<SplashScreen>
                                   height: 1.4,
                                   fontSize: 18),
                             )),
-                      SizedBox(height: 40,),
+                        SizedBox(
+                          height: 40,
+                        ),
                         FadeAnimation(
                             1.6,
                             AnimatedBuilder(
@@ -240,7 +261,8 @@ class _SplashScreenState extends State<SplashScreen>
                                         decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(50),
-                                            color: Colors.white.withOpacity(.4)),
+                                            color:
+                                                Colors.white.withOpacity(.4)),
                                         child: InkWell(
                                           onTap: () {
                                             _scaleController.forward();
@@ -255,8 +277,9 @@ class _SplashScreenState extends State<SplashScreen>
                                                   animation: _scale2Controller,
                                                   builder: (context, child) =>
                                                       Transform.scale(
-                                                          scale: _scale2Animation
-                                                              .value,
+                                                          scale:
+                                                              _scale2Animation
+                                                                  .value,
                                                           child: Container(
                                                             width: 60,
                                                             height: 60,
@@ -266,15 +289,15 @@ class _SplashScreenState extends State<SplashScreen>
                                                                         .circle,
                                                                     color: Colors
                                                                         .white),
-                                                            child:
-                                                                hideIcon == false
-                                                                    ? Icon(
-                                                                        Icons
-                                                                            .arrow_forward,
-                                                                        color: Colors
-                                                                            .black,
-                                                                      )
-                                                                    : Container(),
+                                                            child: hideIcon ==
+                                                                    false
+                                                                ? Icon(
+                                                                    Icons
+                                                                        .arrow_forward,
+                                                                    color: Colors
+                                                                        .black,
+                                                                  )
+                                                                : Container(),
                                                           )),
                                                 ),
                                               ),

@@ -19,7 +19,7 @@ class Bee {
   String bankAccountNumber;
   String ifscCode;
   String accountHoldersName;
-  double walletValue;
+  int walletAmount;
   String ratings;
   int jobsAccepted;
   int jobsDeclined;

@@ -5,7 +5,8 @@ import 'package:fixbee_partner/blocs/navigation_bloc.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/bottom_nav_bar.dart';
-import 'package:fixbee_partner/ui/custom_widget/job_notification.dart';
+
+import 'package:fixbee_partner/ui/custom_widget/new_service_notification.dart';
 import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
@@ -45,11 +46,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
       slot,
       slotted,
       paymentMode;
-
-
-
-
-
 
   @override
   void initState() {
@@ -97,43 +93,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
     });
     if (message.containsKey('data')) {
       Map data = message['data'];
-      if (data.containsKey('order_id')) {
-        orderId = data['order_id'];
-      }
-      if (data.containsKey('service_id')) {
-        serviceId = data['service_id'];
-        print(serviceId + "serviceId");
-        _bloc.fire(NavigationEvent.getServiceData, message: {"id": serviceId});
-      }
-      if (data.containsKey('user_id')) {
-        userId = data['user_id'];
-      }
-      if (data.containsKey('name')) {
-        userName = data['name'];
-      }
-
-      if (data.containsKey('place_id')) {
-        placeId = data['place_id'];
-      }
-      if (data.containsKey('billing_address')) {
-        billingAddress = data['billing_address'];
-      }
-      if (data.containsKey('quantity_info')) {
-        quantityInfo = data['quantity_info'];
-      }
-      if (data.containsKey('slotted')) {
-        slotted = data['slotted'];
-        if (slotted.toString() == 'true') {
-          slot = data['slot'];
-        }
-      }
-      if (data.containsKey('phone_number')) {
-        phoneNumber = data['phone_number'];
-        print(phoneNumber + "pppp");
-      }
-      if (data.containsKey('payment_mode')) {
-        paymentMode = data['payment_mode'];
-      }
+      orderId = data['id'];
+      userName = data['name'];
+      billingAddress = data['address'];
+      paymentMode = data['mode'];
     }
   }
 
@@ -156,63 +119,60 @@ class _NavigationScreenState extends State<NavigationScreen> {
       ),
       body: SafeArea(
         child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          return Stack(
             children: [
               Expanded(child: pages[_currentIndex]),
               _visible
-                  ? Visibility(
-                      visible: _visible,
-                      maintainSize: true,
-                      maintainAnimation: true,
-                      maintainState: true,
-                      child: JobNotification(
-                        orderId: orderId,
-                        serviceName: viewModel.service.serviceName,
-                        quantity: quantityInfo,
-                        userName: userName,
-                        paymentMode:
-                            (paymentMode == 'false') ? "Online Payment" : "COD",
-                        addressLine: billingAddress,
-                        userNumber: phoneNumber,
-                        slotted: slotted,
-                        slot: slot,
-                        onConfirm: () {
-                          _bloc.fire(NavigationEvent.onConfirmJob,
-                              message: {"orderId": orderId, "Accept": true},
-                              onHandled: (e, m) {
-                            if (!m.order.slotted) {
-                              Route route = MaterialPageRoute(
-                                  builder: (context) => WorkScreen(
-                                        orderId: m.order.orderId,
-                                        googlePlaceId: m.location.googlePlaceId,
-                                        phoneNumber: m.user.phoneNumber,
-                                        userName: m.user.firstname +
-                                            " " +
-                                            m.user.middlename +
-                                            " " +
-                                            m.user.lastname,
-                                        userProfilePicUrl: m.user.profilePicUrl,
-                                        addressLine: m.location.addressLine,
-                                        landmark: m.location.landmark,
-                                        serviceName: m.service.serviceName,
-                                        timeStamp: m.order.timeStamp,
-                                        amount: m.order.price,
-                                        userProfilePicId: m.user.profilePicId,
-                                      ));
-                              Navigator.pushReplacement(context, route);
-                            } else {
-                              setState(() {
-                                _visible = false;
+                  ? Align(
+                      alignment: Alignment.center,
+                      child: Visibility(
+                          visible: _visible,
+                          maintainSize: true,
+                          maintainAnimation: true,
+                          maintainState: true,
+                          child: NewServiceNotification(
+                            orderId: orderId,
+                            userName: userName,
+                            address: billingAddress,
+                            paymentMode: paymentMode,
+                            onConfirm: () {
+                              _bloc.fire(NavigationEvent.onConfirmJob,
+                                  message: {"orderId": orderId, "Accept": true},
+                                  onHandled: (e, m) {
+                                if (!m.order.slotted) {
+                                  Route route = MaterialPageRoute(
+                                      builder: (context) => WorkScreen(
+                                            orderId: m.order.orderId,
+                                            googlePlaceId:
+                                                m.location.googlePlaceId,
+                                            phoneNumber: m.user.phoneNumber,
+                                            userName: m.user.firstname +
+                                                " " +
+                                                m.user.middlename +
+                                                " " +
+                                                m.user.lastname,
+                                            userProfilePicUrl:
+                                                m.user.profilePicUrl,
+                                            addressLine: m.location.addressLine,
+                                            landmark: m.location.landmark,
+                                            serviceName: m.service.serviceName,
+                                            timeStamp: m.order.timeStamp,
+                                            amount: m.order.price,
+                                            userProfilePicId:
+                                                m.user.profilePicId,
+                                          ));
+                                  Navigator.pushReplacement(context, route);
+                                } else {
+                                  setState(() {
+                                    _visible = false;
+                                  });
+                                }
                               });
-                            }
-                          });
-                        },
-                        onDecline: () {
-                          _showCancelBox();
-                        },
-                      ),
+                            },
+                            onDecline: () {
+                              _showCancelBox();
+                            },
+                          )),
                     )
                   : SizedBox()
             ],

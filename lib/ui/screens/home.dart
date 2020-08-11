@@ -5,7 +5,7 @@ import 'package:fixbee_partner/blocs/home_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/home_events.dart';
 import 'package:fixbee_partner/models/home_model.dart';
-import 'package:fixbee_partner/ui/custom_widget/job_notification.dart';
+
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -29,7 +29,6 @@ class _HomeState extends State<Home> {
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position _currentPosition;
 
-
   _getCurrentLocation() {
     geolocator
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
@@ -40,13 +39,11 @@ class _HomeState extends State<Home> {
     }).catchError((e) {
       print(e);
     });
-    print(_currentPosition.toString()+"latitude");
   }
 
   @override
   void initState() {
     super.initState();
-
     _bloc = HomeBloc(HomeModel());
     _bloc.fire(HomeEvents.activityStatusRequested, onHandled: (e, m) {
       if (m.activeStatus) {
@@ -55,7 +52,7 @@ class _HomeState extends State<Home> {
     });
     _bloc.fire(HomeEvents.getDocumentVerificationStatus);
     _bloc.fire(HomeEvents.getDeviceLocation, onHandled: (e, m) {
-      log(m.longitude.toString(),name: 'Longitude');
+      log(m.longitude.toString(), name: 'Longitude');
       latitude = m.latitude;
       longitude = m.longitude;
     });
@@ -85,7 +82,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -132,6 +128,7 @@ class _HomeState extends State<Home> {
                                   activeColor: Colors.red,
                                   onChanged: (bool value) {
                                     _getCurrentLocation();
+                                    print(DataStore.beePosition.longitude);
                                     print(DataStore.token);
                                     _bloc.fire(HomeEvents
                                         .getDocumentVerificationStatus);
@@ -164,7 +161,7 @@ class _HomeState extends State<Home> {
                 (viewModel.verifiedBee && viewModel.activeStatus)
                     ? Expanded(child: mapWidget)
                     : SizedBox(),
-                (viewModel.verifiedBee && !viewModel.activeStatus)
+                (!viewModel.activeStatus)
                     ? Column(
                         children: <Widget>[
                           SizedBox(
@@ -201,7 +198,7 @@ class _HomeState extends State<Home> {
                         ],
                       )
                     : SizedBox(),
-                (!viewModel.verifiedBee)
+                (!viewModel.verifiedBee && viewModel.activeStatus)
                     ? Column(
                         children: <Widget>[
                           SizedBox(
