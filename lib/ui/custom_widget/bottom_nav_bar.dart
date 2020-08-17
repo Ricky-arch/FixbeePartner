@@ -73,13 +73,13 @@ class _BottomNavBarState extends State<BottomNavBar>
   // ignore: must_call_super
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+      padding: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
       decoration: BoxDecoration(boxShadow: [
         BoxShadow(color: Colors.black12, blurRadius: 5),
       ], color: PrimaryColors.backgroundColor),
       //color: Colors.teal,
       width: MediaQuery.of(context).size.width,
-      height: 50,
+      height: MediaQuery.of(context).size.height/12,
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: items.map((item) {

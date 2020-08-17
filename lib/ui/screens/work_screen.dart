@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'dart:developer';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/workscreen_bloc.dart';
 import 'package:fixbee_partner/events/workscreen_event.dart';
@@ -9,6 +10,7 @@ import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:string_validator/string_validator.dart';
@@ -29,6 +31,7 @@ class WorkScreen extends StatefulWidget {
   final int amount;
   final String timeStamp;
   final bool onServiceStarted;
+  final bool casOnDelivery;
 
   const WorkScreen(
       {Key key,
@@ -42,7 +45,9 @@ class WorkScreen extends StatefulWidget {
       this.serviceName,
       this.amount,
       this.timeStamp,
-      this.onServiceStarted = false, this.userProfilePicId})
+      this.onServiceStarted = false,
+      this.userProfilePicId,
+      this.casOnDelivery})
       : super(key: key);
   @override
   _WorkScreenState createState() => _WorkScreenState();
@@ -98,12 +103,15 @@ class _WorkScreenState extends State<WorkScreen> {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           "#ff6666", "Cancel", true, ScanMode.BARCODE);
       print(barcodeScanRes);
-      int otp = int.parse(barcodeScanRes);
-      if (otp != null) {
+
+      String validOtp = barcodeScanRes;
+      // validOtp=validOtp.substring(1,7);
+      if (barcodeScanRes != null) {
         _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
-            message: {"otp": otp, "orderId": widget.orderId},
+            message: {"otp": validOtp, "orderId": widget.orderId},
             onHandled: (e, m) {
           _onServiceStarted = m.onServiceStarted;
+          if (!m.otpValid) _showOtpInvalidBox();
         });
       }
     } on PlatformException {
@@ -115,12 +123,30 @@ class _WorkScreenState extends State<WorkScreen> {
     });
   }
 
+  void _setupFCM() {
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        FlutterRingtonePlayer.playNotification();
+        log(message.toString(), name: 'ON_MESSAGE');
+        _getMessage(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        log(message.toString(), name: 'ON_RESUME');
+      },
+      onLaunch: (message) async {
+        log(message.toString(), name: 'ON_LAUNCH');
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _onServiceStarted = widget.onServiceStarted;
     String orderId = widget.orderId;
     _bloc = WorkScreenBloc(WorkScreenModel());
+    _setupFCM();
 
     fetchLocationData().then((value) async {
       mapController.animateCamera(CameraUpdate.newLatLng(value));
@@ -378,8 +404,8 @@ class _WorkScreenState extends State<WorkScreen> {
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
-                          border:
-                              Border.all(color: Colors.deepPurple, width: 2)),
+                          border: Border.all(
+                              color: PrimaryColors.backgroundColor, width: 2)),
                       child: Padding(
                         padding: const EdgeInsets.all(3.0),
                         child: CircleAvatar(
@@ -419,7 +445,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               height: 50,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(25),
-                                  color: Colors.deepPurple),
+                                  color: PrimaryColors.backgroundColor),
                               child: GestureDetector(
                                 child: Icon(
                                   Icons.phone,
@@ -565,7 +591,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               child: IconButton(
                                 icon: Icon(
                                   Icons.info,
-                                  color: Colors.deepPurple,
+                                  color: PrimaryColors.backgroundColor,
                                 ),
                                 onPressed: () {
                                   _showJobInfoDialogBox();
@@ -651,55 +677,66 @@ class _WorkScreenState extends State<WorkScreen> {
                 ),
               ),
               Divider(),
-              Expanded(
-                  child: Stack(
-                children: [
-                  mapWidget = GoogleMap(
-                    markers: markers,
-                    onMapCreated: (GoogleMapController googleMapController) {
-                      mapController = googleMapController;
-                    },
-                    initialCameraPosition: CameraPosition(
-                        target: LatLng(38.8977, 77.0365), zoom: 16),
-                  ),
-                  Positioned(
-                    left: 300,
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.add_circle,
-                        size: 40,
-                        color: Colors.deepPurple.withOpacity(0.5),
-                      ),
-                      onPressed: () {
-                        _showNewJobDialogBox();
-                      },
-                    ),
-                  ),
-                ],
-              )),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  child: OutlineButton(
-                    borderSide: BorderSide(color: Colors.deepPurple, width: 2),
-                    textColor: Colors.deepPurple,
-                    color: Colors.green,
-                    onPressed: () {
-                      _showAlertDialogBox();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Text(
-                        "Done with the fixing?",
-                        style: TextStyle(
-                          color: Colors.deepPurple,
-                          fontWeight: FontWeight.w600,
+              (viewModel.orderResolved == false)
+                  ? Expanded(
+                      child: Stack(
+                      children: [
+                        mapWidget = GoogleMap(
+                          markers: markers,
+                          onMapCreated:
+                              (GoogleMapController googleMapController) {
+                            mapController = googleMapController;
+                          },
+                          initialCameraPosition: CameraPosition(
+                              target: LatLng(38.8977, 77.0365), zoom: 16),
                         ),
-                      ),
+                        Positioned(
+                          left: 300,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.add_circle,
+                              size: 40,
+                              color: Colors.deepPurple.withOpacity(0.5),
+                            ),
+                            onPressed: () {
+                              _showNewJobDialogBox();
+                            },
+                          ),
+                        ),
+                      ],
+                    ))
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        WorkAnimation(),
+                        (widget.casOnDelivery)
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  child: RaisedButton(
+                                    elevation: 3,
+                                    textColor: Colors.yellow,
+                                    color: PrimaryColors.backgroundColor,
+                                    onPressed: () {
+                                      _showCompleteOrderDialogBox();
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      child: Text(
+                                        "Done with the fixing?",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                      ],
                     ),
-                  ),
-                ),
-              ),
             ],
           ));
         }),
@@ -715,7 +752,7 @@ class _WorkScreenState extends State<WorkScreen> {
     }
   }
 
-  _showAlertDialogBox() {
+  _showCompleteOrderDialogBox() {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -730,10 +767,18 @@ class _WorkScreenState extends State<WorkScreen> {
               ),
               FlatButton(
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NavigationScreen()));
+                  _bloc.fire(WorkScreenEvents.onJobCompletion,
+                      message: {'orderID': widget.orderId}, onHandled: (e, m) {
+                    if (m.onJobCompleted)
+                      Navigator.of(context).pushReplacement(
+                          new MaterialPageRoute(
+                              builder: (BuildContext context) {
+                        return NavigationScreen();
+                      }));
+                    else
+                      Scaffold.of(context).showSnackBar(new SnackBar(
+                          content: new Text('Unable to complete order!')));
+                  });
                 },
                 child: Text("Yes"),
               ),
@@ -849,6 +894,62 @@ class _WorkScreenState extends State<WorkScreen> {
                 },
                 child: Text("Yes"),
               ),
+            ],
+          );
+        });
+  }
+
+  _showOtpInvalidBox() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: Text(
+                "Invalid Otp after scanned \n Please re-scan for resolving order"),
+            actions: <Widget>[
+              RaisedButton(
+                color: PrimaryColors.backgroundColor,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Rescan",
+                    style: TextStyle(color: Colors.yellow),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  _getMessage(Map<String, dynamic> message) {
+    Map map = message['notification'];
+    String m = map['data'];
+    _showCompleteOrderFromUserNotification('Payment Successfully done by user!');
+  }
+
+  _showCompleteOrderFromUserNotification(String message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(
+              message,
+              maxLines: null,
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                onPressed: () {},
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("OK"),
+                ),
+              )
             ],
           );
         });

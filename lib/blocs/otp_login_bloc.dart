@@ -32,12 +32,19 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     if (event == OtpEvents.getFcmToken) {
       return await getFcmToken();
     }
+    if (event == OtpEvents.resendOtp) {
+      return await resendOtp(message);
+    }
     return latestViewModel;
   }
 
   @override
   OtpModel setTrackingFlag(OtpEvents event, bool loading, Map message) {
-    return latestViewModel..verifying = loading;
+    if (event == OtpEvents.onOtpVerify)
+      return latestViewModel..verifying = loading;
+    else if (event == OtpEvents.resendOtp)
+      return latestViewModel..resendingOtp = loading;
+    return latestViewModel;
   }
 
   Future<OtpModel> _onOtpVerify(String phone, String otp) async {
@@ -148,6 +155,15 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
   }
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
+    return latestViewModel;
+  }
+
+  Future<OtpModel> resendOtp(Map<String, dynamic> message) async {
+    Map response = await RequestMaker(
+            endpoint: EndPoints.REQUEST_OTP, body: {'phone': message['phone']})
+        .makeRequest()
+        .timeout(Duration(seconds: 5));
+    log(response.toString());
     return latestViewModel;
   }
 }

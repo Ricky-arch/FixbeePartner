@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/set_services_bloc.dart';
 import 'package:fixbee_partner/events/service_selection_events.dart';
 import 'package:fixbee_partner/models/service_options.dart';
@@ -56,7 +57,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
         floatingActionButton: viewModel.selectedServices.length == 0
             ? SizedBox()
             : FloatingActionButton.extended(
-                backgroundColor: Colors.orange,
+                backgroundColor: PrimaryColors.backgroundColor,
                 label: Text("View All"),
                 onPressed: () {
                   _bloc.fire(ServiceSelectionEvents.saveSelectedServices,

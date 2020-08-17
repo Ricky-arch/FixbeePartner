@@ -164,7 +164,15 @@ class _LoginState extends State<Login> {
                                   ],
                                 ),
                               ),
-                              Center(
+                              (viewModel.loading)?Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 50.0,
+                                ),
+                                child: CircularProgressIndicator(
+
+                                  backgroundColor: PrimaryColors.backgroundColor,
+                                ),
+                              ):Center(
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                     top: 50.0,

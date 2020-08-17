@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/blocs/navigation_bloc.dart';
@@ -78,25 +78,27 @@ class _NavigationScreenState extends State<NavigationScreen> {
     );
   }
 
-   _getJobDetails(Map<String, dynamic> message) {
+  _getJobDetails(Map<String, dynamic> message) {
     if (message.containsKey('data')) {
       Map data = message['data'];
       orderId = data['id'];
       userName = data['name'];
-      billingAddress = data['address']['Address']['Line1'];
+      Map address=json.decode(data['address']);
+      billingAddress = address['Address']['Line1'];
       paymentMode = data['mode'];
     }
     _showNotificationDialog();
   }
-
   _showNotificationDialog() {
-    return showDialog(
+    showDialog(
         context: context,
         builder: (BuildContext context) {
-
+          Future.delayed(const Duration(seconds: 150), () async {
+            Navigator.pop(context);
+          });
           return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             insetPadding: EdgeInsets.all(10),
             child: NewServiceNotification(
               orderId: orderId,
@@ -110,23 +112,23 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   if (!m.order.slotted) {
                     Route route = MaterialPageRoute(
                         builder: (context) => WorkScreen(
+
                               orderId: m.order.orderId,
-                              googlePlaceId:
-                                  m.location.googlePlaceId,
+                              googlePlaceId: m.location.googlePlaceId,
                               phoneNumber: m.user.phoneNumber,
                               userName: m.user.firstname +
                                   " " +
                                   m.user.middlename +
                                   " " +
                                   m.user.lastname,
-                              userProfilePicUrl:
-                                  m.user.profilePicUrl,
+                              userProfilePicUrl: m.user.profilePicUrl,
                               addressLine: m.location.addressLine,
                               landmark: m.location.landmark,
                               serviceName: m.service.serviceName,
                               timeStamp: m.order.timeStamp,
                               amount: m.order.price,
                               userProfilePicId: m.user.profilePicId,
+                              casOnDelivery: m.order.cashOnDelivery,
                             ));
                     Navigator.pushReplacement(context, route);
                   }
@@ -165,58 +167,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: pages[_currentIndex]),
-
-//              _visible
-//                  ? Visibility(
-//                      visible: _visible,
-//                      maintainSize: true,
-//                      maintainAnimation: true,
-//                      maintainState: true,
-//                      child: Dialog(
-//                        child: NewServiceNotification(
-//                          orderId: orderId,
-//                          userName: userName,
-//                          address: billingAddress,
-//                          paymentMode: paymentMode,
-//                          onConfirm: () {
-//                            _bloc.fire(NavigationEvent.onConfirmJob,
-//                                message: {"orderId": orderId, "Accept": true},
-//                                onHandled: (e, m) {
-//                              if (!m.order.slotted) {
-//                                Route route = MaterialPageRoute(
-//                                    builder: (context) => WorkScreen(
-//                                          orderId: m.order.orderId,
-//                                          googlePlaceId:
-//                                              m.location.googlePlaceId,
-//                                          phoneNumber: m.user.phoneNumber,
-//                                          userName: m.user.firstname +
-//                                              " " +
-//                                              m.user.middlename +
-//                                              " " +
-//                                              m.user.lastname,
-//                                          userProfilePicUrl:
-//                                              m.user.profilePicUrl,
-//                                          addressLine: m.location.addressLine,
-//                                          landmark: m.location.landmark,
-//                                          serviceName: m.service.serviceName,
-//                                          timeStamp: m.order.timeStamp,
-//                                          amount: m.order.price,
-//                                          userProfilePicId: m.user.profilePicId,
-//                                        ));
-//                                Navigator.pushReplacement(context, route);
-//                              } else {
-//                                setState(() {
-//                                  _visible = false;
-//                                });
-//                              }
-//                            });
-//                          },
-//                          onDecline: () {
-//                            _showCancelModalSheet(context);
-//                          },
-//                        ),
-//                      ))
-//                  : SizedBox()
             ],
           );
         }),
@@ -281,6 +231,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   setState(() {
                     _visible = false;
                   });
+                  Navigator.pop(context);
                   Navigator.pop(context);
                 },
                 child: Text("Yes"),

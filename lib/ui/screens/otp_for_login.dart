@@ -25,12 +25,11 @@ class _OtpForLoginState extends State<OtpForLogin> {
   OTPController _otpController = OTPController();
   TextEditingController _otpInsertController = TextEditingController();
   OtpLoginBloc _bloc;
-  LoginBloc _loginBloc;
 
   @override
   void initState() {
     _bloc = OtpLoginBloc(OtpModel());
-    _loginBloc = LoginBloc(LoginModel());
+
     super.initState();
   }
 
@@ -38,7 +37,6 @@ class _OtpForLoginState extends State<OtpForLogin> {
   void dispose() {
     _bloc?.extinguish();
     super.dispose();
-
   }
 
   @override
@@ -49,151 +47,155 @@ class _OtpForLoginState extends State<OtpForLogin> {
           if (viewModel.verifying) {
             return CircularProgressIndicator();
           } else {
-            return Card(
-              elevation: 5,
-              child: Wrap(
-                children: <Widget>[
-                  Container(
-                    width: MediaQuery.of(context).size.width - 20,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        SizedBox(
-                          height: 25,
-                        ),
-                        Container(
-                          child: RichText(
-                            textAlign: TextAlign.start,
-                            text: TextSpan(
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: "Enter OTP sent to the number:\n",
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: PrimaryColors.backgroundColor),
-                                ),
-                                TextSpan(
-                                  text: (widget.phoneNumber == null)
-                                      ? "+91-8787300192"
-                                      : "+91-${widget.phoneNumber}",
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.deepPurple,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
+            return Wrap(
+              children: <Widget>[
+                Container(
+                  width: MediaQuery.of(context).size.width - 20,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 25,
+                      ),
+                      Container(
+                        child: RichText(
+                          textAlign: TextAlign.start,
+                          text: TextSpan(
+                            children: <TextSpan>[
+                              TextSpan(
+                                text: "Enter OTP sent to the number:\n",
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: PrimaryColors.backgroundColor),
+                              ),
+                              TextSpan(
+                                text: (widget.phoneNumber == null)
+                                    ? "+91-8787300192"
+                                    : "+91-${widget.phoneNumber}",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.deepPurple,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(
-                          height: 25,
-                        ),
-                        OTPInsert(
-                          controller: _otpInsertController,
-                          onOTPOfInvalidLength: () {
-                            _bloc
-                                .pushViewModel(viewModel..enableButton = false);
-                          },
-                          onOTPOfValidLength: (otp) {
-                            _bloc.pushViewModel(viewModel..enableButton = true);
-                          },
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            RichText(
-                                text: TextSpan(children: <TextSpan>[
-                              TextSpan(
-                                  text: "Didn't receive the OTP?   ",
-                                  style: TextStyle(
-                                      color: PrimaryColors.backgroundColor)),
-                            ])),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            RaisedButton(
-                              color: PrimaryColors.backgroundColor,
-                              onPressed: () {
-                                _loginBloc.fire(
-                                  LoginEvents.onLogIn,
-                                  message: {'phone': widget.phoneNumber},
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  "Resend Code",
-                                  style: TextStyle(
-                                    color: Colors.yellow,
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                      OTPInsert(
+                        controller: _otpInsertController,
+                        onOTPOfInvalidLength: () {
+                          _bloc.pushViewModel(viewModel..enableButton = false);
+                        },
+                        onOTPOfValidLength: (otp) {
+                          _bloc.pushViewModel(viewModel..enableButton = true);
+                        },
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          RichText(
+                              text: TextSpan(children: <TextSpan>[
+                            TextSpan(
+                                text: "Didn't receive the OTP?   ",
+                                style: TextStyle(
+                                    color: PrimaryColors.backgroundColor)),
+                          ])),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          (viewModel.resendingOtp)
+                              ? CircularProgressIndicator()
+                              : RaisedButton(
+                                  elevation: 2,
+                                  color: PrimaryColors.backgroundColor,
+                                  onPressed: () {
+                                    _bloc.fire(
+                                      OtpEvents.resendOtp,
+                                      message: {'phone': widget.phoneNumber},
+                                    );
+                                    _otpInsertController.clear();
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      "Resend Code",
+                                      style: TextStyle(
+                                        color: Colors.yellow,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      (viewModel.verifying)
+                          ? CircularProgressIndicator()
+                          : RaisedButton(
+                              elevation: 3,
+                              disabledColor: Colors.grey,
+                              color: Colors.yellow,
+                              onPressed: viewModel.enableButton
+                                  ? () {
+                                      _bloc.fire(
+                                        OtpEvents.onOtpVerify,
+                                        message: {
+                                          'phone': widget.phoneNumber,
+                                          'otp': _otpInsertController.text
+                                        },
+                                        onHandled: (e, m) {
+                                          if (!m.exist) {
+                                            print("otpppp: " +
+                                                _otpInsertController.text);
+                                            goToRegistrationScreen(context);
+                                          } else {
+                                            if (m.valid) {
+                                              FocusScope.of(context)
+                                                  .requestFocus(FocusNode());
+                                              _otpInsertController.dispose();
+                                              _bloc.fire(
+                                                  OtpEvents.fetchSaveBeeDetails,
+                                                  onHandled: (e, m) {
+                                                _bloc.fire(
+                                                    OtpEvents.getFcmToken);
+                                                _bloc.fire(
+                                                    OtpEvents
+                                                        .checkForServiceSelected,
+                                                    onHandled: (e, m) {
+                                                  if (!m.serviceSelected) {
+                                                    goToJobSelectionScreen(ctx);
+                                                  }
+                                                });
+                                                goToNavigationScreen(ctx);
+                                              });
+                                            } else {
+                                              _otpInsertController.clear();
+                                              _showOnOtpInvalid();
+                                            }
+                                          }
+                                        },
+                                      );
+                                    }
+                                  : null,
+                              child: Text("VERIFY AND PROCEED"),
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        RaisedButton(
-                          elevation: 3,
-                          disabledColor: Colors.grey,
-                          color: Colors.yellow,
-                          onPressed: viewModel.enableButton
-                              ? () {
-                                  _bloc.fire(
-                                    OtpEvents.onOtpVerify,
-                                    message: {
-                                      'phone': widget.phoneNumber,
-                                      'otp': _otpInsertController.text
-                                    },
-                                    onHandled: (e, m) {
-                                      if (!m.exist) {
-                                        print("otpppp: " +
-                                            _otpInsertController.text);
-                                        goToRegistrationScreen(context);
-                                      } else {
-                                        if (m.valid) {
-                                          FocusScope.of(context)
-                                              .requestFocus(FocusNode());
-                                          _otpInsertController.dispose();
-                                          _bloc.fire(
-                                              OtpEvents.fetchSaveBeeDetails,
-                                              onHandled: (e, m) {
-                                            _bloc.fire(OtpEvents.getFcmToken);
-                                            _bloc.fire(
-                                                OtpEvents
-                                                    .checkForServiceSelected,
-                                                onHandled: (e, m) {
-                                              if (!m.serviceSelected) {
-                                                goToJobSelectionScreen(ctx);
-                                              }
-                                            });
-                                            goToNavigationScreen(ctx);
-                                          });
-                                        } else {
-                                          _showOnOtpInvalid();
-                                        }
-                                      }
-                                    },
-                                  );
-                                }
-                              : null,
-                          child: Text("VERIFY AND PROCEED"),
-                        ),
-                        SizedBox(
-                          height: 25,
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
+                      SizedBox(
+                        height: 25,
+                      ),
+                    ],
+                  ),
+                )
+              ],
             );
           }
         }),

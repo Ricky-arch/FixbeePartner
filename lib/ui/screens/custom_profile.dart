@@ -21,7 +21,7 @@ const kLightSecondaryColor = Color(0xFFF3F7FB);
 const kAccentColor = Color(0xFFFFC107);
 final kTitleTextStyle = TextStyle(
   color: Colors.yellow,
-  fontSize: ScreenUtil().setSp(kSpacingUnit.w * 1.7),
+  fontSize: ScreenUtil().setSp(kSpacingUnit.w * 1.5),
   fontWeight: FontWeight.w600,
 );
 final kCaptionTextStyle = TextStyle(

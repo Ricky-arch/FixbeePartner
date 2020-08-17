@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:string_validator/string_validator.dart';
 
 import '../../Constants.dart';
 
@@ -15,6 +16,8 @@ class WalletScreen extends StatefulWidget {
 }
 
 class _WalletScreenState extends State<WalletScreen> {
+  TextEditingController walletAmountController;
+  bool isButtonEnabled = false;
   WalletBloc _bloc;
   final String wallet = "400.00";
   double walletAmount;
@@ -209,7 +212,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           size: 60,
                         ),
                         onPressed: () {
-                          _razorpay.open(options);
+                          _showPaymentAmountModalBottomSheet(context);
                         },
                       ),
                     ),
@@ -262,5 +265,112 @@ class _WalletScreenState extends State<WalletScreen> {
         ),
       );
     }));
+  }
+
+  _showPaymentAmountModalBottomSheet(context) {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: Wrap(
+              children: <Widget>[
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(color: Colors.deepPurple),
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              "Enter Amount:",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        height: 100,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: TextFormField(
+                            onChanged: isAmountValid,
+                            decoration: InputDecoration(
+                                hintText: "Type Here",
+                                errorStyle: TextStyle(color: Colors.red),
+                                border: new UnderlineInputBorder(
+                                    borderSide:
+                                        new BorderSide(color: Colors.green))),
+                            controller: walletAmountController,
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: <Widget>[
+                          OutlineButton(
+                            borderSide:
+                                BorderSide(width: 2, color: Colors.green),
+                            textColor: Colors.deepPurple,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                "CANCEL",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          OutlineButton(
+                            borderSide:
+                            BorderSide(width: 2, color: Colors.green),
+                            textColor: Colors.deepPurple,
+                            onPressed: isButtonEnabled?(){
+                              _razorpay.open(options);
+                            }:null,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                "ADD",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        });
+  }
+
+  void isAmountValid(String value) {
+    setState(() {
+      if (isNumeric(value.toString())) {
+        isButtonEnabled = true;
+      } else {
+        isButtonEnabled = false;
+      }
+    });
   }
 }

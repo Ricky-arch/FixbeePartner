@@ -1,5 +1,6 @@
 
 
+import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
 import 'package:fixbee_partner/ui/screens/dialog.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:flutter/cupertino.dart';

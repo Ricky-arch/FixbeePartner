@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:developer';
+
 
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/home_events.dart';
@@ -11,7 +12,6 @@ import 'flavours.dart';
 
 class HomeBloc extends Bloc<HomeEvents, HomeModel>
     with Trackable<HomeEvents, HomeModel>, SecondaryStreamable<HomeModel> {
-  //String token="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYmVlIiwiX2lkIjoiNWU0MmI4YTg2YTYxYjMwMDFlMWQyMTM4IiwiaWF0IjoxNTgxNDMxMDg3LCJleHAiOjE1ODQwMjMwODcsImF1ZCI6IkZJWEJFRSIsImlzcyI6IkZJWEJFRSIsInN1YiI6IiJ9.PK_9WC8-Qa1pz1OKosCb58sBxtPW62YndFmaH7cQ4LhsktP5dr1IT0fS7RA8qER3FQQBqQonuj01C6aCM6t2jrrnmon45IyPwMJX81i5Y-5JMvbsvVYG-r3DNa_0ec9o4lnxaVLTTp_wdEFxTb85FHNw4wnqRA8JsigYW0PpnDA";
   HomeBloc(HomeModel genesisViewModel) : super(genesisViewModel) {
     _geolocator = Geolocator();
   }
@@ -81,7 +81,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
   }
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
-
+    log(response['Me']['Active'].toString(), name: "activee");
     return latestViewModel..activeStatus = response['Me']['Active'];
   }
 
@@ -114,7 +114,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     return latestViewModel;
   }
 
-  subscribeToNotifications() {
+  subscribeToNotifications( Function(Position) onUpdateLocation) {
     String query = '''
     subscription{
   OrderRequest{
@@ -163,6 +163,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
 
       updateLiveLocation(
           {'latitude': location.latitude, 'longitude': location.longitude});
+      onUpdateLocation(location);
     });
 
     addSecondaryStream(sub);

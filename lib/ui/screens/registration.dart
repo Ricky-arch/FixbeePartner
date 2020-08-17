@@ -49,7 +49,6 @@ class _RegistrationState extends State<Registration> {
 //    _getMessage();
   }
 
-
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -65,50 +64,56 @@ class _RegistrationState extends State<Registration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: PrimaryColors.backgroundColor,
-        automaticallyImplyLeading: false,
-        //backgroundColor: Data.backgroundColor,
-        title: Stack(
-          children: <Widget>[
-            Container(
-                decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
-                child: Row(
-                  children: <Widget>[
-                    SizedBox(
-                      width: 5,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        children: <TextSpan>[
-                          TextSpan(
-                              text: 'You look like a new Bee!',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.yellow,
-                                  fontSize: 18)),
-                        ],
-                      ),
-                    ),
-                    Spacer(),
-                    IconButton(
-                      icon: Icon(
-                        Icons.info_outline,
-                        color: Colors.yellow,
-                      ),
-                      onPressed: () {},
-                    )
-                  ],
-                ))
-          ],
-        ),
-      ),
       backgroundColor: Colors.white,
       body: SafeArea(child: _bloc.widget(
         onViewModelUpdated: (ctx, viewModel) {
           return ListView(
             scrollDirection: Axis.vertical,
             children: <Widget>[
+              Container(
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                        decoration:
+                            BoxDecoration(color: PrimaryColors.backgroundColor),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: <Widget>[
+                              SizedBox(
+                                width: 5,
+                              ),
+                              RichText(
+                                text: TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                        text: 'You look like a new Bee!',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.yellow,
+                                            fontSize: 18)),
+                                  ],
+                                ),
+                              ),
+                              Spacer(),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.info_outline,
+                                  color: Colors.yellow,
+                                ),
+                                onPressed: () {},
+                              )
+                            ],
+                          ),
+                        ))
+                  ],
+                ),
+              ),
+              (viewModel.loading)
+                  ? LinearProgressIndicator(
+                      backgroundColor: Colors.yellow,
+                    )
+                  : SizedBox(),
               SizedBox(
                 height: 30,
               ),
@@ -242,8 +247,9 @@ class _RegistrationState extends State<Registration> {
                               }, onHandled: (e, m) {
                             if (m.registered) {
                               _bloc.fire(RegistrationEvents.requestOtp,
-                                  message: {'phonenumber': _phoneNumberController.text},
-                                  onHandled: (e, m) {
+                                  message: {
+                                    'phonenumber': _phoneNumberController.text
+                                  }, onHandled: (e, m) {
                                 if (m.sent) {
                                   goToOtpLoginScreen(ctx);
                                 } else {
@@ -262,7 +268,7 @@ class _RegistrationState extends State<Registration> {
                       },
                       child: Text("Next"),
                       textColor: Colors.white,
-                      color: Colors.red,
+                      color: PrimaryColors.backgroundColor,
                       shape: new RoundedRectangleBorder(
                           borderRadius: new BorderRadius.circular(30.0))),
                 ),

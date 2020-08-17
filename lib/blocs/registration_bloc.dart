@@ -29,8 +29,8 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
   @override
   RegistrationModel setTrackingFlag(
       RegistrationEvents event, bool loading, Map message) {
-    // TODO: implement setTrackingFlag
-    return latestViewModel;
+
+    return latestViewModel..loading=loading;
   }
 
   Future<RegistrationModel> registerBee(Map<String, dynamic> message) async {
@@ -75,4 +75,5 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
     } else
       return latestViewModel..sent = false;
   }
+
 }

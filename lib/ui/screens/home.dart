@@ -46,8 +46,15 @@ class _HomeState extends State<Home> {
     super.initState();
     _bloc = HomeBloc(HomeModel());
     _bloc.fire(HomeEvents.activityStatusRequested, onHandled: (e, m) {
+      log("Active: ${m.activeStatus}");
       if (m.activeStatus) {
-        _bloc.subscribeToNotifications();
+        _bloc.subscribeToNotifications( (Position deviceLocation) {
+          if (mapController != null)
+            mapController.animateCamera(
+                CameraUpdate.newLatLng(LatLng(
+                    deviceLocation.latitude,
+                    deviceLocation.longitude)));
+        });
       }
     });
     _bloc.fire(HomeEvents.getDocumentVerificationStatus);
@@ -62,13 +69,13 @@ class _HomeState extends State<Home> {
         position: LatLng(23.829321, 91.277847));
     markers.add(marker);
     mapWidget = GoogleMap(
+      myLocationEnabled: true,
       markers: markers,
       onMapCreated: (GoogleMapController googleMapController) {
         mapController = googleMapController;
       },
-      initialCameraPosition: CameraPosition(
-          target: LatLng( 23.829321,91.277847),
-          zoom: 15),
+      initialCameraPosition:
+          CameraPosition(target: LatLng(23.829321, 91.277847), zoom: 15),
     );
   }
 
@@ -135,7 +142,14 @@ class _HomeState extends State<Home> {
                                         message: {'status': value},
                                         onHandled: (e, m) {
                                       if (m.activeStatus) {
-                                        _bloc.subscribeToNotifications();
+                                        _bloc.subscribeToNotifications(
+                                            (Position deviceLocation) {
+                                          if (mapController != null)
+                                            mapController.animateCamera(
+                                                CameraUpdate.newLatLng(LatLng(
+                                                    deviceLocation.latitude,
+                                                    deviceLocation.longitude)));
+                                        });
                                       } else {
                                         if (_bloc.locationTimer != null &&
                                             _bloc.locationTimer.isActive)

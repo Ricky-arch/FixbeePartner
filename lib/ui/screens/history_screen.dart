@@ -19,6 +19,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           body: CustomScrollView(
             slivers: <Widget>[
               SliverAppBar(
+
                 automaticallyImplyLeading: false,
                 pinned: true,
                 floating: true,
@@ -63,7 +64,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       children: <Widget>[
                         Icon(LineAwesomeIcons.amazon_pay_credit_card),
                         SizedBox(
-                          height: 3,
+                          height: 1,
                         ),
                         Text(
                           'TRANSACTION',
@@ -72,7 +73,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               fontSize: MediaQuery.of(context).size.width / 30),
                         ),
                         SizedBox(
-                          height: 3,
+                          height: 1,
                         ),
                       ],
                     ),
@@ -84,7 +85,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       children: <Widget>[
                         Icon(LineAwesomeIcons.play_circle),
                         SizedBox(
-                          height: 3,
+                          height: 1,
                         ),
                         Text('ACTIVE',
                             style: TextStyle(
@@ -92,7 +93,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 fontSize:
                                     MediaQuery.of(context).size.width / 30)),
                         SizedBox(
-                          height: 3,
+                          height: 1,
                         ),
                       ],
                     ),
@@ -104,7 +105,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       children: <Widget>[
                         Icon(LineAwesomeIcons.pause_circle),
                         SizedBox(
-                          height: 3,
+                          height: 1,
                         ),
                         Text('REJECTED',
                             style: TextStyle(
@@ -112,7 +113,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 fontSize:
                                     MediaQuery.of(context).size.width / 30)),
                         SizedBox(
-                          height: 3,
+                          height: 1,
                         ),
                       ],
                     ),

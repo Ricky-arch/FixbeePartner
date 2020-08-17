@@ -7,8 +7,10 @@ import 'package:fixbee_partner/models/update_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/screenutil.dart';
 import 'package:string_validator/string_validator.dart';
 
+import '../../Constants.dart';
 import '../../data_store.dart';
 
 class UpdateProfile extends StatefulWidget {
@@ -76,43 +78,57 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: PrimaryColors.backgroundColor,
+        automaticallyImplyLeading: false,
+        //backgroundColor: Data.backgroundColor,
+        title: Stack(
+          children: <Widget>[
+            Container(
+                decoration:
+                BoxDecoration(color: PrimaryColors.backgroundColor),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                        height: 30,
+                        width: 30,
+                        decoration: BoxDecoration(
+                            color: Colors.white, shape: BoxShape.circle),
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: Image.asset(
+                            "assets/custom_icons/bee.png",
+                            fit: BoxFit.cover,
+                          ),
+                        )),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'Profile',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.yellow,
+                                  fontSize: 22)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ))
+          ],
+        ),
+      ),
       body: SafeArea(
         child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return ListView(
             scrollDirection: Axis.vertical,
             children: <Widget>[
-              Container(
-                height: 60,
-                color: Color.fromRGBO(3, 9, 23, 1),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: <Widget>[
-                      GestureDetector(
-                        child: Icon(
-                          Icons.arrow_left,
-                          color: Colors.white,
-                          size: 25,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      SizedBox(width: MediaQuery.of(context).size.width / 20),
-                      Center(
-                          child: Text(
-                        "Update Profile",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600),
-                      )),
-                    ],
-                  ),
-                ),
-              ),
+
               SizedBox(
                 height: 5,
               ),

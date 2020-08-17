@@ -125,6 +125,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
       Slotted
       At
     }
+    CashOnDelivery
     Service{
       Name
     }
@@ -189,6 +190,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
           response['AnswerOrderRequest']['Location']['Address']['Landmark']
       ..order.timeStamp = response['AnswerOrderRequest']['Timestamp']
       ..order.price = response['AnswerOrderRequest']['Amount']
+      ..order.cashOnDelivery= response['AnswerOrderRequest']['CashOnDelivery']
     ..user.profilePicId=response['AnswerOrderRequest']['User']['DisplayPicture']['id'];
   }
 

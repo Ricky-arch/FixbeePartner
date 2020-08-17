@@ -8,4 +8,6 @@ class WorkScreenModel extends ViewModel {
   bool otpValid=false;
   int userRating;
   bool slotted=false;
+  bool orderResolved=false;
+  bool onJobCompleted=false;
 }

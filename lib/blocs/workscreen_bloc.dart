@@ -20,6 +20,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     if (event == WorkScreenEvents.rateUser) {
       return await rateUser(message);
     }
+    if (event == WorkScreenEvents.onJobCompletion) {
+      return await  onJobCompletion(message);
+    }
     return latestViewModel;
   }
 
@@ -86,21 +89,18 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   Future<WorkScreenModel> verifyOtpToStartService(
       Map<String, dynamic> message) async {
     String id = message['orderId'];
-    int otp = message['otp'];
+    String otp = message['otp'];
+
     String query = '''mutation{
-  ResolveOrder(_id:"$id",input:{OTP:$otp}){
-    OrderId
-    Bee{
-      ID
-    }
+  ResolveOrder(_id:"$id",input:{OTP:"$otp"}){
+    Status
   }
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
-    if (response.containsKey('errors')) {
-      latestViewModel..otpValid = false;
-    } else {
-      latestViewModel..onServiceStarted = true;
-    }
+    if(response['ResolveOrder']['Status']=='RESOLVED')
+      latestViewModel..orderResolved=true..otpValid=true;
+    else
+      latestViewModel..otpValid=false;
     return latestViewModel;
   }
 
@@ -108,4 +108,19 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
 
     return latestViewModel;
   }
+
+ Future<WorkScreenModel>  onJobCompletion(Map<String, dynamic> message) async{
+    String id=message['orderID'];
+
+    String query='''mutation{
+  CompleteOrder(_id:"$id"){
+    ID
+    Status
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.mutate(query);
+    if(response['Status']=='COMPLETED')
+      latestViewModel..onJobCompleted=true;
+    return latestViewModel;
+ }
 }
