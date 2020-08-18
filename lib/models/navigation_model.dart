@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class NavigationModel extends ViewModel {
   bool gotJob = false;
   String jobId;
+  bool onJobConfirmed=false;
 
   User user = User();
   Service service=Service();

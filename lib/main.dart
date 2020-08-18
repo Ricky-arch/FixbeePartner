@@ -1,5 +1,6 @@
 
 
+import 'package:fixbee_partner/ui/custom_widget/new_service_notification.dart';
 import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
 import 'package:fixbee_partner/ui/screens/dialog.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
@@ -43,6 +44,7 @@ void main() {
         //WorkAnimation()
         //HistoryScreen()
         SplashScreen()
+       // NewServiceNotification(),
         //DialogBox()
         //DialogShow()
         //NewServiceNotification(),

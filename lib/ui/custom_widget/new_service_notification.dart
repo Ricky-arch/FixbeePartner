@@ -43,8 +43,8 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
                       : "#Order ID: 1234567890",
                   style: TextStyle(
                       color: PrimaryColors.backgroundColor,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
                 ),
               ),
             ),

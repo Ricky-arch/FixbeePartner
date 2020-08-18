@@ -160,7 +160,10 @@ class _HomeState extends State<Home> {
                                   },
                                 )
                               : SizedBox(
-                                  child: CircularProgressIndicator(),
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    backgroundColor: PrimaryColors.backgroundColor,
+                                  ),
                                   height: 30,
                                   width: 30,
                                 ),

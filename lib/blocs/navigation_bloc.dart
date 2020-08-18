@@ -1,13 +1,16 @@
 import 'dart:developer';
 
 import 'package:fixbee_partner/bloc.dart';
+import 'package:fixbee_partner/blocs/flavours.dart';
+import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
+import 'package:fixbee_partner/models/view_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
 import '../Constants.dart';
 
-class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
+class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackable{
   NavigationBloc(NavigationModel genesisViewModel) : super(genesisViewModel);
 
   @override
@@ -218,6 +221,13 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> {
   Future<NavigationModel> getUserData(Map<String, dynamic> message) async {
     String query = '''''';
 
+    return latestViewModel;
+  }
+
+  @override
+  ViewModel setTrackingFlag(Event event, bool trackFlag, Map message) {
+    if(event ==NavigationEvent.onConfirmJob)
+      latestViewModel..onJobConfirmed=true;
     return latestViewModel;
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/bank_details_event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
@@ -95,11 +97,6 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
     ''';
 
     Map response = await CustomGraphQLClient.instance.mutate(query);
-    if (response.containsKey('errors'))
-      latestViewModel..updated = false;
-    else {
-      latestViewModel..updated = true;
-    }
     List accounts = response['Update']['BankAccounts'];
     latestViewModel..numberOfAccounts = accounts.length;
     accounts.forEach((account) {
@@ -111,6 +108,6 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
       bm.bankAccountNumber = account['AccountNumber'];
       models.add(bm);
     });
-    return latestViewModel..bankAccountList = models;
+    return latestViewModel..bankAccountList = models.. updated=true;
   }
 }

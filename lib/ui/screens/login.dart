@@ -129,6 +129,7 @@ class _LoginState extends State<Login> {
                                     ),
                                     Flexible(
                                       child: new TextFormField(
+
                                         validator: (value) {
                                           if (value.isEmpty) {
                                             return "Please enter your number";
@@ -153,7 +154,7 @@ class _LoginState extends State<Login> {
                                         textInputAction: TextInputAction.done,
                                         style: TextStyle(
                                             fontSize: 20.0,
-                                            color: Color(0xff1d1b27)),
+                                            color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
                                       ),
                                       flex: 8,
                                     ),
@@ -164,58 +165,73 @@ class _LoginState extends State<Login> {
                                   ],
                                 ),
                               ),
-                              (viewModel.loading)?Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 50.0,
-                                ),
-                                child: CircularProgressIndicator(
-
-                                  backgroundColor: PrimaryColors.backgroundColor,
-                                ),
-                              ):Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 50.0,
-                                  ),
-                                  child: new Container(
-                                    width: 150.0,
-                                    height: 35.0,
-                                    child: new RaisedButton(
-                                        disabledColor: Colors.teal[100],
-                                        disabledTextColor: Colors.white,
-                                        onPressed: isButtonEnabled
-                                            ? () {
-                                                _bloc.fire(LoginEvents.onLogIn,
-                                                    message: {
-                                                      'phone':
-                                                          textEditingController
-                                                              .text
-                                                    }, onHandled: (e, m) {
-                                                  if (m.exist) {
-                                                    goToOtpScreen(
-                                                        context, m.exist);
-                                                  } else {
-                                                    Navigator.push(context,
-                                                        MaterialPageRoute(
-                                                            builder: (ctx) {
-                                                      return Registration(phoneNumber: textEditingController.text,);
-                                                    }));
-                                                  }
-                                                });
-                                              }
-                                            : null,
-                                        child: Text("Next"),
-                                        textColor:
+                              (viewModel.loading)
+                                  ? Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 50.0,
+                                      ),
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
+                                        backgroundColor:
                                             PrimaryColors.backgroundColor,
-                                        color: Colors.yellow,
-                                        shape: new RoundedRectangleBorder(
-                                            borderRadius:
-                                                new BorderRadius.circular(
-                                                    30.0))),
+                                      ),
+                                    )
+                                  : InkWell(
+
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 50.0,
+                                    ),
+                                    child: new Container(
+                                      width: 150.0,
+                                      height: 35.0,
+                                      child: new RaisedButton(
+                                          elevation: 3,
+                                          disabledColor: Colors.teal[100],
+                                          disabledTextColor: Colors.white,
+                                          onPressed: isButtonEnabled
+                                              ? () {
+                                            _bloc.fire(
+                                                LoginEvents.onLogIn,
+                                                message: {
+                                                  'phone':
+                                                  textEditingController
+                                                      .text
+                                                }, onHandled: (e, m) {
+                                              if (m.exist) {
+                                                goToOtpScreen(
+                                                    context, m.exist);
+                                              } else {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder:
+                                                            (ctx) {
+                                                          return Registration(
+                                                            phoneNumber:
+                                                            textEditingController
+                                                                .text,
+                                                          );
+                                                        }));
+                                              }
+                                            });
+                                          }
+                                              : null,
+                                          child: Text("Next"),
+                                          textColor:
+                                          PrimaryColors.backgroundColor,
+                                          color: Colors.yellow,
+                                          shape: new RoundedRectangleBorder(
+                                              borderRadius:
+                                              new BorderRadius.circular(
+                                                  30.0))),
+                                    ),
                                   ),
                                 ),
                               ),
-
                             ],
                           )),
                     ],

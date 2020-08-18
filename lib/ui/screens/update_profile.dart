@@ -19,6 +19,7 @@ class UpdateProfile extends StatefulWidget {
 }
 
 class _UpdateProfileState extends State<UpdateProfile> {
+
   UpdateProfileBloc _bloc;
 
   TextEditingController firstName = TextEditingController();

@@ -70,52 +70,33 @@ class _RegistrationState extends State<Registration> {
           return ListView(
             scrollDirection: Axis.vertical,
             children: <Widget>[
+              SizedBox(
+                height: 20,
+              ),
               Container(
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                        decoration:
-                            BoxDecoration(color: PrimaryColors.backgroundColor),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: <Widget>[
-                              SizedBox(
-                                width: 5,
-                              ),
-                              RichText(
-                                text: TextSpan(
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                        text: 'You look like a new Bee!',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.yellow,
-                                            fontSize: 18)),
-                                  ],
-                                ),
-                              ),
-                              Spacer(),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.info_outline,
-                                  color: Colors.yellow,
-                                ),
-                                onPressed: () {},
-                              )
-                            ],
-                          ),
-                        ))
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Oh! A new Bee?\nFill in to continue...",
+                    style: TextStyle(
+                        color: PrimaryColors.backgroundColor,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
               (viewModel.loading)
-                  ? LinearProgressIndicator(
-                      backgroundColor: Colors.yellow,
+                  ? Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: LinearProgressIndicator(
+                        minHeight: 3,
+                        backgroundColor: PrimaryColors.backgroundColor,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
                     )
                   : SizedBox(),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
               Form(
                   key: _formKey,
@@ -132,15 +113,20 @@ class _RegistrationState extends State<Registration> {
                             }
                             return null;
                           },
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                              errorStyle: TextStyle(color: Colors.black),
+                              errorStyle: TextStyle(
+                                  color: PrimaryColors.backgroundColor,
+                                  fontWeight: FontWeight.bold),
                               labelText: "First Name",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -156,15 +142,20 @@ class _RegistrationState extends State<Registration> {
                             }
                             return null;
                           },
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                              errorStyle: TextStyle(color: Colors.black),
+                              errorStyle: TextStyle(
+                                  color: PrimaryColors.backgroundColor,
+                                  fontWeight: FontWeight.bold),
                               labelText: "Middle Name",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -180,15 +171,20 @@ class _RegistrationState extends State<Registration> {
                             }
                             return null;
                           },
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                              errorStyle: TextStyle(color: Colors.black),
+                              errorStyle: TextStyle(
+                                  color: PrimaryColors.backgroundColor,
+                                  fontWeight: FontWeight.bold),
                               labelText: "Last Name",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -204,7 +200,9 @@ class _RegistrationState extends State<Registration> {
                             }
                             return null;
                           },
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(
+                              color: PrimaryColors.backgroundColor,
+                              fontWeight: FontWeight.bold),
                           keyboardType: TextInputType.phone,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(10)
@@ -212,10 +210,12 @@ class _RegistrationState extends State<Registration> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Phone Number",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -232,7 +232,6 @@ class _RegistrationState extends State<Registration> {
                 padding:
                     EdgeInsets.only(top: 10, bottom: 10, left: 60, right: 60),
                 child: new Container(
-                  width: 50,
                   height: 45.0,
                   child: RaisedButton(
                       onPressed: () {
@@ -267,7 +266,7 @@ class _RegistrationState extends State<Registration> {
                         }
                       },
                       child: Text("Next"),
-                      textColor: Colors.white,
+                      textColor: Colors.yellow,
                       color: PrimaryColors.backgroundColor,
                       shape: new RoundedRectangleBorder(
                           borderRadius: new BorderRadius.circular(30.0))),
