@@ -2,6 +2,7 @@ import 'package:fixbee_partner/blocs/wallet_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/wallet_event.dart';
 import 'package:fixbee_partner/models/wallet_model.dart';
+import 'package:fixbee_partner/ui/custom_widget/available_accounts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -16,7 +17,13 @@ class WalletScreen extends StatefulWidget {
 }
 
 class _WalletScreenState extends State<WalletScreen> {
-  TextEditingController walletAmountController;
+  TextEditingController walletDepositAmountController =
+      new TextEditingController();
+  TextEditingController walletWithdrawAmountController =
+      new TextEditingController();
+  bool checkBoxValue = false;
+  static String selectedAccountID = "NOT_SELECTED";
+  static String selectedAccountNumber;
   bool isButtonEnabled = false;
   WalletBloc _bloc;
   final String wallet = "400.00";
@@ -32,6 +39,9 @@ class _WalletScreenState extends State<WalletScreen> {
     // TODO: implement initState
     super.initState();
     _bloc = WalletBloc(WalletModel());
+    _bloc.fire(WalletEvent.fetchBankAccountsForWithdrawal, onHandled: (e, m) {
+      selectedAccountNumber = m.bankAccountList[0].bankAccountNumber;
+    });
     _bloc.fire(WalletEvent.fetchWalletAmount, onHandled: (e, m) {
       walletAmountInpaise = m.amount;
       walletAmount = (walletAmountInpaise / 100).toDouble();
@@ -44,13 +54,15 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   void dispose() {
     _razorpay.clear();
+    walletWithdrawAmountController.dispose();
+    walletDepositAmountController.dispose();
     // TODO: implement dispose
     super.dispose();
   }
   //rzp_test_CCbjVk8vqcb00P
 
   var options = {
-    'key': 'rzp_test_CCbjVk8vqcb00P',
+    'key': Constants.RAZORPAY_KEY,
     'amount': 100,
     'name': 'FIXBEE',
     'description': 'Wallet Deposit',
@@ -63,7 +75,7 @@ class _WalletScreenState extends State<WalletScreen> {
   };
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    // Do something when payment succeeds
+    _showPaymentSuccessDialog();
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
@@ -82,12 +94,10 @@ class _WalletScreenState extends State<WalletScreen> {
       return SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   Container(
                     height: 60,
@@ -172,7 +182,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 padding:
                                     const EdgeInsets.fromLTRB(8.0, 30, 8, 8),
                                 child: Text(
-                                  walletAmount.toString(),
+                                  viewModel.amount.toString(),
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w300,
@@ -255,7 +265,267 @@ class _WalletScreenState extends State<WalletScreen> {
                       style: TextStyle(color: PrimaryColors.backgroundColor),
                     )),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    int selectedRadio = 0;
+                    if (viewModel.numberOfAccounts != 0) {
+                      selectedAccountNumber =
+                          viewModel.bankAccountList[0].bankAccountNumber;
+                      selectedAccountID =
+                          viewModel.bankAccountList[0].accountID;
+                      print(selectedAccountID + selectedAccountID);
+                    }
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            insetPadding: EdgeInsets.all(10),
+                            child: (viewModel.numberOfAccounts == 0)
+                                ? Container(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Oops! No Accounts Linked",
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Icon(
+                                            Icons.sentiment_very_dissatisfied,
+                                            color: Colors.black,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : ListView(
+                                    shrinkWrap: true,
+                                    children: [
+                                      StatefulBuilder(
+                                        builder: (BuildContext context,
+                                            StateSetter setState) {
+                                          return Column(
+                                            children: [
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: PrimaryColors
+                                                      .backgroundColor,
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(
+                                                              15.0)),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: (viewModel
+                                                              .bankAccountList
+                                                              .length ==
+                                                          0)
+                                                      ? Text(
+                                                          "No Bank Accounts Linked",
+                                                          style: TextStyle(
+                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.white))
+                                                      : (viewModel.bankAccountList
+                                                                  .length ==
+                                                              1)
+                                                          ? Text(
+                                                              "Confirm this account",
+                                                              style: TextStyle(
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .white))
+                                                          : Text(
+                                                              "Choose an account for withdrawal",
+                                                              style: TextStyle(
+                                                                  fontSize: 14,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .white),
+                                                            ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              ListView.builder(
+                                                  shrinkWrap: true,
+                                                  physics:
+                                                      NeverScrollableScrollPhysics(),
+                                                  scrollDirection:
+                                                      Axis.vertical,
+                                                  itemCount: viewModel
+                                                      .bankAccountList.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    return Column(
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .fromLTRB(
+                                                                      8.0,
+                                                                      0,
+                                                                      0,
+                                                                      0),
+                                                              child: Text(
+                                                                "Select account ${index + 1}",
+                                                                style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                            ),
+                                                            Spacer(),
+                                                            Radio(
+                                                              value: index,
+                                                              activeColor:
+                                                                  PrimaryColors
+                                                                      .backgroundColor,
+                                                              groupValue:
+                                                                  selectedRadio,
+                                                              onChanged: (val) {
+                                                                selectedAccountID =
+                                                                    viewModel
+                                                                        .bankAccountList[
+                                                                            index]
+                                                                        .accountID;
+                                                                setState(() =>
+                                                                    selectedRadio =
+                                                                        val);
+                                                                if (selectedRadio ==
+                                                                    1) {
+                                                                  selectedAccountNumber = viewModel
+                                                                      .bankAccountList[
+                                                                          index]
+                                                                      .bankAccountNumber;
+                                                                  selectedAccountID = viewModel
+                                                                      .bankAccountList[
+                                                                          index]
+                                                                      .accountID;
+                                                                }
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        AvailableAccounts(
+                                                          accountHoldersName: viewModel
+                                                              .bankAccountList[
+                                                                  index]
+                                                              .accountHoldersName,
+                                                          accountNumber: viewModel
+                                                              .bankAccountList[
+                                                                  index]
+                                                              .bankAccountNumber,
+                                                          verified: viewModel
+                                                              .bankAccountList[
+                                                                  index]
+                                                              .accountVerified,
+                                                        ),
+                                                        SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                      ],
+                                                    );
+                                                  }),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  RaisedButton(
+                                                    elevation: 4,
+                                                    color: PrimaryColors
+                                                        .backgroundColor,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                        "Next",
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                    onPressed: (viewModel
+                                                                .bankAccountList
+                                                                .length !=
+                                                            0)
+                                                        ? () {
+                                                            print(
+                                                                selectedAccountNumber);
+                                                            Navigator.pop(
+                                                                context);
+                                                            _showPaymentWithdrawalModalSheet(
+                                                              context,
+                                                            );
+                                                          }
+                                                        : null,
+                                                  ),
+                                                  Container(
+                                                    color: PrimaryColors
+                                                        .backgroundColor,
+                                                    height: 20,
+                                                    width: 2,
+                                                  ),
+                                                  RaisedButton(
+                                                    elevation: 4,
+                                                    color: Colors.white,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                        "Cancel",
+                                                        style: TextStyle(
+                                                            color: PrimaryColors
+                                                                .backgroundColor,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 20,
+                                              )
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                          );
+                        });
+                  },
                 ),
               ],
             )
@@ -279,54 +549,84 @@ class _WalletScreenState extends State<WalletScreen> {
                 Container(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(10.0),
                         child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(color: Colors.deepPurple),
+                          decoration: BoxDecoration(
+                            color: PrimaryColors.backgroundColor,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                          ),
                           child: Padding(
-                            padding: EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              "Enter Amount:",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
+                              "Enter Deposit Amount:",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        height: 100,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Container(
                           child: TextFormField(
-                            onChanged: isAmountValid,
+                            style: TextStyle(
+                                color: PrimaryColors.backgroundColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15),
                             decoration: InputDecoration(
-                                hintText: "Type Here",
+                                hintText: "Eg: 500",
                                 errorStyle: TextStyle(color: Colors.red),
                                 border: new UnderlineInputBorder(
                                     borderSide:
                                         new BorderSide(color: Colors.green))),
-                            controller: walletAmountController,
+                            controller: walletDepositAmountController,
                             keyboardType: TextInputType.number,
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: 10,
+                      ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
-                          OutlineButton(
-                            borderSide:
-                                BorderSide(width: 2, color: Colors.green),
-                            textColor: Colors.deepPurple,
+                          RaisedButton(
+                            color: PrimaryColors.backgroundColor,
+                            textColor: Colors.white,
                             onPressed: () {
+                              print(selectedAccountNumber);
+                              print(walletDepositAmountController.text + "XXX");
+                              int depositAmount =
+                                  int.parse(walletDepositAmountController.text);
+                              print(depositAmount * 100);
+                              var depositOptions = {
+                                'key': Constants.RAZORPAY_KEY,
+                                'amount': depositAmount * 100,
+                                'name': 'FIXBEE',
+                                'description': 'Wallet Deposit',
+                                'prefill': {
+                                  'contact': '${DataStore.me.phoneNumber}' ??
+                                      '8787200192',
+                                  'email': (DataStore.me.emailAddress == null)
+                                      ? 'Tap to enter a valid mail'
+                                      : DataStore.me.emailAddress
+                                }
+                              };
+                              _razorpay.open(depositOptions);
+                              walletDepositAmountController.clear();
                               Navigator.pop(context);
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
-                                "CANCEL",
+                                "ADD",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -334,16 +634,16 @@ class _WalletScreenState extends State<WalletScreen> {
                             ),
                           ),
                           OutlineButton(
-                            borderSide:
-                            BorderSide(width: 2, color: Colors.green),
-                            textColor: Colors.deepPurple,
-                            onPressed: isButtonEnabled?(){
-                              _razorpay.open(options);
-                            }:null,
+                            borderSide: BorderSide(
+                                width: 2, color: PrimaryColors.backgroundColor),
+                            textColor: PrimaryColors.backgroundColor,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
-                                "ADD",
+                                "CANCEL",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -372,5 +672,164 @@ class _WalletScreenState extends State<WalletScreen> {
         isButtonEnabled = false;
       }
     });
+  }
+
+  _showPaymentWithdrawalModalSheet(context) {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Wrap(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: PrimaryColors.backgroundColor,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(15.0)),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  "Selected Account:",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Text(
+                                selectedAccountNumber,
+                                style: TextStyle(
+                                    color: PrimaryColors.backgroundColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: PrimaryColors.backgroundColor,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Enter Amount for Withdrawal:",
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Container(
+                          height: 100,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              style: TextStyle(
+                                  color: PrimaryColors.backgroundColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15),
+                              decoration: InputDecoration(
+                                  hintText: "Eg: 500",
+                                  errorStyle: TextStyle(color: Colors.red),
+                                  border: new UnderlineInputBorder(
+                                      borderSide:
+                                          new BorderSide(color: Colors.green))),
+                              controller: walletWithdrawAmountController,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          RaisedButton(
+                            color: PrimaryColors.backgroundColor,
+                            textColor: Colors.white,
+                            onPressed: () {
+                              print(selectedAccountNumber);
+                              print(walletWithdrawAmountController.text);
+                              _bloc.fire(WalletEvent.withdrawAmount, message: {
+                                'amount': walletWithdrawAmountController.text,
+                                'accountId': selectedAccountID
+                              });
+                              walletWithdrawAmountController.clear();
+
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                "ADD",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          OutlineButton(
+                            borderSide: BorderSide(
+                                width: 2, color: PrimaryColors.backgroundColor),
+                            textColor: PrimaryColors.backgroundColor,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                "CANCEL",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      )
+                    ],
+                  ),
+                ],
+              ));
+        });
+  }
+
+  _showPaymentSuccessDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(
+              "Payment Successful!",
+              style: TextStyle(
+                  color: PrimaryColors.backgroundColor,
+                  fontWeight: FontWeight.bold),
+            ),
+          );
+        });
   }
 }

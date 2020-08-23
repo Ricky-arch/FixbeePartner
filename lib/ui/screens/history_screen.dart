@@ -1,3 +1,9 @@
+import 'package:fixbee_partner/blocs/history_bloc.dart';
+import 'package:fixbee_partner/events/history_event.dart';
+import 'package:fixbee_partner/models/history_model.dart';
+import 'package:fixbee_partner/ui/custom_widget/credit.dart';
+import 'package:fixbee_partner/ui/custom_widget/past_order.dart';
+import 'package:fixbee_partner/utils/dummy_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
@@ -10,127 +16,145 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  HistoryBloc _bloc;
+  @override
+  void initState() {
+    _bloc = HistoryBloc(HistoryModel());
+    _bloc.fire(HistoryEvent.fetchPastOrders);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: DefaultTabController(
-        length: 3,
+        child: _bloc.widget(onViewModelUpdated: (context, viewModel) {
+      return DefaultTabController(
+        length: 4,
         child: Scaffold(
           body: CustomScrollView(
             slivers: <Widget>[
               SliverAppBar(
-
                 automaticallyImplyLeading: false,
                 pinned: true,
                 floating: true,
                 titleSpacing: 0,
-                backgroundColor: Colors.white,
+                backgroundColor: PrimaryColors.backgroundColor,
                 elevation: 3,
                 title: Container(
-                  height: 50,
+                  height: 40,
                   color: PrimaryColors.backgroundColor,
                   child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.event,
-                              color: Colors.yellow,
-                            ),
-                            SizedBox(
-                                width: MediaQuery.of(context).size.width / 40),
-                            Center(
-                                child: Text(
-                              "History",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600),
-                            )),
-                          ],
-                        ),
-                      ],
+                    padding: const EdgeInsets.fromLTRB(10.0, 12, 12, 0),
+                    child: Text(
+                      "HISTORY",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                bottom: TabBar(indicatorColor: Colors.black, tabs: [
-                  Tab(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(LineAwesomeIcons.amazon_pay_credit_card),
-                        SizedBox(
-                          height: 1,
-                        ),
-                        Text(
-                          'TRANSACTION',
-                          style: TextStyle(
-                              color: PrimaryColors.backgroundColor,
-                              fontSize: MediaQuery.of(context).size.width / 30),
-                        ),
-                        SizedBox(
-                          height: 1,
-                        ),
-                      ],
-                    ),
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(40),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TabBar(
+                        isScrollable: true,
+                        labelPadding: EdgeInsets.symmetric(horizontal: 10),
+                        indicator: UnderlineTabIndicator(
+                            borderSide: BorderSide(
+                              width: 3,
+                              color: Colors.white,
+                            ),
+                            insets: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5)),
+                        tabs: [
+                          Tab(
+                            child: Text(
+                              'CREDIT',
+                              style: TextStyle(
+                                  color: Colors.orangeAccent,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Tab(
+                            child: Text(
+                              'DEBIT',
+                              style: TextStyle(
+                                  color: Colors.orangeAccent,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Tab(
+                            child: Text(
+                              'PAST',
+                              style: TextStyle(
+                                  color: Colors.orangeAccent,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Tab(
+                            child: Text(
+                              'REJECTED',
+                              style: TextStyle(
+                                  color: Colors.orangeAccent,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ]),
                   ),
-                  Tab(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(LineAwesomeIcons.play_circle),
-                        SizedBox(
-                          height: 1,
-                        ),
-                        Text('ACTIVE',
-                            style: TextStyle(
-                                color: PrimaryColors.backgroundColor,
-                                fontSize:
-                                    MediaQuery.of(context).size.width / 30)),
-                        SizedBox(
-                          height: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(LineAwesomeIcons.pause_circle),
-                        SizedBox(
-                          height: 1,
-                        ),
-                        Text('REJECTED',
-                            style: TextStyle(
-                                color: PrimaryColors.backgroundColor,
-                                fontSize:
-                                    MediaQuery.of(context).size.width / 30)),
-                        SizedBox(
-                          height: 1,
-                        ),
-                      ],
-                    ),
-                  ),
-                ]),
+                ),
               ),
               SliverFillRemaining(
                   child: TabBarView(
                 children: <Widget>[
                   Tab(
-                    child: Text('TRANSACTIONS',
-                        style: TextStyle(color: Colors.black)),
+                    child: ListView(children: [
+                      ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: DummyData.transactionsCredit.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Credit(
+                              amount: DummyData.transactionsCredit[index]
+                                  ['Amount'],
+                              date: DummyData.transactionsCredit[index]
+                                  ['TimeStamp'],
+                            );
+                          }),
+                    ]),
                   ),
                   Tab(
                     child:
-                        Text('ACTIVE', style: TextStyle(color: Colors.black)),
+                        Text('REJECTED', style: TextStyle(color: Colors.black)),
                   ),
+                  Tab(
+                      child: ListView.builder(
+                          itemCount: viewModel.pastOrderList.length,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (BuildContext context, int index) {
+                            return PastOrder(
+                              amount:
+                                  viewModel.pastOrderList[index].totalAmount,
+                              serviceName:
+                                  viewModel.pastOrderList[index].serviceName,
+                              status: viewModel.pastOrderList[index].status,
+                              userName: viewModel
+                                      .pastOrderList[index].userFirstname +
+                                  " " +
+                                  viewModel
+                                      .pastOrderList[index].userMiddlename +
+                                  " " +
+                                  viewModel.pastOrderList[index].userLastname,
+                              timeStamp:
+                                  viewModel.pastOrderList[index].timeStamp,
+                            );
+                          })),
                   Tab(
                     child:
                         Text('REJECTED', style: TextStyle(color: Colors.black)),
@@ -140,7 +164,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
+    }));
   }
 }

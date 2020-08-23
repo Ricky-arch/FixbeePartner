@@ -21,7 +21,7 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
       return await rateUser(message);
     }
     if (event == WorkScreenEvents.onJobCompletion) {
-      return await  onJobCompletion(message);
+      return await onJobCompletion(message);
     }
     return latestViewModel;
   }
@@ -97,30 +97,37 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   }
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
-    if(response['ResolveOrder']['Status']=='RESOLVED')
-      latestViewModel..orderResolved=true..otpValid=true;
+    if (response['ResolveOrder']['Status'] == 'RESOLVED')
+      latestViewModel
+        ..orderResolved = true
+        ..otpValid = true;
     else
-      latestViewModel..otpValid=false;
+      latestViewModel..otpValid = false;
     return latestViewModel;
   }
 
   Future<WorkScreenModel> rateUser(Map<String, dynamic> message) async {
-
     return latestViewModel;
   }
 
- Future<WorkScreenModel>  onJobCompletion(Map<String, dynamic> message) async{
-    String id=message['orderID'];
-
-    String query='''mutation{
+  Future<WorkScreenModel> onJobCompletion(Map<String, dynamic> message) async {
+    String id = message['orderID'];
+    String processOrder = '''mutation{
+  ProcessOrder(_id:"$id"){
+    ID
+  }
+}
+    ''';
+    await CustomGraphQLClient.instance.mutate(processOrder);
+    String completeOrder = '''mutation{
   CompleteOrder(_id:"$id"){
     ID
     Status
   }
 }''';
-    Map response = await CustomGraphQLClient.instance.mutate(query);
-    if(response['Status']=='COMPLETED')
-      latestViewModel..onJobCompleted=true;
+    Map response = await CustomGraphQLClient.instance.mutate(completeOrder);
+    if (response['Status'] == 'COMPLETED')
+      latestViewModel..onJobCompleted = true;
     return latestViewModel;
- }
+  }
 }

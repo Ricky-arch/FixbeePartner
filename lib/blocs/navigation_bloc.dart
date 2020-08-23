@@ -28,6 +28,12 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
     if (event == NavigationEvent.getUserData) {
       return await getUserData(message);
     }
+    if(event== NavigationEvent.getActiveService){
+      return await getActiveService(message);
+    }
+    if(event == NavigationEvent.checkActiveService){
+      return await checkActiveService();
+    }
     return latestViewModel;
   }
 
@@ -84,36 +90,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
 }
     ''';
     Map response = await CustomGraphQLClient.instance.query(query);
-//   if(response.isNotEmpty)
-//     print(response.toString()+"xxx");
-//    Map location = response['Order']['Location'];
-//    Map service = response['Order']['Service'];
-//    Map user = response['Order']['User'];
-//    latestViewModel
-//      ..gotJob = true
-//      ..order.graphQLId = response['Order']['ID']
-//      ..location.locationId = location['ID']
-//      ..location.locationName = location['Name']
-//      ..location.addressLine = location['Address']['Line1']
-//      ..location.googlePlaceId = location['GooglePlaceID']
-//      ..service.serviceId = service['ID']
-//      ..service.serviceName = service['Name']
-//      ..service.priceable = service['Pricing']['Priceable']
-//      ..service.basePrice = service['Pricing']['BasePrice']
-//      ..service.serviceCharge = service['Pricing']['ServiceCharge']
-//      ..service.taxPercent = service['Pricing']['TaxPercent']
-//      ..order.status = response['Order']['Status']
-//      ..user.userId = user['ID']
-//      ..user.firstname = user['Name']['Firstname']
-//      ..user.middlename = user['Name']['Middlename']
-//      ..user.lastname = user['Name']['LastName']
-//      ..user.phoneNumber = user['Phone']['Number']
-//      ..user.profilePicUrl = user['DisplayPicture']['id']
-//      ..order.cashOnDelivery = response['Order']['CashOnDelivery']
-//      ..order.orderId = response['Order']['OrderId']
-//      ..order.slotted = response['Order']['Slot']['Slotted']
-//      ..order.slot = response['Order']['Slot']['At'];
-//
+
     return latestViewModel;
   }
 
@@ -230,4 +207,72 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
       latestViewModel..onJobConfirmed=true;
     return latestViewModel;
   }
+
+  Future<NavigationModel> getActiveService(Map<String, dynamic> message) async{
+    String id= message['orderId'];
+
+    String query='''
+    {
+  Order(_id: "$id") {
+    ID
+    Location {
+      ID
+      Name
+      Address {
+        Line1
+      }
+      GooglePlaceID
+    }
+    Service {
+      ID
+      Name
+      Pricing {
+        Priceable
+        BasePrice
+        ServiceCharge
+        TaxPercent
+      }
+    }
+    Status
+    User {
+      ID
+      Name {
+        Firstname
+        Middlename
+        Lastname
+      }
+      DisplayPicture{
+        filename
+        id
+      }
+      Phone {
+        Number
+      }
+    }
+    CashOnDelivery
+    OrderId
+    Slot{
+      Slotted
+      At
+    }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    return latestViewModel;
+  }
+
+ Future<NavigationModel> checkActiveService() async{
+    String query='''{
+  Me{
+    ... on Bee{
+      Active
+      Available
+    }
+  }
+}''';
+    Map response= await CustomGraphQLClient.instance.query(query);
+    if(response['Me']['Active'] && !response['Me']["Available"])
+      latestViewModel..isOrderActive=true;
+    return latestViewModel;
+ }
 }

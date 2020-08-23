@@ -54,7 +54,7 @@ class _LoginState extends State<Login> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Image.asset(
-                                "assets/custom_icons/bee.png",
+                                "assets/logo/fixbee2.png",
                                 height: 70,
                               ),
                             )),

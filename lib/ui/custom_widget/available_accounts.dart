@@ -18,6 +18,7 @@ class _AvailableAccountsState extends State<AvailableAccounts> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(8.0,0,8,0),
       child: Card(
+        elevation: 5,
         child: Wrap(children: [
           Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -33,6 +34,7 @@ class _AvailableAccountsState extends State<AvailableAccounts> {
                         padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
                         child: Text(
                           "Account Holder's Name:",
+
                           maxLines: null,
                           style:
                               TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
@@ -45,15 +47,17 @@ class _AvailableAccountsState extends State<AvailableAccounts> {
 
                     ],
                   ),
-                  Container(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                      child: Text(
-                        widget.accountHoldersName,
-                        maxLines: null,
-                        //textAlign: TextAlign.justify,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
+                  Flexible(
+                    child: Container(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                        child: Text(
+                          widget.accountHoldersName,
+                          overflow: TextOverflow.ellipsis,
+                          //textAlign: TextAlign.justify,
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ),
                   ),

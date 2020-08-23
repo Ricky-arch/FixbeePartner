@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/navigation_bloc.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
+import 'package:fixbee_partner/models/order_model.dart';
+import 'package:fixbee_partner/ui/custom_widget/active_order_remainder.dart';
 import 'package:fixbee_partner/ui/custom_widget/bottom_nav_bar.dart';
 
 import 'package:fixbee_partner/ui/custom_widget/new_service_notification.dart';
@@ -11,6 +14,7 @@ import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'custom_profile.dart';
 import 'history_screen.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -51,6 +55,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   void initState() {
     _pageController = PageController();
     _bloc = NavigationBloc(NavigationModel());
+    _bloc.fire(NavigationEvent.checkActiveService);
     _setupFCM();
 
     _visible = widget.gotJob;
@@ -67,13 +72,22 @@ class _NavigationScreenState extends State<NavigationScreen> {
       },
       onResume: (Map<String, dynamic> message) async {
         log(message.toString(), name: 'ON_RESUME');
+        Navigator
+            .of(context)
+            .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+          return NavigationScreen();
+        }));
         _getJobDetails(message);
-        //_startTimer();
       },
       onLaunch: (message) async {
         log(message.toString(), name: 'ON_LAUNCH');
+        Navigator
+            .of(context)
+            .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+          return NavigationScreen();
+        }));
         _getJobDetails(message);
-        //_startTimer();
+
       },
     );
   }
@@ -83,12 +97,13 @@ class _NavigationScreenState extends State<NavigationScreen> {
       Map data = message['data'];
       orderId = data['id'];
       userName = data['name'];
-      Map address=json.decode(data['address']);
+      Map address = json.decode(data['address']);
       billingAddress = address['Address']['Line1'];
       paymentMode = data['mode'];
     }
     _showNotificationDialog();
   }
+
   _showNotificationDialog() {
     showDialog(
         context: context,
@@ -109,29 +124,27 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 _bloc.fire(NavigationEvent.onConfirmJob,
                     message: {"orderId": orderId, "Accept": true},
                     onHandled: (e, m) {
-                  if (!m.order.slotted) {
-                    Route route = MaterialPageRoute(
-                        builder: (context) => WorkScreen(
 
-                              orderId: m.order.orderId,
-                              googlePlaceId: m.location.googlePlaceId,
-                              phoneNumber: m.user.phoneNumber,
-                              userName: m.user.firstname +
-                                  " " +
-                                  m.user.middlename +
-                                  " " +
-                                  m.user.lastname,
-                              userProfilePicUrl: m.user.profilePicUrl,
-                              addressLine: m.location.addressLine,
-                              landmark: m.location.landmark,
-                              serviceName: m.service.serviceName,
-                              timeStamp: m.order.timeStamp,
-                              amount: m.order.price,
-                              userProfilePicId: m.user.profilePicId,
-                              casOnDelivery: m.order.cashOnDelivery,
-                            ));
-                    Navigator.pushReplacement(context, route);
-                  }
+                  Route route = MaterialPageRoute(
+                      builder: (context) => WorkScreen(
+                            orderId: m.order.orderId,
+                            googlePlaceId: m.location.googlePlaceId,
+                            phoneNumber: m.user.phoneNumber,
+                            userName: m.user.firstname +
+                                " " +
+                                m.user.middlename +
+                                " " +
+                                m.user.lastname,
+                            userProfilePicUrl: m.user.profilePicUrl,
+                            addressLine: m.location.addressLine,
+                            landmark: m.location.landmark,
+                            serviceName: m.service.serviceName,
+                            timeStamp: m.order.timeStamp,
+                            amount: m.order.price,
+                            userProfilePicId: m.user.profilePicId,
+                            casOnDelivery: m.order.cashOnDelivery,
+                          ));
+                  Navigator.pushReplacement(context, route);
                 });
               },
               onDecline: () {
@@ -143,10 +156,18 @@ class _NavigationScreenState extends State<NavigationScreen> {
         barrierDismissible: false);
   }
 
+
+
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  _saveOrder(OrderModel order) async{
+    SharedPreferences storeOrder = await SharedPreferences.getInstance();
+    storeOrder.setString(SharedPrefKeys.ORDER, orderId);
+
   }
 
   @override
@@ -162,61 +183,24 @@ class _NavigationScreenState extends State<NavigationScreen> {
       ),
       body: SafeArea(
         child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          return Stack(
             children: [
-              Expanded(child: pages[_currentIndex]),
+              pages[_currentIndex],
+              (viewModel.isOrderActive)
+                  ? Positioned(
+                      top: MediaQuery.of(context).size.height - 150,
+                      left: (MediaQuery.of(context).size.width / 2) - 100,
+                      child: ActiveOrderRemainder(
+                        workScreen: (){
+
+                        },
+                      ))
+                  : SizedBox(),
             ],
           );
         }),
       ),
     );
-  }
-
-  _showCancelModalSheet(context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: Wrap(
-              children: <Widget>[
-                Container(
-                    child: Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("Do you really want to cancel the order?"),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        RaisedButton(
-                          color: Colors.transparent,
-                          onPressed: () {
-                            setState(() {
-                              _visible = false;
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: Text("Yes"),
-                        ),
-                        RaisedButton(
-                          color: Colors.transparent,
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("No"),
-                        ),
-                      ],
-                    )
-                  ],
-                ))
-              ],
-            ),
-          );
-        });
   }
 
   _showCancelBox() {

@@ -1,6 +1,6 @@
 import 'package:fixbee_partner/models/view_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-class JobModel extends ViewModel{
+class OrderModel extends ViewModel{
   String userProfilePicUrl;
   String userFirstname;
   String userMiddlename;
@@ -29,7 +29,7 @@ class JobModel extends ViewModel{
   bool slotted;
   DateTime slot;
   String quantity;
-  String totalAmount;
-  DateTime timeStamp;
+  int totalAmount;
+  String timeStamp;
 }
 

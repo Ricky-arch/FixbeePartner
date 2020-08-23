@@ -1,11 +1,14 @@
 import 'dart:developer';
 
 import 'package:fixbee_partner/bloc.dart';
+import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/bank_details_event.dart';
+import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
+import 'package:fixbee_partner/models/view_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
-class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
+class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> with Trackable<BankDetailsEvent, BankDetailsModel>{
   BankDetailsBloc(BankDetailsModel genesisViewModel) : super(genesisViewModel);
   List<BankModel> models = [];
   @override
@@ -96,18 +99,30 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> {
 }
     ''';
 
-    Map response = await CustomGraphQLClient.instance.mutate(query);
-    List accounts = response['Update']['BankAccounts'];
-    latestViewModel..numberOfAccounts = accounts.length;
-    accounts.forEach((account) {
-      BankModel bm = BankModel();
-      bm.accountHoldersName = account['AccountHolderName'];
-      bm.ifscCode = account['IFSC'];
-      bm.accountVerified = account['Verified'];
-      bm.accountID = account['ID'];
-      bm.bankAccountNumber = account['AccountNumber'];
-      models.add(bm);
-    });
-    return latestViewModel..bankAccountList = models.. updated=true;
+    try {
+      Map response = await CustomGraphQLClient.instance.mutate(query);
+      List accounts = response['Update']['BankAccounts'];
+      latestViewModel..numberOfAccounts = accounts.length;
+      BankModel nm= BankModel();
+      nm.accountHoldersName=accounts[accounts.length-1]['AccountHolderName'];
+      nm.ifscCode=accounts[accounts.length-1]['IFSC'];
+      nm.accountVerified=accounts[accounts.length-1]['Verified'];
+      nm.accountID=accounts[accounts.length-1]['ID'];
+      nm.bankAccountNumber=accounts[accounts.length-1]['AccountNumber'];
+      models.add(nm);
+
+      return latestViewModel
+        ..bankAccountList = models
+        ..updated = true;
+    } catch (e) {
+      log(e.toString(), name:"Account Error");
+      return latestViewModel..updated = false..bankAccountList=models;
+    }
+  }
+
+  @override
+  BankDetailsModel setTrackingFlag(BankDetailsEvent event, bool trackFlag, Map message) {
+    latestViewModel..addingAccount=trackFlag;
+    return latestViewModel;
   }
 }

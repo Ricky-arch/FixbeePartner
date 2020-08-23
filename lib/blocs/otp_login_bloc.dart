@@ -75,11 +75,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     pref.setString(SharedPrefKeys.TOKEN, token);
   }
 
-  _saveBee(Bee bee) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.setString(SharedPrefKeys.BEENAME,
-        bee.firstName + " " + bee.middleName + " " + bee.lastName);
-  }
+
 
   Future<OtpModel> checkForServiceSelected() async {
     String query = '''{

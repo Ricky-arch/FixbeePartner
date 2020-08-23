@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:fixbee_partner/models/order_model.dart';
+
 
 class Constants{
   static const String HOST_IP="192.168.43.3";
@@ -8,6 +10,7 @@ class Constants{
   static const googleApiKey='AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI';
   static const googleSessionToken='12345';
   static const fields='name,formatted_address,geometry';
+  static const RAZORPAY_KEY='rzp_test_CCbjVk8vqcb00P';
 }
 class EndPoints{
   static const LOGIN="${Constants.PROTOCOL}://${Constants.HOST_IP}/bee/login";
@@ -20,7 +23,7 @@ class EndPoints{
 
 class SharedPrefKeys{
   static const TOKEN='token@bee';
-  static const BEENAME='name';
+  static const  ORDER='ORDER';
 }
 class PrimaryColors{
   static Color backgroundColor = Color.fromRGBO(0, 7, 17, 9);

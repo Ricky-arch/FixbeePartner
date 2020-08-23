@@ -17,7 +17,7 @@
     <application
         android:name=".Application"
         android:label="fixbee_partner"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI"/>
         <activity

@@ -5,6 +5,7 @@ class NavigationModel extends ViewModel {
   bool gotJob = false;
   String jobId;
   bool onJobConfirmed=false;
+  bool isOrderActive=false;
 
   User user = User();
   Service service=Service();

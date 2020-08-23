@@ -5,6 +5,7 @@ class BankDetailsModel extends ViewModel{
   List<BankModel> bankAccountList=[];
   bool updated=false;
   bool deleted=false;
+  bool addingAccount=false;
 }
 class BankModel extends ViewModel{
   String accountHoldersName;

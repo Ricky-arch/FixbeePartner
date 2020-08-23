@@ -34,17 +34,24 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
             SizedBox(
               height: 20,
             ),
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  (widget.orderId != null)
-                      ? "#Order ID: ${widget.orderId}"
-                      : "#Order ID: 1234567890",
-                  style: TextStyle(
-                      color: PrimaryColors.backgroundColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: PrimaryColors.backgroundColor,
+                  borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    (widget.orderId != null)
+                        ? "#Order ID: ${widget.orderId}"
+                        : "#Order ID: 1234567890",
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orangeAccent),
+                  ),
                 ),
               ),
             ),
@@ -58,7 +65,7 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
               child: Text(
                 (widget.userName != null) ? widget.userName : "Ram Nath Kovind",
                 style: TextStyle(
-                    color: Colors.deepPurple,
+                    color: PrimaryColors.backgroundColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 20),
                 maxLines: null,
@@ -93,20 +100,20 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
               children: <Widget>[
                 FlatButton(
                   onPressed: widget.onConfirm,
-                  color: Colors.green,
+                  color: PrimaryColors.backgroundColor,
                   child: Text("CONFIRM", style: TextStyle(color: Colors.white)),
                 ),
                 Container(
-                  color: Colors.deepPurple,
+                  color: PrimaryColors.backgroundColor,
                   height: 30,
                   width: 2,
                 ),
                 OutlineButton(
-                  color: Colors.green,
+                  color: PrimaryColors.backgroundColor,
                   onPressed: widget.onDecline,
                   child: Text(
                     "DECLINE",
-                    style: TextStyle(color: Colors.green),
+                    style: TextStyle(color: PrimaryColors.backgroundColor),
                   ),
                 ),
               ],

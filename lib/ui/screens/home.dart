@@ -105,70 +105,58 @@ class _HomeState extends State<Home> {
                       boxShadow: [BoxShadow(color: Colors.brown)]),
                   child: Row(
                     children: <Widget>[
-                      Flexible(
-                        child: new Container(),
-                        flex: 2,
+                      SizedBox(width: 5,),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text("YOUR ACTIVITY STATUS",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold)),
                       ),
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text("Set Your Activity Status",
-                              style: TextStyle(
-                                  color: Colors.yellow,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold)),
-                        ),
-                        flex: 25,
-                      ),
-                      Flexible(
-                        child: new Container(),
-                        flex: 8,
-                      ),
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: !viewModel.loading
-                              ? Switch(
-                                  value: viewModel.activeStatus,
-                                  inactiveThumbColor: Colors.green,
-                                  inactiveTrackColor: Colors.white,
-                                  activeColor: Colors.red,
-                                  onChanged: (bool value) {
-                                    print("HELLO WORLD");
-                                    print(DataStore.token);
-                                    _bloc.fire(HomeEvents
-                                        .getDocumentVerificationStatus);
-                                    _bloc.fire(HomeEvents.activityStatusSet,
-                                        message: {'status': value},
-                                        onHandled: (e, m) {
-                                      if (m.activeStatus) {
-                                        _bloc.subscribeToNotifications(
-                                            (Position deviceLocation) {
-                                          if (mapController != null)
-                                            mapController.animateCamera(
-                                                CameraUpdate.newLatLng(LatLng(
-                                                    deviceLocation.latitude,
-                                                    deviceLocation.longitude)));
-                                        });
-                                      } else {
-                                        if (_bloc.locationTimer != null &&
-                                            _bloc.locationTimer.isActive)
-                                          _bloc.locationTimer.cancel();
-                                        _bloc.unSubscribe();
-                                      }
-                                    });
-                                  },
-                                )
-                              : SizedBox(
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                    backgroundColor: PrimaryColors.backgroundColor,
-                                  ),
-                                  height: 30,
-                                  width: 30,
+                     Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: !viewModel.loading
+                            ? Switch(
+                                value: viewModel.activeStatus,
+                                inactiveThumbColor: Colors.green,
+                                inactiveTrackColor: Colors.white,
+                                activeColor: Colors.red,
+                                onChanged: (bool value) {
+                                  print("HELLO WORLD");
+                                  print(DataStore.token);
+                                  _bloc.fire(HomeEvents
+                                      .getDocumentVerificationStatus);
+                                  _bloc.fire(HomeEvents.activityStatusSet,
+                                      message: {'status': value},
+                                      onHandled: (e, m) {
+                                    if (m.activeStatus) {
+                                      _bloc.subscribeToNotifications(
+                                          (Position deviceLocation) {
+                                        if (mapController != null)
+                                          mapController.animateCamera(
+                                              CameraUpdate.newLatLng(LatLng(
+                                                  deviceLocation.latitude,
+                                                  deviceLocation.longitude)));
+                                      });
+                                    } else {
+                                      if (_bloc.locationTimer != null &&
+                                          _bloc.locationTimer.isActive)
+                                        _bloc.locationTimer.cancel();
+                                      _bloc.unSubscribe();
+                                    }
+                                  });
+                                },
+                              )
+                            : SizedBox(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  backgroundColor: PrimaryColors.backgroundColor,
                                 ),
-                        ),
-                        flex: 11,
+                                height: 30,
+                                width: 30,
+                              ),
                       )
                     ],
                   ),

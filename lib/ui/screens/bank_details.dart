@@ -332,19 +332,42 @@ class _BankDetailsState extends State<BankDetails> {
                                 onPressed: () {
                                   if (_formKey.currentState.validate()) {
                                     _bloc.fire(
-                                        BankDetailsEvent.updateBankAccount,
-                                        message: {
-                                          'accountHoldersName':
-                                              _accountHoldersName.text,
-                                          'ifscCode': _ifscCode.text,
-                                          'accountNumber':
-                                              _bankAccountNumber.text
-                                        }, onHandled: (e, m) {
-                                      _accountHoldersName.clear();
-                                      _ifscCode.clear();
-                                      _bankAccountNumber.clear();
-                                      Navigator.pop(context);
-                                    },);
+                                      BankDetailsEvent.updateBankAccount,
+                                      message: {
+                                        'accountHoldersName':
+                                            _accountHoldersName.text,
+                                        'ifscCode': _ifscCode.text,
+                                        'accountNumber': _bankAccountNumber.text
+                                      },
+                                      onHandled: (e, m) {
+                                        if (m.updated) {
+                                          _accountHoldersName.clear();
+                                          _ifscCode.clear();
+                                          _bankAccountNumber.clear();
+                                          Navigator.pop(context);
+                                        } else
+                                          {
+                                            showDialog(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return AlertDialog(
+                                                    content: Text(
+                                                      "Invalid Account!",
+                                                      style: TextStyle(
+                                                          color: PrimaryColors
+                                                              .backgroundColor,
+                                                          fontWeight:
+                                                          FontWeight.bold,
+                                                          fontSize: 14),
+                                                    ),
+                                                  );
+                                                });
+                                            _accountHoldersName.clear();
+                                            _ifscCode.clear();
+                                            _bankAccountNumber.clear();
+                                          }
+                                      },
+                                    );
                                   }
                                 },
                                 child: Padding(

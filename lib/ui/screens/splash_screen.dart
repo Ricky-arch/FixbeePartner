@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/animations/faded_animations.dart';
 import 'package:fixbee_partner/blocs/splash_bloc.dart';
@@ -7,6 +10,7 @@ import 'package:fixbee_partner/models/splash_model.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -29,11 +33,12 @@ class _SplashScreenState extends State<SplashScreen>
   Animation<double> _scale2Animation;
   Animation<double> _widthAnimation;
   Animation<double> _positionAnimation;
+  bool onLaunch=false;
 
   bool hideIcon = false;
   Position _currentPosition;
-  String _currentAddress;
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+
 
   _getCurrentLocation() {
     geolocator
@@ -47,13 +52,41 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
+
+  void _setupFCM() {
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        log(message.toString(), name: 'ON_MESSAGE');
+
+      },
+      onResume: (Map<String, dynamic> message) async {
+        log(message.toString(), name: 'ON_RESUME');
+        Navigator
+            .of(context)
+            .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+          return NavigationScreen();
+        }));
+      },
+      onLaunch: (message) async {
+        log(message.toString(), name: 'ON_LAUNCH');
+        Navigator
+            .of(context)
+            .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+          return NavigationScreen();
+        }));
+      },
+    );
+  }
+
   @override
   void initState() {
+    _setupFCM();
     _bloc = SplashBloc(SplashModel());
     _bloc.fire(Event(100), onHandled: (e, m) {
       if (m.tokenFound) {
         if (m.me.services.length == 0)
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
               PageTransition(
                   type: PageTransitionType.fade,
@@ -62,13 +95,13 @@ class _SplashScreenState extends State<SplashScreen>
           _getCurrentLocation();
           if (_currentPosition != null)
             DataStore.beePosition = _currentPosition;
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
               PageTransition(
                   type: PageTransitionType.fade, child: NavigationScreen()));
         }
       } else
-        Navigator.push(context,
+        Navigator.pushReplacement(context,
             PageTransition(type: PageTransitionType.fade, child: Login()));
     });
     _scaleController =

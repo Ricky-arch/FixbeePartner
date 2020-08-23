@@ -204,17 +204,17 @@ class _OtpForLoginState extends State<OtpForLogin> {
   }
 
   void goToJobSelectionScreen(BuildContext context) {
-    Navigator.push(context,
+    Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => ServiceSelectionScreen()));
   }
 
   void goToRegistrationScreen(BuildContext context) {
-    Navigator.push(
+    Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => Registration()));
   }
 
   void goToNavigationScreen(BuildContext context) {
-    Navigator.push(
+    Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => NavigationScreen()));
   }
 
