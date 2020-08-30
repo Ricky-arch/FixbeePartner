@@ -4,17 +4,24 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import '../../Constants.dart';
 
-class FileUploadWidget extends StatelessWidget {
+class FileUploadWidget extends StatefulWidget {
   final Function(String path) onImagePicked;
   final String inputString;
   final String imageURl;
   final bool loading;
-  final ImagePicker _imagePicker = ImagePicker();
   final Widget text;
+  final bool uploading;
 
   FileUploadWidget(
-      {Key key, this.onImagePicked, this.imageURl, this.loading = true, this.text, this.inputString})
+      {Key key, this.onImagePicked, this.imageURl, this.loading = true, this.text, this.inputString, this.uploading})
       : super(key: key);
+
+  @override
+  _FileUploadWidgetState createState() => _FileUploadWidgetState();
+}
+
+class _FileUploadWidgetState extends State<FileUploadWidget> {
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +34,15 @@ class FileUploadWidget extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: <Widget>[
-            (imageURl == null || imageURl.isEmpty)
-                ? Text(inputString)
-                : text,
+            (widget.imageURl == null || widget.imageURl.isEmpty)
+                ? Text(widget.inputString)
+                : widget.text,
             Spacer(),
             InkWell(
               onTap: () async {
                 PickedFile image =
                     await _imagePicker.getImage(source: ImageSource.gallery);
-                if (image != null) onImagePicked(image.path);
+                if (image != null) widget.onImagePicked(image.path);
               },
               child: Icon(
                 LineAwesomeIcons.folder,
@@ -47,5 +54,4 @@ class FileUploadWidget extends StatelessWidget {
       ),
     );
   }
-
 }

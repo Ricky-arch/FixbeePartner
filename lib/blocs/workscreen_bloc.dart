@@ -118,15 +118,15 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   }
 }
     ''';
-    await CustomGraphQLClient.instance.mutate(processOrder);
+    Map processResponse=await CustomGraphQLClient.instance.mutate(processOrder);
     String completeOrder = '''mutation{
   CompleteOrder(_id:"$id"){
     ID
     Status
   }
 }''';
-    Map response = await CustomGraphQLClient.instance.mutate(completeOrder);
-    if (response['Status'] == 'COMPLETED')
+    Map completeResponse = await CustomGraphQLClient.instance.mutate(completeOrder);
+    if (completeResponse['CompleteOrder']['Status'] == 'COMPLETED')
       latestViewModel..onJobCompleted = true;
     return latestViewModel;
   }

@@ -8,7 +8,15 @@ class PastOrder extends StatefulWidget {
   final String timeStamp;
   final Function seeMore;
 
-  const PastOrder({Key key, this.userName, this.serviceName, this.amount, this.status, this.timeStamp, this.seeMore}) : super(key: key);
+  const PastOrder(
+      {Key key,
+      this.userName,
+      this.serviceName,
+      this.amount,
+      this.status,
+      this.timeStamp,
+      this.seeMore})
+      : super(key: key);
   @override
   _PastOrderState createState() => _PastOrderState();
 }
@@ -37,7 +45,8 @@ class _PastOrderState extends State<PastOrder> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            widget.serviceName + " \u20B9 ${(widget.amount)/100}",
+                            widget.serviceName +
+                                " \u20B9 ${(widget.amount) / 100}",
                             style: TextStyle(
                                 color: PrimaryColors.backgroundColor,
                                 fontWeight: FontWeight.bold),
@@ -58,14 +67,14 @@ class _PastOrderState extends State<PastOrder> {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
-                      child: Text(
-                        widget.userName,
-                        style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
-                    ),
+//                    Padding(
+//                      padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
+//                      child: Text(
+//                        widget.userName,
+//                        style: TextStyle(
+//                            fontWeight: FontWeight.bold, fontSize: 12),
+//                      ),
+//                    ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
                       child: Divider(
@@ -77,16 +86,19 @@ class _PastOrderState extends State<PastOrder> {
                       padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
                       child: Row(
                         children: [
-                          GestureDetector(
-                            onTap: () {},
-                            child: Container(
-                              color: Colors.yellow.withOpacity(.5),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  "SEE MORE",
-                                  style: TextStyle(
-                                      fontSize: 10, fontWeight: FontWeight.bold),
+                          InkWell(
+                            child: GestureDetector(
+                              onTap: widget.seeMore,
+                              child: Container(
+                                color: Colors.yellow.withOpacity(.5),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "SEE MORE",
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ),
                             ),

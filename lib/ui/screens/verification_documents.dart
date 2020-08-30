@@ -43,11 +43,11 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                       text: TextSpan(
                         children: <TextSpan>[
                           TextSpan(
-                              text: 'Add documents for verification',
+                              text: 'ADD DOCUMENTS FOR VERIFICATION',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.yellow,
-                                  fontSize: 18)),
+                                  color: Colors.white,
+                                  fontSize: 15)),
                         ],
                       ),
                     ),
@@ -55,7 +55,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                     IconButton(
                       icon: Icon(
                         Icons.info_outline,
-                        color: Colors.yellow,
+                        color: Colors.white,
                       ),
                       onPressed: () {},
                     )
@@ -73,9 +73,8 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
-                  inputString: "Upload your Aadhaar-Card",
+                  inputString: "UPLOAD YOUR AADHAAR CARD",
                   onImagePicked: onImagePicked1,
-                  //imageURl: viewModel.fileUrl,
                   loading: false,
                   text: Text(viewModel.files == null
                       ? "Document"

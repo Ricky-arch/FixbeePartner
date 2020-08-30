@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -40,10 +41,10 @@ class DisplayPicture extends StatelessWidget {
                       ? null
                       : CachedNetworkImageProvider(imageURl),
                   child: (imageURl == null || imageURl.isEmpty)
-                      ? Image.asset(
-                          "assets/images/avatar.png",
-                          width: 0.5 * MediaQuery.of(context).size.width,
-                          height: 0.5 * MediaQuery.of(context).size.width,
+                      ? SvgPicture.asset(
+                          "assets/custom_icons/user.svg",
+                          width: 0.4 * MediaQuery.of(context).size.width,
+                          height: 0.4 * MediaQuery.of(context).size.width,
                         )
                       : SizedBox(),
                 ),

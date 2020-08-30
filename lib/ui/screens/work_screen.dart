@@ -6,6 +6,7 @@ import 'package:fixbee_partner/blocs/workscreen_bloc.dart';
 import 'package:fixbee_partner/events/workscreen_event.dart';
 import 'package:fixbee_partner/models/workscreen_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
+import 'package:fixbee_partner/ui/screens/billing_Screen.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,7 +32,10 @@ class WorkScreen extends StatefulWidget {
   final int amount;
   final String timeStamp;
   final bool onServiceStarted;
-  final bool casOnDelivery;
+  final bool cashOnDelivery;
+  final int basePrice;
+  final int serviceCharge;
+  final int taxPercent;
 
   const WorkScreen(
       {Key key,
@@ -47,7 +51,10 @@ class WorkScreen extends StatefulWidget {
       this.timeStamp,
       this.onServiceStarted = false,
       this.userProfilePicId,
-      this.casOnDelivery})
+      this.cashOnDelivery,
+      this.basePrice,
+      this.serviceCharge,
+      this.taxPercent})
       : super(key: key);
   @override
   _WorkScreenState createState() => _WorkScreenState();
@@ -133,9 +140,11 @@ class _WorkScreenState extends State<WorkScreen> {
       },
       onResume: (Map<String, dynamic> message) async {
         log(message.toString(), name: 'ON_RESUME');
+        _getMessage(message);
       },
       onLaunch: (message) async {
         log(message.toString(), name: 'ON_LAUNCH');
+        _getMessage(message);
       },
     );
   }
@@ -193,8 +202,10 @@ class _WorkScreenState extends State<WorkScreen> {
                         padding: const EdgeInsets.all(10.0),
                         child: Text(
                           "RATE USER",
-                          style:
-                              TextStyle(color: PrimaryColors.backgroundColor, fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: PrimaryColors.backgroundColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                       SizedBox(
@@ -379,116 +390,116 @@ class _WorkScreenState extends State<WorkScreen> {
               ),
               //Container(child: Text(widget.googlePlaceId),),
 
-             Container(
-               child: Stack(
-                 children: <Widget>[
-                   Column(
-                     mainAxisAlignment: MainAxisAlignment.start,
-                     crossAxisAlignment: CrossAxisAlignment.center,
-                     children: <Widget>[
-                       Row(
-                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                         children: <Widget>[
-                           Padding(
-                             padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
-                             child: Text(
-                               "Address:",
-                               style: TextStyle(
-                                   fontSize: 18, fontWeight: FontWeight.w600),
-                             ),
-                           ),
-                           Container(
-                             width: 250,
-                             child: Padding(
-                               padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                               child: Text(
-                                 (widget.addressLine != null)
-                                     ? widget.addressLine
-                                     : "Ram Mandir",
-                                 maxLines: null,
-                                 //textAlign: TextAlign.justify,
-                                 style: TextStyle(
-                                     fontSize: 16,
-                                     fontWeight: FontWeight.w300),
-                               ),
-                             ),
-                           ),
-                         ],
-                       ),
-                       Row(
-                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                         children: <Widget>[
-                           Padding(
-                             padding: const EdgeInsets.fromLTRB(10, 0, 8, 8),
-                             child: Text(
-                               "Land-mark:",
-                               style: TextStyle(
-                                   fontSize: 18, fontWeight: FontWeight.w600),
-                             ),
-                           ),
-                           Container(
-                             width: 250,
-                             child: Padding(
-                               padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
-                               child: Text(
-                                 (widget.landmark != null)
-                                     ? widget.landmark
-                                     : "Ram Mandir",
-                                 overflow: TextOverflow.clip,
-                                 textAlign: TextAlign.justify,
-                                 style: TextStyle(
-                                     fontSize: 16,
-                                     fontWeight: FontWeight.w300),
-                               ),
-                             ),
-                           ),
-                         ],
-                       ),
-                       Row(
-                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                         children: <Widget>[
-                           Padding(
-                             padding: const EdgeInsets.fromLTRB(10, 0, 8, 8),
-                             child: Text(
-                               "Service:",
-                               style: TextStyle(
-                                   fontSize: 18, fontWeight: FontWeight.w600),
-                             ),
-                           ),
-                           Container(
-                             width: 250,
-                             child: Padding(
-                               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-                               child: Text(
-                                 (widget.serviceName != null)
-                                     ? widget.serviceName
-                                     : "Work",
-                                 //textAlign: TextAlign.justify,
-                                 style: TextStyle(
-                                     fontSize: 16,
-                                     fontWeight: FontWeight.w300),
-                               ),
-                             ),
-                           ),
-                         ],
-                       ),
-                     ],
-                   ),
-                   Positioned(
-                       left: MediaQuery.of(context).size.width - 60,
-                       top: 50,
-                       child: IconButton(
-                         icon: Icon(
-                           Icons.info,
-                           color: PrimaryColors.backgroundColor,
-                         ),
-                         onPressed: () {
-                           _showJobInfoDialogBox();
-                         },
-                       ))
-                 ],
-               ),
-             ),
+              Container(
+                child: Stack(
+                  children: <Widget>[
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
+                              child: Text(
+                                "Address:",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            Container(
+                              width: 250,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                child: Text(
+                                  (widget.addressLine != null)
+                                      ? widget.addressLine
+                                      : "Ram Mandir",
+                                  maxLines: null,
+                                  //textAlign: TextAlign.justify,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 8, 8),
+                              child: Text(
+                                "Land-mark:",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            Container(
+                              width: 250,
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                child: Text(
+                                  (widget.landmark != null)
+                                      ? widget.landmark
+                                      : "Ram Mandir",
+                                  overflow: TextOverflow.clip,
+                                  textAlign: TextAlign.justify,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 8, 8),
+                              child: Text(
+                                "Service:",
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            Container(
+                              width: 250,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                                child: Text(
+                                  (widget.serviceName != null)
+                                      ? widget.serviceName
+                                      : "Work",
+                                  //textAlign: TextAlign.justify,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                        left: MediaQuery.of(context).size.width - 60,
+                        top: 50,
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.info,
+                            color: PrimaryColors.backgroundColor,
+                          ),
+                          onPressed: () {
+                            _showJobInfoDialogBox();
+                          },
+                        ))
+                  ],
+                ),
+              ),
 
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8.0),
@@ -502,7 +513,6 @@ class _WorkScreenState extends State<WorkScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         RaisedButton(
-
                           color: PrimaryColors.backgroundColor,
                           onPressed: () {
                             scanBarcode();
@@ -529,7 +539,6 @@ class _WorkScreenState extends State<WorkScreen> {
                           ),
                         ),
                         RaisedButton(
-
                           color: PrimaryColors.backgroundColor,
                           onPressed: () {
                             _showUserRatingModalSheet(context);
@@ -539,14 +548,12 @@ class _WorkScreenState extends State<WorkScreen> {
                             child: Text(
                               "Rate User",
                               style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.orangeAccent
-                              ),
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orangeAccent),
                             ),
                           ),
                         ),
                         RaisedButton(
-
                           color: PrimaryColors.backgroundColor,
                           onPressed: () {
                             _showCancelModalSheet(context);
@@ -556,9 +563,8 @@ class _WorkScreenState extends State<WorkScreen> {
                             child: Text(
                               "Cancel",
                               style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.orangeAccent
-                              ),
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orangeAccent),
                             ),
                           ),
                         ),
@@ -600,13 +606,13 @@ class _WorkScreenState extends State<WorkScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(
-                          height: 30,
+                          height: 40,
                         ),
                         WorkAnimation(),
                         SizedBox(
-                          height: 20,
+                          height: 40,
                         ),
-                        (widget.casOnDelivery)
+                        (widget.cashOnDelivery)
                             ? Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Container(
@@ -641,8 +647,6 @@ class _WorkScreenState extends State<WorkScreen> {
     );
   }
 
-
-
   _showCompleteOrderDialogBox() {
     return showDialog(
         context: context,
@@ -661,13 +665,26 @@ class _WorkScreenState extends State<WorkScreen> {
                   _bloc.fire(WorkScreenEvents.onJobCompletion,
                       message: {'orderID': widget.orderId}, onHandled: (e, m) {
                     print("Trying to complete");
-                    if (m.onJobCompleted)
+                    if (m.onJobCompleted) {
+                      Navigator.pop(context);
                       Navigator.of(context).pushReplacement(
                           new MaterialPageRoute(
                               builder: (BuildContext context) {
-                        return NavigationScreen();
+                        return BillingScreen(
+                          orderId: widget.orderId,
+                          cashOnDelivery: widget.cashOnDelivery,
+                          amount: widget.amount,
+                          address: widget.addressLine,
+                          userName: widget.userName,
+                          status: 'COMPLETED',
+                          timeStamp: widget.timeStamp,
+                          serviceName: widget.serviceName,
+                          serviceCharge: widget.serviceCharge,
+                          basePrice: widget.basePrice,
+                          taxPercent: widget.taxPercent,
+                        );
                       }));
-                    else
+                    } else
                       Scaffold.of(context).showSnackBar(new SnackBar(
                           content: new Text('Unable to complete order!')));
                   });
@@ -694,12 +711,16 @@ class _WorkScreenState extends State<WorkScreen> {
                     children: <Widget>[
                       Container(
                         width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
+                        decoration:
+                            BoxDecoration(color: PrimaryColors.backgroundColor),
                         child: Padding(
                           padding: EdgeInsets.all(10),
                           child: Text(
                             "JOB INFORMATION",
-                            style: TextStyle(color: Colors.orangeAccent, fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                color: Colors.orangeAccent,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -758,7 +779,10 @@ class _WorkScreenState extends State<WorkScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Close", style: TextStyle(color: Colors.orangeAccent),),
+                child: Text(
+                  "Close",
+                  style: TextStyle(color: Colors.orangeAccent),
+                ),
               ),
             ],
           );
@@ -821,18 +845,16 @@ class _WorkScreenState extends State<WorkScreen> {
   }
 
   _getMessage(Map<String, dynamic> message) {
-    Map notification=message['notification'];
+    Map notification = message['notification'];
     Map map = message['data'];
-    String body=notification['body'];
+    String body = notification['body'];
     String m = map['redirect'];
-    
-    print(body+m);
-    if(m=='JOB_PROCESSED')
-    _showPaymentReceivedNotification(
-        body);
+
+    print(body + m);
+    if (m == 'JOB_PROCESSED')
+      _showPaymentReceivedNotification(body);
     else
-      _showJobCompletionNotificationForPayOnDelivery(body);
-      
+      _showJobCompletionNotificationForOnlinePayment(body);
   }
 
   _showPaymentReceivedNotification(String message) {
@@ -853,14 +875,18 @@ class _WorkScreenState extends State<WorkScreen> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("OK", style: TextStyle(color: Colors.orangeAccent),),
+                  child: Text(
+                    "OK",
+                    style: TextStyle(color: Colors.orangeAccent),
+                  ),
                 ),
               )
             ],
           );
         });
   }
-  _showJobCompletionNotificationForPayOnDelivery(String message) {
+
+  _showJobCompletionNotificationForOnlinePayment(String message) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -874,15 +900,31 @@ class _WorkScreenState extends State<WorkScreen> {
               RaisedButton(
                 color: PrimaryColors.backgroundColor,
                 onPressed: () {
-                  Navigator
-                      .of(context)
-                      .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
-                    return  NavigationScreen();
+                  Navigator.of(context).pushReplacement(
+                      new MaterialPageRoute(builder: (BuildContext context) {
+                    return BillingScreen(
+                      orderId: widget.orderId,
+                      cashOnDelivery: widget.cashOnDelivery,
+                      amount: widget.amount,
+                      address: widget.addressLine,
+                      userName: widget.userName,
+                      status: 'COMPLETED',
+                      timeStamp: widget.timeStamp,
+                      serviceName: widget.serviceName,
+                      serviceCharge: widget.serviceCharge,
+                      basePrice: widget.basePrice,
+                      taxPercent: widget.taxPercent,
+                    );
                   }));
                 },
+
+                //ADD BILLING SCREEN
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text("OK", style: TextStyle(color: Colors.orangeAccent),),
+                  child: Text(
+                    "OK",
+                    style: TextStyle(color: Colors.orangeAccent),
+                  ),
                 ),
               )
             ],
@@ -924,19 +966,21 @@ class InfoPanel extends StatelessWidget {
       ),
     );
   }
-  _showCompleteJobNotificationDialog(context){
-    showDialog(context: context, builder: (BuildContext context){
-      return AlertDialog(
-        insetPadding: EdgeInsets.all(10),
-        content: Wrap(
-          children: [
-            Container(
-              child: Text("Job Completed"),
-            )
-          ],
-        ),
 
-      );
-    });
+  _showCompleteJobNotificationDialog(context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            insetPadding: EdgeInsets.all(10),
+            content: Wrap(
+              children: [
+                Container(
+                  child: Text("Job Completed"),
+                )
+              ],
+            ),
+          );
+        });
   }
 }

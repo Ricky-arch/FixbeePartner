@@ -106,22 +106,14 @@ class _WalletScreenState extends State<WalletScreen> {
                       padding: const EdgeInsets.all(12.0),
                       child: Row(
                         children: <Widget>[
-                          Image(
-                            image: AssetImage("assets/images/rupee.png"),
-                            height: 35,
-                            width: 25,
-                          ),
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width / 40),
-                          Center(
-                              child: Text(
-                            "Your Wallet",
+                          Text(
+                            "\u20B9 WALLET",
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                color: Colors.yellow,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600),
-                          )),
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                     ),
@@ -777,7 +769,6 @@ class _WalletScreenState extends State<WalletScreen> {
                                 'accountId': selectedAccountID
                               });
                               walletWithdrawAmountController.clear();
-
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),

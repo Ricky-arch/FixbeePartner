@@ -3,6 +3,7 @@ import 'package:fixbee_partner/events/history_event.dart';
 import 'package:fixbee_partner/models/history_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/credit.dart';
 import 'package:fixbee_partner/ui/custom_widget/past_order.dart';
+import 'package:fixbee_partner/ui/screens/past_order_billing_screen.dart';
 import 'package:fixbee_partner/utils/dummy_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 backgroundColor: PrimaryColors.backgroundColor,
                 elevation: 3,
                 title: Container(
-                  height: 40,
+                  height: 32,
                   color: PrimaryColors.backgroundColor,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10.0, 12, 12, 0),
@@ -55,7 +56,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                 ),
                 bottom: PreferredSize(
-                  preferredSize: Size.fromHeight(40),
+                  preferredSize: Size.fromHeight(48),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: TabBar(
@@ -140,19 +141,62 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           itemBuilder: (BuildContext context, int index) {
                             return PastOrder(
                               amount:
-                                  viewModel.pastOrderList[index].totalAmount,
+                              viewModel.pastOrderList[index].totalAmount,
                               serviceName:
-                                  viewModel.pastOrderList[index].serviceName,
+                              viewModel.pastOrderList[index].serviceName,
                               status: viewModel.pastOrderList[index].status,
-                              userName: viewModel
-                                      .pastOrderList[index].userFirstname +
-                                  " " +
-                                  viewModel
-                                      .pastOrderList[index].userMiddlename +
-                                  " " +
-                                  viewModel.pastOrderList[index].userLastname,
+//                              userName: viewModel
+//                                      .pastOrderList[index].userFirstname +
+//                                  " " +
+//                                  viewModel
+//                                      .pastOrderList[index].userMiddlename +
+//                                  " " +
+//                                  viewModel.pastOrderList[index].userLastname,
                               timeStamp:
-                                  viewModel.pastOrderList[index].timeStamp,
+                              viewModel.pastOrderList[index].timeStamp,
+                              seeMore: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            PastOrderBillingScreen(
+                                              cashOnDelivery: viewModel.pastOrderList[index].cashOnDelivery,
+                                              orderId: viewModel
+                                                  .pastOrderList[index].orderId,
+//                                              userName: viewModel
+//                                                      .pastOrderList[index]
+//                                                      .userFirstname +
+//                                                  " " +
+//                                                  viewModel.pastOrderList[index]
+//                                                      .userMiddlename +
+//                                                  " " +
+//                                                  viewModel.pastOrderList[index]
+//                                                      .userLastname,
+                                              serviceName: viewModel
+                                                  .pastOrderList[index]
+                                                  .serviceName,
+                                              address: viewModel
+                                                  .pastOrderList[index]
+                                                  .addressLine,
+                                              status: viewModel
+                                                  .pastOrderList[index].status,
+                                              timeStamp: viewModel
+                                                  .pastOrderList[index]
+                                                  .timeStamp,
+                                              basePrice: viewModel
+                                                  .pastOrderList[index]
+                                                  .basePrice,
+                                              taxPercent: viewModel
+                                                  .pastOrderList[index]
+                                                  .taxPercent,
+                                              serviceCharge: viewModel
+                                                  .pastOrderList[index]
+                                                  .serviceCharge,
+                                              amount: viewModel
+                                                  .pastOrderList[index]
+                                                  .totalAmount,
+                                            )));
+                              },
                             );
                           })),
                   Tab(

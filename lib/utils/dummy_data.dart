@@ -11,7 +11,6 @@ class DummyData{
       "Amount":2000,
       "TimeStamp":"22th-08-2030",
     },
-
   ];
   static List transactionsCredit=[
     {
@@ -23,7 +22,5 @@ class DummyData{
       "Amount":2000,
       "TimeStamp":"22th-08-2030",
     },
-   
-
   ];
 }

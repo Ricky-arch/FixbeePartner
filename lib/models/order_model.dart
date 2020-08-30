@@ -19,9 +19,9 @@ class OrderModel extends ViewModel{
   String otp;
   String serviceId;
   bool priceable;
-  String basePrice;
-  String serviceCharge;
-  String taxPercent;
+  int basePrice;
+  int serviceCharge;
+  int taxPercent;
   String graphQLId;
   String orderId;
   String status;

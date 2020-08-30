@@ -47,20 +47,12 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
           BasePrice
           ServiceCharge
           TaxPercent
-          
         }
       }
       Timestamp
       Location{
         Address{
           Line1
-        }
-      }
-      User{
-        Name{
-          Firstname
-          Middlename
-          Lastname
         }
       }
       CashOnDelivery
@@ -74,21 +66,25 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     orders.forEach((order) {
       if (order != null) {
         OrderModel pastOrder = OrderModel();
-        pastOrder.orderId=order['ID'];
+        pastOrder.orderId = order['ID'];
         print(order['ID']);
         pastOrder.serviceName = order['Service']['Name'];
         pastOrder.status = order['Status'];
         print(order['Status']);
         pastOrder.totalAmount = order['Amount'];
-        pastOrder.userFirstname = order['User']['Name']['Firstname'];
-        pastOrder.userMiddlename = order['User']['Name']['Middlename'] ?? "";
-        pastOrder.userLastname = order['User']['Name']['Lastname'] ?? "";
-        pastOrder.timeStamp=order['Timestamp'];
+//        pastOrder.userFirstname = order['User']['Name']['Firstname'];
+//        pastOrder.userMiddlename = order['User']['Name']['Middlename'] ?? "";
+//        pastOrder.userLastname = order['User']['Name']['Lastname'] ?? "";
+        pastOrder.timeStamp = order['Timestamp'];
+        pastOrder.addressLine=order["Location"]['Address']['Line1'];
+        pastOrder.basePrice=order['Service']['Pricing']['BasePrice'];
+        pastOrder.taxPercent=order['Service']['Pricing']['TaxPercent'];
+        pastOrder.serviceCharge=order['Service']['Pricing']['ServiceCharge'];
+        pastOrder.cashOnDelivery=order['CashOnDelivery'];
+        print(order['CashOnDelivery'].toString());
         pastOrders.add(pastOrder);
       }
     });
-
-
     return latestViewModel..pastOrderList = pastOrders;
   }
 }

@@ -51,4 +51,7 @@ class Order {
   String otp;
   String timeStamp;
   int price;
+  int basePrice;
+  int serviceCharge;
+  int taxPercent;
 }

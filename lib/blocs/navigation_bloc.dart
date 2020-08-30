@@ -10,7 +10,8 @@ import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
 import '../Constants.dart';
 
-class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackable{
+class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
+    with Trackable {
   NavigationBloc(NavigationModel genesisViewModel) : super(genesisViewModel);
 
   @override
@@ -28,10 +29,10 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
     if (event == NavigationEvent.getUserData) {
       return await getUserData(message);
     }
-    if(event== NavigationEvent.getActiveService){
+    if (event == NavigationEvent.getActiveService) {
       return await getActiveService(message);
     }
-    if(event == NavigationEvent.checkActiveService){
+    if (event == NavigationEvent.checkActiveService) {
       return await checkActiveService();
     }
     return latestViewModel;
@@ -108,6 +109,11 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
     CashOnDelivery
     Service{
       Name
+      Pricing{
+          BasePrice
+          ServiceCharge
+          TaxPercent
+        }
     }
     Amount
     User{
@@ -126,6 +132,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
     Timestamp
     OTP
     Amount
+ 
     Location {
       Name
       GooglePlaceID
@@ -170,8 +177,15 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
           response['AnswerOrderRequest']['Location']['Address']['Landmark']
       ..order.timeStamp = response['AnswerOrderRequest']['Timestamp']
       ..order.price = response['AnswerOrderRequest']['Amount']
-      ..order.cashOnDelivery= response['AnswerOrderRequest']['CashOnDelivery']
-    ..user.profilePicId=response['AnswerOrderRequest']['User']['DisplayPicture']['id'];
+      ..order.basePrice =
+          response['AnswerOrderRequest']['Service']['Pricing']['BasePrice']
+      ..order.serviceCharge =
+          response['AnswerOrderRequest']['Service']['Pricing']['ServiceCharge']
+      ..order.taxPercent =
+          response['AnswerOrderRequest']['Service']['Pricing']['TaxPercent']
+      ..order.cashOnDelivery = response['AnswerOrderRequest']['CashOnDelivery']
+      ..user.profilePicId =
+          response['AnswerOrderRequest']['User']['DisplayPicture']['id'];
   }
 
   Future<NavigationModel> getServiceData(Map<String, dynamic> message) async {
@@ -203,15 +217,15 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
 
   @override
   ViewModel setTrackingFlag(Event event, bool trackFlag, Map message) {
-    if(event ==NavigationEvent.onConfirmJob)
-      latestViewModel..onJobConfirmed=true;
+    if (event == NavigationEvent.onConfirmJob)
+      latestViewModel..onJobConfirmed = true;
     return latestViewModel;
   }
 
-  Future<NavigationModel> getActiveService(Map<String, dynamic> message) async{
-    String id= message['orderId'];
+  Future<NavigationModel> getActiveService(Map<String, dynamic> message) async {
+    String id = message['orderId'];
 
-    String query='''
+    String query = '''
     {
   Order(_id: "$id") {
     ID
@@ -261,8 +275,8 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
     return latestViewModel;
   }
 
- Future<NavigationModel> checkActiveService() async{
-    String query='''{
+  Future<NavigationModel> checkActiveService() async {
+    String query = '''{
   Me{
     ... on Bee{
       Active
@@ -270,9 +284,9 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel> with Trackab
     }
   }
 }''';
-    Map response= await CustomGraphQLClient.instance.query(query);
-    if(response['Me']['Active'] && !response['Me']["Available"])
-      latestViewModel..isOrderActive=true;
+    Map response = await CustomGraphQLClient.instance.query(query);
+    if (response['Me']['Active'] && !response['Me']["Available"])
+      latestViewModel..isOrderActive = true;
     return latestViewModel;
- }
+  }
 }

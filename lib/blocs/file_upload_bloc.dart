@@ -1,4 +1,5 @@
 import 'package:fixbee_partner/bloc.dart';
+import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/file_upload_event.dart';
 import 'package:fixbee_partner/models/fileModel.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
@@ -7,7 +8,8 @@ import 'package:http_parser/http_parser.dart';
 
 import '../Constants.dart';
 
-class FileUploadBloc extends Bloc<FileUploadEvent, FileModel> {
+class FileUploadBloc extends Bloc<FileUploadEvent, FileModel>
+    with Trackable<FileUploadEvent, FileModel> {
   FileUploadBloc(FileModel genesisViewModel) : super(genesisViewModel);
   List<File> files = [];
 
@@ -16,8 +18,7 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel> {
       FileUploadEvent event, Map<String, dynamic> message) async {
     if (event == FileUploadEvent.uploadFile)
       return await uploadFile(message['path'], message['file']);
-    if(event== FileUploadEvent.checkUploaded)
-      return await checkUploaded();
+    if (event == FileUploadEvent.checkUploaded) return await checkUploaded();
     return latestViewModel;
   }
 
@@ -57,8 +58,13 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel> {
     return latestViewModel..files = files;
   }
 
-  Future<FileModel> checkUploaded() async{
+  Future<FileModel> checkUploaded() async {
+    return latestViewModel;
+  }
 
+  @override
+  FileModel setTrackingFlag(
+      FileUploadEvent event, bool trackFlag, Map message) {
     return latestViewModel;
   }
 }

@@ -137,11 +137,11 @@ class _CustomProfileState extends State<CustomProfile> {
                         text: TextSpan(
                           children: <TextSpan>[
                             TextSpan(
-                                text: 'Profile',
+                                text: 'PROFILE',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.yellow,
-                                    fontSize: 22)),
+                                    color: Colors.white,
+                                    fontSize: 15)),
                           ],
                         ),
                       ),

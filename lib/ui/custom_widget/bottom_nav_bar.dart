@@ -19,10 +19,10 @@ class _BottomNavBarState extends State<BottomNavBar>
         Icon(
           Icons.home,
         ),
-        Text("Home")),
-    BottomNavigationItem(Icon(Icons.event), Text("History")),
-    BottomNavigationItem(Icon(Icons.monetization_on), Text("Wallet")),
-    BottomNavigationItem(Icon(Icons.person_outline), Text("Profile")),
+        Text("Home", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),)),
+    BottomNavigationItem(Icon(Icons.event), Text("History", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),)),
+    BottomNavigationItem(Icon(Icons.monetization_on), Text("Wallet", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),)),
+    BottomNavigationItem(Icon(Icons.person_outline), Text("Profile", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),)),
   ];
 
   Widget buildItem(BottomNavigationItem item, bool isSelected) {

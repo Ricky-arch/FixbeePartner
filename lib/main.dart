@@ -4,6 +4,8 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/ui/custom_widget/active_order_remainder.dart';
 import 'package:fixbee_partner/ui/custom_widget/new_service_notification.dart';
 import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
+import 'package:fixbee_partner/ui/screens/customize_service.dart';
+import 'package:fixbee_partner/ui/screens/past_order_billing_screen.dart';
 
 import 'package:fixbee_partner/ui/screens/dummy_screen.dart';
 import 'package:fixbee_partner/ui/screens/login.dart';
@@ -53,10 +55,12 @@ void main() {
        //AvailableAccounts()
         //WorkAnimation()
         //HistoryScreen()
+        //CustomizeService()
         SplashScreen()
+        //BillingScreen()
         //Login()
         //ActiveOrderRemainder(),
-        //DummyScreen()
+
        // NewServiceNotification(),
         //DialogBox()
         //DialogShow()
