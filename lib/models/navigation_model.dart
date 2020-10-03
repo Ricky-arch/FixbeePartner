@@ -38,6 +38,7 @@ class Service {
   int basePrice;
   int serviceCharge;
   int taxPercent;
+  int amount;
 }
 
 class Order {

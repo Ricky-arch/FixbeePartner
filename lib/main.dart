@@ -9,6 +9,7 @@ import 'package:fixbee_partner/ui/screens/past_order_billing_screen.dart';
 
 import 'package:fixbee_partner/ui/screens/dummy_screen.dart';
 import 'package:fixbee_partner/ui/screens/login.dart';
+import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,10 @@ void main() {
         //WorkAnimation()
         //HistoryScreen()
         //CustomizeService()
+        //
+        //
         SplashScreen()
+        //ServiceSelectionScreen()
         //BillingScreen()
         //Login()
         //ActiveOrderRemainder(),

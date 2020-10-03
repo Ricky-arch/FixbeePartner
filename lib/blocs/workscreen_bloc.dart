@@ -1,4 +1,5 @@
 import 'package:fixbee_partner/events/workscreen_event.dart';
+import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/workscreen_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
@@ -22,6 +23,12 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     }
     if (event == WorkScreenEvents.onJobCompletion) {
       return await onJobCompletion(message);
+    }
+    if (event == WorkScreenEvents.checkActiveOrderStatus) {
+      return await checkActiveOrderStatus(message);
+    }
+    if (event == WorkScreenEvents.refreshOrderDetails) {
+      return await refreshOrderDetails(message);
     }
     return latestViewModel;
   }
@@ -118,16 +125,64 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   }
 }
     ''';
-    Map processResponse=await CustomGraphQLClient.instance.mutate(processOrder);
+    Map processResponse =
+        await CustomGraphQLClient.instance.mutate(processOrder);
     String completeOrder = '''mutation{
   CompleteOrder(_id:"$id"){
     ID
     Status
   }
 }''';
-    Map completeResponse = await CustomGraphQLClient.instance.mutate(completeOrder);
+    Map completeResponse =
+        await CustomGraphQLClient.instance.mutate(completeOrder);
     if (completeResponse['CompleteOrder']['Status'] == 'COMPLETED')
       latestViewModel..onJobCompleted = true;
+    return latestViewModel;
+  }
+
+  Future<WorkScreenModel> checkActiveOrderStatus(
+      Map<String, dynamic> message) async {
+    String id = message['orderID'];
+    String query = '''{
+  Order(_id:"$id"){
+    Status
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    return latestViewModel..activeOrderStatus = response['Order']['Status'];
+  }
+
+  Future<WorkScreenModel> refreshOrderDetails(
+      Map<String, dynamic> message) async {
+    String orderID = message['orderID'];
+    String query = '''{Order(_id:"$orderID"){
+  Service{
+    Name
+  }
+  Addons{
+    Service{
+      Name
+      Pricing{
+        BasePrice
+        ServiceCharge
+        TaxPercent
+      }
+    }
+    Amount
+  }
+}}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    latestViewModel.jobModel.addons = [];
+    List addons = response['Order']['Addons'];
+    for (Map addon in addons) {
+      Service service = Service()
+        ..serviceName = addon['Service']['Name']
+        ..basePrice = addon['Service']['Pricing']['BasePrice']
+        ..serviceCharge = addon['Service']['Pricing']['ServiceCharge']
+        ..taxPercent = addon['Service']['Pricing']['TaxPercent']
+        ..amount=addon['Amount'];
+      latestViewModel.jobModel.addons.add(service);
+    }
     return latestViewModel;
   }
 }

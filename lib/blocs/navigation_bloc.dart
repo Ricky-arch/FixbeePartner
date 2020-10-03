@@ -29,17 +29,32 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     if (event == NavigationEvent.getUserData) {
       return await getUserData(message);
     }
-    if (event == NavigationEvent.getActiveService) {
-      return await getActiveService(message);
+    if (event == NavigationEvent.getActiveOrder) {
+      return await getActiveOrder();
     }
     if (event == NavigationEvent.checkActiveService) {
       return await checkActiveService();
+    }
+    if (event == NavigationEvent.checkActiveOrderStatus) {
+      return await checkActiveOrderStatus(message);
     }
     return latestViewModel;
   }
 
   Future<NavigationModel> onMessage(Map<String, dynamic> message) async {
     return await getInitialJobDetails(message['order_id']);
+  }
+
+  Future<NavigationModel> checkActiveOrderStatus(
+      Map<String, dynamic> message) async {
+    String id = message['orderID'];
+    String query = '''{
+  Order(_id:"$id"){
+    Status
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    return latestViewModel..order.status = response['Order']['Status'];
   }
 
   Future<NavigationModel> getInitialJobDetails(String id) async {
@@ -222,18 +237,16 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     return latestViewModel;
   }
 
-  Future<NavigationModel> getActiveService(Map<String, dynamic> message) async {
-    String id = message['orderId'];
-
-    String query = '''
-    {
-  Order(_id: "$id") {
-    ID
+  Future<NavigationModel> getActiveOrder() async {
+    String query = '''{Me{
+  ... on Bee{
+    ActiveOrder{ID
     Location {
       ID
       Name
       Address {
         Line1
+        Landmark
       }
       GooglePlaceID
     }
@@ -248,6 +261,8 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
       }
     }
     Status
+    Timestamp
+    Amount
     User {
       ID
       Name {
@@ -269,10 +284,43 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
       Slotted
       At
     }
+    }
   }
-}''';
+}}''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    return latestViewModel;
+    log(response['Me']['ActiveOrder']['Location']['Address']['Landmark'], name: "LANDMARK");
+    return latestViewModel
+      ..order.orderId = response['Me']['ActiveOrder']['ID']
+      ..location.googlePlaceId =
+      response['Me']['ActiveOrder']['Location']['GooglePlaceID']
+      ..order.slotted = response['Me']['ActiveOrder']['Slot']['Slotted']
+      ..service.serviceName = response['Me']['ActiveOrder']['Service']['Name']
+      ..user.firstname =
+      response['Me']['ActiveOrder']['User']['Name']['Firstname']
+      ..user.middlename =
+      response['Me']['ActiveOrder']['User']['Name']['Middlename']
+      ..user.lastname =
+      response['Me']['ActiveOrder']['User']['Name']['Lastname']
+      ..user.phoneNumber =
+      response['Me']['ActiveOrder']['User']['Phone']['Number']
+      ..user.profilePicUrl =
+          '${EndPoints.DOCUMENT}?id=${response['Me']['ActiveOrder']['User']['DisplayPicture']['id']}'
+      ..location.addressLine =
+      response['Me']['ActiveOrder']['Location']['Address']['Line1']
+      ..location.landmark =
+      response['Me']['ActiveOrder']['Location']['Address']['Landmark']
+      ..order.timeStamp = response['Me']['ActiveOrder']['Timestamp']
+      ..order.price = response['Me']['ActiveOrder']['Amount']
+      ..order.basePrice =
+      response['Me']['ActiveOrder']['Service']['Pricing']['BasePrice']
+      ..order.serviceCharge =
+      response['Me']['ActiveOrder']['Service']['Pricing']['ServiceCharge']
+      ..order.taxPercent =
+      response['Me']['ActiveOrder']['Service']['Pricing']['TaxPercent']
+      ..order.cashOnDelivery = response['Me']['ActiveOrder']['CashOnDelivery']
+      ..user.profilePicId =
+      response['Me']['ActiveOrder']['User']['DisplayPicture']['id']
+    ..order.status=response['Me']['ActiveOrder']["Status"];
   }
 
   Future<NavigationModel> checkActiveService() async {

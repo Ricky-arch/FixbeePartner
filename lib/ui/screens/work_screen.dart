@@ -36,26 +36,28 @@ class WorkScreen extends StatefulWidget {
   final int basePrice;
   final int serviceCharge;
   final int taxPercent;
+  final String activeOrderStatus;
 
-  const WorkScreen(
-      {Key key,
-      this.orderId,
-      this.googlePlaceId,
-      this.userName,
-      this.phoneNumber,
-      this.userProfilePicUrl,
-      this.addressLine,
-      this.landmark,
-      this.serviceName,
-      this.amount,
-      this.timeStamp,
-      this.onServiceStarted = false,
-      this.userProfilePicId,
-      this.cashOnDelivery,
-      this.basePrice,
-      this.serviceCharge,
-      this.taxPercent})
-      : super(key: key);
+  const WorkScreen({
+    Key key,
+    this.orderId,
+    this.googlePlaceId,
+    this.userName,
+    this.phoneNumber,
+    this.userProfilePicUrl,
+    this.addressLine,
+    this.landmark,
+    this.serviceName,
+    this.amount,
+    this.timeStamp,
+    this.onServiceStarted = false,
+    this.userProfilePicId,
+    this.cashOnDelivery,
+    this.basePrice,
+    this.serviceCharge,
+    this.taxPercent,
+    this.activeOrderStatus,
+  }) : super(key: key);
   @override
   _WorkScreenState createState() => _WorkScreenState();
 }
@@ -63,6 +65,8 @@ class WorkScreen extends StatefulWidget {
 class _WorkScreenState extends State<WorkScreen> {
   WorkScreenBloc _bloc;
   bool _onServiceStarted;
+
+  String activeOrderStatus = "ASSIGNED";
 
   String gid, session, fields, key;
   String formattedAddress;
@@ -156,7 +160,11 @@ class _WorkScreenState extends State<WorkScreen> {
     String orderId = widget.orderId;
     _bloc = WorkScreenBloc(WorkScreenModel());
     _setupFCM();
-
+    _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
+        message: {"orderID": "$orderId"}, onHandled: (e, m) {
+      activeOrderStatus = m.activeOrderStatus;
+      log(m.activeOrderStatus, name: "STATUS");
+    });
     fetchLocationData().then((value) async {
       mapController.animateCamera(CameraUpdate.newLatLng(value));
       var marker = Marker(markerId: MarkerId("User Location"), position: value);
@@ -164,7 +172,7 @@ class _WorkScreenState extends State<WorkScreen> {
         markers.add(marker);
       });
     });
-
+    _refreshServiceDetails();
     otpController = TextEditingController();
   }
 
@@ -472,7 +480,7 @@ class _WorkScreenState extends State<WorkScreen> {
                                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
                                 child: Text(
                                   (widget.serviceName != null)
-                                      ? widget.serviceName
+                                      ? allCsvServices()
                                       : "Work",
                                   //textAlign: TextAlign.justify,
                                   style: TextStyle(
@@ -574,7 +582,8 @@ class _WorkScreenState extends State<WorkScreen> {
                 ),
               ),
               Divider(),
-              (viewModel.orderResolved == false)
+              (activeOrderStatus != "RESOLVED" &&
+                      viewModel.orderResolved == false)
                   ? Expanded(
                       child: Stack(
                       children: [
@@ -621,13 +630,39 @@ class _WorkScreenState extends State<WorkScreen> {
                                     textColor: Colors.yellow,
                                     color: PrimaryColors.backgroundColor,
                                     onPressed: () {
-                                      _showCompleteOrderDialogBox();
+                                      _showCompleteOrderDialogBoxForPayOnDelivery();
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 14),
                                       child: Text(
                                         "Done with the fixing?",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                        (!widget.cashOnDelivery)
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  child: RaisedButton(
+                                    elevation: 3,
+                                    textColor: Colors.yellow,
+                                    color: PrimaryColors.backgroundColor,
+                                    onPressed: () {
+                                      _showCompleteOrderDialogBoxForPayOnline();
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      child: Text(
+                                        "Completed!",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
@@ -647,7 +682,46 @@ class _WorkScreenState extends State<WorkScreen> {
     );
   }
 
-  _showCompleteOrderDialogBox() {
+  _showCompleteOrderDialogBoxForPayOnline() {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text("Are you sure?"),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("No"),
+              ),
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                      new MaterialPageRoute(builder: (BuildContext context) {
+                    return BillingScreen(
+                      orderId: widget.orderId,
+                      cashOnDelivery: widget.cashOnDelivery,
+                      amount: widget.amount,
+                      address: widget.addressLine,
+                      userName: widget.userName,
+                      status: 'COMPLETED',
+                      timeStamp: widget.timeStamp,
+                      serviceName: widget.serviceName,
+                      serviceCharge: widget.serviceCharge,
+                      basePrice: widget.basePrice,
+                      taxPercent: widget.taxPercent,
+                    );
+                  }));
+                },
+                child: Text("Yes"),
+              ),
+            ],
+          );
+        });
+  }
+
+  _showCompleteOrderDialogBoxForPayOnDelivery() {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -745,7 +819,7 @@ class _WorkScreenState extends State<WorkScreen> {
                       ),
                       InfoPanel(
                         title: "Service:",
-                        answer: widget.serviceName,
+                        answer: allCsvServices(),
                         maxLines: 1,
                       ),
                       InfoPanel(
@@ -853,6 +927,8 @@ class _WorkScreenState extends State<WorkScreen> {
     print(body + m);
     if (m == 'JOB_PROCESSED')
       _showPaymentReceivedNotification(body);
+    else if (m == 'JOB_UPDATED')
+      _refreshServiceDetails();
     else
       _showJobCompletionNotificationForOnlinePayment(body);
   }
@@ -931,6 +1007,24 @@ class _WorkScreenState extends State<WorkScreen> {
           );
         });
   }
+
+  _refreshServiceDetails() {
+    _bloc.fire(WorkScreenEvents.refreshOrderDetails,
+        message: {'orderID': widget.orderId});
+  }
+
+  String allCsvServices() {
+    var addons = _bloc.latestViewModel.jobModel.addons;
+    List<String> allServices = [widget.serviceName];
+    if (addons == null || addons.isEmpty)
+      return widget.serviceName;
+    else {
+      for (var addon in addons) {
+        allServices.add(addon.serviceName);
+      }
+    }
+    return allServices.join(', ');
+  }
 }
 
 class InfoPanel extends StatelessWidget {
@@ -943,23 +1037,31 @@ class InfoPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.only(top:8.0, bottom: 8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(
-              title,
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                  color: Colors.deepOrange,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500),
+            Container(
+
+              width: MediaQuery.of(context).size.width/2-100,
+              child: Text(
+                title,
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.deepOrange,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500),
+              ),
             ),
-            Text(
-              answer,
-              textAlign: TextAlign.start,
-              maxLines: maxLines,
-              style: TextStyle(color: Colors.black, fontSize: 14),
+
+            Container(
+            width: MediaQuery.of(context).size.width/2-60,
+              child: Text(
+                answer,
+                textAlign: TextAlign.end,
+                maxLines: null,
+                style: TextStyle(color: Colors.black, fontSize: 14),
+              ),
             )
           ],
         ),

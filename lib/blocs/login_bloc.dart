@@ -30,11 +30,10 @@ class LoginBloc extends Bloc<LoginEvents, LoginModel>
             endpoint: EndPoints.REQUEST_OTP, body: {'phone': message['phone']})
         .makeRequest()
         .timeout(Duration(seconds: 5));
-
-    if (!response.containsKey('sent') || !response['sent']) {
-      return latestViewModel..exist = false;
-    } else {
+   if( response.containsKey('sent') && response['sent'])    {
       return latestViewModel..exist = true;
+    } else {
+      return latestViewModel..exist = false;
     }
   }
 }

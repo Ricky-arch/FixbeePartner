@@ -153,10 +153,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "First Name",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -177,10 +177,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Middle Name",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -201,10 +201,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Last Name",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(color: Colors.black54,  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -228,10 +228,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Alternate Phone Number",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -252,10 +252,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Email Address",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(color: Colors.black54 ,fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -276,10 +276,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Address",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -304,10 +304,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Pincode",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                         ),
@@ -325,10 +325,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Gender",
-                              labelStyle: TextStyle(color: Colors.black54),
+                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
-                                    color: Colors.deepOrange, width: 2.0),
+                                    color: Colors.black, width: 2.0),
                                 borderRadius: BorderRadius.circular(15.0),
                               )),
                           items: gender.map((String gender) {
@@ -350,13 +350,13 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(
-                            left: 10.0, top: 20, right: 10, bottom: 30),
+                            left: 30.0, top: 20, right: 30, bottom: 30),
                         child: Row(
                           children: <Widget>[
                             Expanded(
                               child: RaisedButton(
-                                textColor: Colors.white,
-                                color: Colors.green,
+                                textColor: Color.fromRGBO(255, 255, 0, 1),
+                                color: Colors.black,
                                 onPressed: () {
                                   if (_formKey.currentState.validate()) {
                                     _bloc.fire(UpdateProfileEvent.updateProfile,
@@ -400,9 +400,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                               width: 16,
                             ),
                             Expanded(
-                              child: OutlineButton(
-                                highlightedBorderColor: Colors.red,
-                                textColor: Colors.red,
+                              child: RaisedButton(
+                                color: Color.fromRGBO(255, 255, 0,1),
+                                textColor: Colors.black,
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },

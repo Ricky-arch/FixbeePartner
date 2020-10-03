@@ -5,7 +5,6 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/navigation_bloc.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
-import 'package:fixbee_partner/models/order_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/active_order_remainder.dart';
 import 'package:fixbee_partner/ui/custom_widget/bottom_nav_bar.dart';
 
@@ -14,7 +13,7 @@ import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'custom_profile.dart';
 import 'history_screen.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -112,6 +111,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
               address: billingAddress,
               paymentMode: paymentMode,
               onConfirm: () {
+                Navigator.pop(context);
                 _bloc.fire(NavigationEvent.onConfirmJob,
                     message: {"orderId": orderId, "Accept": true},
                     onHandled: (e, m) {
@@ -155,10 +155,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
     super.dispose();
   }
 
-  _saveOrder(OrderModel order) async {
-    SharedPreferences storeOrder = await SharedPreferences.getInstance();
-    storeOrder.setString(SharedPrefKeys.ORDER, orderId);
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +180,36 @@ class _NavigationScreenState extends State<NavigationScreen> {
                         top: MediaQuery.of(context).size.height - 150,
                         left: (MediaQuery.of(context).size.width / 2) - 100,
                         child: ActiveOrderRemainder(
-                          workScreen: () {},
+                          workScreen: () {
+
+                            _bloc.fire(NavigationEvent.getActiveOrder, onHandled: (e,m){
+                              print(m.order.price.toString()+"STATUS");
+                              Route route = MaterialPageRoute(
+                                  builder: (context) => WorkScreen(
+                                    activeOrderStatus: m.order.status,
+                                    orderId: m.order.orderId,
+                                    googlePlaceId: m.location.googlePlaceId,
+                                    phoneNumber: m.user.phoneNumber,
+                                    userName: m.user.firstname +
+                                        " " +
+                                        m.user.middlename +
+                                        " " +
+                                        m.user.lastname,
+                                    userProfilePicUrl: m.user.profilePicUrl,
+                                    addressLine: m.location.addressLine,
+                                    landmark: m.location.landmark,
+                                    serviceName: m.service.serviceName,
+                                    timeStamp: m.order.timeStamp,
+                                    amount: m.order.price,
+                                    userProfilePicId: m.user.profilePicId,
+                                    cashOnDelivery: m.order.cashOnDelivery,
+                                    basePrice: m.order.basePrice,
+                                    taxPercent: m.order.taxPercent,
+                                    serviceCharge: m.order.serviceCharge,
+                                  ));
+                              Navigator.pushReplacement(context, route);
+                            });
+                          },
                         ))
                     : SizedBox(),
               ],

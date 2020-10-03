@@ -1,6 +1,6 @@
 import 'package:fixbee_partner/blocs/login_bloc.dart';
 import 'package:fixbee_partner/events/login_events.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fixbee_partner/models/login_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/bloc_widget.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
@@ -46,18 +46,17 @@ class _LoginState extends State<Login> {
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.fromLTRB(40.0, 40, 0, 20),
-                        child: Container(
+                        child:     Container(
                             height: 80,
                             width: 80,
                             decoration: BoxDecoration(
-                                color: Colors.white, shape: BoxShape.circle),
+                                color: Color.fromRGBO(255,255, 0, 1), shape: BoxShape.circle),
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Image.asset(
-                                "assets/logo/fixbee2.png",
-                                height: 70,
-                              ),
-                            )),
+                                padding: const EdgeInsets.all(10.0),
+                                child: SvgPicture.asset(
+                                  "assets/logo/bee_outline.svg",
+                                  height: 65,
+                                ))),
                       ),
                       Padding(
                           padding: const EdgeInsets.only(
@@ -74,7 +73,7 @@ class _LoginState extends State<Login> {
                                       style: TextStyle(
                                           fontSize: 28,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.yellow),
+                                          color: Color.fromRGBO(255,255, 0, 1)),
                                     ),
                                     TextSpan(
                                       text: "sign in to continue",

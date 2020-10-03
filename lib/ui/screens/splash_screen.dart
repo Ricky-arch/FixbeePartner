@@ -11,6 +11,7 @@ import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -33,12 +34,11 @@ class _SplashScreenState extends State<SplashScreen>
   Animation<double> _scale2Animation;
   Animation<double> _widthAnimation;
   Animation<double> _positionAnimation;
-  bool onLaunch=false;
+  bool onLaunch = false;
 
   bool hideIcon = false;
   Position _currentPosition;
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
-
 
   _getCurrentLocation() {
     geolocator
@@ -52,27 +52,23 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
-
   void _setupFCM() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         log(message.toString(), name: 'ON_MESSAGE');
-
       },
       onResume: (Map<String, dynamic> message) async {
         log(message.toString(), name: 'ON_RESUME');
-        Navigator
-            .of(context)
-            .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+        Navigator.of(context).pushReplacement(
+            new MaterialPageRoute(builder: (BuildContext context) {
           return NavigationScreen();
         }));
       },
       onLaunch: (message) async {
         log(message.toString(), name: 'ON_LAUNCH');
-        Navigator
-            .of(context)
-            .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+        Navigator.of(context).pushReplacement(
+            new MaterialPageRoute(builder: (BuildContext context) {
           return NavigationScreen();
         }));
       },
@@ -101,7 +97,7 @@ class _SplashScreenState extends State<SplashScreen>
                   type: PageTransitionType.fade, child: NavigationScreen()));
         }
       } else
-        Navigator.pushReplacement(context,
+       Navigator.pushReplacement(context,
             PageTransition(type: PageTransitionType.fade, child: Login()));
     });
     _scaleController =
@@ -173,55 +169,55 @@ class _SplashScreenState extends State<SplashScreen>
     final double width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: PrimaryColors.backgroundColor,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return Container(
             width: double.infinity,
             child: Stack(
               children: <Widget>[
-                Positioned(
-                  top: -50,
-                  left: 0,
-                  child: FadeAnimation(
-                      1,
-                      Container(
-                        width: width,
-                        height: 400,
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage('assets/images/one.png'),
-                                fit: BoxFit.cover)),
-                      )),
-                ),
-                Positioned(
-                  top: -100,
-                  left: 0,
-                  child: FadeAnimation(
-                      1.3,
-                      Container(
-                        width: width,
-                        height: 400,
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage('assets/images/one.png'),
-                                fit: BoxFit.cover)),
-                      )),
-                ),
-                Positioned(
-                  top: -150,
-                  left: 0,
-                  child: FadeAnimation(
-                      1.3,
-                      Container(
-                        width: width,
-                        height: 400,
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage('assets/images/one.png'),
-                                fit: BoxFit.cover)),
-                      )),
-                ),
+//                Positioned(
+//                  top: -50,
+//                  left: 0,
+//                  child: FadeAnimation(
+//                      1,
+//                      Container(
+//                        width: width,
+//                        height: 400,
+//                        decoration: BoxDecoration(
+//                            image: DecorationImage(
+//                                image: AssetImage('assets/images/one.png'),
+//                                fit: BoxFit.cover)),
+//                      )),
+//                ),
+//                Positioned(
+//                  top: -100,
+//                  left: 0,
+//                  child: FadeAnimation(
+//                      1.3,
+//                      Container(
+//                        width: width,
+//                        height: 400,
+//                        decoration: BoxDecoration(
+//                            image: DecorationImage(
+//                                image: AssetImage('assets/images/one.png'),
+//                                fit: BoxFit.cover)),
+//                      )),
+//                ),
+//                Positioned(
+//                  top: -150,
+//                  left: 0,
+//                  child: FadeAnimation(
+//                      1.3,
+//                      Container(
+//                        width: width,
+//                        height: 400,
+//                        decoration: BoxDecoration(
+//                            image: DecorationImage(
+//                                image: AssetImage('assets/images/one.png'),
+//                                fit: BoxFit.cover)),
+//                      )),
+//                ),
                 Center(
                   child: Container(
                     padding: EdgeInsets.all(20.0),
@@ -233,47 +229,64 @@ class _SplashScreenState extends State<SplashScreen>
                             height: 80,
                             width: 80,
                             decoration: BoxDecoration(
-                                color: Colors.white, shape: BoxShape.circle),
+                                color: Color.fromRGBO(255,255, 0, 1), shape: BoxShape.circle),
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Image.asset(
-                                "assets/custom_icons/bee.png",
-                                height: 70,
-                              ),
-                            )),
-                        SizedBox(height: 20),
+                                padding: const EdgeInsets.all(10.0),
+                                child: SvgPicture.asset(
+                                  "assets/logo/bee_outline.svg",
+                                  height: 65,
+                                ))),
+                        //SizedBox(height: 10),
                         FadeAnimation(
                             1,
-                            RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                      text: 'Fixbee ',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 30)),
-                                  TextSpan(
-                                    text: 'Partner',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.yellow,
-                                        fontSize: 30),
-                                  )
-                                ],
-                              ),
+                            Row(
+                              children: [
+                                Image.asset(
+                                  "assets/logo/fixbeeLogo2.png",
+                                  height: 70,
+                                  width: 150,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 22.0),
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+//                                  TextSpan(
+//                                      text: 'Fixbee ',
+//                                      style: TextStyle(
+//                                          fontWeight: FontWeight.bold,
+//                                          color: Colors.white,
+//                                          fontSize: 30)),
+                                        TextSpan(
+                                          text: 'Partner',
+                                          style: TextStyle(
+                                             fontWeight: FontWeight.w700,
+
+                                              color:
+                                                  PrimaryColors.backgroundColor,
+                                              fontSize: 20),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             )),
-                        SizedBox(
-                          height: 5,
-                        ),
+//                        SizedBox(
+//                          height: 5,
+//                        ),
                         FadeAnimation(
                             1.3,
-                            Text(
-                              "We provide Optimal Services!",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  height: 1.4,
-                                  fontSize: 18),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Text(
+                                "FOR OPTIMAL SERVICES!",
+                                style: TextStyle(
+                                    color: PrimaryColors.backgroundColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontStyle: FontStyle.italic,
+                                    fontSize: 14),
+                              ),
                             )),
                         SizedBox(
                           height: 40,
@@ -294,8 +307,7 @@ class _SplashScreenState extends State<SplashScreen>
                                         decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(50),
-                                            color:
-                                                Colors.white.withOpacity(.4)),
+                                            color: Colors.transparent),
                                         child: InkWell(
                                           onTap: () {
                                             _scaleController.forward();
@@ -320,15 +332,14 @@ class _SplashScreenState extends State<SplashScreen>
                                                                 BoxDecoration(
                                                                     shape: BoxShape
                                                                         .circle,
-                                                                    color: Colors
-                                                                        .white),
+                                                                    color: PrimaryColors.backgroundColor),
                                                             child: hideIcon ==
                                                                     false
                                                                 ? Icon(
                                                                     Icons
                                                                         .arrow_forward,
                                                                     color: Colors
-                                                                        .black,
+                                                                        .yellow,
                                                                   )
                                                                 : Container(),
                                                           )),

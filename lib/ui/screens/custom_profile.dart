@@ -2,9 +2,11 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/custom_profile_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/custom_profile_event.dart';
+import 'package:fixbee_partner/events/customize_service_event.dart';
 import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
+import 'package:fixbee_partner/ui/screens/customize_service.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
@@ -239,7 +241,13 @@ class _CustomProfileState extends State<CustomProfile> {
                     ),
                     ProfileListItem(
                       icon: LineAwesomeIcons.user_plus,
-                      text: 'Invite a Friend',
+                      text: 'Customize Selected Services',
+                      task: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (ctx) {
+                          return CustomizeService();
+                        }));
+                      },
                     ),
                     ProfileListItem(
                         icon: LineAwesomeIcons.alternate_sign_out,

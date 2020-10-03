@@ -73,7 +73,8 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
-                  inputString: "UPLOAD YOUR AADHAAR CARD",
+                  documentName: " Aadhaar.jpeg",
+                  inputString: "Upload your aadhaar card",
                   onImagePicked: onImagePicked1,
                   loading: false,
                   text: Text(viewModel.files == null
@@ -87,6 +88,8 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
+
+                  documentName: "Age-Proof.jpeg",
                   inputString: "Upload any Age-proof Certificate",
                   onImagePicked: onImagePicked2,
                   //imageURl: viewModel.fileUrl,
@@ -103,6 +106,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
+                  documentName: "Address_proof.jpeg",
                   inputString: "Upload any address-proof certificate",
                   onImagePicked: onImagePicked3,
                   //imageURl: viewModel.fileUrl,
@@ -118,6 +122,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
+                  documentName: "Additional.jpeg",
                   inputString: "Upload any additional Certifications",
                   onImagePicked: onImagePicked4,
                   //imageURl: viewModel.fileUrl,

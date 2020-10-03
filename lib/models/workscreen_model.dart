@@ -10,4 +10,7 @@ class WorkScreenModel extends ViewModel {
   bool slotted=false;
   bool orderResolved=false;
   bool onJobCompleted=false;
+  String activeOrderStatus;
+
+
 }

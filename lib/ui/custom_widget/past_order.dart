@@ -67,14 +67,7 @@ class _PastOrderState extends State<PastOrder> {
                         ],
                       ),
                     ),
-//                    Padding(
-//                      padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
-//                      child: Text(
-//                        widget.userName,
-//                        style: TextStyle(
-//                            fontWeight: FontWeight.bold, fontSize: 12),
-//                      ),
-//                    ),
+
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
                       child: Divider(

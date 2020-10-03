@@ -57,7 +57,7 @@ class SetServicesBloc extends Bloc<ServiceSelectionEvents, ServiceOptionModels>
               'https://images.pexels.com/photos/162553/keys-workshop-mechanic-tools-162553.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940'
           : serviceModel.imageLink =
               "${EndPoints.DOCUMENT}?id=${service['Image']['id']}";
-      //"${EndPoints.DOCUMENT}?id=${service['Image']['id']}"
+
       models.add(serviceModel);
     });
 

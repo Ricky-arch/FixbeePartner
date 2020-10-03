@@ -6,6 +6,7 @@ class NavigationEvent extends Event{
   static final NavigationEvent getServiceData= NavigationEvent(102);
   static final NavigationEvent getUserData= NavigationEvent(103);
   static final NavigationEvent onConfirmJob=NavigationEvent(101);
-  static final NavigationEvent getActiveService=NavigationEvent(104);
+  static final NavigationEvent getActiveOrder=NavigationEvent(104);
   static final NavigationEvent checkActiveService=NavigationEvent(105);
+  static final NavigationEvent checkActiveOrderStatus= NavigationEvent(106);
 }

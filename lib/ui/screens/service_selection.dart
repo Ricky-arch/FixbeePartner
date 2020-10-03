@@ -39,9 +39,6 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
     super.initState();
     _bloc = SetServicesBloc(ServiceOptionModels());
     _bloc.fire(ServiceSelectionEvents.fetchAvailableServices);
-//    _genesisParcel = ServiceModels();
-//    _bloc = ServiceSelectionBloc(_genesisParcel);
-//    _bloc.feedEvent(ServiceSelectionEvents.fetchAvailableServices);
   }
 
   @override

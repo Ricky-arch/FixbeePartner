@@ -91,6 +91,11 @@ flutter:
     - assets/images/full.png
     - assets/logo/fixbee.svg
     - assets/logo/fixbee2.png
+    - assets/logo/fixbeeLogo1.svg
+    - assets/logo/fixbeeLogo1.png
+    - assets/logo/bee.svg
+    - assets/logo/bee_outline.svg
+    - assets/logo/fixbeeLogo2.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,5 +1,7 @@
 import 'package:fixbee_partner/models/view_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'navigation_model.dart';
 class OrderModel extends ViewModel{
   String userProfilePicUrl;
   String userFirstname;
@@ -31,5 +33,7 @@ class OrderModel extends ViewModel{
   String quantity;
   int totalAmount;
   String timeStamp;
+  List<Service> addons;
 }
+
 

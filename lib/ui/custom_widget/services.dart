@@ -21,7 +21,7 @@ class _ServicesState extends State<Services> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          height: 60,
+
           color: PrimaryColors.backgroundColor,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -30,11 +30,11 @@ class _ServicesState extends State<Services> {
                 SizedBox(width: MediaQuery.of(context).size.width / 40),
                 Center(
                     child: Text(
-                  "Available Services",
+                  "AVAILABLE SERVICES",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: Colors.yellow,
-                      fontSize: 20,
+                      color: Colors.white,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600),
                 )),
               ],
@@ -86,9 +86,12 @@ class _ServiceItemState extends State<ServiceItem> {
                 aspectRatio: 84 / 69,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
-                  child: CachedNetworkImage(
-                      fit: BoxFit.cover,
-                      imageUrl: widget.serviceModel.imageLink),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CachedNetworkImage(
+                        fit: BoxFit.cover,
+                        imageUrl: widget.serviceModel.imageLink),
+                  ),
                 ),
               ),
             ),
