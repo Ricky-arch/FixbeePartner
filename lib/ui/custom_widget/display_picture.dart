@@ -42,7 +42,7 @@ class DisplayPicture extends StatelessWidget {
                       : CachedNetworkImageProvider(imageURl),
                   child: (imageURl == null || imageURl.isEmpty)
                       ? SvgPicture.asset(
-                          "assets/custom_icons/user.svg",
+                          "assets/logo/bee_outline.svg",
                           width: 0.4 * MediaQuery.of(context).size.width,
                           height: 0.4 * MediaQuery.of(context).size.width,
                         )
@@ -97,3 +97,4 @@ class DisplayPicture extends StatelessWidget {
     );
   }
 }
+

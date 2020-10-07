@@ -2,26 +2,24 @@ import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
 
-class PastOrder extends StatefulWidget {
-  final String userName, serviceName, status;
-  final int amount;
+class ActiveOrderHistory extends StatefulWidget {
+  final String orderId, serviceName, status;
   final String timeStamp;
   final Function seeMore;
 
-  const PastOrder(
+  const ActiveOrderHistory(
       {Key key,
-      this.userName,
       this.serviceName,
-      this.amount,
       this.status,
       this.timeStamp,
-      this.seeMore})
+      this.seeMore,
+      this.orderId})
       : super(key: key);
   @override
-  _PastOrderState createState() => _PastOrderState();
+  _ActiveOrderHistoryState createState() => _ActiveOrderHistoryState();
 }
 
-class _PastOrderState extends State<PastOrder> {
+class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -41,21 +39,28 @@ class _PastOrderState extends State<PastOrder> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        child: Text(
+                          widget.orderId.toUpperCase(),
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width/1.7,
+                            width: MediaQuery.of(context).size.width / 1.7,
                             child: Text(
-                              widget.serviceName +
-                                  " \u20B9 ${(widget.amount) / 100}",
+                              widget.serviceName,
                               maxLines: null,
                               style: TextStyle(
                                   color: PrimaryColors.backgroundColor,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-
                           Container(
                             decoration: BoxDecoration(color: Colors.tealAccent),
                             child: Padding(
@@ -64,7 +69,7 @@ class _PastOrderState extends State<PastOrder> {
                                 widget.status,
                                 style: TextStyle(
                                     color: Colors.black,
-                                    fontSize: 12,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -72,7 +77,6 @@ class _PastOrderState extends State<PastOrder> {
                         ],
                       ),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
                       child: Divider(
@@ -92,7 +96,7 @@ class _PastOrderState extends State<PastOrder> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    "SEE MORE",
+                                    "LAUNCH",
                                     style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold),

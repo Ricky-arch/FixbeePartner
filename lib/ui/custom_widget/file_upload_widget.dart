@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
-
 import '../../Constants.dart';
 
 class FileUploadWidget extends StatefulWidget {
@@ -15,10 +14,19 @@ class FileUploadWidget extends StatefulWidget {
   final String documentName;
   final Widget text;
   final bool uploading;
+  final FileUploadController controller;
 
-  FileUploadWidget(
-      {Key key, this.onImagePicked, this.imageURl, this.loading = true, this.text, this.inputString, this.uploading, this.documentName})
-      : super(key: key);
+  FileUploadWidget({
+    Key key,
+    this.onImagePicked,
+    this.imageURl,
+    this.loading = true,
+    this.text,
+    this.inputString,
+    this.uploading,
+    this.documentName,
+    this.controller,
+  }) : super(key: key);
 
   @override
   _FileUploadWidgetState createState() => _FileUploadWidgetState();
@@ -27,10 +35,16 @@ class FileUploadWidget extends StatefulWidget {
 class _FileUploadWidgetState extends State<FileUploadWidget> {
   final ImagePicker _imagePicker = ImagePicker();
   String fileName;
+  bool _uploaded = false;
 
   @override
   void initState() {
-    fileName= widget.inputString;
+    fileName = widget.inputString;
+    widget?.controller?.onUpload = () {
+      setState(() {
+        _uploaded = true;
+      });
+    };
     super.initState();
   }
 
@@ -55,13 +69,13 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                     await _imagePicker.getImage(source: ImageSource.gallery);
                 var name = image.path.split(Platform.pathSeparator).last;
                 setState(() {
-                    fileName= widget.documentName;
+                  fileName = widget.documentName;
                 });
                 if (image != null) widget.onImagePicked(image.path);
               },
               child: Icon(
-                LineAwesomeIcons.folder,
-                color: PrimaryColors.backgroundColor,
+                _uploaded ? Icons.check_circle : LineAwesomeIcons.folder,
+                color: _uploaded ? Colors.green : PrimaryColors.backgroundColor,
               ),
             ),
           ],
@@ -69,4 +83,8 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
       ),
     );
   }
+}
+
+class FileUploadController {
+  Function onUpload;
 }

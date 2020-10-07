@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:fixbee_partner/models/navigation_model.dart';
+import 'package:fixbee_partner/ui/custom_widget/addon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../Constants.dart';
@@ -9,7 +11,10 @@ class BillingScreen extends StatefulWidget {
   final String serviceName, status, address, userName, timeStamp, orderId;
   final bool cashOnDelivery;
   final int basePrice, serviceCharge, taxPercent, amount;
-
+  final List<int> addOnAmounts;
+  final List<int> addOnServiceCharge;
+  final List<int> addOnTaxPercent;
+  final List<Service> addOns;
   const BillingScreen(
       {Key key,
       this.serviceName,
@@ -22,7 +27,7 @@ class BillingScreen extends StatefulWidget {
       this.taxPercent,
       this.amount,
       this.timeStamp,
-      this.orderId})
+      this.orderId, this.addOnAmounts, this.addOnServiceCharge, this.addOnTaxPercent, this.addOns})
       : super(key: key);
   @override
   BillingScreenState createState() => BillingScreenState();
@@ -254,6 +259,46 @@ class BillingScreenState extends State<BillingScreen> {
                   ],
                 ),
               ),
+              (widget.addOns!=null || widget.addOns.isEmpty)?ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              border: Border.all(color: Colors.tealAccent)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "ADD-ONS-"+"${index+1}",
+                              style: TextStyle(
+                                  color: Colors.orange,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Addons(
+                        quantity: 4,
+                        serviceName: widget.addOns[index].serviceName,
+                        taxPercent: widget.addOns[index].taxPercent,
+                        basePrice: widget.addOns[index].basePrice,
+                        serviceCharge: widget.addOns[index].serviceCharge,
+                        amount: widget.addOns[index].amount,
+                        cashOnDelivery: widget.cashOnDelivery,
+                      ),
+                    ],
+                  );
+                },
+                itemCount: widget.addOns.length,
+              ):SizedBox(),
               Column(
                 children: [
                   Padding(
@@ -313,7 +358,8 @@ class Banner extends StatelessWidget {
           ),
           Text(
             value,
-            style: TextStyle(fontWeight: FontWeight.w500),
+            style: TextStyle(fontWeight: FontWeight.w500, ),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

@@ -12,11 +12,12 @@ class VerificationDocuments extends StatefulWidget {
 
 class _VerificationDocumentsState extends State<VerificationDocuments> {
   FileUploadBloc _bloc;
+  FileUploadController _controller1;
 
   @override
   void initState() {
     _bloc = FileUploadBloc(FileModel());
-
+    _controller1 = FileUploadController();
     super.initState();
   }
 
@@ -32,13 +33,13 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
       appBar: AppBar(
         backgroundColor: PrimaryColors.backgroundColor,
         automaticallyImplyLeading: false,
-        //backgroundColor: Data.backgroundColor,
         title: Stack(
           children: <Widget>[
             Container(
                 decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
                 child: Row(
-                  children: <Widget>[
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     RichText(
                       text: TextSpan(
                         children: <TextSpan>[
@@ -51,14 +52,11 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                         ],
                       ),
                     ),
-                    Spacer(),
                     IconButton(
-                      icon: Icon(
-                        Icons.info_outline,
-                        color: Colors.white,
-                      ),
+                      icon: Icon(Icons.info_outline),
                       onPressed: () {},
-                    )
+                      color: Colors.white,
+                    ),
                   ],
                 ))
           ],
@@ -73,9 +71,12 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
+                  controller: _controller1,
                   documentName: " Aadhaar.jpeg",
                   inputString: "Upload your aadhaar card",
-                  onImagePicked: onImagePicked1,
+                  onImagePicked: (path) {
+                    onImagePicked1(path, _controller1.onUpload);
+                  },
                   loading: false,
                   text: Text(viewModel.files == null
                       ? "Document"
@@ -88,7 +89,6 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
-
                   documentName: "Age-Proof.jpeg",
                   inputString: "Upload any Age-proof Certificate",
                   onImagePicked: onImagePicked2,
@@ -100,7 +100,6 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: InkWell(
@@ -139,18 +138,21 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
     );
   }
 
-  onImagePicked1(String path) {
+  onImagePicked1(String path, Function onUpload) {
     _bloc.fire(FileUploadEvent.uploadFile,
-        message: {"path": "$path", "file": "aadhaar"});
+        message: {"path": "$path", "file": "aadhaar", "onUpload": onUpload});
   }
+
   onImagePicked2(String path) {
     _bloc.fire(FileUploadEvent.uploadFile,
         message: {"path": "$path", "file": "age_proof"});
   }
+
   onImagePicked3(String path) {
     _bloc.fire(FileUploadEvent.uploadFile,
         message: {"path": "$path", "file": "address_proof"});
   }
+
   onImagePicked4(String path) {
     _bloc.fire(FileUploadEvent.uploadFile,
         message: {"path": "$path", "file": "additional_certificate"});

@@ -13,6 +13,7 @@ import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:vibration/vibration.dart';
 
 import 'custom_profile.dart';
 import 'history_screen.dart';
@@ -66,6 +67,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
+
+
         log(message.toString(), name: 'ON_MESSAGE');
         _getJobDetails(message);
       },
@@ -98,6 +101,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
+          Vibration.vibrate(duration: 1000);
           Future.delayed(const Duration(seconds: 150), () async {
             Navigator.pop(context);
           });
@@ -106,12 +110,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             insetPadding: EdgeInsets.all(10),
             child: NewServiceNotification(
-              orderId: orderId,
-              userName: userName,
+              orderId: orderId.toString().toUpperCase(),
+              userName: userName.toString().toUpperCase(),
               address: billingAddress,
               paymentMode: paymentMode,
               onConfirm: () {
-                Navigator.pop(context);
+
                 _bloc.fire(NavigationEvent.onConfirmJob,
                     message: {"orderId": orderId, "Accept": true},
                     onHandled: (e, m) {

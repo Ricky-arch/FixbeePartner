@@ -8,6 +8,7 @@ import 'package:fixbee_partner/ui/custom_widget/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:string_validator/string_validator.dart';
 
 import '../../Constants.dart';
@@ -98,11 +99,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                         decoration: BoxDecoration(
                             color: Colors.white, shape: BoxShape.circle),
                         child: Padding(
-                          padding: const EdgeInsets.all(3.0),
-                          child: Image.asset(
-                            "assets/custom_icons/bee.png",
-                            fit: BoxFit.cover,
-                          ),
+                            padding: const EdgeInsets.all(3.0),
+                            child: SvgPicture.asset(
+                              "assets/logo/bee_outline.svg",
+                            )
                         )),
                     SizedBox(
                       width: 10,
@@ -111,11 +111,11 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       text: TextSpan(
                         children: <TextSpan>[
                           TextSpan(
-                              text: 'Profile',
+                              text: 'ADD CHANGES TO YOUR PERSONAL',
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.yellow,
-                                  fontSize: 22)),
+                                  color: Colors.white,
+                                  fontSize: 15)),
                         ],
                       ),
                     ),
@@ -355,7 +355,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           children: <Widget>[
                             Expanded(
                               child: RaisedButton(
-                                textColor: Color.fromRGBO(255, 255, 0, 1),
+                                textColor: Colors.white,
                                 color: Colors.black,
                                 onPressed: () {
                                   if (_formKey.currentState.validate()) {
@@ -401,7 +401,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             ),
                             Expanded(
                               child: RaisedButton(
-                                color: Color.fromRGBO(255, 255, 0,1),
+                                color: Colors.white,
                                 textColor: Colors.black,
                                 onPressed: () {
                                   Navigator.pop(context);

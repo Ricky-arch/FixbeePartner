@@ -58,6 +58,7 @@ class _CustomizeServiceState extends State<CustomizeService> {
           children: [
             Column(
               children: [
+                SizedBox(height: 5,),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 8),
                   child: Row(
@@ -75,7 +76,7 @@ class _CustomizeServiceState extends State<CustomizeService> {
                                 child: Text(
                                   "ADD",
                                   style: TextStyle(
-                                      color: Colors.red,
+                                      color: Colors.black,
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold),
                                 ),
@@ -106,7 +107,7 @@ class _CustomizeServiceState extends State<CustomizeService> {
                                 child: Text(
                                   (!showDeleteButton) ? "REMOVE" : "CANCEL",
                                   style: TextStyle(
-                                      color: Colors.red,
+                                      color: Colors.black,
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold),
                                 ),

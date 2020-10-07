@@ -2,7 +2,6 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/custom_profile_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/custom_profile_event.dart';
-import 'package:fixbee_partner/events/customize_service_event.dart';
 import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
@@ -12,6 +11,7 @@ import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -127,10 +127,9 @@ class _CustomProfileState extends State<CustomProfile> {
                               color: Colors.white, shape: BoxShape.circle),
                           child: Padding(
                             padding: const EdgeInsets.all(3.0),
-                            child: Image.asset(
-                              "assets/custom_icons/bee.png",
-                              fit: BoxFit.cover,
-                            ),
+                            child: SvgPicture.asset(
+                              "assets/logo/bee_outline.svg",
+                            )
                           )),
                       SizedBox(
                         width: 10,

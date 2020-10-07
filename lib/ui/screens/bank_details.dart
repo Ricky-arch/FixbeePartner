@@ -63,11 +63,11 @@ class _BankDetailsState extends State<BankDetails> {
                               text: TextSpan(
                                 children: <TextSpan>[
                                   TextSpan(
-                                      text: 'Bank Accounts',
+                                      text: 'BANK ACCOUNTS',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.yellow,
-                                          fontSize: 22)),
+                                          color: Colors.white,
+                                          fontSize: 16)),
                                 ],
                               ),
                             ),
@@ -75,7 +75,8 @@ class _BankDetailsState extends State<BankDetails> {
                             IconButton(
                               icon: Icon(
                                 Icons.info_outline,
-                                color: Colors.yellow,
+                                color: Colors.white,
+                                size: 20,
                               ),
                               onPressed: () {
                                 _bankAccountInfo(context);

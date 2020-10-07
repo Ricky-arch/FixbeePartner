@@ -64,6 +64,7 @@ class WorkScreen extends StatefulWidget {
 
 class _WorkScreenState extends State<WorkScreen> {
   WorkScreenBloc _bloc;
+  bool _onNotificationReceivedForCompletionOfPayOnline=false;
   bool _onServiceStarted;
 
   String activeOrderStatus = "ASSIGNED";
@@ -605,7 +606,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               color: Colors.deepPurple.withOpacity(0.5),
                             ),
                             onPressed: () {
-                              _showNewJobDialogBox();
+
                             },
                           ),
                         ),
@@ -711,6 +712,7 @@ class _WorkScreenState extends State<WorkScreen> {
                       serviceCharge: widget.serviceCharge,
                       basePrice: widget.basePrice,
                       taxPercent: widget.taxPercent,
+                      addOns: _bloc.latestViewModel.jobModel.addons,
                     );
                   }));
                 },
@@ -756,6 +758,7 @@ class _WorkScreenState extends State<WorkScreen> {
                           serviceCharge: widget.serviceCharge,
                           basePrice: widget.basePrice,
                           taxPercent: widget.taxPercent,
+                          addOns: _bloc.latestViewModel.jobModel.addons,
                         );
                       }));
                     } else
@@ -863,32 +866,6 @@ class _WorkScreenState extends State<WorkScreen> {
         });
   }
 
-  _showNewJobDialogBox() {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Text("Accept the New Job?"),
-            actions: [
-              FlatButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("No"),
-              ),
-              FlatButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NavigationScreen()));
-                },
-                child: Text("Yes"),
-              ),
-            ],
-          );
-        });
-  }
 
   _showOtpInvalidBox() {
     showDialog(
@@ -929,6 +906,11 @@ class _WorkScreenState extends State<WorkScreen> {
       _showPaymentReceivedNotification(body);
     else if (m == 'JOB_UPDATED')
       _refreshServiceDetails();
+    else if(body==""){
+      setState(() {
+        _onNotificationReceivedForCompletionOfPayOnline=true;
+      });
+    }
     else
       _showJobCompletionNotificationForOnlinePayment(body);
   }
@@ -990,6 +972,7 @@ class _WorkScreenState extends State<WorkScreen> {
                       serviceCharge: widget.serviceCharge,
                       basePrice: widget.basePrice,
                       taxPercent: widget.taxPercent,
+                      addOns: _bloc.latestViewModel.jobModel.addons,
                     );
                   }));
                 },
@@ -1069,20 +1052,5 @@ class InfoPanel extends StatelessWidget {
     );
   }
 
-  _showCompleteJobNotificationDialog(context) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            insetPadding: EdgeInsets.all(10),
-            content: Wrap(
-              children: [
-                Container(
-                  child: Text("Job Completed"),
-                )
-              ],
-            ),
-          );
-        });
-  }
+
 }

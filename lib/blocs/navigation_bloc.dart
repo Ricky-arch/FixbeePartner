@@ -238,55 +238,70 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
   }
 
   Future<NavigationModel> getActiveOrder() async {
-    String query = '''{Me{
-  ... on Bee{
-    ActiveOrder{ID
-    Location {
-      ID
-      Name
-      Address {
-        Line1
-        Landmark
+    String query = '''{
+  Me {
+    ... on Bee {
+      ActiveOrder {
+        ID
+        Location {
+          ID
+          Name
+          Address {
+            Line1
+            Landmark
+          }
+          GooglePlaceID
+        }
+        Service {
+          ID
+          Name
+          Pricing {
+            Priceable
+            BasePrice
+            ServiceCharge
+            TaxPercent
+          }
+        }
+        Status
+        Timestamp
+        Addons {
+          Service {
+            Name
+            Pricing {
+              BasePrice
+              ServiceCharge
+              TaxPercent
+            }
+          }
+          Amount
+        }
+        Amount
+        User {
+          ID
+          Name {
+            Firstname
+            Middlename
+            Lastname
+          }
+          DisplayPicture {
+            filename
+            id
+          }
+          Phone {
+            Number
+          }
+        }
+        CashOnDelivery
+        OrderId
+        Slot {
+          Slotted
+          At
+        }
       }
-      GooglePlaceID
-    }
-    Service {
-      ID
-      Name
-      Pricing {
-        Priceable
-        BasePrice
-        ServiceCharge
-        TaxPercent
-      }
-    }
-    Status
-    Timestamp
-    Amount
-    User {
-      ID
-      Name {
-        Firstname
-        Middlename
-        Lastname
-      }
-      DisplayPicture{
-        filename
-        id
-      }
-      Phone {
-        Number
-      }
-    }
-    CashOnDelivery
-    OrderId
-    Slot{
-      Slotted
-      At
-    }
     }
   }
-}}''';
+}
+''';
     Map response = await CustomGraphQLClient.instance.query(query);
     log(response['Me']['ActiveOrder']['Location']['Address']['Landmark'], name: "LANDMARK");
     return latestViewModel

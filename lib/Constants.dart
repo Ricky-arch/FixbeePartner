@@ -1,6 +1,7 @@
 import 'dart:ui';
 
-import 'package:fixbee_partner/models/order_model.dart';
+import 'package:flutter/material.dart';
+
 
 
 class Constants{
@@ -10,6 +11,7 @@ class Constants{
   static const googleApiKey='AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI';
   static const googleSessionToken='12345';
   static const fields='name,formatted_address,geometry';
+  static const PING_TIMEOUT=5;
   static const RAZORPAY_KEY='rzp_test_CCbjVk8vqcb00P';
 }
 class EndPoints{
@@ -19,6 +21,7 @@ class EndPoints{
   static const GRAPHQL="${Constants.PROTOCOL}://${Constants.HOST_IP}/graphql";
   static const GRAPHQL_WS="${Constants.WS_PROTOCOL}://${Constants.HOST_IP}/graphql";
   static const DOCUMENT="${Constants.PROTOCOL}://${Constants.HOST_IP}/document";
+  static const INFO="${Constants.PROTOCOL}://${Constants.HOST_IP}/info";
 }
 
 class SharedPrefKeys{
@@ -27,4 +30,6 @@ class SharedPrefKeys{
 }
 class PrimaryColors{
   static Color backgroundColor = Color.fromRGBO(0, 7, 17, 9);
+  static Color yellowColor=Color. fromRGBO(255, 255, 0, 1);
+  static Color whiteColor= Colors.white;
 }

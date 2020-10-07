@@ -1,13 +1,9 @@
 import 'package:fixbee_partner/Constants.dart';
-import 'package:fixbee_partner/blocs/login_bloc.dart';
 import 'package:fixbee_partner/blocs/otp_login_bloc.dart';
-import 'package:fixbee_partner/events/login_events.dart';
 import 'package:fixbee_partner/events/otp_events.dart';
-import 'package:fixbee_partner/models/login_model.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_field.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_insert.dart';
-import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';

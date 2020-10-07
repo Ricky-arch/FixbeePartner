@@ -27,7 +27,7 @@ class _WalletScreenState extends State<WalletScreen> {
   bool isButtonEnabled = false;
   WalletBloc _bloc;
   final String wallet = "400.00";
-  double walletAmount;
+  double walletAmount=0;
   int walletAmountInpaise;
   Razorpay _razorpay = Razorpay();
   String email = (DataStore.me.emailAddress == null)
@@ -44,7 +44,9 @@ class _WalletScreenState extends State<WalletScreen> {
     });
     _bloc.fire(WalletEvent.fetchWalletAmount, onHandled: (e, m) {
       walletAmountInpaise = m.amount;
-      walletAmount = (walletAmountInpaise / 100).toDouble();
+     if(walletAmountInpaise!=null){
+       walletAmount = (walletAmountInpaise / 100).toDouble();
+     }
     });
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -174,7 +176,8 @@ class _WalletScreenState extends State<WalletScreen> {
                                 padding:
                                     const EdgeInsets.fromLTRB(8.0, 30, 8, 8),
                                 child: Text(
-                                  viewModel.amount.toString(),
+                                    (viewModel.amount==null)?"0.0":
+                                  "${(viewModel.amount)/100}",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w300,

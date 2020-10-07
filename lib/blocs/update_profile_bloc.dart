@@ -61,7 +61,7 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> {
       ..middleName = response['Me']['Name']['Middlename']??""
       ..lastName = response['Me']['Name']['Lastname']??""
       ..emailAddress = response['Me']['Email']
-      ..dob = response['Me']['DOB']..address1=locations[noOfAddress].addressLine;
+      ..dob = response['Me']['DOB']..address1=locations[noOfAddress].addressLine??"";
   }
 
   Future<UpdateProfileModel> updateBeeDetails(

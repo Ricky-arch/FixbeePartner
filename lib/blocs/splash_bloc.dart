@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
@@ -9,6 +10,7 @@ import 'package:fixbee_partner/models/service_options.dart';
 import 'package:fixbee_partner/models/splash_model.dart';
 import 'package:fixbee_partner/models/view_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'package:fixbee_partner/utils/request_maker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data_store.dart';
@@ -25,6 +27,47 @@ class SplashBloc extends Bloc<Event, SplashModel> {
     return await _fetchToken();
   }
 
+  Future<bool> __ping(String address) async {
+    try {
+      final result = await InternetAddress.lookup(address);
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      } else {
+        return false;
+      }
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
+
+
+  Future<bool> _checkConnection() async {
+    bool internet = await __ping('google.com');
+    if (!internet)
+      {//push(SplashNoInternet());
+         }
+    else {
+      try {
+        Map response = await RequestMaker(
+          endpoint: EndPoints.INFO,
+          method: 1,
+        ).makeRequest().timeout(
+          Duration(seconds: Constants.PING_TIMEOUT),
+          onTimeout: () {
+            throw ('TIMEOUT');
+          },
+        );
+        //TODO check for update
+        if (response == null || !response.containsKey('version')) {
+          //push(SplashServerError());
+        } else
+          return true;
+      } catch (_) {
+        //push(SplashServerError());
+      }
+    }
+    return false;
+  }
   Future<SplashModel> _fetchToken() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.containsKey(SharedPrefKeys.TOKEN)) {
