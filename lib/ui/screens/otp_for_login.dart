@@ -158,7 +158,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                             if (m.valid) {
                                               FocusScope.of(context)
                                                   .requestFocus(FocusNode());
-                                              _otpInsertController.dispose();
+
                                               _bloc.fire(
                                                   OtpEvents.fetchSaveBeeDetails,
                                                   onHandled: (e, m) {
@@ -168,10 +168,12 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                                     OtpEvents
                                                         .checkForServiceSelected,
                                                     onHandled: (e, m) {
+
                                                   if (!m.serviceSelected) {
                                                     goToJobSelectionScreen(ctx);
                                                   }
                                                 });
+
                                                 goToNavigationScreen(ctx);
                                               });
                                             } else {

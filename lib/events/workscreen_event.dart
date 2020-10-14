@@ -10,4 +10,5 @@ class WorkScreenEvents extends Event{
   static final WorkScreenEvents onJobCompletion=WorkScreenEvents(105);
   static final WorkScreenEvents checkActiveOrderStatus= WorkScreenEvents(106);
   static final WorkScreenEvents refreshOrderDetails= WorkScreenEvents(107);
+
 }

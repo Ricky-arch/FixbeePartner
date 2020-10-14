@@ -114,6 +114,11 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   }
 
   Future<WorkScreenModel> rateUser(Map<String, dynamic> message) async {
+    String query= '''
+    mutation{
+      AddRating(input: {AccountId})
+    }
+    ''';
     return latestViewModel;
   }
 

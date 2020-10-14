@@ -18,7 +18,7 @@ class CustomizeServiceBloc
       return await fetchSelectedServices();
     if (event == CustomizeServiceEvent.deleteSelectedService)
       return await deleteSelectedService(message);
-    if(event== CustomizeServiceEvent.fetchAvailableServices)
+    if (event == CustomizeServiceEvent.fetchAvailableServices)
       return await fetchAvailableServices();
 
     return latestViewModel;
@@ -95,7 +95,7 @@ class CustomizeServiceBloc
       ..numberOfSelectedServices = services.length;
   }
 
-  Future<CustomizeServiceModel>  fetchAvailableServices() async{
+  Future<CustomizeServiceModel> fetchAvailableServices() async {
     String query = '''{Me{
   ...on Bee{
    Services{
@@ -113,13 +113,18 @@ class CustomizeServiceBloc
   }
 }''';
 
-
     Map responseAll = await CustomGraphQLClient.instance.query(queryAll);
 
-    List all=responseAll['Services'];
-    List mine=response['Me']['Services'];
+    List all = responseAll['Services'];
+    List mine = response['Me']['Services'];
 
+    List filtered = [];
 
+    all.removeWhere(
+      (element) {
+        return mine.contains(element);
+      },
+    );
 
     return latestViewModel;
   }

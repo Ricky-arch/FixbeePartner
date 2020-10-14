@@ -22,6 +22,11 @@ class _WorkAnimationState extends State<WorkAnimation>
       });
     super.initState();
   }
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

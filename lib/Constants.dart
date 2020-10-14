@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-
+//JOB_COMPLETED
 
 class Constants{
-  static const String HOST_IP="192.168.43.33";
+  static const String HOST_IP="192.168.29.3:8081";
   static const String PROTOCOL="http";
   static const WS_PROTOCOL='ws';
   static const googleApiKey='AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI';
