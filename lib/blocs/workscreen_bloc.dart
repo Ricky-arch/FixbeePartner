@@ -114,11 +114,16 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   }
 
   Future<WorkScreenModel> rateUser(Map<String, dynamic> message) async {
+    String accountID=message['accountID'];
+    int score=message['Score'];
     String query= '''
     mutation{
-      AddRating(input: {AccountId})
+      AddRating(input:{AccountId:"$accountID", Score: $score}){
+        Score
+      }
     }
     ''';
+    await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
 

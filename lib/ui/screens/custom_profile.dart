@@ -248,6 +248,7 @@ class _CustomProfileState extends State<CustomProfile> {
                         }));
                       },
                     ),
+
                     ProfileListItem(
                         icon: LineAwesomeIcons.alternate_sign_out,
                         text: 'Logout',

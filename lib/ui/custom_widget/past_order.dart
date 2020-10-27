@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
@@ -7,6 +8,8 @@ class PastOrder extends StatefulWidget {
   final int amount;
   final String timeStamp;
   final Function seeMore;
+  final List<Service> addOns;
+  final Color backGroundColor;
 
   const PastOrder(
       {Key key,
@@ -15,13 +18,14 @@ class PastOrder extends StatefulWidget {
       this.amount,
       this.status,
       this.timeStamp,
-      this.seeMore})
+      this.seeMore, this.addOns, this.backGroundColor})
       : super(key: key);
   @override
   _PastOrderState createState() => _PastOrderState();
 }
 
 class _PastOrderState extends State<PastOrder> {
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,7 +35,7 @@ class _PastOrderState extends State<PastOrder> {
             padding: const EdgeInsets.all(8.0),
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: widget.backGroundColor,
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                   border: Border.all(color: Colors.tealAccent)),
               child: Padding(
@@ -48,7 +52,7 @@ class _PastOrderState extends State<PastOrder> {
                             width: MediaQuery.of(context).size.width/1.7,
                             child: Text(
                               widget.serviceName +
-                                  " \u20B9 ${(widget.amount) / 100}",
+                                  " \u20B9 ${widget.amount / 100}",
                               maxLines: null,
                               style: TextStyle(
                                   color: PrimaryColors.backgroundColor,

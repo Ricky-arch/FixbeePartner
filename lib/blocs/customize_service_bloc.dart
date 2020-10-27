@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/customize_service_event.dart';
@@ -20,7 +22,6 @@ class CustomizeServiceBloc
       return await deleteSelectedService(message);
     if (event == CustomizeServiceEvent.fetchAvailableServices)
       return await fetchAvailableServices();
-
     return latestViewModel;
   }
 
@@ -96,36 +97,6 @@ class CustomizeServiceBloc
   }
 
   Future<CustomizeServiceModel> fetchAvailableServices() async {
-    String query = '''{Me{
-  ...on Bee{
-   Services{
-    Name
-    ID
-  }
-  }
-}}''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-
-    String queryAll = '''{
-  Services(Cannonical:false){
-    ID
-    Name
-  }
-}''';
-
-    Map responseAll = await CustomGraphQLClient.instance.query(queryAll);
-
-    List all = responseAll['Services'];
-    List mine = response['Me']['Services'];
-
-    List filtered = [];
-
-    all.removeWhere(
-      (element) {
-        return mine.contains(element);
-      },
-    );
-
-    return latestViewModel;
+ return latestViewModel;
   }
 }

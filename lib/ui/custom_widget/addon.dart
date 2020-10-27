@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/Constants.dart';
 import 'package:flutter/material.dart';
 
 class Addons extends StatelessWidget {
@@ -10,13 +11,13 @@ class Addons extends StatelessWidget {
   final bool cashOnDelivery;
   const Addons(
       {Key key,
-        this.serviceName,
-        this.basePrice,
-        this.serviceCharge,
-        this.taxPercent,
-        this.amount,
-        this.quantity,
-        this.cashOnDelivery})
+      this.serviceName,
+      this.basePrice,
+      this.serviceCharge,
+      this.taxPercent,
+      this.amount,
+      this.quantity,
+      this.cashOnDelivery})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class Addons extends StatelessWidget {
       child: Column(
         children: [
           Banner(
-            title: 'Service Name',
+            title: 'Service',
             value: "$serviceName",
           ),
           Padding(
@@ -35,7 +36,7 @@ class Addons extends StatelessWidget {
           ),
           Banner(
             title: 'Base Price',
-            value: "${(basePrice) / 100}",
+            value: Constants.rupeeSign + " ${(basePrice) / 100}",
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -45,7 +46,7 @@ class Addons extends StatelessWidget {
           ),
           Banner(
             title: 'Service Charge',
-            value: "${(serviceCharge) / 100}",
+            value: Constants.rupeeSign + " ${(serviceCharge) / 100}",
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -55,7 +56,8 @@ class Addons extends StatelessWidget {
           ),
           Banner(
             title: 'Tax',
-            value: '$taxPercent',
+            value: Constants.rupeeSign +
+                (taxPercent * ((basePrice + serviceCharge) / 10000)).toStringAsFixed(2),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -83,7 +85,7 @@ class Addons extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 Text(
-                  "${(amount) / 100}",
+                  Constants.rupeeSign + " ${(amount) / 100}",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
               ],
@@ -92,35 +94,11 @@ class Addons extends StatelessWidget {
           SizedBox(
             height: 10,
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Spacer(),
-                (cashOnDelivery == true)
-                    ? Text(
-                  "PAY ON DELIVERY",
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red),
-                )
-                    : Text(
-                  "ONLINE PAYMENT",
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red),
-                ),
-              ],
-            ),
-          )
         ],
       ),
     );
   }
 }
-
 
 class Banner extends StatelessWidget {
   final String title, value;
@@ -133,13 +111,23 @@ class Banner extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.w500),
+          Container(
+            width: MediaQuery.of(context).size.width / 2 - 50,
+            child: Text(
+              title,
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
           ),
-          Text(
-            value,
-            style: TextStyle(fontWeight: FontWeight.w500),
+          Container(
+            width: MediaQuery.of(context).size.width / 2,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.end,
+              maxLines: null,
+            ),
           ),
         ],
       ),

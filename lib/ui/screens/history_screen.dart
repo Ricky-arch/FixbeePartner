@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/blocs/history_bloc.dart';
 import 'package:fixbee_partner/events/history_event.dart';
 import 'package:fixbee_partner/models/history_model.dart';
+import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/active_order_history.dart';
 import 'package:fixbee_partner/ui/custom_widget/credit.dart';
 import 'package:fixbee_partner/ui/custom_widget/past_order.dart';
@@ -143,6 +146,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
                               return PastOrder(
+                                backGroundColor: Colors.white,
                                 amount:
                                     viewModel.pastOrderList[index].totalAmount,
                                 serviceName:
@@ -151,8 +155,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 timeStamp:
                                     viewModel.pastOrderList[index].timeStamp,
                                 seeMore: () {
-                                  String orderID = viewModel.pastOrderList[index].orderId;
-                                  print(orderID.toString()+"OOO");
+                                  String orderID =
+                                      viewModel.pastOrderList[index].orderId;
+                                  print(orderID.toString() + "OOO");
                                   _bloc.fire(
                                       HistoryEvent.fetchAddOnsForEachOrder,
                                       message: {"orderID": orderID},
@@ -199,7 +204,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 },
                               );
                             })
-                        : Image.asset("assets/logo/fixbeeLogo1.png"),
+                        : Text('No Past Orders',
+                            style: TextStyle(color: Colors.black)),
                   ),
                   Tab(
                     child: (viewModel.isOrderActive)

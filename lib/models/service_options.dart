@@ -6,6 +6,7 @@ class ServiceOptionModel extends ViewModel {
   String serviceName;
   bool availability;
   String imageLink;
+  String parentName;
   List<ServiceOptionModel> subServices = [];
 }
 

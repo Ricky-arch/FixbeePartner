@@ -87,7 +87,17 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
       if (order != null) {
         OrderModel pastOrder = OrderModel();
         pastOrder.orderId = order['ID'];
-        print(order['ID']);
+        latestViewModel.jobModel.addons = [];
+        var addons = order['Addons'];
+        for (Map addon in addons) {
+          Service service = Service()
+            ..serviceName = addon['Service']['Name']
+            ..basePrice = addon['Service']['Pricing']['BasePrice']
+            ..serviceCharge = addon['Service']['Pricing']['ServiceCharge']
+            ..taxPercent = addon['Service']['Pricing']['TaxPercent']
+            ..amount=addon['Amount'];
+          latestViewModel.jobModel.addons.add(service);
+        }
         pastOrder.serviceName = order['Service']['Name'];
         pastOrder.status = order['Status'];
         print(order['Status']);
@@ -102,7 +112,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
         pastOrders.add(pastOrder);
       }
     });
+
     return latestViewModel..pastOrderList = pastOrders..pastOrderPresent=true;
+
   }
 
   Future<HistoryModel> fetchActiveOrder() async{

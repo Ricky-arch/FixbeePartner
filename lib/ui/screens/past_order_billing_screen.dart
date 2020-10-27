@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/addon.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../Constants.dart';
@@ -32,6 +33,28 @@ class PastOrderBillingScreen extends StatefulWidget {
 }
 
 class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
+  int bp, sc;
+  double tax, amount;
+  @override
+  void initState() {
+//    bp = widget.basePrice;
+//    sc = widget.serviceCharge;
+//    tax = (bp + sc) * (widget.taxPercent / 100);
+//    amount = widget.amount.toDouble();
+//    for (var addOn in widget.addOns) {
+//      bp = bp + addOn.basePrice;
+//      sc = sc + addOn.serviceCharge;
+//      tax = tax + ((bp + sc) * (widget.taxPercent / 100));
+//      amount = amount + bp + sc + tax;
+
+    //}
+    amount= widget.amount.toDouble();
+    for(var addOn in widget.addOns){
+      amount=amount+addOn.amount.toDouble();
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,7 +169,7 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "PAYMENT DETAILS",
+                    "BASE SERVICE PAYMENT DETAILS",
                     style: TextStyle(
                         color: Colors.orange,
                         fontSize: 13,
@@ -160,7 +183,7 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                 children: [
                   Banner(
                     title: 'Base Price',
-                    value: "${(widget.basePrice) / 100}",
+                    value: Constants.rupeeSign + " ${(widget.basePrice) / 100}",
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -170,7 +193,8 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                   ),
                   Banner(
                     title: 'Service Charge',
-                    value: "${(widget.serviceCharge) / 100}",
+                    value: Constants.rupeeSign +
+                        " ${(widget.serviceCharge) / 100}",
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -180,8 +204,11 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                   ),
                   Banner(
                     title: 'Tax',
-                    value:
-                        '${widget.taxPercent * ((widget.basePrice + widget.serviceCharge) / 10000)}',
+                    value: Constants.rupeeSign +
+                        (widget.taxPercent *
+                                ((widget.basePrice + widget.serviceCharge) /
+                                    10000))
+                            .toStringAsFixed(2),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -210,7 +237,7 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                               fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                         Text(
-                          "${(widget.amount) / 100}",
+                          Constants.rupeeSign + " ${(widget.amount) / 100}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 15),
                         ),
@@ -246,7 +273,7 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                 ],
               ),
             ),
-            (widget.addOns != null || widget.addOns.isEmpty)
+            (widget.addOns.length != 0)
                 ? ListView.builder(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
@@ -289,6 +316,14 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                     itemCount: widget.addOns.length,
                   )
                 : SizedBox(),
+            (widget.addOns.length == 0)
+                ? SizedBox()
+                : TotalChargesPanel(
+                    bp: bp,
+                    sc: sc,
+                    amount: amount,
+                    tax: tax,
+                  ),
             Column(
               children: [
                 Padding(
@@ -326,6 +361,55 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
   }
 }
 
+class TotalChargesPanel extends StatelessWidget {
+  final int bp, sc;
+  final double tax, amount;
+
+  const TotalChargesPanel({Key key, this.bp, this.sc, this.tax, this.amount})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                border: Border.all(color: Colors.tealAccent)),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "TOTAL CHARGES",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    Constants.rupeeSign+" "+(amount/100).toStringAsFixed(2),
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+      ],
+    );
+  }
+}
+
 class Banner extends StatelessWidget {
   final String title, value;
 
@@ -337,14 +421,23 @@ class Banner extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.w500),
+          Container(
+            width: MediaQuery.of(context).size.width / 2 - 50,
+            child: Text(
+              title,
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
           ),
-          Text(
-            value,
-            style: TextStyle(fontWeight: FontWeight.w500),
-            overflow: TextOverflow.ellipsis,
+          Container(
+            width: MediaQuery.of(context).size.width / 2,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.end,
+              maxLines: null,
+            ),
           ),
         ],
       ),

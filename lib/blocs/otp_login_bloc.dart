@@ -5,7 +5,6 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/otp_events.dart';
-import 'package:fixbee_partner/graphql/client.dart';
 import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';

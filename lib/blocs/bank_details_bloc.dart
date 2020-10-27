@@ -3,9 +3,7 @@ import 'dart:developer';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/bank_details_event.dart';
-import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
-import 'package:fixbee_partner/models/view_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
 class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> with Trackable<BankDetailsEvent, BankDetailsModel>{

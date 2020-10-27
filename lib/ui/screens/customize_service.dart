@@ -2,6 +2,7 @@ import 'package:fixbee_partner/blocs/customize_service_bloc.dart';
 import 'package:fixbee_partner/events/customize_service_event.dart';
 import 'package:fixbee_partner/models/customize_service_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/service_banner.dart';
+import 'package:fixbee_partner/ui/screens/add_services.dart';
 import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
@@ -58,7 +59,9 @@ class _CustomizeServiceState extends State<CustomizeService> {
           children: [
             Column(
               children: [
-                SizedBox(height: 5,),
+                SizedBox(
+                  height: 5,
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 8),
                   child: Row(
@@ -66,7 +69,12 @@ class _CustomizeServiceState extends State<CustomizeService> {
                     children: [
                       InkWell(
                         child: GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (ctx) {
+                              return AddServices();
+                            }));
+                          },
                           child: Container(
                             width: MediaQuery.of(context).size.width / 5,
                             color: Colors.orangeAccent.withOpacity(.5),
@@ -133,43 +141,39 @@ class _CustomizeServiceState extends State<CustomizeService> {
                     ],
                   ),
                 ),
-                (viewModel.fetchSelectedServices)
-                    ? ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: viewModel.selectedServiceOptionModel.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Column(
-                            children: [
-                              ServiceBanner(
-                                serviceName: viewModel
-                                    .selectedServiceOptionModel[index]
-                                    .serviceName,
-                                showDeleteIcon: showDeleteButton,
-                                deleteService: () {
-                                  _showJobCompletionNotificationForOnlinePayment(
-                                      viewModel
-                                          .selectedServiceOptionModel[index]
-                                          .serviceName,
-                                      viewModel
-                                          .selectedServiceOptionModel[index]
-                                          .id);
-                                },
-                              ),
-                            ],
-                          );
-                        })
-                    : CircularProgressIndicator()
               ],
             ),
+            (viewModel.fetchSelectedServices)
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: viewModel.selectedServiceOptionModel.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Column(
+                        children: [
+                          ServiceBanner(
+                            serviceName: viewModel
+                                .selectedServiceOptionModel[index].serviceName,
+                            showDeleteIcon: showDeleteButton,
+                            deleteService: () {
+                              _showJobDeletionDialog(
+                                  viewModel.selectedServiceOptionModel[index]
+                                      .serviceName,
+                                  viewModel
+                                      .selectedServiceOptionModel[index].id);
+                            },
+                          ),
+                        ],
+                      );
+                    })
+                : CircularProgressIndicator()
           ],
         );
       }),
     );
   }
 
-  _showJobCompletionNotificationForOnlinePayment(
-      String serviceName, String serviceId) {
+  _showJobDeletionDialog(String serviceName, String serviceId) {
     showDialog(
         context: context,
         builder: (BuildContext context) {

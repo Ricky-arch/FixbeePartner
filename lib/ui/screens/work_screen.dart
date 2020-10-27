@@ -66,6 +66,8 @@ class _WorkScreenState extends State<WorkScreen> {
   bool _onNotificationReceivedForCompletionOfPayOnline=false;
   bool _onServiceStarted;
 
+
+
   String activeOrderStatus = "ASSIGNED";
 
   String gid, session, fields, key;
@@ -905,7 +907,7 @@ class _WorkScreenState extends State<WorkScreen> {
       _showPaymentReceivedNotification(body);
     else if (m == 'JOB_UPDATED')
       _refreshServiceDetails();
-    else if(body==""){
+    else if(body=="You're Done!"){
       setState(() {
         _onNotificationReceivedForCompletionOfPayOnline=true;
       });

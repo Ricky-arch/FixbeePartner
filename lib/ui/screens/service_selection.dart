@@ -55,13 +55,10 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             ? SizedBox()
             : FloatingActionButton.extended(
                 backgroundColor: PrimaryColors.backgroundColor,
-                label: Text("View All"),
+                label: Text("ADD"),
                 onPressed: () {
                   _bloc.fire(ServiceSelectionEvents.saveSelectedServices,
                       onHandled: (e, m) {
-                    _getCurrentLocation();
-                    if (_currentPosition != null)
-                      DataStore.beePosition = _currentPosition;
                     Navigator.push(
                         context,
                         MaterialPageRoute(
