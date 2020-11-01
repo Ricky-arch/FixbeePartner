@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/events/file_upload_event.dart';
 import 'package:flutter/material.dart';
 import '../../Constants.dart';
@@ -12,12 +14,18 @@ class VerificationDocuments extends StatefulWidget {
 
 class _VerificationDocumentsState extends State<VerificationDocuments> {
   FileUploadBloc _bloc;
-  FileUploadController _controller1;
+  FileUploadController _controllerAAdhaar,
+      _controllerAge,
+      _controllerAddress,
+      _controllerAdditional;
 
   @override
   void initState() {
     _bloc = FileUploadBloc(FileModel());
-    _controller1 = FileUploadController();
+    _controllerAAdhaar = FileUploadController();
+    _controllerAge = FileUploadController();
+    _controllerAddress = FileUploadController();
+    _controllerAdditional = FileUploadController();
     super.initState();
   }
 
@@ -71,11 +79,12 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
-                  controller: _controller1,
+                  controller: _controllerAAdhaar,
                   documentName: " Aadhaar.jpeg",
                   inputString: "Upload your aadhaar card",
                   onImagePicked: (path) {
-                    onImagePicked1(path, _controller1.onUpload);
+                    log('OnUPLOAD', name: 'onUp2');
+                    onImagePicked(path, "Aadhaar",_controllerAAdhaar.onUpload);
                   },
                   loading: false,
                   text: Text(viewModel.files == null
@@ -89,9 +98,13 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
+                  controller: _controllerAge,
                   documentName: "Age-Proof.jpeg",
                   inputString: "Upload any Age-proof Certificate",
-                  onImagePicked: onImagePicked2,
+                  onImagePicked: (path) {
+                    log('OnUPLOAD', name: 'onUp2');
+                    onImagePicked(path, "Age_proof",_controllerAge.onUpload);
+                  },
                   //imageURl: viewModel.fileUrl,
                   loading: false,
                   text: Text(viewModel.files == null
@@ -105,9 +118,13 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
+                  controller: _controllerAddress,
                   documentName: "Address_proof.jpeg",
                   inputString: "Upload any address-proof certificate",
-                  onImagePicked: onImagePicked3,
+                  onImagePicked: (path) {
+                    log('OnUPLOAD', name: 'onUp2');
+                    onImagePicked(path, "Address",_controllerAddress.onUpload);
+                  },
                   //imageURl: viewModel.fileUrl,
                   loading: false,
                   text: Text(viewModel.files == null
@@ -121,9 +138,14 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               child: InkWell(
                 onTap: () {},
                 child: FileUploadWidget(
+                  controller: _controllerAdditional,
                   documentName: "Additional.jpeg",
                   inputString: "Upload any additional Certifications",
-                  onImagePicked: onImagePicked4,
+                  onImagePicked: (path) {
+                    log('OnUPLOAD', name: 'onUp2');
+                    onImagePicked(
+                        path, "Additional", _controllerAdditional.onUpload);
+                  },
                   //imageURl: viewModel.fileUrl,
                   loading: false,
                   text: Text(viewModel.files == null
@@ -138,23 +160,9 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
     );
   }
 
-  onImagePicked1(String path, Function onUpload) {
+  onImagePicked(String path, String fileName, Function onUpload) {
+    log('OnUPLOAD', name: 'onUp3');
     _bloc.fire(FileUploadEvent.uploadFile,
-        message: {"path": "$path", "file": "aadhaar", "onUpload": onUpload});
-  }
-
-  onImagePicked2(String path) {
-    _bloc.fire(FileUploadEvent.uploadFile,
-        message: {"path": "$path", "file": "age_proof"});
-  }
-
-  onImagePicked3(String path) {
-    _bloc.fire(FileUploadEvent.uploadFile,
-        message: {"path": "$path", "file": "address_proof"});
-  }
-
-  onImagePicked4(String path) {
-    _bloc.fire(FileUploadEvent.uploadFile,
-        message: {"path": "$path", "file": "additional_certificate"});
+        message: {"path": "$path", "file": fileName, "onUpload": onUpload});
   }
 }

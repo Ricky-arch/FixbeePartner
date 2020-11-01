@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/blocs/wallet_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/wallet_event.dart';
@@ -27,7 +29,7 @@ class _WalletScreenState extends State<WalletScreen> {
   bool isButtonEnabled = false;
   WalletBloc _bloc;
   final String wallet = "400.00";
-  double walletAmount=0;
+  double walletAmount = 0;
   int walletAmountInpaise;
   Razorpay _razorpay = Razorpay();
   String email = (DataStore.me.emailAddress == null)
@@ -44,9 +46,9 @@ class _WalletScreenState extends State<WalletScreen> {
     });
     _bloc.fire(WalletEvent.fetchWalletAmount, onHandled: (e, m) {
       walletAmountInpaise = m.amount;
-     if(walletAmountInpaise!=null){
-       walletAmount = (walletAmountInpaise / 100).toDouble();
-     }
+      if (walletAmountInpaise != null) {
+        walletAmount = (walletAmountInpaise / 100).toDouble();
+      }
     });
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -61,31 +63,18 @@ class _WalletScreenState extends State<WalletScreen> {
     // TODO: implement dispose
     super.dispose();
   }
-  //rzp_test_CCbjVk8vqcb00P
-
-  var options = {
-    'key': Constants.RAZORPAY_KEY,
-    'amount': 100,
-    'name': 'FIXBEE',
-    'description': 'Wallet Deposit',
-    'prefill': {
-      'contact': '${DataStore.me.phoneNumber}' ?? '8787200192',
-      'email': (DataStore.me.emailAddress == null)
-          ? 'Tap to enter a valid mail'
-          : DataStore.me.emailAddress
-    }
-  };
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    log(response.signature.toString(), name: "SUCCESS");
     _showPaymentSuccessDialog();
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    // Do something when payment fails
+    log(response.message.toString(), name: "FAILURE");
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    // Do something when an external wallet was selected
+    log(response.walletName.toString(), name: "ExternalWalletDeposit");
   }
 
   @override
@@ -176,8 +165,9 @@ class _WalletScreenState extends State<WalletScreen> {
                                 padding:
                                     const EdgeInsets.fromLTRB(8.0, 30, 8, 8),
                                 child: Text(
-                                    (viewModel.amount==null)?"0.0":
-                                  "${(viewModel.amount)/100}",
+                                  (viewModel.amount == null)
+                                      ? "0.0"
+                                      : "${(viewModel.amount) / 100}",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w300,
@@ -217,7 +207,7 @@ class _WalletScreenState extends State<WalletScreen> {
                           size: 60,
                         ),
                         onPressed: () {
-                          _showPaymentAmountModalBottomSheet(context);
+                          _showAddToWalletModalBottomSheet(context);
                         },
                       ),
                     ),
@@ -532,7 +522,7 @@ class _WalletScreenState extends State<WalletScreen> {
     }));
   }
 
-  _showPaymentAmountModalBottomSheet(context) {
+  _showAddToWalletModalBottomSheet(context) {
     showModalBottomSheet(
         isScrollControlled: true,
         context: context,
@@ -556,9 +546,9 @@ class _WalletScreenState extends State<WalletScreen> {
                                 BorderRadius.all(Radius.circular(15.0)),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(12.0),
                             child: Text(
-                              "Enter Deposit Amount:",
+                              "ENTER DEPOSIT AMOUNT:",
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -576,7 +566,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15),
                             decoration: InputDecoration(
-                                hintText: "Eg: 500",
+                                hintText: "Eg: " + Constants.rupeeSign + "500",
                                 errorStyle: TextStyle(color: Colors.red),
                                 border: new UnderlineInputBorder(
                                     borderSide:
@@ -596,27 +586,34 @@ class _WalletScreenState extends State<WalletScreen> {
                             color: PrimaryColors.backgroundColor,
                             textColor: Colors.white,
                             onPressed: () {
-                              print(selectedAccountNumber);
-                              print(walletDepositAmountController.text + "XXX");
+                              Navigator.pop(context);
+                              print(DataStore.me.phoneNumber.toString() +
+                                  DataStore.me.emailAddress.toString() +
+                                  "XXX");
                               int depositAmount =
                                   int.parse(walletDepositAmountController.text);
+                              _bloc.fire(WalletEvent.createWalletDeposit,
+                                  message: {'Amount': depositAmount * 100},
+                                  onHandled: (e, m) {
+                                log(m.paymentID, name: "paymentID");
+                                var depositOptions = {
+                                  'key': Constants.RAZORPAY_KEY,
+                                  'id': "${_bloc.latestViewModel.paymentID}",
+                                  'name': 'FIXBEE',
+                                  'description': 'Wallet Deposit',
+                                  'prefill': {
+                                    'contact': '${DataStore.me.phoneNumber}' ??
+                                        '1234567890',
+                                    'email': (DataStore.me.emailAddress == null)
+                                        ? 'Tap to enter a valid mail'
+                                        : DataStore.me.emailAddress
+                                  }
+                                };
+                                _razorpay.open(depositOptions);
+                              });
                               print(depositAmount * 100);
-                              var depositOptions = {
-                                'key': Constants.RAZORPAY_KEY,
-                                'amount': depositAmount * 100,
-                                'name': 'FIXBEE',
-                                'description': 'Wallet Deposit',
-                                'prefill': {
-                                  'contact': '${DataStore.me.phoneNumber}' ??
-                                      '8787200192',
-                                  'email': (DataStore.me.emailAddress == null)
-                                      ? 'Tap to enter a valid mail'
-                                      : DataStore.me.emailAddress
-                                }
-                              };
-                              _razorpay.open(depositOptions);
+
                               walletDepositAmountController.clear();
-                              Navigator.pop(context);
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),

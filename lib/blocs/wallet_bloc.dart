@@ -6,7 +6,8 @@ import 'package:fixbee_partner/models/bank_details_model.dart';
 import 'package:fixbee_partner/models/wallet_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
-class WalletBloc extends Bloc<WalletEvent, WalletModel> with Trackable<WalletEvent, WalletModel>{
+class WalletBloc extends Bloc<WalletEvent, WalletModel>
+    with Trackable<WalletEvent, WalletModel> {
   WalletBloc(WalletModel genesisViewModel) : super(genesisViewModel);
 
   @override
@@ -18,8 +19,11 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel> with Trackable<WalletEve
     if (event == WalletEvent.fetchBankAccountsForWithdrawal) {
       return await fetchBankAccountsForWithdrawal();
     }
-    if(event== WalletEvent.withdrawAmount){
+    if (event == WalletEvent.withdrawAmount) {
       return await withdrawAmount(message);
+    }
+    if (event == WalletEvent.createWalletDeposit) {
+      return await createWalletDeposit(message);
     }
     return latestViewModel;
   }
@@ -74,15 +78,15 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel> with Trackable<WalletEve
 
   @override
   WalletModel setTrackingFlag(WalletEvent event, bool trackFlag, Map message) {
-    if(event==WalletEvent.fetchBankAccountsForWithdrawal)
-      return latestViewModel..bankAccountFetching=trackFlag;
-   return latestViewModel;
+    if (event == WalletEvent.fetchBankAccountsForWithdrawal)
+      return latestViewModel..bankAccountFetching = trackFlag;
+    return latestViewModel;
   }
 
- Future<WalletModel> withdrawAmount(Map<String, dynamic> message) async{
-    String id=message['accountId'];
-    int amount= message['amount'];
-    String query='''mutation{
+  Future<WalletModel> withdrawAmount(Map<String, dynamic> message) async {
+    String id = message['accountId'];
+    int amount = message['amount'];
+    String query = '''mutation{
   ProcessWalletWithdraw(Amount:$amount, AccountId:$id){
     ...on Debit{
       Amount
@@ -93,5 +97,14 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel> with Trackable<WalletEve
 }''';
     await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
- }
+  }
+
+  Future<WalletModel> createWalletDeposit(Map<String, dynamic> message) async {
+    int amount = message['Amount'];
+    String query = '''mutation{
+  order_id:CreateWalletDeposit(Amount:$amount)
+}''';
+    Map response = await CustomGraphQLClient.instance.mutate(query);
+    return latestViewModel..paymentID = response['order_id'];
+  }
 }

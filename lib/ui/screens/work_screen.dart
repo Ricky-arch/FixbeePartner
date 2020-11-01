@@ -63,10 +63,8 @@ class WorkScreen extends StatefulWidget {
 
 class _WorkScreenState extends State<WorkScreen> {
   WorkScreenBloc _bloc;
-  bool _onNotificationReceivedForCompletionOfPayOnline=false;
+  bool _onNotificationReceivedForCompletionOfPayOnline = false;
   bool _onServiceStarted;
-
-
 
   String activeOrderStatus = "ASSIGNED";
 
@@ -606,9 +604,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               size: 40,
                               color: Colors.deepPurple.withOpacity(0.5),
                             ),
-                            onPressed: () {
-
-                            },
+                            onPressed: () {},
                           ),
                         ),
                       ],
@@ -867,7 +863,6 @@ class _WorkScreenState extends State<WorkScreen> {
         });
   }
 
-
   _showOtpInvalidBox() {
     showDialog(
         context: context,
@@ -907,12 +902,11 @@ class _WorkScreenState extends State<WorkScreen> {
       _showPaymentReceivedNotification(body);
     else if (m == 'JOB_UPDATED')
       _refreshServiceDetails();
-    else if(body=="You're Done!"){
+    else if (body == "You're Done!") {
       setState(() {
-        _onNotificationReceivedForCompletionOfPayOnline=true;
+        _onNotificationReceivedForCompletionOfPayOnline = true;
       });
-    }
-    else
+    } else
       _showJobCompletionNotificationForOnlinePayment(body);
   }
 
@@ -1021,13 +1015,12 @@ class InfoPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Padding(
-        padding: const EdgeInsets.only(top:8.0, bottom: 8.0),
+        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Container(
-
-              width: MediaQuery.of(context).size.width/2-100,
+              width: MediaQuery.of(context).size.width / 2 - 100,
               child: Text(
                 title,
                 textAlign: TextAlign.start,
@@ -1037,9 +1030,8 @@ class InfoPanel extends StatelessWidget {
                     fontWeight: FontWeight.w500),
               ),
             ),
-
             Container(
-            width: MediaQuery.of(context).size.width/2-60,
+              width: MediaQuery.of(context).size.width / 2 - 60,
               child: Text(
                 answer,
                 textAlign: TextAlign.end,
@@ -1052,6 +1044,4 @@ class InfoPanel extends StatelessWidget {
       ),
     );
   }
-
-
 }

@@ -95,7 +95,7 @@ class _CustomProfileState extends State<CustomProfile> {
 
                   Route route =
                       MaterialPageRoute(builder: (context) => SplashScreen());
-                  Navigator.pushReplacement(context, route);
+                  Navigator.pushAndRemoveUntil(context, route,(e)=>false);
                 },
                 child: Text("Yes"),
               ),

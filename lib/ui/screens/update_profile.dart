@@ -4,7 +4,7 @@ import 'package:fixbee_partner/blocs/update_profile_bloc.dart';
 import 'package:fixbee_partner/events/update_profile_event.dart';
 import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/update_profile_model.dart';
-import 'package:fixbee_partner/ui/custom_widget/date_picker.dart';
+import 'package:fixbee_partner/ui/custom_widget/registration_date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/screenutil.dart';
@@ -314,7 +314,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                       ),
                       Padding(
                         padding: EdgeInsets.all(10.0),
-                        child: DatePicker(
+                        child: RegistrationDatePicker(
                           controller: dateOfBirth,
                         ),
                       ),
@@ -404,6 +404,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 color: Colors.white,
                                 textColor: Colors.black,
                                 onPressed: () {
+
+                                  print(DataStore.me.phoneNumber.toString()+"XXX");
+                                  print(DataStore.me.emailAddress.toString()+"YYY");
                                   Navigator.pop(context);
                                 },
                                 child: Padding(

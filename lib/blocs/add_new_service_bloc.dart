@@ -57,17 +57,27 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel> {
         return false;
       })(e['ID'], mine);
     });
+
+    Map<String, List<ServiceOptionModel>> sortedServices = {};
+
     for (var service in allServices) {
       ServiceOptionModel s = ServiceOptionModel();
+
       s.id = service['ID'];
       s.serviceName = service['Name'];
       s.parentName = service['Parent']['Name'];
       s.imageLink = service['Parent']['Image']['id'];
+
+      String parentName = service['Parent']['Name'];
+      if (!sortedServices.containsKey(parentName)) {
+        sortedServices[parentName] = [];
+      }
+      sortedServices[parentName].add(s);
       all.add(s);
     }
 
     return latestViewModel
-      ..allServicesAvailableForMe = all
+      ..allServicesAvailableForMe = sortedServices
       ..numberOfUnselectedServices = all.length;
   }
 

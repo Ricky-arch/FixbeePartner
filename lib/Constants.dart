@@ -1,19 +1,17 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-//JOB_COMPLETED
-
 class Constants{
-  static const String HOST_IP="192.168.29.3:8081";
+  static const String HOST_IP="fixbee.in";
   static const rupeeSign="₹";
-  static const String PROTOCOL="http";
+  static const String PROTOCOL="https";
   static const WS_PROTOCOL='ws';
   static const googleApiKey='AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI';
   static const googleSessionToken='12345';
   static const fields='name,formatted_address,geometry';
   static const PING_TIMEOUT=5;
-  static const RAZORPAY_KEY='rzp_test_CCbjVk8vqcb00P';
+  static const RAZORPAY_KEY='rzp_live_ntFJBLTXRv0Ure';
+  static const RAZORPAY_KEY_SECRET='TEnKYa9uZXail5Yu3ptCPZv8';
 }
 class EndPoints{
   static const LOGIN="${Constants.PROTOCOL}://${Constants.HOST_IP}/bee/login";
@@ -23,6 +21,7 @@ class EndPoints{
   static const GRAPHQL_WS="${Constants.WS_PROTOCOL}://${Constants.HOST_IP}/graphql";
   static const DOCUMENT="${Constants.PROTOCOL}://${Constants.HOST_IP}/document";
   static const INFO="${Constants.PROTOCOL}://${Constants.HOST_IP}/info";
+  static const TNC="${Constants.PROTOCOL}://${Constants.HOST_IP}/tnc";
 }
 
 class SharedPrefKeys{

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/file_upload_event.dart';
@@ -17,12 +19,12 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel>
   Future<FileModel> mapEventToViewModel(
       FileUploadEvent event, Map<String, dynamic> message) async {
     if (event == FileUploadEvent.uploadFile)
-      return await uploadFile(message['path'], message['file']);
+      return await uploadFile(message['path'], message['file'],message['onUpload']);
     if (event == FileUploadEvent.checkUploaded) return await checkUploaded();
     return latestViewModel;
   }
 
-  Future<FileModel> uploadFile(String path, String fileName) async {
+  Future<FileModel> uploadFile(String path, String fileName, Function callback) async {
     MultipartFile multipartFile = await MultipartFile.fromPath(
       'image',
       path,
@@ -46,6 +48,10 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel>
       query,
       variables: {'file': multipartFile},
     );
+
+    log('OnUPLOAD',name: 'onUp4');
+    callback();
+
     print(response);
     List documents = response['Update']['Documents'];
     latestViewModel..numberOfFiles = response.length;

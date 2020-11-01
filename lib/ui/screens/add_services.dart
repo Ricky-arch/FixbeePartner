@@ -1,6 +1,7 @@
 import 'package:fixbee_partner/blocs/add_new_service_bloc.dart';
 import 'package:fixbee_partner/events/add_new_service_event.dart';
 import 'package:fixbee_partner/models/add_new_service_model.dart';
+import 'package:fixbee_partner/models/service_options.dart';
 import 'package:fixbee_partner/ui/custom_widget/add_new_service_banner.dart';
 import 'package:flutter/material.dart';
 
@@ -62,6 +63,9 @@ class _AddServicesState extends State<AddServices> {
           child: Icon(Icons.add),
         ),
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+          List<String> parents =
+              viewModel.allServicesAvailableForMe.keys.toList();
+
           return StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return ListView(
@@ -71,66 +75,43 @@ class _AddServicesState extends State<AddServices> {
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: viewModel.allServicesAvailableForMe.length,
                       itemBuilder: (BuildContext context, int index) {
+                        String parentName = parents[index];
+                        List<ServiceOptionModel> services =
+                            viewModel.allServicesAvailableForMe[parentName];
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            (index == 0)
-                                ? Padding(
-                              padding:
-                              const EdgeInsets.fromLTRB(12.0, 8, 8, 0),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(12.0, 8, 8, 0),
                               child: Container(
                                 child: Text(
-                                  viewModel.allServicesAvailableForMe[index]
-                                      .parentName
-                                      .toUpperCase() +
-                                      " :",
+                                  parentName.toUpperCase() + " :",
                                   style: TextStyle(
                                       color: Colors.orange,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
-                            )
-                                : SizedBox(),
-                            (index > 0 &&
-                                viewModel.allServicesAvailableForMe[index]
-                                    .parentName !=
-                                    viewModel
-                                        .allServicesAvailableForMe[index - 1]
-                                        .parentName)
-                                ? Padding(
-                              padding:
-                              const EdgeInsets.fromLTRB(12.0, 8, 8, 0),
-                              child: Container(
-                                child: Text(
-                                  viewModel.allServicesAvailableForMe[index]
-                                      .parentName
-                                      .toUpperCase() +
-                                      " :",
-                                  style: TextStyle(
-                                      color: Colors.orange,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            )
-                                : SizedBox(),
-                            AddNewServiceBanner(
-                              serviceName: viewModel
-                                  .allServicesAvailableForMe[index].serviceName,
-                              subService:
-                              viewModel.allServicesAvailableForMe[index],
-                              onServiceChecked: (subService, value) {
-                                if (value) {
-                                  viewModel.newSelectedServices.add(subService);
-                                  _bloc.pushViewModel(viewModel);
-                                } else {
-                                  viewModel.newSelectedServices.remove(subService);
-                                  _bloc.pushViewModel(viewModel);
-                                }
-                              },
                             ),
+                            Column(
+                                children: services.map((service) {
+                              return AddNewServiceBanner(
+                                serviceName: service.serviceName,
+                                subService: service,
+                                onServiceChecked: (subService, value) {
+                                  if (value) {
+                                    viewModel.newSelectedServices
+                                        .add(subService);
+                                    _bloc.pushViewModel(viewModel);
+                                  } else {
+                                    viewModel.newSelectedServices
+                                        .remove(subService);
+                                    _bloc.pushViewModel(viewModel);
+                                  }
+                                },
+                              );
+                            }).toList()),
                           ],
                         );
                       })
@@ -156,7 +137,7 @@ class _AddServicesState extends State<AddServices> {
                         onHandled: (e, m) {
                       Navigator.pop(context);
                       Navigator.pop(context);
-                      Navigator.pop(context);
+
                     });
                   },
                   child: Padding(

@@ -8,5 +8,7 @@ class WalletModel extends ViewModel{
   int depositAmount;
   int withdrawAmount;
   int numberOfAccounts;
+  String paymentID;
+  String signature;
   List<BankModel> bankAccountList=[];
 }

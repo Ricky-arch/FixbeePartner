@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -41,6 +42,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
   void initState() {
     fileName = widget.inputString;
     widget?.controller?.onUpload = () {
+      log('OnUPLOAD',name: 'onUp1');
       setState(() {
         _uploaded = true;
       });

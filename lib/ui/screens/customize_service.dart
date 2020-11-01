@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/blocs/customize_service_bloc.dart';
 import 'package:fixbee_partner/events/customize_service_event.dart';
 import 'package:fixbee_partner/models/customize_service_model.dart';
@@ -69,11 +71,14 @@ class _CustomizeServiceState extends State<CustomizeService> {
                     children: [
                       InkWell(
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(context,
+                          onTap: () async {
+                            await Navigator.push(context,
                                 MaterialPageRoute(builder: (ctx) {
                               return AddServices();
                             }));
+
+                            _bloc.fire(CustomizeServiceEvent.fetchSelectedServices);
+                            log('returned', name: 'RET');
                           },
                           child: Container(
                             width: MediaQuery.of(context).size.width / 5,
