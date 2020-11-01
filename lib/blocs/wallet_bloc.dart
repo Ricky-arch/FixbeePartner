@@ -25,6 +25,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     if (event == WalletEvent.createWalletDeposit) {
       return await createWalletDeposit(message);
     }
+    if(event == WalletEvent.processWalletDeposit){
+      return await processWalletDeposit(message);
+    }
     return latestViewModel;
   }
 
@@ -106,5 +109,20 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel..paymentID = response['order_id'];
+  }
+
+  Future<WalletModel> processWalletDeposit(Map<String, dynamic> message) async{
+    String paymentID=message['paymentID'];
+    String paymentSignature=message['paymentSignature'];
+    String query='''
+    mutation {
+  ProcessWalletDeposit(
+    PaymentId: "$paymentID"
+    PaymentSignature: "$paymentSignature"
+  )
+}
+    ''';
+    await CustomGraphQLClient.instance.mutate(query);
+    return latestViewModel;
   }
 }

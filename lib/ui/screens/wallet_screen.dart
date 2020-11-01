@@ -66,7 +66,12 @@ class _WalletScreenState extends State<WalletScreen> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     log(response.signature.toString(), name: "SUCCESS");
-    _showPaymentSuccessDialog();
+    _bloc.fire(WalletEvent.processWalletDeposit, message: {
+      'paymentID': response.paymentId,
+      'paymentSignature': response.signature
+    }, onHandled: (e, m) {
+      _showPaymentSuccessDialog();
+    });
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
