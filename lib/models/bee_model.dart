@@ -23,6 +23,8 @@ class Bee {
   String ratings;
   int jobsAccepted;
   int jobsDeclined;
+  String dpUrl;
+  bool active;
 
 //  Bee(this.id, this.firstName, this.middleName ,this.lastName, this.phoneNumber, this.emailAddress, this.address, this.pinCode, this.dateOfBirth, this.district, this.gender, this.bankAccountNumber, this.ifscCode, this.accountHoldersName, this.ratings, this.walletValue, this.jobsAccepted, this.jobsDeclined);
 

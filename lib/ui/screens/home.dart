@@ -48,7 +48,7 @@ class _HomeState extends State<Home> {
     _bloc.fire(HomeEvents.activityStatusRequested, onHandled: (e, m) {
       log("Active: ${m.activeStatus}");
       if (m.activeStatus) {
-        _bloc.subscribeToNotifications( (Position deviceLocation) {
+        _bloc.subscribeToLocationUpdate( (Position deviceLocation) {
           if (mapController != null)
             mapController.animateCamera(
                 CameraUpdate.newLatLng(LatLng(
@@ -105,7 +105,9 @@ class _HomeState extends State<Home> {
                       boxShadow: [BoxShadow(color: Colors.brown)]),
                   child: Row(
                     children: <Widget>[
-                      SizedBox(width: 5,),
+                      SizedBox(
+                        width: 5,
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0),
                         child: Text("YOUR ACTIVITY STATUS",
@@ -114,7 +116,7 @@ class _HomeState extends State<Home> {
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold)),
                       ),
-                     Spacer(),
+                      Spacer(),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: !viewModel.loading
@@ -124,15 +126,17 @@ class _HomeState extends State<Home> {
                                 inactiveTrackColor: Colors.white,
                                 activeColor: Colors.red,
                                 onChanged: (bool value) {
+                                  if (value == false)
+                                    _bloc.unsubscribeToLocationUpdate();
                                   print("HELLO WORLD");
                                   print(DataStore.token);
-                                  _bloc.fire(HomeEvents
-                                      .getDocumentVerificationStatus);
+                                  _bloc.fire(
+                                      HomeEvents.getDocumentVerificationStatus);
                                   _bloc.fire(HomeEvents.activityStatusSet,
                                       message: {'status': value},
                                       onHandled: (e, m) {
                                     if (m.activeStatus) {
-                                      _bloc.subscribeToNotifications(
+                                      _bloc.subscribeToLocationUpdate(
                                           (Position deviceLocation) {
                                         if (mapController != null)
                                           mapController.animateCamera(
@@ -140,19 +144,16 @@ class _HomeState extends State<Home> {
                                                   deviceLocation.latitude,
                                                   deviceLocation.longitude)));
                                       });
-                                    } else {
-                                      if (_bloc.locationTimer != null &&
-                                          _bloc.locationTimer.isActive)
-                                        _bloc.locationTimer.cancel();
-                                      _bloc.unSubscribe();
                                     }
                                   });
                                 },
                               )
                             : SizedBox(
                                 child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  backgroundColor: PrimaryColors.backgroundColor,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                  backgroundColor:
+                                      PrimaryColors.backgroundColor,
                                 ),
                                 height: 30,
                                 width: 30,

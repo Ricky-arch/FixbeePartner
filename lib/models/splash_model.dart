@@ -6,4 +6,5 @@ class SplashModel extends ViewModel{
   bool serviceSelected=false;
   bool jobOngoing=false;
   Bee me;
+
 }

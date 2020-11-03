@@ -89,6 +89,7 @@ class _SplashScreenState extends State<SplashScreen>
           _getCurrentLocation();
           if (_currentPosition != null)
             DataStore.beePosition = _currentPosition;
+
           Navigator.pushReplacement(
               context,
               PageTransition(
@@ -158,7 +159,10 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _bloc?.extinguish();
-
+    _scaleController.dispose();
+    _scale2Controller.dispose();
+    _widthController.dispose();
+    _positionController.dispose();
     super.dispose();
   }
 

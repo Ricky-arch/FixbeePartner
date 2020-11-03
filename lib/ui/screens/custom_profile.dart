@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/custom_profile_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
@@ -211,11 +213,14 @@ class _CustomProfileState extends State<CustomProfile> {
                     ProfileListItem(
                       icon: LineAwesomeIcons.user_shield,
                       text: 'Update Personal',
-                      task: () {
-                        Navigator.push(context,
+                      task: ()async {
+                        String updated=await Navigator.push(context,
                             MaterialPageRoute(builder: (ctx) {
                           return UpdateProfile();
                         }));
+                        if(updated=="UPDATED"){
+                          log(updated, name:"UPDATED");
+                        }
                       },
                     ),
                     ProfileListItem(

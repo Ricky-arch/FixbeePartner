@@ -20,7 +20,6 @@ class UpdateProfile extends StatefulWidget {
 }
 
 class _UpdateProfileState extends State<UpdateProfile> {
-
   UpdateProfileBloc _bloc;
 
   TextEditingController firstName = TextEditingController();
@@ -46,9 +45,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
       lastName = TextEditingController(text: m.lastName ?? "");
       phoneNumber = TextEditingController(text: m.phoneNumber);
       alternatePhoneNumber =
-          TextEditingController(text: m.alternatePhoneNumber??"");
-      email = TextEditingController(text: m.emailAddress??"");
-      address1 = TextEditingController(text: m.address1??"");
+          TextEditingController(text: m.alternatePhoneNumber ?? "");
+      email = TextEditingController(text: m.emailAddress ?? "");
+      address1 = TextEditingController(text: m.address1 ?? "");
       address2 = TextEditingController(text: m.address2);
       pinCode = TextEditingController(text: m.pinCode);
       genderController = TextEditingController(text: m.gender);
@@ -89,8 +88,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
         title: Stack(
           children: <Widget>[
             Container(
-                decoration:
-                BoxDecoration(color: PrimaryColors.backgroundColor),
+                decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
                 child: Row(
                   children: <Widget>[
                     Container(
@@ -102,8 +100,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                             padding: const EdgeInsets.all(3.0),
                             child: SvgPicture.asset(
                               "assets/logo/bee_outline.svg",
-                            )
-                        )),
+                            ))),
                     SizedBox(
                       width: 10,
                     ),
@@ -129,7 +126,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
           return ListView(
             scrollDirection: Axis.vertical,
             children: <Widget>[
-
               SizedBox(
                 height: 5,
               ),
@@ -153,7 +149,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "First Name",
-                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
                                     color: Colors.black, width: 2.0),
@@ -177,7 +175,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Middle Name",
-                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
                                     color: Colors.black, width: 2.0),
@@ -201,7 +201,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Last Name",
-                              labelStyle: TextStyle(color: Colors.black54,  fontWeight: FontWeight.bold),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
                                     color: Colors.black, width: 2.0),
@@ -228,7 +230,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Alternate Phone Number",
-                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
                                     color: Colors.black, width: 2.0),
@@ -252,7 +256,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Email Address",
-                              labelStyle: TextStyle(color: Colors.black54 ,fontWeight: FontWeight.bold),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
                                     color: Colors.black, width: 2.0),
@@ -276,7 +282,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Address",
-                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
                                     color: Colors.black, width: 2.0),
@@ -304,7 +312,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Pincode",
-                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
                                     color: Colors.black, width: 2.0),
@@ -325,7 +335,9 @@ class _UpdateProfileState extends State<UpdateProfile> {
                           decoration: InputDecoration(
                               errorStyle: TextStyle(color: Colors.black),
                               labelText: "Gender",
-                              labelStyle: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+                              labelStyle: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: const BorderSide(
                                     color: Colors.black, width: 2.0),
@@ -381,7 +393,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                         ..pinCode = pinCode.text
                                         ..gender = gender[_selectedGender];
                                       DataStore.me = bee;
-                                      Navigator.pop(context);
+                                      Navigator.pop<String>(context, 'UPDATED');
                                     });
                                   }
                                 },
@@ -404,9 +416,10 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                 color: Colors.white,
                                 textColor: Colors.black,
                                 onPressed: () {
-
-                                  print(DataStore.me.phoneNumber.toString()+"XXX");
-                                  print(DataStore.me.emailAddress.toString()+"YYY");
+                                  print(DataStore.me.phoneNumber.toString() +
+                                      "XXX");
+                                  print(DataStore.me.emailAddress.toString() +
+                                      "YYY");
                                   Navigator.pop(context);
                                 },
                                 child: Padding(

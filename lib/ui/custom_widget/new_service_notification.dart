@@ -10,6 +10,7 @@ class NewServiceNotification extends StatefulWidget {
   final String address;
   final Function onConfirm;
   final Function onDecline;
+  final bool loading;
 
   const NewServiceNotification(
       {Key key,
@@ -18,7 +19,8 @@ class NewServiceNotification extends StatefulWidget {
       this.paymentMode,
       this.address,
       this.onConfirm,
-      this.onDecline})
+      this.onDecline,
+      this.loading=false})
       : super(key: key);
   @override
   _NewServiceNotificationState createState() => _NewServiceNotificationState();
@@ -74,15 +76,18 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
             SizedBox(
               height: 5,
             ),
-            Container(
-              child: Text(
-                (widget.address != null) ? widget.address : "Udaipur",
-                style: TextStyle(
-                    color: PrimaryColors.backgroundColor,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14),
-                maxLines: null,
-                textAlign: TextAlign.center,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                child: Text(
+                  (widget.address != null) ? widget.address : "Udaipur",
+                  style: TextStyle(
+                      color: PrimaryColors.backgroundColor,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14),
+                  maxLines: null,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -98,11 +103,23 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                FlatButton(
-                  onPressed: widget.onConfirm,
-                  color: PrimaryColors.backgroundColor,
-                  child: Text("CONFIRM", style: TextStyle(color: Colors.white)),
-                ),
+                (widget.loading)
+                    ? Padding(
+                        padding: const EdgeInsets.only(
+                          top: 50.0,
+                        ),
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          backgroundColor: PrimaryColors.backgroundColor,
+                        ),
+                      )
+                    : FlatButton(
+                        onPressed: widget.onConfirm,
+                        color: PrimaryColors.backgroundColor,
+                        child: Text("CONFIRM",
+                            style: TextStyle(color: Colors.white)),
+                      ),
                 Container(
                   color: PrimaryColors.backgroundColor,
                   height: 30,

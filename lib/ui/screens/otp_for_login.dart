@@ -172,9 +172,10 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                                   if (!m.serviceSelected) {
                                                     goToJobSelectionScreen(ctx);
                                                   }
+                                                  else{
+                                                    goToNavigationScreen(ctx);
+                                                  }
                                                 });
-
-                                                goToNavigationScreen(ctx);
                                               });
                                             } else {
                                               _otpInsertController.clear();

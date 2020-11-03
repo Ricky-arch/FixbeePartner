@@ -561,21 +561,21 @@ class _WorkScreenState extends State<WorkScreen> {
                             ),
                           ),
                         ),
-                        RaisedButton(
-                          color: PrimaryColors.backgroundColor,
-                          onPressed: () {
-                            _showCancelModalSheet(context);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            child: Text(
-                              "Cancel",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.orangeAccent),
-                            ),
-                          ),
-                        ),
+//                        RaisedButton(
+//                          color: PrimaryColors.backgroundColor,
+//                          onPressed: () {
+//                            _showCancelModalSheet(context);
+//                          },
+//                          child: Padding(
+//                            padding: const EdgeInsets.symmetric(vertical: 14),
+//                            child: Text(
+//                              "Cancel",
+//                              style: TextStyle(
+//                                  fontWeight: FontWeight.w600,
+//                                  color: Colors.orangeAccent),
+//                            ),
+//                          ),
+//                        ),
                       ],
                     ),
                   ),
@@ -776,6 +776,7 @@ class _WorkScreenState extends State<WorkScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            insetPadding: EdgeInsets.symmetric(horizontal: 5),
             content: Wrap(
               children: <Widget>[
                 Container(
@@ -1031,7 +1032,7 @@ class InfoPanel extends StatelessWidget {
               ),
             ),
             Container(
-              width: MediaQuery.of(context).size.width / 2 - 60,
+              width: MediaQuery.of(context).size.width / 2 ,
               child: Text(
                 answer,
                 textAlign: TextAlign.end,

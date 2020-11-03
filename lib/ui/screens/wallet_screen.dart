@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:fixbee_partner/blocs/wallet_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/wallet_event.dart';
@@ -10,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:string_validator/string_validator.dart';
-
 import '../../Constants.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -70,6 +68,7 @@ class _WalletScreenState extends State<WalletScreen> {
       'paymentID': response.paymentId,
       'paymentSignature': response.signature
     }, onHandled: (e, m) {
+      _bloc.fire(WalletEvent.fetchWalletAmount);
       _showPaymentSuccessDialog();
     });
   }
@@ -84,9 +83,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        //_bloc.widget(onViewModelUpdated: (ctx, viewModel){}
-        body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+    return Scaffold(body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
       return SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -518,9 +515,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   },
                 ),
               ],
-            )
-
-            //Divider(height: 10, thickness: 5,),
+            ) //Divider(height: 10, thickness: 5,),
           ],
         ),
       );
@@ -603,7 +598,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 log(m.paymentID, name: "paymentID");
                                 var depositOptions = {
                                   'key': Constants.RAZORPAY_KEY,
-                                  'id': "${_bloc.latestViewModel.paymentID}",
+                                  'order_id': "${m.paymentID}",
                                   'name': 'FIXBEE',
                                   'description': 'Wallet Deposit',
                                   'prefill': {

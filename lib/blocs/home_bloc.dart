@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:developer';
 
-
 import 'package:fixbee_partner/bloc.dart';
+import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/home_events.dart';
 import 'package:fixbee_partner/models/home_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
@@ -18,6 +18,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
 
   Geolocator _geolocator;
   Timer locationTimer;
+  StreamSubscription locationStream;
 
   @override
   Future<HomeModel> mapEventToViewModel(
@@ -114,51 +115,14 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     return latestViewModel;
   }
 
-  subscribeToNotifications( Function(Position) onUpdateLocation) {
-    String query = '''
-    subscription{
-  OrderRequest{
-    ID
-    OrderId
-    Amount
-    Service{
-      ID
-      Name
-    }
-    Location{
-      ID
-      Name
-      Geolocation{
-        Latitude
-        Longitude
-      }
-      Address{
-        Line1
-        Line2
-        Landmark
-      }
-    }
-    User{
-      Name{
-        Firstname
-        Middlename
-        Lastname
-      }
-      Phone{
-        Number
-      }
-      Ratings{
-        Score
-      }
-    }
-  }
-}
-    ''';
-
-    Stream<FetchResult> sub = CustomGraphQLClient.instance
-        .subscribe(CustomGraphQLClient.instance.wsClient, query);
+  subscribeToLocationUpdate(Function(Position) onUpdateLocation) {
     Position location;
-    locationTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+
+    var stream = Stream.periodic(
+      Duration(seconds: 10),
+    );
+
+    locationStream = stream.listen((event) async {
       location = await _getLocation();
 
       updateLiveLocation(
@@ -166,7 +130,20 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
       onUpdateLocation(location);
     });
 
-    addSecondaryStream(sub);
+//    locationTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+//      location = await _getLocation();
+//
+//      updateLiveLocation(
+//          {'latitude': location.latitude, 'longitude': location.longitude});
+//      onUpdateLocation(location);
+//    });
+  }
+
+  unsubscribeToLocationUpdate() {
+    if (locationStream != null) {
+      log('CANCELLED', name: 'CAN');
+      locationStream.cancel();
+    }
   }
 
   Future<Position> _getLocation() async {
@@ -211,7 +188,11 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
     return latestViewModel
-      ..latitude = response['Me']['LiveLocation']['Latitude'] ?? 23.829321
-      ..latitude = response['Me']['LiveLocation']['Longitude'] ?? 91.277847;
+      ..latitude =
+          double.parse(response['Me']['LiveLocation']['Latitude'].toString()) ??
+              23.829321
+      ..latitude = double.parse(
+              response['Me']['LiveLocation']['Longitude'].toString()) ??
+          91.277847;
   }
 }

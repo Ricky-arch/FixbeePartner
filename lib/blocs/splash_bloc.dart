@@ -87,6 +87,9 @@ class SplashBloc extends Bloc<Event, SplashModel> {
     {
           Me{
             ... on Bee{
+            DisplayPicture{
+        id
+      }
             Services{
         ID
         Name
@@ -104,6 +107,7 @@ class SplashBloc extends Bloc<Event, SplashModel> {
           }
         }
     ''';
+
     Map response = await CustomGraphQLClient.instance.query(query);
 
     Map name = response['Me']['Name'];
@@ -116,6 +120,7 @@ class SplashBloc extends Bloc<Event, SplashModel> {
       ..lastName = name['Lastname'] ?? ''
       ..phoneNumber = phone['Number']
       ..verified = phone['Verified']
+      ..dpUrl = EndPoints.DOCUMENT+'?id='+response['Me']['DisplayPicture']['id']
       ..services = services.map((service) {
         return ServiceOptionModel()
           ..id = service['ID']
@@ -123,7 +128,6 @@ class SplashBloc extends Bloc<Event, SplashModel> {
       }).toList();
 
     DataStore.me = bee;
-
     return bee;
   }
 

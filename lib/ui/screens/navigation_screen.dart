@@ -114,6 +114,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
               userName: userName.toString().toUpperCase(),
               address: billingAddress,
               paymentMode: paymentMode,
+              loading: _bloc.latestViewModel.onJobConfirmed,
               onConfirm: () {
 
                 _bloc.fire(NavigationEvent.onConfirmJob,

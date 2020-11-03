@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbee_partner/Constants.dart';
+import 'package:fixbee_partner/data_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -38,9 +39,11 @@ class DisplayPicture extends StatelessWidget {
                 child: CircleAvatar(
                   radius: 0.13 * MediaQuery.of(context).size.width,
                   backgroundImage: (imageURl == null || imageURl.isEmpty)
-                      ? null
+                      ? DataStore?.me?.dpUrl == null
+                          ? null
+                          : CachedNetworkImageProvider(DataStore.me.dpUrl)
                       : CachedNetworkImageProvider(imageURl),
-                  child: (imageURl == null || imageURl.isEmpty)
+                  child: (DataStore?.me?.dpUrl == null)
                       ? SvgPicture.asset(
                           "assets/logo/bee_outline.svg",
                           width: 0.4 * MediaQuery.of(context).size.width,
@@ -97,4 +100,3 @@ class DisplayPicture extends StatelessWidget {
     );
   }
 }
-

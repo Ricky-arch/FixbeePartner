@@ -25,7 +25,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     _bloc = HistoryBloc(HistoryModel());
-    _bloc.fire(HistoryEvent.fetchPastOrders);
     _bloc.fire(HistoryEvent.fetchActiveOrder);
     print(_bloc.latestViewModel.pastOrderPresent.toString() + "PPP");
     super.initState();
@@ -140,72 +139,82 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: Text('DEBIT', style: TextStyle(color: Colors.black)),
                   ),
                   Tab(
-                    child: (viewModel.pastOrderPresent)
-                        ? ListView.builder(
-                            itemCount: viewModel.pastOrderList.length,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (BuildContext context, int index) {
-                              return PastOrder(
-                                backGroundColor: Colors.white,
-                                amount:
-                                    viewModel.pastOrderList[index].totalAmount,
-                                serviceName:
-                                    viewModel.pastOrderList[index].serviceName,
-                                status: viewModel.pastOrderList[index].status,
-                                timeStamp:
-                                    viewModel.pastOrderList[index].timeStamp,
-                                seeMore: () {
-                                  String orderID =
-                                      viewModel.pastOrderList[index].orderId;
-                                  print(orderID.toString() + "OOO");
-                                  _bloc.fire(
-                                      HistoryEvent.fetchAddOnsForEachOrder,
-                                      message: {"orderID": orderID},
-                                      onHandled: (e, m) {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                PastOrderBillingScreen(
-                                                  addOns:
-                                                      viewModel.jobModel.addons,
-                                                  cashOnDelivery: viewModel
-                                                      .pastOrderList[index]
-                                                      .cashOnDelivery,
-                                                  orderId: viewModel
-                                                      .pastOrderList[index]
-                                                      .orderId,
-                                                  serviceName: viewModel
-                                                      .pastOrderList[index]
-                                                      .serviceName,
-                                                  address: viewModel
-                                                      .pastOrderList[index]
-                                                      .addressLine,
-                                                  status: viewModel
-                                                      .pastOrderList[index]
-                                                      .status,
-                                                  timeStamp: viewModel
-                                                      .pastOrderList[index]
-                                                      .timeStamp,
-                                                  basePrice: viewModel
-                                                      .pastOrderList[index]
-                                                      .basePrice,
-                                                  taxPercent: viewModel
-                                                      .pastOrderList[index]
-                                                      .taxPercent,
-                                                  serviceCharge: viewModel
-                                                      .pastOrderList[index]
-                                                      .serviceCharge,
-                                                  amount: viewModel
-                                                      .pastOrderList[index]
-                                                      .totalAmount,
-                                                )));
-                                  });
-                                },
-                              );
-                            })
-                        : Text('No Past Orders',
-                            style: TextStyle(color: Colors.black)),
+                    child: FutureBuilder<HistoryModel>(
+                      builder: (ctx, snapshot) {
+                        if(!snapshot.hasData){
+                          return CircularProgressIndicator();
+                        }
+                        else{
+                          return (snapshot.data.pastOrderPresent)
+                              ? ListView.builder(
+                              itemCount: snapshot.data.pastOrderList.length,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (BuildContext context, int index) {
+                                return PastOrder(
+                                  backGroundColor: Colors.white,
+                                  amount:
+                                  snapshot.data.pastOrderList[index].totalAmount,
+                                  serviceName:
+                                  snapshot.data.pastOrderList[index].serviceName,
+                                  status: snapshot.data.pastOrderList[index].status,
+                                  timeStamp:
+                                  snapshot.data.pastOrderList[index].timeStamp,
+                                  seeMore: () {
+                                    String orderID =
+                                        snapshot.data.pastOrderList[index].orderId;
+                                    print(orderID.toString() + "OOO");
+                                    _bloc.fire(
+                                        HistoryEvent.fetchAddOnsForEachOrder,
+                                        message: {"orderID": orderID},
+                                        onHandled: (e, m) {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (BuildContext context) =>
+                                                      PastOrderBillingScreen(
+                                                        addOns:
+                                                        snapshot.data.jobModel.addons,
+                                                        cashOnDelivery: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .cashOnDelivery,
+                                                        orderId: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .orderId,
+                                                        serviceName: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .serviceName,
+                                                        address: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .addressLine,
+                                                        status: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .status,
+                                                        timeStamp: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .timeStamp,
+                                                        basePrice: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .basePrice,
+                                                        taxPercent: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .taxPercent,
+                                                        serviceCharge: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .serviceCharge,
+                                                        amount: snapshot.data
+                                                            .pastOrderList[index]
+                                                            .totalAmount,
+                                                      )));
+                                        });
+                                  },
+                                );
+                              })
+                              : Text('No Past Orders',
+                              style: TextStyle(color: Colors.black));
+                        }
+                      },
+                      future: _bloc.fetchPastOrders(),
+                    ),
                   ),
                   Tab(
                     child: (viewModel.isOrderActive)

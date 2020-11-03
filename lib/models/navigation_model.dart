@@ -11,7 +11,9 @@ class NavigationModel extends ViewModel {
   Service service=Service();
   Order order=Order();
   Location location=Location();
+  bool loading=false;
 }
+
 
 class User {
   String userId;
@@ -47,7 +49,7 @@ class Order {
   String status;
   bool cashOnDelivery;
   bool slotted;
-  DateTime slottedAt;
+  String slottedAt;
   String quantity;
   String otp;
   String timeStamp;
@@ -55,4 +57,5 @@ class Order {
   int basePrice;
   int serviceCharge;
   int taxPercent;
+
 }

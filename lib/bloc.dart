@@ -12,8 +12,6 @@ abstract class Bloc<E extends Event, M extends ViewModel> {
   Function(E event, M viewModel) _onHandled;
   Function(E event, M viewModel, String errorMessage) _onError;
   Map<String, dynamic> _message;
-  Stream<FetchResult> _secondaryStream;
-  StreamSubscription<FetchResult> _secondarySubscription;
 
   Stream<M> viewModelStream;
   M latestViewModel;
@@ -35,13 +33,6 @@ abstract class Bloc<E extends Event, M extends ViewModel> {
     pushViewModel(latestViewModel);
   }
 
-  addSecondaryStream(Stream<FetchResult> stream) {
-    if (!(this is SecondaryStreamable)) {
-      throw Exception('cannot attach second stream');
-    }
-    _secondaryStream = stream;
-    _secondarySubscription = _secondaryStream.listen(_secondaryStreamListener);
-  }
 
   BlocWidget<E, M> widget(
       {@required
@@ -83,9 +74,9 @@ abstract class Bloc<E extends Event, M extends ViewModel> {
     _modelStreamController.sink.add(viewModel);
   }
 
-  void unSubscribe() async {
-    await _secondarySubscription.cancel();
-  }
+//  void unSubscribe() async {
+//    await _secondarySubscription.cancel();
+//  }
 
   void fire(
     E event, {
@@ -108,7 +99,6 @@ abstract class Bloc<E extends Event, M extends ViewModel> {
   }
 
   void extinguish() {
-    _secondarySubscription?.cancel();
 
     if (this is SecondaryStreamable) {
       (this as SecondaryStreamable).onExtinguish();

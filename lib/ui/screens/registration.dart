@@ -408,7 +408,7 @@ class _RegistrationState extends State<Registration> {
                                           content: Text('Registration failed'),
                                         ));
                                       }
-                                    });
+                                    },);
                                   }
                                 }
                               : null,

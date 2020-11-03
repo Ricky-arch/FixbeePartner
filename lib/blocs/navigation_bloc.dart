@@ -162,10 +162,10 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
 ''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
     print(response.toString() + "oooo");
-    if (response['AnswerOrderRequest']['Slot']['Slotted']) {
-      latestViewModel.order.slottedAt =
-          response['AnswerOrderRequest']['Slot']['At'];
-    }
+//    if (response['AnswerOrderRequest']['Slot']['Slotted']) {
+//      latestViewModel.order.slottedAt =
+//          response['AnswerOrderRequest']['Slot']['At'].toString();
+//    }
     log(
         response['AnswerOrderRequest']['Location']['Address']['Lankmark']
             .toString(),
@@ -233,7 +233,8 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
   @override
   ViewModel setTrackingFlag(Event event, bool trackFlag, Map message) {
     if (event == NavigationEvent.onConfirmJob)
-      latestViewModel..onJobConfirmed = true;
+      latestViewModel..onJobConfirmed = trackFlag;
+
     return latestViewModel;
   }
 
