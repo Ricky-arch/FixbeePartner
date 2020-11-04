@@ -59,9 +59,12 @@ dev_dependencies:
     sdk: flutter
 
 flutter_icons:
-  android: "launcher_icon"
+  android: true
   ios: true
-  image_path: "assets/logo/bee_outline.svg"
+  image_path: "assets/logo/swarm_outline.png"
+
+
+
 
 flutter_launcher_name:
   name: "Fixbee Partner"
@@ -81,22 +84,17 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/one.png
-    - assets/custom_icons/value.svg
     - assets/custom_icons/bee.png
     - assets/custom_icons/user.png
-    - assets/images/avatar.png
     - assets/custom_icons/user.svg
     - assets/images/beep.png
     - assets/images/rupee.png
     - assets/custom_icons/mapbee.png
-    - assets/images/full.png
-    - assets/logo/fixbee.svg
-    - assets/logo/fixbee2.png
-    - assets/logo/fixbeeLogo1.svg
-    - assets/logo/fixbeeLogo1.png
-    - assets/logo/bee.svg
     - assets/logo/bee_outline.svg
     - assets/logo/fixbeeLogo2.png
+    - assets/logo/partner_logo.png
+    - assets/logo/bee_white.png
+    - assets/logo/swarm_outline.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

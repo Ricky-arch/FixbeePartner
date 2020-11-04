@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../../Constants.dart';
 
 Bee addBee;
@@ -50,18 +49,19 @@ class _RegistrationState extends State<Registration> {
 //    _getMessage();
   }
 
-  Future<void> _launchInBrowser(String url) async {
+  Future<void> _launchInWebViewWithJavaScript(String url) async {
     if (await canLaunch(url)) {
       await launch(
         url,
-        forceSafariVC: false,
-        forceWebView: false,
-//        headers: <String, String>{'my_header_key': 'my_header_value'},
+        forceSafariVC: true,
+        forceWebView: true,
+        enableJavaScript: true,
       );
     } else {
-      throw 'Could not launch T&C';
+      throw 'Could not launch $url';
     }
   }
+
 
   @override
   void dispose() {
@@ -304,7 +304,7 @@ class _RegistrationState extends State<Registration> {
                       InkWell(
                         child: GestureDetector(
                           onTap: () {
-                            _launched = _launchInBrowser("${EndPoints.TNC}");
+                            _launched = _launchInWebViewWithJavaScript("${EndPoints.TNC}");
                           },
                           child: Container(
                             decoration: BoxDecoration(

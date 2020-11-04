@@ -103,6 +103,9 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
         Middlename
         Lastname
       }
+      DisplayPicture {
+        id
+      }
       Ratings{
         Score
       }
@@ -128,6 +131,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       ..firstName = response['Me']['Name']['Firstname']
       ..middleName = response['Me']['Name']['Middlename'] ?? ''
       ..lastName = response['Me']['Name']['Lastname'] ?? ''
+      ..dpUrl=EndPoints.DOCUMENT+'?id='+response['Me']['DisplayPicture']['id']
       ..phoneNumber = response['Me']['Phone']['Number'];
     DataStore.me = bee;
     DataStore.fcmToken = response['Me']['FCMToken'];

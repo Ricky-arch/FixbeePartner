@@ -116,6 +116,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     bool accept = message['Accept'];
     String query = '''mutation {
   AnswerOrderRequest(_id: "$orderId", input: { Accept: $accept }) {
+  Status
     ID
     Slot{
       Slotted
@@ -132,6 +133,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     }
     Amount
     User{
+    ID
       Name{
         Firstname
         Middlename
@@ -162,20 +164,19 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
 ''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
     print(response.toString() + "oooo");
-//    if (response['AnswerOrderRequest']['Slot']['Slotted']) {
-//      latestViewModel.order.slottedAt =
-//          response['AnswerOrderRequest']['Slot']['At'].toString();
-//    }
+
     log(
         response['AnswerOrderRequest']['Location']['Address']['Lankmark']
             .toString(),
         name: "landmark");
     return latestViewModel
       ..order.orderId = response['AnswerOrderRequest']['ID']
+      ..order.status=response['AnswerOrderRequest']['Status']
       ..location.googlePlaceId =
           response['AnswerOrderRequest']['Location']['GooglePlaceID']
       ..order.slotted = response['AnswerOrderRequest']['Slot']['Slotted']
       ..service.serviceName = response['AnswerOrderRequest']['Service']['Name']
+      ..user.userId= response['AnswerOrderRequest']['User']['ID']
       ..user.firstname =
           response['AnswerOrderRequest']['User']['Name']['Firstname']
       ..user.middlename =

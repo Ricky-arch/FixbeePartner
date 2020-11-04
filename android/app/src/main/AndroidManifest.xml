@@ -16,8 +16,8 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <application
         android:name=".Application"
-        android:label="fixbee_partner"
-        android:icon="@mipmap/launcher_icon">
+        android:label="Fixbee Partner"
+        android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI"/>
         <activity

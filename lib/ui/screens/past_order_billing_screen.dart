@@ -10,7 +10,7 @@ import '../../Constants.dart';
 class PastOrderBillingScreen extends StatefulWidget {
   final String serviceName, status, address, userName, timeStamp, orderId;
   final bool cashOnDelivery;
-  final int basePrice, serviceCharge, taxPercent, amount;
+  final int basePrice, serviceCharge, taxPercent, amount, quantity;
   final List<Service> addOns;
 
   const PastOrderBillingScreen(
@@ -26,7 +26,8 @@ class PastOrderBillingScreen extends StatefulWidget {
       this.amount,
       this.timeStamp,
       this.orderId,
-      this.addOns})
+      this.addOns,
+      this.quantity})
       : super(key: key);
   @override
   _PastOrderBillingScreenState createState() => _PastOrderBillingScreenState();
@@ -37,20 +38,9 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
   double tax, amount;
   @override
   void initState() {
-//    bp = widget.basePrice;
-//    sc = widget.serviceCharge;
-//    tax = (bp + sc) * (widget.taxPercent / 100);
-//    amount = widget.amount.toDouble();
-//    for (var addOn in widget.addOns) {
-//      bp = bp + addOn.basePrice;
-//      sc = sc + addOn.serviceCharge;
-//      tax = tax + ((bp + sc) * (widget.taxPercent / 100));
-//      amount = amount + bp + sc + tax;
-
-    //}
-    amount= widget.amount.toDouble();
-    for(var addOn in widget.addOns){
-      amount=amount+addOn.amount.toDouble();
+    amount = widget.amount.toDouble();
+    for (var addOn in widget.addOns) {
+      amount = amount + addOn.amount.toDouble();
     }
     super.initState();
   }
@@ -118,6 +108,16 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
             Container(
               child: Column(
                 children: [
+                  Banner(
+                    title: 'User',
+                    value: widget.userName,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
+                    child: Divider(
+                      color: Colors.tealAccent,
+                    ),
+                  ),
                   Banner(
                     title: 'Service',
                     value: widget.serviceName,
@@ -218,7 +218,9 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                   ),
                   Banner(
                     title: 'Quantity',
-                    value: '4',
+                    value: (widget.quantity == null)
+                        ? "Un-Quantifiable"
+                        : widget.quantity.toString(),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -237,7 +239,8 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                               fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                         Text(
-                          Constants.rupeeSign + " ${(widget.amount) / 100}",
+                          Constants.rupeeSign +
+                              " ${(widget.basePrice / 100) + (widget.serviceCharge / 100) + (widget.taxPercent * ((widget.basePrice + widget.serviceCharge) / 10000))}",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 15),
                         ),
@@ -302,7 +305,6 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                             ),
                           ),
                           Addons(
-                            quantity: 4,
                             serviceName: widget.addOns[index].serviceName,
                             taxPercent: widget.addOns[index].taxPercent,
                             basePrice: widget.addOns[index].basePrice,
@@ -321,7 +323,7 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                 : TotalChargesPanel(
                     bp: bp,
                     sc: sc,
-                    amount: amount,
+                    amount: widget.amount.toDouble(),
                     tax: tax,
                   ),
             Column(
@@ -393,7 +395,9 @@ class TotalChargesPanel extends StatelessWidget {
                         fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    Constants.rupeeSign+" "+(amount/100).toStringAsFixed(2),
+                    Constants.rupeeSign +
+                        " " +
+                        (amount / 100).toStringAsFixed(2),
                     style: TextStyle(
                         color: Colors.red,
                         fontSize: 15,
@@ -404,7 +408,6 @@ class TotalChargesPanel extends StatelessWidget {
             ),
           ),
         ),
-
       ],
     );
   }

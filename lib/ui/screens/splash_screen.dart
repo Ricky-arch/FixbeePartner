@@ -78,6 +78,8 @@ class _SplashScreenState extends State<SplashScreen>
     _setupFCM();
     _bloc = SplashBloc(SplashModel());
     _bloc.fire(Event(100), onHandled: (e, m) {
+
+    if(m.connection){
       if (m.tokenFound) {
         if (m.me.services.length == 0)
           Navigator.pushReplacement(
@@ -96,8 +98,10 @@ class _SplashScreenState extends State<SplashScreen>
                   type: PageTransitionType.fade, child: NavigationScreen()));
         }
       } else
-       Navigator.pushReplacement(context,
+        Navigator.pushReplacement(context,
             PageTransition(type: PageTransitionType.fade, child: Login()));
+    }
+
     });
     _scaleController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200));
@@ -174,52 +178,10 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: Colors.white,
       body: SafeArea(
         child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-          return Container(
+          return (viewModel.connection)? Container(
             width: double.infinity,
             child: Stack(
               children: <Widget>[
-//                Positioned(
-//                  top: -50,
-//                  left: 0,
-//                  child: FadeAnimation(
-//                      1,
-//                      Container(
-//                        width: width,
-//                        height: 400,
-//                        decoration: BoxDecoration(
-//                            image: DecorationImage(
-//                                image: AssetImage('assets/images/one.png'),
-//                                fit: BoxFit.cover)),
-//                      )),
-//                ),
-//                Positioned(
-//                  top: -100,
-//                  left: 0,
-//                  child: FadeAnimation(
-//                      1.3,
-//                      Container(
-//                        width: width,
-//                        height: 400,
-//                        decoration: BoxDecoration(
-//                            image: DecorationImage(
-//                                image: AssetImage('assets/images/one.png'),
-//                                fit: BoxFit.cover)),
-//                      )),
-//                ),
-//                Positioned(
-//                  top: -150,
-//                  left: 0,
-//                  child: FadeAnimation(
-//                      1.3,
-//                      Container(
-//                        width: width,
-//                        height: 400,
-//                        decoration: BoxDecoration(
-//                            image: DecorationImage(
-//                                image: AssetImage('assets/images/one.png'),
-//                                fit: BoxFit.cover)),
-//                      )),
-//                ),
                 Center(
                   child: Container(
                     padding: EdgeInsets.all(20.0),
@@ -238,7 +200,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   "assets/logo/bee_outline.svg",
                                   height: 65,
                                 ))),
-                        //SizedBox(height: 10),
+
                         FadeAnimation(
                             1,
                             Row(
@@ -253,12 +215,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   child: RichText(
                                     text: TextSpan(
                                       children: <TextSpan>[
-//                                  TextSpan(
-//                                      text: 'Fixbee ',
-//                                      style: TextStyle(
-//                                          fontWeight: FontWeight.bold,
-//                                          color: Colors.white,
-//                                          fontSize: 30)),
+
                                         TextSpan(
                                           text: 'Partner',
                                           style: TextStyle(
@@ -277,19 +234,19 @@ class _SplashScreenState extends State<SplashScreen>
 //                        SizedBox(
 //                          height: 5,
 //                        ),
-                        FadeAnimation(
-                            1.3,
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10),
-                              child: Text(
-                                "FOR OPTIMAL SERVICES!",
-                                style: TextStyle(
-                                    color: PrimaryColors.backgroundColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FontStyle.italic,
-                                    fontSize: 14),
-                              ),
-                            )),
+//                        FadeAnimation(
+//                            1.3,
+//                            Padding(
+//                              padding: const EdgeInsets.only(left: 10),
+//                              child: Text(
+//                                "FOR OPTIMAL SERVICES!",
+//                                style: TextStyle(
+//                                    color: PrimaryColors.backgroundColor,
+//                                    fontWeight: FontWeight.bold,
+//                                    fontStyle: FontStyle.italic,
+//                                    fontSize: 14),
+//                              ),
+//                            )),
                         SizedBox(
                           height: 40,
                         ),
@@ -363,7 +320,7 @@ class _SplashScreenState extends State<SplashScreen>
                 )
               ],
             ),
-          );
+          ):Text("Unable to connect to Server!");
         }),
       ),
     );

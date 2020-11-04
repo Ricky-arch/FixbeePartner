@@ -130,13 +130,6 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
       onUpdateLocation(location);
     });
 
-//    locationTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
-//      location = await _getLocation();
-//
-//      updateLiveLocation(
-//          {'latitude': location.latitude, 'longitude': location.longitude});
-//      onUpdateLocation(location);
-//    });
   }
 
   unsubscribeToLocationUpdate() {

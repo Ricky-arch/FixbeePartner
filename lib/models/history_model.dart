@@ -14,6 +14,9 @@ class HistoryModel extends ViewModel {
  OrderModel jobModel= OrderModel();
  bool pastOrderPresent=false;
  bool isOrderActive=false;
+ bool loadingDetails=false;
+ String checkActiveOrderStatus;
+ String selectedOrderID;
 }
 class CreditTransactions{
  int amount;

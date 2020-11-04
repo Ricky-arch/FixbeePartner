@@ -103,27 +103,36 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     Status
   }
 }''';
-    Map response = await CustomGraphQLClient.instance.mutate(query);
-    if (response['ResolveOrder']['Status'] == 'RESOLVED')
-      latestViewModel
-        ..orderResolved = true
-        ..otpValid = true;
-    else
-      latestViewModel..otpValid = false;
+    Map response;
+    try{
+      response = await CustomGraphQLClient.instance.mutate(query);
+      if (response['ResolveOrder']['Status'] == 'RESOLVED')
+        latestViewModel
+          ..orderResolved = true
+          ..otpValid = true;
+      else
+        latestViewModel..otpValid = false;
+    }
+    catch(e){
+    latestViewModel..otpInvalidMessage=response['message'];
+    }
+
     return latestViewModel;
   }
 
   Future<WorkScreenModel> rateUser(Map<String, dynamic> message) async {
     String accountID=message['accountID'];
     int score=message['Score'];
+    String review= message['Review'];
+
     String query= '''
     mutation{
-      AddRating(input:{AccountId:"$accountID", Score: $score}){
-        Score
-      }
-    }
+  AddRating(input:{AccountId:"$accountID", Score:$score, Remark:"$review"}){
+    Score
+  }
+}
     ''';
-    await CustomGraphQLClient.instance.mutate(query);
+   Map response= await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
 

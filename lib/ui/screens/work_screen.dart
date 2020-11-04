@@ -22,6 +22,7 @@ class WorkScreen extends StatefulWidget {
   final String orderId;
   final String googlePlaceId;
   final String userName;
+  final String userId;
   final String phoneNumber;
   final String userProfilePicUrl;
   final String userProfilePicId;
@@ -56,6 +57,7 @@ class WorkScreen extends StatefulWidget {
     this.serviceCharge,
     this.taxPercent,
     this.activeOrderStatus,
+    this.userId,
   }) : super(key: key);
   @override
   _WorkScreenState createState() => _WorkScreenState();
@@ -65,8 +67,6 @@ class _WorkScreenState extends State<WorkScreen> {
   WorkScreenBloc _bloc;
   bool _onNotificationReceivedForCompletionOfPayOnline = false;
   bool _onServiceStarted;
-
-  String activeOrderStatus = "ASSIGNED";
 
   String gid, session, fields, key;
   String formattedAddress;
@@ -109,20 +109,18 @@ class _WorkScreenState extends State<WorkScreen> {
 
   Future<void> scanBarcode() async {
     String barcodeScanRes;
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
           "#ff6666", "Cancel", true, ScanMode.BARCODE);
       print(barcodeScanRes);
-
       String validOtp = barcodeScanRes;
-      // validOtp=validOtp.substring(1,7);
       if (barcodeScanRes != null) {
         _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
             message: {"otp": validOtp, "orderId": widget.orderId},
             onHandled: (e, m) {
           _onServiceStarted = m.onServiceStarted;
-          if (!m.otpValid) _showOtpInvalidBox();
+         if(m.otpInvalidMessage!="")
+           _showOtpInvalidBox(m.otpInvalidMessage);
         });
       }
     } on PlatformException {
@@ -136,6 +134,8 @@ class _WorkScreenState extends State<WorkScreen> {
 
   void _setupFCM() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    additionalReview = TextEditingController();
+    rating = 5;
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
@@ -159,18 +159,18 @@ class _WorkScreenState extends State<WorkScreen> {
     _onServiceStarted = widget.onServiceStarted;
     String orderId = widget.orderId;
     _bloc = WorkScreenBloc(WorkScreenModel());
+    log(widget.activeOrderStatus, name: "STATUS");
     _setupFCM();
-    _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
-        message: {"orderID": "$orderId"}, onHandled: (e, m) {
-      activeOrderStatus = m.activeOrderStatus;
-      log(m.activeOrderStatus, name: "STATUS");
-    });
+
     fetchLocationData().then((value) async {
-      mapController.animateCamera(CameraUpdate.newLatLng(value));
-      var marker = Marker(markerId: MarkerId("User Location"), position: value);
-      setState(() {
-        markers.add(marker);
-      });
+      try {
+        mapController.animateCamera(CameraUpdate.newLatLng(value));
+        var marker =
+            Marker(markerId: MarkerId("User Location"), position: value);
+        setState(() {
+          markers.add(marker);
+        });
+      } catch (e) {}
     });
     _refreshServiceDetails();
     otpController = TextEditingController();
@@ -181,14 +181,6 @@ class _WorkScreenState extends State<WorkScreen> {
     otpController.dispose();
     _bloc.extinguish();
     super.dispose();
-  }
-
-  _showCancelModalSheet(context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Container();
-        });
   }
 
   _showUserRatingModalSheet(context) {
@@ -255,7 +247,8 @@ class _WorkScreenState extends State<WorkScreen> {
                             return Container();
                           },
                           onRatingUpdate: (double value) {
-                            print(value);
+                            rating = value.toInt();
+                            print(rating);
                           },
                         ),
                       ),
@@ -274,8 +267,6 @@ class _WorkScreenState extends State<WorkScreen> {
                               InputDecoration(hintText: "Write here..."),
                           maxLines: null,
                           textAlign: TextAlign.left,
-                          autofocus: false,
-                          enabled: true,
                           keyboardType: TextInputType.text,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(60)
@@ -286,19 +277,55 @@ class _WorkScreenState extends State<WorkScreen> {
                         height: 10,
                       ),
                       Center(
-                          child: RaisedButton(
-                        color: PrimaryColors.backgroundColor,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            "Confirm",
-                            style: TextStyle(color: Colors.white),
+                        child: InkWell(
+                          child: GestureDetector(
+                            onTap: () {
+                              log(
+                                  additionalReview.text.toString() +
+                                      rating.toString(),
+                                  name: "REVIEW");
+                              _bloc.fire(WorkScreenEvents.rateUser, message: {
+                                'accountID': widget.userId,
+                                'Score': rating,
+                                'Review': additionalReview.text.toString()
+                              }, onHandled: (e, m) {
+                                Navigator.pop(context);
+                              },);
+                            },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(8.0, 0, 12, 12),
+                              child: Container(
+                                width:
+                                    MediaQuery.of(context).size.width / 2 - 70,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  color: Colors.orangeAccent.withOpacity(.9),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black,
+                                      blurRadius: 2.0,
+                                      spreadRadius: 0.0,
+                                      offset: Offset(2.0,
+                                          2.0), // shadow direction: bottom right
+                                    )
+                                  ],
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Text(
+                                    "CONFIRM",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ))
+                      ),
                     ],
                   ),
                 )
@@ -493,121 +520,136 @@ class _WorkScreenState extends State<WorkScreen> {
                         ),
                       ],
                     ),
-                    Positioned(
-                        left: MediaQuery.of(context).size.width - 60,
-                        top: 50,
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.info,
-                            color: PrimaryColors.backgroundColor,
-                          ),
-                          onPressed: () {
-                            _showJobInfoDialogBox();
-                          },
-                        ))
                   ],
                 ),
               ),
 
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.tealAccent,
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        RaisedButton(
-                          color: PrimaryColors.backgroundColor,
-                          onPressed: () {
-                            scanBarcode();
-                            print(_scanBarcode + " Barcode");
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.orangeAccent,
-                                  size: 18,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  "Scan",
-                                  style: TextStyle(color: Colors.orangeAccent),
-                                ),
-                              ],
-                            ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    InkWell(
+                      child: GestureDetector(
+                        onTap: (widget.activeOrderStatus != "RESOLVED")
+                            ? () {
+                                scanBarcode();
+                              }
+                            : null,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width / 3 - 30,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: Colors.orangeAccent.withOpacity(.9),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black,
+                                blurRadius: 2.0,
+                                spreadRadius: 0.0,
+                                offset: Offset(
+                                    2.0, 2.0), // shadow direction: bottom right
+                              )
+                            ],
                           ),
-                        ),
-                        RaisedButton(
-                          color: PrimaryColors.backgroundColor,
-                          onPressed: () {
-                            _showUserRatingModalSheet(context);
-                          },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            child: Text(
-                              "Rate User",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.orangeAccent),
-                            ),
-                          ),
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    (widget.activeOrderStatus != "RESOLVED")
+                                        ? Icons.camera_alt
+                                        : Icons.check_circle_outline,
+                                    size: 15,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    (widget.activeOrderStatus != "RESOLVED")
+                                        ? "SCAN"
+                                        : "SCANNED",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              )),
                         ),
-//                        RaisedButton(
-//                          color: PrimaryColors.backgroundColor,
-//                          onPressed: () {
-//                            _showCancelModalSheet(context);
-//                          },
-//                          child: Padding(
-//                            padding: const EdgeInsets.symmetric(vertical: 14),
-//                            child: Text(
-//                              "Cancel",
-//                              style: TextStyle(
-//                                  fontWeight: FontWeight.w600,
-//                                  color: Colors.orangeAccent),
-//                            ),
-//                          ),
-//                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    InkWell(
+                      child: GestureDetector(
+                        onTap: () {
+                          _showUserRatingModalSheet(context);
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width / 3 - 30,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: Colors.orangeAccent.withOpacity(.9),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black,
+                                blurRadius: 2.0,
+                                spreadRadius: 0.0,
+                                offset: Offset(
+                                    2.0, 2.0), // shadow direction: bottom right
+                              )
+                            ],
+                          ),
+                          child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "RATE USER",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              )),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      child: GestureDetector(
+                        onTap: () {
+                          _showJobInfoDialogBox();
+                        },
+                        child: Container(
+                          width: MediaQuery.of(context).size.width / 3 - 30,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: Colors.orangeAccent.withOpacity(.9),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black,
+                                blurRadius: 2.0,
+                                spreadRadius: 0.0,
+                                offset: Offset(
+                                    2.0, 2.0), // shadow direction: bottom right
+                              )
+                            ],
+                          ),
+                          child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "INFO",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                              )),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Divider(),
-              (activeOrderStatus != "RESOLVED" &&
-                      viewModel.orderResolved == false)
+              (widget.activeOrderStatus != "RESOLVED")
                   ? Expanded(
-                      child: Stack(
-                      children: [
-                        mapWidget = GoogleMap(
-                          markers: markers,
-                          onMapCreated:
-                              (GoogleMapController googleMapController) {
-                            mapController = googleMapController;
-                          },
-                          initialCameraPosition: CameraPosition(
-                              target: LatLng(38.8977, 77.0365), zoom: 16),
-                        ),
-                        Positioned(
-                          left: 300,
-                          child: IconButton(
-                            icon: Icon(
-                              Icons.add_circle,
-                              size: 40,
-                              color: Colors.deepPurple.withOpacity(0.5),
-                            ),
-                            onPressed: () {},
-                          ),
-                        ),
-                      ],
+                      child: mapWidget = GoogleMap(
+                      markers: markers,
+                      onMapCreated: (GoogleMapController googleMapController) {
+                        mapController = googleMapController;
+                      },
+                      initialCameraPosition: CameraPosition(
+                          target: LatLng(38.8977, 77.0365), zoom: 16),
                     ))
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -776,7 +818,7 @@ class _WorkScreenState extends State<WorkScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            insetPadding: EdgeInsets.symmetric(horizontal: 5),
+            insetPadding: EdgeInsets.symmetric(horizontal: 10),
             content: Wrap(
               children: <Widget>[
                 Container(
@@ -801,6 +843,11 @@ class _WorkScreenState extends State<WorkScreen> {
                       ),
                       SizedBox(
                         height: 10,
+                      ),
+                      InfoPanel(
+                        title: "Order Id:",
+                        answer: widget.orderId.toUpperCase(),
+                        maxLines: 1,
                       ),
                       InfoPanel(
                         title: "User:",
@@ -849,14 +896,39 @@ class _WorkScreenState extends State<WorkScreen> {
               ],
             ),
             actions: <Widget>[
-              FlatButton(
-                color: PrimaryColors.backgroundColor,
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  "Close",
-                  style: TextStyle(color: Colors.orangeAccent),
+              InkWell(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(8.0, 0, 12, 12),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 2 - 70,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5.0),
+                        color: Colors.orangeAccent.withOpacity(.9),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black,
+                            blurRadius: 2.0,
+                            spreadRadius: 0.0,
+                            offset: Offset(
+                                2.0, 2.0), // shadow direction: bottom right
+                          )
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(
+                          "CLOSE",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -864,7 +936,7 @@ class _WorkScreenState extends State<WorkScreen> {
         });
   }
 
-  _showOtpInvalidBox() {
+  _showOtpInvalidBox(String message) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -872,7 +944,7 @@ class _WorkScreenState extends State<WorkScreen> {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             content: Text(
-                "Invalid Otp after scanned \n Please re-scan for resolving order"),
+                message),
             actions: <Widget>[
               RaisedButton(
                 color: PrimaryColors.backgroundColor,
@@ -1032,7 +1104,7 @@ class InfoPanel extends StatelessWidget {
               ),
             ),
             Container(
-              width: MediaQuery.of(context).size.width / 2 ,
+              width: MediaQuery.of(context).size.width / 2,
               child: Text(
                 answer,
                 textAlign: TextAlign.end,

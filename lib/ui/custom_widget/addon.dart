@@ -65,16 +65,11 @@ class Addons extends StatelessWidget {
               color: Colors.tealAccent,
             ),
           ),
-          Banner(
-            title: 'Quantity',
-            value: quantity.toString(),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-            child: Divider(
-              color: Colors.tealAccent,
-            ),
-          ),
+//          Banner(
+//            title: 'Quantity',
+//            value: quantity.toString(),
+//          ),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
             child: Row(

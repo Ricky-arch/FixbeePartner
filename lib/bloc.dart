@@ -71,6 +71,7 @@ abstract class Bloc<E extends Event, M extends ViewModel> {
   }
 
   void pushViewModel(M viewModel) {
+    if(!_modelStreamController.isClosed)
     _modelStreamController.sink.add(viewModel);
   }
 
@@ -95,6 +96,7 @@ abstract class Bloc<E extends Event, M extends ViewModel> {
     _message = message;
     _onHandled = onHandled;
     _onError = onError;
+    if(!_eventStreamController.isClosed)
     _eventStreamController.sink.add(event);
   }
 

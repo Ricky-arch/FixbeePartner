@@ -30,7 +30,7 @@ class OrderModel extends ViewModel{
   bool cashOnDelivery;
   bool slotted;
   DateTime slot;
-  String quantity;
+  int quantity;
   int totalAmount;
   String timeStamp;
   List<Service> addons;

@@ -1,20 +1,16 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/navigation_bloc.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
-import 'package:fixbee_partner/ui/custom_widget/active_order_remainder.dart';
 import 'package:fixbee_partner/ui/custom_widget/bottom_nav_bar.dart';
-
 import 'package:fixbee_partner/ui/custom_widget/new_service_notification.dart';
 import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
-
 import 'custom_profile.dart';
 import 'history_screen.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -68,7 +64,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
       onMessage: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
 
-
         log(message.toString(), name: 'ON_MESSAGE');
         _getJobDetails(message);
       },
@@ -116,12 +111,13 @@ class _NavigationScreenState extends State<NavigationScreen> {
               paymentMode: paymentMode,
               loading: _bloc.latestViewModel.onJobConfirmed,
               onConfirm: () {
-
                 _bloc.fire(NavigationEvent.onConfirmJob,
                     message: {"orderId": orderId, "Accept": true},
                     onHandled: (e, m) {
                   Route route = MaterialPageRoute(
                       builder: (context) => WorkScreen(
+                            userId: m.user.userId,
+                            activeOrderStatus: m.order.status,
                             orderId: m.order.orderId,
                             googlePlaceId: m.location.googlePlaceId,
                             phoneNumber: m.user.phoneNumber,
@@ -160,8 +156,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -180,43 +174,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
             return Stack(
               children: [
                 pages[_currentIndex],
-                (viewModel.isOrderActive)
-                    ? Positioned(
-                        top: MediaQuery.of(context).size.height - 150,
-                        left: (MediaQuery.of(context).size.width / 2) - 100,
-                        child: ActiveOrderRemainder(
-                          workScreen: () {
-
-                            _bloc.fire(NavigationEvent.getActiveOrder, onHandled: (e,m){
-                              print(m.order.price.toString()+"STATUS");
-                              Route route = MaterialPageRoute(
-                                  builder: (context) => WorkScreen(
-                                    activeOrderStatus: m.order.status,
-                                    orderId: m.order.orderId,
-                                    googlePlaceId: m.location.googlePlaceId,
-                                    phoneNumber: m.user.phoneNumber,
-                                    userName: m.user.firstname +
-                                        " " +
-                                        m.user.middlename +
-                                        " " +
-                                        m.user.lastname,
-                                    userProfilePicUrl: m.user.profilePicUrl,
-                                    addressLine: m.location.addressLine,
-                                    landmark: m.location.landmark,
-                                    serviceName: m.service.serviceName,
-                                    timeStamp: m.order.timeStamp,
-                                    amount: m.order.price,
-                                    userProfilePicId: m.user.profilePicId,
-                                    cashOnDelivery: m.order.cashOnDelivery,
-                                    basePrice: m.order.basePrice,
-                                    taxPercent: m.order.taxPercent,
-                                    serviceCharge: m.order.serviceCharge,
-                                  ));
-                              Navigator.pushReplacement(context, route);
-                            });
-                          },
-                        ))
-                    : SizedBox(),
               ],
             );
           }),

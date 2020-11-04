@@ -1,16 +1,13 @@
 import 'dart:developer';
-
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/home_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/home_events.dart';
 import 'package:fixbee_partner/models/home_model.dart';
-
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:async';
 
 class Home extends StatefulWidget {
   @override
@@ -261,9 +258,7 @@ class _HomeState extends State<Home> {
                         ],
                       )
                     : SizedBox(),
-                //  viewModel.activeStatus ? JobNotification() : Container(),
 
-                //model.activeStatus ?  updateLocation() : Container();
               ],
             );
           },

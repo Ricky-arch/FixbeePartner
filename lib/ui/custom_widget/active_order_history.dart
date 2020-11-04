@@ -42,7 +42,7 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                       child: Container(
                         child: Text(
                           widget.orderId.toUpperCase(),
-                          style: TextStyle(color: Colors.black, fontSize: 18),
+                          style: TextStyle(color: Colors.black, fontSize: 16,  fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -92,7 +92,19 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                             child: GestureDetector(
                               onTap: widget.seeMore,
                               child: Container(
-                                color: Colors.yellow.withOpacity(.5),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                  color: Colors.orangeAccent.withOpacity(.9),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black,
+                                      blurRadius: 2.0,
+                                      spreadRadius: 0.0,
+                                      offset: Offset(2.0,
+                                          2.0), // shadow direction: bottom right
+                                    )
+                                  ],
+                                ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(

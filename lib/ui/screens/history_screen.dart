@@ -25,7 +25,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     _bloc = HistoryBloc(HistoryModel());
-    _bloc.fire(HistoryEvent.fetchActiveOrder);
+
     print(_bloc.latestViewModel.pastOrderPresent.toString() + "PPP");
     super.initState();
   }
@@ -48,7 +48,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 elevation: 3,
                 title: Container(
                   height: 32,
-                  color: PrimaryColors.backgroundColor,
+                  color: Colors.transparent,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10.0, 12, 12, 0),
                     child: Text(
@@ -140,127 +140,148 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   Tab(
                     child: FutureBuilder<HistoryModel>(
+                      future: _bloc.fetchBasicPastOrderDetails(),
                       builder: (ctx, snapshot) {
-                        if(!snapshot.hasData){
+                        if (!snapshot.hasData) {
                           return CircularProgressIndicator();
-                        }
-                        else{
+                        } else {
                           return (snapshot.data.pastOrderPresent)
                               ? ListView.builder(
-                              itemCount: snapshot.data.pastOrderList.length,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemBuilder: (BuildContext context, int index) {
-                                return PastOrder(
-                                  backGroundColor: Colors.white,
-                                  amount:
-                                  snapshot.data.pastOrderList[index].totalAmount,
-                                  serviceName:
-                                  snapshot.data.pastOrderList[index].serviceName,
-                                  status: snapshot.data.pastOrderList[index].status,
-                                  timeStamp:
-                                  snapshot.data.pastOrderList[index].timeStamp,
-                                  seeMore: () {
-                                    String orderID =
-                                        snapshot.data.pastOrderList[index].orderId;
-                                    print(orderID.toString() + "OOO");
-                                    _bloc.fire(
-                                        HistoryEvent.fetchAddOnsForEachOrder,
-                                        message: {"orderID": orderID},
-                                        onHandled: (e, m) {
+                                  itemCount: snapshot.data.pastOrderList.length,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemBuilder: (BuildContext context, int i) {
+                                    int index =
+                                        snapshot.data.pastOrderList.length -
+                                            i -
+                                            1;
+                                    return PastOrder(
+                                      backGroundColor: Colors.white,
+                                      amount: snapshot.data.pastOrderList[index]
+                                          .totalAmount,
+                                      loading: snapshot.data.loadingDetails &&
+                                          snapshot.data.pastOrderList[index]
+                                                  .orderId ==
+                                              snapshot.data.selectedOrderID,
+                                      serviceName: snapshot.data
+                                          .pastOrderList[index].serviceName,
+                                      status: snapshot
+                                          .data.pastOrderList[index].status,
+                                      timeStamp: snapshot
+                                          .data.pastOrderList[index].timeStamp,
+                                      seeMore: () {
+                                        String orderID = snapshot
+                                            .data.pastOrderList[index].orderId;
+                                        _bloc.fire(
+                                            HistoryEvent
+                                                .fetchCompletePastOrderInfo,
+                                            message: {'orderID': orderID},
+                                            onHandled: (e, m) {
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (BuildContext context) =>
-                                                      PastOrderBillingScreen(
-                                                        addOns:
-                                                        snapshot.data.jobModel.addons,
-                                                        cashOnDelivery: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .cashOnDelivery,
-                                                        orderId: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .orderId,
-                                                        serviceName: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .serviceName,
-                                                        address: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .addressLine,
-                                                        status: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .status,
-                                                        timeStamp: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .timeStamp,
-                                                        basePrice: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .basePrice,
-                                                        taxPercent: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .taxPercent,
-                                                        serviceCharge: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .serviceCharge,
-                                                        amount: snapshot.data
-                                                            .pastOrderList[index]
-                                                            .totalAmount,
-                                                      )));
+                                                  builder: (BuildContext context) => PastOrderBillingScreen(
+                                                      quantity:
+                                                          m.jobModel.quantity,
+                                                      addOns: m.jobModel.addons,
+                                                      serviceName: m
+                                                          .jobModel.serviceName,
+                                                      amount: m
+                                                          .jobModel.totalAmount,
+                                                      status: m.jobModel.status,
+                                                      orderId:
+                                                          m.jobModel.orderId,
+                                                      cashOnDelivery: m.jobModel
+                                                          .cashOnDelivery,
+                                                      address: m
+                                                          .jobModel.addressLine,
+                                                      userName: m.jobModel
+                                                          .userFirstname,
+                                                      serviceCharge: m.jobModel
+                                                          .serviceCharge,
+                                                      basePrice:
+                                                          m.jobModel.basePrice,
+                                                      taxPercent:
+                                                          m.jobModel.taxPercent,
+                                                      timeStamp: snapshot
+                                                          .data
+                                                          .pastOrderList[index]
+                                                          .timeStamp)));
                                         });
-                                  },
-                                );
-                              })
+                                      },
+                                    );
+                                  })
                               : Text('No Past Orders',
-                              style: TextStyle(color: Colors.black));
+                                  style: TextStyle(color: Colors.black));
                         }
                       },
-                      future: _bloc.fetchPastOrders(),
                     ),
                   ),
                   Tab(
-                    child: (viewModel.isOrderActive)
-                        ? ActiveOrderHistory(
-                            serviceName: viewModel.service.serviceName,
-                            timeStamp: viewModel.order.timeStamp,
-                            orderId: viewModel.order.orderId,
-                            status: 'IN PROGRESS',
-                            seeMore: () {
-                              Route route = MaterialPageRoute(
-                                  builder: (context) => WorkScreen(
-                                        activeOrderStatus:
-                                            viewModel.order.status,
-                                        orderId: viewModel.order.orderId,
-                                        googlePlaceId:
-                                            viewModel.location.googlePlaceId,
-                                        phoneNumber: viewModel.user.phoneNumber,
-                                        userName: viewModel.user.firstname +
-                                            " " +
-                                            viewModel.user.middlename +
-                                            " " +
-                                            viewModel.user.lastname,
-                                        userProfilePicUrl:
-                                            viewModel.user.profilePicUrl,
-                                        addressLine:
-                                            viewModel.location.addressLine,
-                                        landmark: viewModel.location.landmark,
-                                        serviceName:
-                                            viewModel.service.serviceName,
-                                        timeStamp: viewModel.order.timeStamp,
-                                        amount: viewModel.order.price,
-                                        userProfilePicId:
-                                            viewModel.user.profilePicId,
-                                        cashOnDelivery:
-                                            viewModel.order.cashOnDelivery,
-                                        basePrice: viewModel.order.basePrice,
-                                        taxPercent: viewModel.order.taxPercent,
-                                        serviceCharge:
-                                            viewModel.order.serviceCharge,
-                                      ));
-                              Navigator.pushReplacement(context, route);
-                            },
-                          )
-                        : Text('No orders in progress',
-                            style: TextStyle(color: Colors.black)),
-                  ),
+                      child: FutureBuilder<HistoryModel>(
+                          future: _bloc.fetchActiveOrder(),
+                          builder: (ctx, snapshot) {
+                            if (!snapshot.hasData)
+                              return CircularProgressIndicator();
+                            else {
+                              return (snapshot.data.isOrderActive)
+                                  ? ActiveOrderHistory(
+                                      serviceName:
+                                          snapshot.data.service.serviceName,
+                                      timeStamp: snapshot.data.order.timeStamp,
+                                      orderId: snapshot.data.order.orderId,
+                                      status: 'IN PROGRESS',
+                                      seeMore: () {
+                                        Route route = MaterialPageRoute(
+                                            builder: (context) => WorkScreen(
+                                                  userId:
+                                                      snapshot.data.user.userId,
+                                                  activeOrderStatus: snapshot
+                                                      .data.order.status,
+                                                  orderId: snapshot
+                                                      .data.order.orderId,
+                                                  googlePlaceId: snapshot.data
+                                                      .location.googlePlaceId,
+                                                  phoneNumber: snapshot
+                                                      .data.user.phoneNumber,
+                                                  userName: snapshot
+                                                          .data.user.firstname +
+                                                      " " +
+                                                      snapshot.data.user
+                                                          .middlename +
+                                                      " " +
+                                                      snapshot
+                                                          .data.user.lastname,
+                                                  userProfilePicUrl: snapshot
+                                                      .data.user.profilePicUrl,
+                                                  addressLine: snapshot.data
+                                                      .location.addressLine,
+                                                  landmark: snapshot
+                                                      .data.location.landmark,
+                                                  serviceName: snapshot
+                                                      .data.service.serviceName,
+                                                  timeStamp: snapshot
+                                                      .data.order.timeStamp,
+                                                  amount:
+                                                      snapshot.data.order.price,
+                                                  userProfilePicId: snapshot
+                                                      .data.user.profilePicId,
+                                                  cashOnDelivery: snapshot.data
+                                                      .order.cashOnDelivery,
+                                                  basePrice: snapshot
+                                                      .data.order.basePrice,
+                                                  taxPercent: snapshot
+                                                      .data.order.taxPercent,
+                                                  serviceCharge: snapshot
+                                                      .data.order.serviceCharge,
+                                                ));
+                                        Navigator.pushReplacement(
+                                            context, route);
+                                      },
+                                    )
+                                  : Text('No orders in progress',
+                                      style: TextStyle(color: Colors.black));
+                            }
+                          })),
                 ],
               )),
             ],

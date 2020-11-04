@@ -40,35 +40,11 @@ class SplashBloc extends Bloc<Event, SplashModel> {
     }
   }
 
-
-  Future<bool> _checkConnection() async {
-    bool internet = await __ping('google.com');
-    if (!internet)
-      {//push(SplashNoInternet());
-         }
-    else {
-      try {
-        Map response = await RequestMaker(
-          endpoint: EndPoints.INFO,
-          method: 1,
-        ).makeRequest().timeout(
-          Duration(seconds: Constants.PING_TIMEOUT),
-          onTimeout: () {
-            throw ('TIMEOUT');
-          },
-        );
-        //TODO check for update
-        if (response == null || !response.containsKey('version')) {
-          //push(SplashServerError());
-        } else
-          return true;
-      } catch (_) {
-        //push(SplashServerError());
-      }
-    }
-    return false;
-  }
   Future<SplashModel> _fetchToken() async {
+    bool internet = await __ping(Constants.HOST_IP);
+    log(internet.toString(), name: "INTERNET");
+    if (!internet) return latestViewModel..connection = false;
+
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.containsKey(SharedPrefKeys.TOKEN)) {
       String token = pref.getString(SharedPrefKeys.TOKEN);
@@ -85,29 +61,32 @@ class SplashBloc extends Bloc<Event, SplashModel> {
   Future<Bee> _checkToken(String token) async {
     String query = '''
     {
-          Me{
-            ... on Bee{
-            DisplayPicture{
+  Me {
+    ... on Bee {
+      Ratings{
+        Score
+      }
+      DisplayPicture {
         id
       }
-            Services{
+      Services {
         ID
         Name
       }
-              Name{
-                Firstname
-                Middlename
-                Lastname
-              }
-              Phone{
-                Number
-                Verified
-              }      
-            }
-          }
-        }
-    ''';
+      Name {
+        Firstname
+        Middlename
+        Lastname
+      }
+      Phone {
+        Number
+        Verified
+      }
+    }
+  }
+}
 
+    ''';
     Map response = await CustomGraphQLClient.instance.query(query);
 
     Map name = response['Me']['Name'];
@@ -120,8 +99,10 @@ class SplashBloc extends Bloc<Event, SplashModel> {
       ..lastName = name['Lastname'] ?? ''
       ..phoneNumber = phone['Number']
       ..verified = phone['Verified']
-      ..dpUrl = EndPoints.DOCUMENT+'?id='+response['Me']['DisplayPicture']['id']
+      ..dpUrl =
+          EndPoints.DOCUMENT + '?id=' + response['Me']['DisplayPicture']['id']
       ..services = services.map((service) {
+        if(service!=null)
         return ServiceOptionModel()
           ..id = service['ID']
           ..serviceName = service['Name'];

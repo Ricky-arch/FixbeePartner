@@ -150,22 +150,43 @@ class _BankDetailsState extends State<BankDetails> {
               Row(
                 children: [
                   Spacer(),
-                  Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: RaisedButton(
-                        color: PrimaryColors.backgroundColor,
-                        onPressed: () {
-                          _newAccountForm(context);
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                            "Add an account?",
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.yellow),
+                  InkWell(
+                    child: GestureDetector(
+                      onTap: () {
+                        _newAccountForm(context);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: Colors.orangeAccent.withOpacity(.9),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black,
+                                blurRadius: 2.0,
+                                spreadRadius: 0.0,
+                                offset: Offset(2.0,
+                                    2.0), // shadow direction: bottom right
+                              )
+                            ],
+                          ),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                "Add Bank Account",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
                           ),
                         ),
-                      ))
+                      ),
+                    ),
+                  ),
                 ],
               )
             ],
@@ -346,27 +367,26 @@ class _BankDetailsState extends State<BankDetails> {
                                           _ifscCode.clear();
                                           _bankAccountNumber.clear();
                                           Navigator.pop(context);
-                                        } else
-                                          {
-                                            showDialog(
-                                                context: context,
-                                                builder: (BuildContext context) {
-                                                  return AlertDialog(
-                                                    content: Text(
-                                                      "Invalid Account!",
-                                                      style: TextStyle(
-                                                          color: PrimaryColors
-                                                              .backgroundColor,
-                                                          fontWeight:
-                                                          FontWeight.bold,
-                                                          fontSize: 14),
-                                                    ),
-                                                  );
-                                                });
-                                            _accountHoldersName.clear();
-                                            _ifscCode.clear();
-                                            _bankAccountNumber.clear();
-                                          }
+                                        } else {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  content: Text(
+                                                    "Invalid Account!",
+                                                    style: TextStyle(
+                                                        color: PrimaryColors
+                                                            .backgroundColor,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14),
+                                                  ),
+                                                );
+                                              });
+                                          _accountHoldersName.clear();
+                                          _ifscCode.clear();
+                                          _bankAccountNumber.clear();
+                                        }
                                       },
                                     );
                                   }

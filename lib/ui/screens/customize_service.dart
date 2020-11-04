@@ -82,7 +82,19 @@ class _CustomizeServiceState extends State<CustomizeService> {
                           },
                           child: Container(
                             width: MediaQuery.of(context).size.width / 5,
-                            color: Colors.orangeAccent.withOpacity(.5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.0),
+                              color: Colors.orangeAccent.withOpacity(.9),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  blurRadius: 2.0,
+                                  spreadRadius: 0.0,
+                                  offset: Offset(2.0,
+                                      2.0), // shadow direction: bottom right
+                                )
+                              ],
+                            ),
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
@@ -113,7 +125,19 @@ class _CustomizeServiceState extends State<CustomizeService> {
                           },
                           child: Container(
                             width: MediaQuery.of(context).size.width / 5,
-                            color: Colors.orangeAccent.withOpacity(.5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5.0),
+                              color: Colors.orangeAccent.withOpacity(.9),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  blurRadius: 2.0,
+                                  spreadRadius: 0.0,
+                                  offset: Offset(2.0,
+                                      2.0), // shadow direction: bottom right
+                                )
+                              ],
+                            ),
                             child: Center(
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),

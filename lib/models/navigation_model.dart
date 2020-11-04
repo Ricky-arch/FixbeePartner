@@ -50,7 +50,7 @@ class Order {
   bool cashOnDelivery;
   bool slotted;
   String slottedAt;
-  String quantity;
+  int quantity;
   String otp;
   String timeStamp;
   int price;

@@ -22,8 +22,8 @@ class EndPoints{
   static const DOCUMENT="${Constants.PROTOCOL}://${Constants.HOST_IP}/document";
   static const INFO="${Constants.PROTOCOL}://${Constants.HOST_IP}/info";
   static const TNC="${Constants.PROTOCOL}://${Constants.HOST_IP}/tnc";
+  static const PRIVACY_POLICY="${Constants.PROTOCOL}://${Constants.HOST_IP}/privacy";
 }
-
 class SharedPrefKeys{
   static const TOKEN='token@bee';
   static const  ORDER='ORDER';
