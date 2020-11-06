@@ -40,10 +40,12 @@ class CustomizeServiceBloc
     List services = response['Me']['Services'];
 
     services.forEach((service) {
-      ServiceOptionModel eachService = ServiceOptionModel();
-      eachService.serviceName = service['Name'];
-      eachService.id = service['ID'];
-      selectedService.add(eachService);
+      if(service!=null){
+        ServiceOptionModel eachService = ServiceOptionModel();
+        eachService.serviceName = service['Name'];
+        eachService.id = service['ID'];
+        selectedService.add(eachService);
+      }
     });
     print("SSL" + services.length.toString());
     return latestViewModel

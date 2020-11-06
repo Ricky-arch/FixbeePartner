@@ -66,7 +66,7 @@ class WorkScreen extends StatefulWidget {
 class _WorkScreenState extends State<WorkScreen> {
   WorkScreenBloc _bloc;
   bool _onNotificationReceivedForCompletionOfPayOnline = false;
-  bool _onServiceStarted;
+  bool _onServiceStarted = false;
 
   String gid, session, fields, key;
   String formattedAddress;
@@ -118,9 +118,12 @@ class _WorkScreenState extends State<WorkScreen> {
         _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
             message: {"otp": validOtp, "orderId": widget.orderId},
             onHandled: (e, m) {
-          _onServiceStarted = m.onServiceStarted;
-         if(m.otpInvalidMessage!="")
-           _showOtpInvalidBox(m.otpInvalidMessage);
+          setState(() {
+            _onServiceStarted = m.onServiceStarted;
+          });
+
+          if (m.otpInvalidMessage != "")
+            _showOtpInvalidBox(m.otpInvalidMessage);
         });
       }
     } on PlatformException {
@@ -284,13 +287,17 @@ class _WorkScreenState extends State<WorkScreen> {
                                   additionalReview.text.toString() +
                                       rating.toString(),
                                   name: "REVIEW");
-                              _bloc.fire(WorkScreenEvents.rateUser, message: {
-                                'accountID': widget.userId,
-                                'Score': rating,
-                                'Review': additionalReview.text.toString()
-                              }, onHandled: (e, m) {
-                                Navigator.pop(context);
-                              },);
+                              _bloc.fire(
+                                WorkScreenEvents.rateUser,
+                                message: {
+                                  'accountID': widget.userId,
+                                  'Score': rating,
+                                  'Review': additionalReview.text.toString()
+                                },
+                                onHandled: (e, m) {
+                                  Navigator.pop(context);
+                                },
+                              );
                             },
                             child: Padding(
                               padding:
@@ -531,7 +538,9 @@ class _WorkScreenState extends State<WorkScreen> {
                   children: <Widget>[
                     InkWell(
                       child: GestureDetector(
-                        onTap: (widget.activeOrderStatus != "RESOLVED")
+                        onTap: (widget.activeOrderStatus != "RESOLVED" ||
+                                _bloc.latestViewModel.activeOrderStatus !=
+                                    "RESOLVED")
                             ? () {
                                 scanBarcode();
                               }
@@ -557,7 +566,10 @@ class _WorkScreenState extends State<WorkScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    (widget.activeOrderStatus != "RESOLVED")
+                                    (widget.activeOrderStatus != "RESOLVED" ||
+                                            _bloc.latestViewModel
+                                                    .activeOrderStatus !=
+                                                "RESOLVED")
                                         ? Icons.camera_alt
                                         : Icons.check_circle_outline,
                                     size: 15,
@@ -566,7 +578,10 @@ class _WorkScreenState extends State<WorkScreen> {
                                     width: 5,
                                   ),
                                   Text(
-                                    (widget.activeOrderStatus != "RESOLVED")
+                                    (widget.activeOrderStatus != "RESOLVED" ||
+                                            _bloc.latestViewModel
+                                                    .activeOrderStatus !=
+                                                "RESOLVED")
                                         ? "SCAN"
                                         : "SCANNED",
                                     style:
@@ -641,7 +656,8 @@ class _WorkScreenState extends State<WorkScreen> {
                 ),
               ),
               Divider(),
-              (widget.activeOrderStatus != "RESOLVED")
+              (widget.activeOrderStatus != "RESOLVED" ||
+                      _bloc.latestViewModel.activeOrderStatus != "RESOLVED")
                   ? Expanded(
                       child: mapWidget = GoogleMap(
                       markers: markers,
@@ -662,27 +678,36 @@ class _WorkScreenState extends State<WorkScreen> {
                           height: 40,
                         ),
                         (widget.cashOnDelivery)
-                            ? Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  child: RaisedButton(
-                                    elevation: 3,
-                                    textColor: Colors.yellow,
-                                    color: PrimaryColors.backgroundColor,
-                                    onPressed: () {
-                                      _showCompleteOrderDialogBoxForPayOnDelivery();
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14),
-                                      child: Text(
-                                        "Done with the fixing?",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
+                            ? InkWell(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _showCompleteOrderDialogBoxForPayOnDelivery();
+                                  },
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width / 3,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                      color:
+                                          Colors.orangeAccent.withOpacity(.9),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black,
+                                          blurRadius: 2.0,
+                                          spreadRadius: 0.0,
+                                          offset: Offset(2.0,
+                                              2.0), // shadow direction: bottom right
+                                        )
+                                      ],
                                     ),
+                                    child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          "ARE YOU DONE?",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center,
+                                        )),
                                   ),
                                 ),
                               )
@@ -769,13 +794,21 @@ class _WorkScreenState extends State<WorkScreen> {
           return AlertDialog(
             content: Text("Are you sure?"),
             actions: <Widget>[
-              FlatButton(
+              RaisedButton(
+                color: PrimaryColors.backgroundColor,
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("No"),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "NO",
+                    style: TextStyle(color: Colors.orangeAccent),
+                  ),
+                ),
               ),
-              FlatButton(
+              RaisedButton(
+                color: PrimaryColors.backgroundColor,
                 onPressed: () {
                   _bloc.fire(WorkScreenEvents.onJobCompletion,
                       message: {'orderID': widget.orderId}, onHandled: (e, m) {
@@ -805,8 +838,14 @@ class _WorkScreenState extends State<WorkScreen> {
                           content: new Text('Unable to complete order!')));
                   });
                 },
-                child: Text("Yes"),
-              ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "YES",
+                    style: TextStyle(color: Colors.orangeAccent),
+                  ),
+                ),
+              )
             ],
           );
         });
@@ -943,8 +982,7 @@ class _WorkScreenState extends State<WorkScreen> {
           return AlertDialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            content: Text(
-                message),
+            content: Text(message),
             actions: <Widget>[
               RaisedButton(
                 color: PrimaryColors.backgroundColor,

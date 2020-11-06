@@ -104,35 +104,35 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   }
 }''';
     Map response;
-    try{
+    try {
       response = await CustomGraphQLClient.instance.mutate(query);
       if (response['ResolveOrder']['Status'] == 'RESOLVED')
         latestViewModel
           ..orderResolved = true
-          ..otpValid = true;
-      else
+          ..otpValid = true
+          ..activeOrderStatus = "RESOLVED";
+      else if (response.containsKey("errors"))
         latestViewModel..otpValid = false;
-    }
-    catch(e){
-    latestViewModel..otpInvalidMessage=response['message'];
+    } catch (e) {
+      latestViewModel..otpInvalidMessage = response['message'];
     }
 
     return latestViewModel;
   }
 
   Future<WorkScreenModel> rateUser(Map<String, dynamic> message) async {
-    String accountID=message['accountID'];
-    int score=message['Score'];
-    String review= message['Review'];
+    String accountID = message['accountID'];
+    int score = message['Score'];
+    String review = message['Review'];
 
-    String query= '''
+    String query = '''
     mutation{
   AddRating(input:{AccountId:"$accountID", Score:$score, Remark:"$review"}){
     Score
   }
 }
     ''';
-   Map response= await CustomGraphQLClient.instance.mutate(query);
+    Map response = await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
 
@@ -199,7 +199,7 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
         ..basePrice = addon['Service']['Pricing']['BasePrice']
         ..serviceCharge = addon['Service']['Pricing']['ServiceCharge']
         ..taxPercent = addon['Service']['Pricing']['TaxPercent']
-        ..amount=addon['Amount'];
+        ..amount = addon['Amount'];
       latestViewModel.jobModel.addons.add(service);
     }
     return latestViewModel;

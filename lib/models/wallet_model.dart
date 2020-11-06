@@ -10,5 +10,6 @@ class WalletModel extends ViewModel{
   int numberOfAccounts;
   String paymentID;
   String signature;
+  bool isProcessed=false;
   List<BankModel> bankAccountList=[];
 }

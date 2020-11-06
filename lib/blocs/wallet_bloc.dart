@@ -5,6 +5,7 @@ import 'package:fixbee_partner/events/wallet_event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
 import 'package:fixbee_partner/models/wallet_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'dart:developer';
 
 class WalletBloc extends Bloc<WalletEvent, WalletModel>
     with Trackable<WalletEvent, WalletModel> {
@@ -25,7 +26,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     if (event == WalletEvent.createWalletDeposit) {
       return await createWalletDeposit(message);
     }
-    if(event == WalletEvent.processWalletDeposit){
+    if (event == WalletEvent.processWalletDeposit) {
       return await processWalletDeposit(message);
     }
     return latestViewModel;
@@ -111,18 +112,19 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     return latestViewModel..paymentID = response['order_id'];
   }
 
-  Future<WalletModel> processWalletDeposit(Map<String, dynamic> message) async{
-    String paymentID=message['paymentID'];
-    String paymentSignature=message['paymentSignature'];
-    String query='''
+  Future<WalletModel> processWalletDeposit(Map<String, dynamic> message) async {
+    String paymentID = message['paymentID'];
+    String paymentSignature = message['paymentSignature'];
+    String query = '''
     mutation {
-  ProcessWalletDeposit(
+  isProcessed:ProcessWalletDeposit(
     PaymentId: "$paymentID"
     PaymentSignature: "$paymentSignature"
   )
 }
     ''';
-    await CustomGraphQLClient.instance.mutate(query);
-    return latestViewModel;
+    Map response=await CustomGraphQLClient.instance.mutate(query);
+    log(response['isProcessed'].toString(), name:"isProcessed");
+    return latestViewModel..isProcessed=response['isProcessed'];
   }
 }

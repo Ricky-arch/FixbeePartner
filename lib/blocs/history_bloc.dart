@@ -170,8 +170,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
 }}''';
     Map response= await CustomGraphQLClient.instance.query(query);
     List orders = response['Me']['Orders'];
-    if(orders.isEmpty || orders.length==0 || orders==null){
-      return latestViewModel..pastOrderPresent=false;
+    if(orders.isEmpty || orders.length==0 ){
+      if(orders==null)
+        return latestViewModel..pastOrderPresent=false;
     }
     List<OrderModel> pastOrders = [];
     orders.forEach((order) {

@@ -4,6 +4,7 @@ import 'package:fixbee_partner/models/add_new_service_model.dart';
 import 'package:fixbee_partner/models/service_options.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
+
 class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel> {
   AddNewServiceBloc(AddNewServiceModel genesisViewModel)
       : super(genesisViewModel);
@@ -46,17 +47,20 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel> {
 
     List allServices = responseAll['Services'];
     List mine = response['Me']['Services'];
-    allServices.removeWhere((e) {
-      return ((String id, List<dynamic> mine) {
-        for (var i in mine) {
-          if (i['ID'] == id) {
-            mine.remove(i);
-            return true;
+    if (mine != null)
+      allServices.removeWhere((e) {
+        return ((String id, List<dynamic> mine) {
+
+          for (var i in mine) {
+
+            if ( i!=null && i['ID'] == id) {
+              mine.remove(i);
+              return true;
+            }
           }
-        }
-        return false;
-      })(e['ID'], mine);
-    });
+          return false;
+        })(e['ID'], mine);
+      });
 
     Map<String, List<ServiceOptionModel>> sortedServices = {};
 

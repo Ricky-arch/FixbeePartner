@@ -118,18 +118,13 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
   subscribeToLocationUpdate(Function(Position) onUpdateLocation) {
     Position location;
 
-    var stream = Stream.periodic(
-      Duration(seconds: 10),
-    );
 
-    locationStream = stream.listen((event) async {
-      location = await _getLocation();
-
+    locationTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+      log("Location Updated", name: "LOCATION1");
+      Position location = await _getLocation();
       updateLiveLocation(
           {'latitude': location.latitude, 'longitude': location.longitude});
-      onUpdateLocation(location);
     });
-
   }
 
   unsubscribeToLocationUpdate() {

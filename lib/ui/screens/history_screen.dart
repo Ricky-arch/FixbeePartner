@@ -145,6 +145,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         if (!snapshot.hasData) {
                           return CircularProgressIndicator();
                         } else {
+                          log(snapshot.data.pastOrderPresent.toString(), name: "PastOrder");
                           return (snapshot.data.pastOrderPresent)
                               ? ListView.builder(
                                   itemCount: snapshot.data.pastOrderList.length,
@@ -223,6 +224,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             if (!snapshot.hasData)
                               return CircularProgressIndicator();
                             else {
+
                               return (snapshot.data.isOrderActive)
                                   ? ActiveOrderHistory(
                                       serviceName:
