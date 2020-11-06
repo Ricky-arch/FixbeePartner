@@ -538,9 +538,7 @@ class _WorkScreenState extends State<WorkScreen> {
                   children: <Widget>[
                     InkWell(
                       child: GestureDetector(
-                        onTap: (widget.activeOrderStatus != "RESOLVED" ||
-                                _bloc.latestViewModel.activeOrderStatus !=
-                                    "RESOLVED")
+                        onTap: (widget.activeOrderStatus != "RESOLVED" )
                             ? () {
                                 scanBarcode();
                               }
@@ -566,10 +564,7 @@ class _WorkScreenState extends State<WorkScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    (widget.activeOrderStatus != "RESOLVED" ||
-                                            _bloc.latestViewModel
-                                                    .activeOrderStatus !=
-                                                "RESOLVED")
+                                    (widget.activeOrderStatus != "RESOLVED" )
                                         ? Icons.camera_alt
                                         : Icons.check_circle_outline,
                                     size: 15,
@@ -578,10 +573,8 @@ class _WorkScreenState extends State<WorkScreen> {
                                     width: 5,
                                   ),
                                   Text(
-                                    (widget.activeOrderStatus != "RESOLVED" ||
-                                            _bloc.latestViewModel
-                                                    .activeOrderStatus !=
-                                                "RESOLVED")
+                                    (widget.activeOrderStatus != "RESOLVED"
+                                            )
                                         ? "SCAN"
                                         : "SCANNED",
                                     style:
@@ -625,6 +618,7 @@ class _WorkScreenState extends State<WorkScreen> {
                     InkWell(
                       child: GestureDetector(
                         onTap: () {
+                          log(_bloc.latestViewModel.activeOrderStatus.toString(), name: "AOS");
                           _showJobInfoDialogBox();
                         },
                         child: Container(
@@ -656,8 +650,8 @@ class _WorkScreenState extends State<WorkScreen> {
                 ),
               ),
               Divider(),
-              (widget.activeOrderStatus != "RESOLVED" ||
-                      _bloc.latestViewModel.activeOrderStatus != "RESOLVED")
+              (widget.activeOrderStatus != "RESOLVED"
+                      )
                   ? Expanded(
                       child: mapWidget = GoogleMap(
                       markers: markers,

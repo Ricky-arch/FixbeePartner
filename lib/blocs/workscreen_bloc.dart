@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fixbee_partner/events/workscreen_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/workscreen_model.dart';
@@ -116,7 +118,7 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     } catch (e) {
       latestViewModel..otpInvalidMessage = response['message'];
     }
-
+    log(response['ResolveOrder']['Status'].toString(), name: "AOS");
     return latestViewModel;
   }
 
