@@ -118,6 +118,8 @@ class _WorkScreenState extends State<WorkScreen> {
         _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
             message: {"otp": validOtp, "orderId": widget.orderId},
             onHandled: (e, m) {
+          _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
+              message: {'orderID': widget.orderId});
           setState(() {
             _onServiceStarted = m.onServiceStarted;
           });
@@ -162,6 +164,8 @@ class _WorkScreenState extends State<WorkScreen> {
     _onServiceStarted = widget.onServiceStarted;
     String orderId = widget.orderId;
     _bloc = WorkScreenBloc(WorkScreenModel());
+    _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
+        message: {'orderID': widget.orderId});
     log(widget.activeOrderStatus, name: "STATUS");
     _setupFCM();
 
@@ -538,7 +542,7 @@ class _WorkScreenState extends State<WorkScreen> {
                   children: <Widget>[
                     InkWell(
                       child: GestureDetector(
-                        onTap: (widget.activeOrderStatus != "RESOLVED" )
+                        onTap: (viewModel.activeOrderStatus != "RESOLVED")
                             ? () {
                                 scanBarcode();
                               }
@@ -564,7 +568,7 @@ class _WorkScreenState extends State<WorkScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                    (widget.activeOrderStatus != "RESOLVED" )
+                                    (viewModel.activeOrderStatus != "RESOLVED")
                                         ? Icons.camera_alt
                                         : Icons.check_circle_outline,
                                     size: 15,
@@ -573,8 +577,7 @@ class _WorkScreenState extends State<WorkScreen> {
                                     width: 5,
                                   ),
                                   Text(
-                                    (widget.activeOrderStatus != "RESOLVED"
-                                            )
+                                    (viewModel.activeOrderStatus != "RESOLVED")
                                         ? "SCAN"
                                         : "SCANNED",
                                     style:
@@ -618,7 +621,10 @@ class _WorkScreenState extends State<WorkScreen> {
                     InkWell(
                       child: GestureDetector(
                         onTap: () {
-                          log(_bloc.latestViewModel.activeOrderStatus.toString(), name: "AOS");
+                          log(
+                              _bloc.latestViewModel.activeOrderStatus
+                                  .toString(),
+                              name: "AOS");
                           _showJobInfoDialogBox();
                         },
                         child: Container(
@@ -650,8 +656,7 @@ class _WorkScreenState extends State<WorkScreen> {
                 ),
               ),
               Divider(),
-              (widget.activeOrderStatus != "RESOLVED"
-                      )
+              (viewModel.activeOrderStatus != "RESOLVED")
                   ? Expanded(
                       child: mapWidget = GoogleMap(
                       markers: markers,

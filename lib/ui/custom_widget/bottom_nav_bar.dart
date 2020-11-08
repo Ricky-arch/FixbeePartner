@@ -19,10 +19,28 @@ class _BottomNavBarState extends State<BottomNavBar>
         Icon(
           Icons.home,
         ),
-        Text("Home", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),)),
-    BottomNavigationItem(Icon(Icons.event), Text("History", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),)),
-    BottomNavigationItem(Icon(Icons.monetization_on), Text("Wallet", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),)),
-    BottomNavigationItem(Icon(Icons.person_outline), Text("Profile", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),)),
+        Text(
+          "Home",
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        )),
+    BottomNavigationItem(
+        Icon(Icons.event),
+        Text(
+          "History",
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        )),
+    BottomNavigationItem(
+        Icon(Icons.monetization_on),
+        Text(
+          "Wallet",
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        )),
+    BottomNavigationItem(
+        Icon(Icons.person_outline),
+        Text(
+          "Profile",
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        )),
   ];
 
   Widget buildItem(BottomNavigationItem item, bool isSelected) {
@@ -68,7 +86,6 @@ class _BottomNavBarState extends State<BottomNavBar>
   @override
   bool get wantKeepAlive => true;
 
-
   @override
   // ignore: must_call_super
   Widget build(BuildContext context) {
@@ -79,7 +96,7 @@ class _BottomNavBarState extends State<BottomNavBar>
       ], color: PrimaryColors.backgroundColor),
       //color: Colors.teal,
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height/12,
+      height: MediaQuery.of(context).size.height / 12,
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: items.map((item) {

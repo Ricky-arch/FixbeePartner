@@ -169,7 +169,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     Status
   }
 }''';
+
     Map response = await CustomGraphQLClient.instance.query(query);
+    log(response['Order']['Status'].toString(), name: "Order Status");
     return latestViewModel..activeOrderStatus = response['Order']['Status'];
   }
 
