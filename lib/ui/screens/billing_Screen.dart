@@ -43,17 +43,21 @@ class BillingScreenState extends State<BillingScreen> {
   double amount;
   @override
   void initState() {
-    bp = widget.basePrice;
-    sc = widget.serviceCharge;
-    tax = (bp + sc) * (widget.taxPercent / 100);
     amount = widget.amount.toDouble();
     for (var addOn in widget.addOns) {
-      bp = bp + addOn.basePrice;
-      sc = sc + addOn.serviceCharge;
-      tax = tax + ((bp + sc) * (widget.taxPercent / 100));
-      amount = amount + bp + sc + tax;
-
+      amount = amount + addOn.amount.toDouble();
     }
+//    bp = widget.basePrice;
+//    sc = widget.serviceCharge;
+//    tax = (bp + sc) * (widget.taxPercent / 100);
+//    amount = widget.amount.toDouble();
+//    for (var addOn in widget.addOns) {
+//      bp = bp + addOn.basePrice;
+//      sc = sc + addOn.serviceCharge;
+//      tax = tax + ((bp + sc) * (widget.taxPercent / 100));
+//      amount = amount + bp + sc + tax;
+//
+//    }
 
     super.initState();
   }
@@ -222,8 +226,8 @@ class BillingScreenState extends State<BillingScreen> {
                       title: 'Tax',
                       value: Constants.rupeeSign +
                           (widget.taxPercent *
-                                  ((widget.basePrice + widget.serviceCharge) /
-                                      10000))
+                              ((widget.basePrice + widget.serviceCharge) /
+                                  10000))
                               .toStringAsFixed(2),
                     ),
                     Padding(
@@ -253,7 +257,8 @@ class BillingScreenState extends State<BillingScreen> {
                                 fontWeight: FontWeight.bold, fontSize: 15),
                           ),
                           Text(
-                            Constants.rupeeSign + " ${(widget.amount) / 100}",
+                            Constants.rupeeSign +
+                                " ${(widget.basePrice / 100) + (widget.serviceCharge / 100) + (widget.taxPercent * ((widget.basePrice + widget.serviceCharge) / 10000))}",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 15),
                           ),

@@ -1,21 +1,21 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
+import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/service_options.dart';
 import 'package:fixbee_partner/models/splash_model.dart';
 import 'package:fixbee_partner/models/view_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
-import 'package:fixbee_partner/utils/request_maker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data_store.dart';
 
-class SplashBloc extends Bloc<Event, SplashModel> {
+class SplashBloc extends Bloc<Event, SplashModel>
+    with Trackable<Event, SplashModel> {
   SplashBloc(ViewModel genesisViewModel) : super(genesisViewModel) {
     getMessage();
   }
@@ -43,7 +43,10 @@ class SplashBloc extends Bloc<Event, SplashModel> {
   Future<SplashModel> _fetchToken() async {
     bool internet = await __ping(Constants.HOST_IP);
     log(internet.toString(), name: "INTERNET");
-    if (!internet) return latestViewModel..connection = false;
+    if (!internet)
+      return latestViewModel..connection = false;
+    else
+      latestViewModel.connection = true;
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.containsKey(SharedPrefKeys.TOKEN)) {
@@ -63,6 +66,7 @@ class SplashBloc extends Bloc<Event, SplashModel> {
     {
   Me {
     ... on Bee {
+    Active
       Ratings{
         Score
       }
@@ -88,27 +92,30 @@ class SplashBloc extends Bloc<Event, SplashModel> {
 
     ''';
     Map response = await CustomGraphQLClient.instance.query(query);
+    Bee bee;
 
     Map name = response['Me']['Name'];
     Map phone = response['Me']['Phone'];
-    List services = response['Me']['Services'];
+    List services = response['Me']['Services'] ?? [];
+    String dpUrl = response['Me']['DisplayPicture']['id'] ?? '';
 
-    Bee bee = Bee()
+    bee = Bee()
       ..firstName = name['Firstname']
       ..middleName = name['Middlename'] ?? ''
       ..lastName = name['Lastname'] ?? ''
       ..phoneNumber = phone['Number']
       ..verified = phone['Verified']
-      ..dpUrl =
-          EndPoints.DOCUMENT + '?id=' + response['Me']['DisplayPicture']['id']
+      ..active = response['Me']['Active']
+      ..dpUrl = EndPoints.DOCUMENT + '?id=' + dpUrl
       ..services = services.map((service) {
-        if(service!=null)
-        return ServiceOptionModel()
-          ..id = service['ID']
-          ..serviceName = service['Name'];
+        if (service != null)
+          return ServiceOptionModel()
+            ..id = service['ID']
+            ..serviceName = service['Name'];
       }).toList();
 
     DataStore.me = bee;
+
     return bee;
   }
 
@@ -126,6 +133,12 @@ class SplashBloc extends Bloc<Event, SplashModel> {
         print("onResume: $message");
       },
     );
+  }
+
+  @override
+  SplashModel setTrackingFlag(Event event, bool trackFlag, Map message) {
+    if (event == Event(100)) latestViewModel..tryReconnecting = trackFlag;
+    return latestViewModel;
   }
 }
 

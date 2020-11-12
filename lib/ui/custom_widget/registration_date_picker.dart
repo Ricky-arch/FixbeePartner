@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../Constants.dart';
+
 class RegistrationDatePicker extends StatefulWidget {
   final TextEditingController controller;
   final Function(bool) onDateEntered;
@@ -21,25 +22,21 @@ class _RegistrationDatePickerState extends State<RegistrationDatePicker> {
     return Column(children: <Widget>[
       DateTimeField(
         controller: widget.controller,
-        validator: (value) {
-          if (value.toIso8601String().isEmpty) {
-            return 'Please Enter Your Date of Birth';
-          }
-          return null;
-        },
         style: TextStyle(
             color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
         decoration: InputDecoration(
-//          fillColor: Colors.white,
-//          filled: true,
+          fillColor: Colors.white,
+          filled: true,
+          errorStyle: TextStyle(
+              color: PrimaryColors.whiteColor, fontWeight: FontWeight.bold),
           labelText: "Date of Birth",
           labelStyle:
-          TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-              color: Colors.black, width: 2.0),
-          borderRadius: BorderRadius.circular(15.0),
-        )
+              TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+//        enabledBorder: OutlineInputBorder(
+//          borderSide: const BorderSide(
+//              color: Colors.black, width: 2.0),
+//          borderRadius: BorderRadius.circular(15.0),
+//        )
         ),
         format: format,
         onShowPicker: (context, currentValue) {
@@ -79,12 +76,12 @@ class CustomTheme extends Theme {
 
   CustomTheme(Widget child)
       : super(
-      child: child,
-      data: new ThemeData(
-          primaryColor: blueDark,
-          accentColor: yellow,
-          cardColor: blueLight,
-          backgroundColor: blueDark,
-          highlightColor: red,
-          splashColor: green));
+            child: child,
+            data: new ThemeData(
+                primaryColor: blueDark,
+                accentColor: yellow,
+                cardColor: blueLight,
+                backgroundColor: blueDark,
+                highlightColor: red,
+                splashColor: green));
 }

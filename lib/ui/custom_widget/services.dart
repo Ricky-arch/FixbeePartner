@@ -20,27 +20,7 @@ class _ServicesState extends State<Services> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Container(
 
-          color: PrimaryColors.backgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              children: <Widget>[
-                SizedBox(width: MediaQuery.of(context).size.width / 40),
-                Center(
-                    child: Text(
-                  "AVAILABLE SERVICES",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600),
-                )),
-              ],
-            ),
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

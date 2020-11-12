@@ -5,4 +5,5 @@ class AddNewServiceModel extends ViewModel {
   Map<String, List<ServiceOptionModel>> allServicesAvailableForMe = {};
   List<ServiceOptionModel> newSelectedServices = [];
   int numberOfUnselectedServices = 0;
+  bool loading=false;
 }

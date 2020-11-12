@@ -5,6 +5,7 @@ class CustomizeServiceModel extends ViewModel{
  List<ServiceOptionModel> selectedServiceOptionModel= [];
  int numberOfSelectedServices=0;
  bool fetchSelectedServices=false;
+ bool deletingSelectedService=false;
  List<ServiceOptionModel> unselectedServiceOptionModel=[];
  int numberOfUnselectedServices=0;
 }

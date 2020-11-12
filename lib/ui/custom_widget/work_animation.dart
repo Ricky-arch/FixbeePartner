@@ -1,5 +1,6 @@
 import 'package:fixbee_partner/Constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class WorkAnimation extends StatefulWidget {
   @override
@@ -32,18 +33,18 @@ class _WorkAnimationState extends State<WorkAnimation>
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 60,
-        height: 60,
+        width: 70,
+        height: 70,
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Image(image: AssetImage("assets/images/beep.png",),height: 50, width: 50,),
+          padding: const EdgeInsets.all(15.0),
+          child: SvgPicture.asset("assets/logo/bee_outline.svg",height: 50,width: 50,color: PrimaryColors.whiteColor,),
         ),
         decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: PrimaryColors.backgroundColor,
             boxShadow: [
               BoxShadow(
-                  color: PrimaryColors.backgroundColor,
+                  color: PrimaryColors.yellowColor,
                   blurRadius: _animation.value,
                   spreadRadius: _animation.value)
             ]),

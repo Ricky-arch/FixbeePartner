@@ -115,6 +115,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
   Future<WalletModel> processWalletDeposit(Map<String, dynamic> message) async {
     String paymentID = message['paymentID'];
     String paymentSignature = message['paymentSignature'];
+    String orderID = message['orderID'];
     String query = '''
     mutation {
   isProcessed:ProcessWalletDeposit(
@@ -123,8 +124,8 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
   )
 }
     ''';
-    Map response=await CustomGraphQLClient.instance.mutate(query);
-    log(response['isProcessed'].toString(), name:"isProcessed");
-    return latestViewModel..isProcessed=response['isProcessed'];
+    Map response = await CustomGraphQLClient.instance.mutate(query);
+    log(response['isProcessed'].toString(), name: "isProcessed");
+    return latestViewModel..isProcessed = response['isProcessed'];
   }
 }

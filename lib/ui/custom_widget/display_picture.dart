@@ -31,7 +31,7 @@ class DisplayPicture extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context).canvasColor,
+                color: Colors.white,
               ),
               child: Padding(
                 padding:
@@ -43,7 +43,7 @@ class DisplayPicture extends StatelessWidget {
                           ? null
                           : CachedNetworkImageProvider(DataStore.me.dpUrl)
                       : CachedNetworkImageProvider(imageURl),
-                  child: (DataStore?.me?.dpUrl == null)
+                  child: (DataStore?.me?.dpUrl == null && imageURl == null)
                       ? SvgPicture.asset(
                           "assets/logo/bee_outline.svg",
                           width: 0.4 * MediaQuery.of(context).size.width,

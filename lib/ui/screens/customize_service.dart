@@ -5,6 +5,7 @@ import 'package:fixbee_partner/events/customize_service_event.dart';
 import 'package:fixbee_partner/models/customize_service_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/service_banner.dart';
 import 'package:fixbee_partner/ui/screens/add_services.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
@@ -77,7 +78,8 @@ class _CustomizeServiceState extends State<CustomizeService> {
                               return AddServices();
                             }));
 
-                            _bloc.fire(CustomizeServiceEvent.fetchSelectedServices);
+                            _bloc.fire(
+                                CustomizeServiceEvent.fetchSelectedServices);
                             log('returned', name: 'RET');
                           },
                           child: Container(
@@ -172,7 +174,7 @@ class _CustomizeServiceState extends State<CustomizeService> {
                 ),
               ],
             ),
-            (viewModel.fetchSelectedServices)
+            (!viewModel.fetchSelectedServices)
                 ? ListView.builder(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
@@ -195,7 +197,16 @@ class _CustomizeServiceState extends State<CustomizeService> {
                         ],
                       );
                     })
-                : CircularProgressIndicator()
+                : Container(
+                    height: 200,
+                    width: 200,
+                    child: FlareActor(
+                      "assets/animations/loading.flr",
+                      alignment: Alignment.center,
+                      fit: BoxFit.contain,
+                      animation: "Start",
+                    ),
+                  )
           ],
         );
       }),

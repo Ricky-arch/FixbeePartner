@@ -6,6 +6,7 @@ import 'package:fixbee_partner/ui/custom_widget/services.dart';
 import 'package:fixbee_partner/ui/custom_widget/skillSetBottomSheet.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../data_store.dart';
@@ -51,6 +52,46 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   Widget build(BuildContext context) {
     return _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
       return Scaffold(
+       appBar: AppBar(
+        backgroundColor: PrimaryColors.backgroundColor,
+        automaticallyImplyLeading: false,
+        title: Stack(
+          children: <Widget>[
+            Container(
+                decoration:
+                BoxDecoration(color: PrimaryColors.backgroundColor),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                        height: 30,
+                        width: 30,
+                        decoration: BoxDecoration(
+                            color: Colors.white, shape: BoxShape.circle),
+                        child: Padding(
+                            padding: const EdgeInsets.all(3.0),
+                            child: SvgPicture.asset(
+                              "assets/logo/bee_outline.svg",
+                            ))),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'AVAILABLE SERVICES',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 15)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ))
+          ],
+        ),
+      ),
         floatingActionButton: viewModel.selectedServices.length == 0
             ? SizedBox()
             : FloatingActionButton.extended(

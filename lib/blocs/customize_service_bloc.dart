@@ -57,7 +57,8 @@ class CustomizeServiceBloc
   CustomizeServiceModel setTrackingFlag(
       CustomizeServiceEvent event, bool trackFlag, Map message) {
     if (event == CustomizeServiceEvent.fetchSelectedServices)
-      latestViewModel..fetchSelectedServices = true;
+      latestViewModel..fetchSelectedServices = trackFlag;
+
     return latestViewModel;
   }
 
@@ -89,9 +90,12 @@ class CustomizeServiceBloc
 
     services.forEach((service) {
       ServiceOptionModel eachService = ServiceOptionModel();
-      eachService.serviceName = service['Name'];
-      eachService.id = service['ID'];
-      selectedService.add(eachService);
+      if(service!=null)
+        {
+          eachService.serviceName = service['Name'];
+          eachService.id = service['ID'];
+          selectedService.add(eachService);
+        }
     });
     return latestViewModel
       ..selectedServiceOptionModel = selectedService

@@ -1,12 +1,13 @@
 import 'dart:developer';
 
+import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/update_profile_event.dart';
 import 'package:fixbee_partner/models/update_profile_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
 import '../bloc.dart';
 
-class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> {
+class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> with Trackable<UpdateProfileEvent, UpdateProfileModel> {
   UpdateProfileBloc(UpdateProfileModel genesisViewModel)
       : super(genesisViewModel);
 
@@ -103,6 +104,13 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> {
   }
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
+    return latestViewModel;
+  }
+
+  @override
+  UpdateProfileModel setTrackingFlag(UpdateProfileEvent event, bool trackFlag, Map message) {
+    if(event== UpdateProfileEvent.fetchProfile)
+      latestViewModel..loading=trackFlag;
     return latestViewModel;
   }
 }

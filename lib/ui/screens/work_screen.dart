@@ -69,7 +69,7 @@ class _WorkScreenState extends State<WorkScreen> {
   bool _onServiceStarted = false;
 
   String gid, session, fields, key;
-  String formattedAddress;
+  String formattedAddress = "";
   String latitude, longitude;
 
   String _scanBarcode = 'Unknown';
@@ -93,6 +93,9 @@ class _WorkScreenState extends State<WorkScreen> {
     http.Response response = await http.get(
         'https://maps.googleapis.com/maps/api/place/details/json?place_id=$gid&fields=$fields&key=$key&sessiontoken=$session');
     locationData = json.decode(response.body);
+    setState(() {
+      formattedAddress = locationData['result']['formatted_address'];
+    });
     if (locationData != null) {
       latitude =
           locationData['result']['geometry']['location']['lat'].toString();
@@ -361,6 +364,7 @@ class _WorkScreenState extends State<WorkScreen> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        backgroundColor: PrimaryColors.backgroundColor,
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return SafeArea(
               child: Column(
@@ -400,11 +404,12 @@ class _WorkScreenState extends State<WorkScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                widget.userName,
+                                widget.userName.toUpperCase(),
                                 style: TextStyle(
+                                  color: Colors.white,
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),
-                              Text('Rated 4.5 stars'),
+                              Text('Rated 4.5 stars', style: TextStyle(color: Colors.white),),
                             ],
                           ),
                           Padding(
@@ -414,11 +419,11 @@ class _WorkScreenState extends State<WorkScreen> {
                               height: 50,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(25),
-                                  color: PrimaryColors.backgroundColor),
+                                  color: Colors.green),
                               child: GestureDetector(
                                 child: Icon(
                                   Icons.phone,
-                                  color: Colors.orangeAccent,
+                                  color: PrimaryColors.whiteColor,
                                 ),
                                 onTap: () =>
                                     launch("tel://${widget.phoneNumber}"),
@@ -431,8 +436,12 @@ class _WorkScreenState extends State<WorkScreen> {
                   ],
                 ),
               ),
-              Divider(
-                thickness: 1,
+              Padding(
+                padding: const EdgeInsets.only(left:12.0, right: 12),
+                child: Divider(
+                  thickness: 1,
+                  color: Colors.white,
+                ),
               ),
               //Container(child: Text(widget.googlePlaceId),),
 
@@ -451,6 +460,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               child: Text(
                                 "Address:",
                                 style: TextStyle(
+                                    color: Colors.white,
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),
                             ),
@@ -460,11 +470,12 @@ class _WorkScreenState extends State<WorkScreen> {
                                 padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
                                 child: Text(
                                   (widget.addressLine != null)
-                                      ? widget.addressLine
+                                      ? formattedAddress
                                       : "Ram Mandir",
                                   maxLines: null,
                                   //textAlign: TextAlign.justify,
                                   style: TextStyle(
+                                      color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w300),
                                 ),
@@ -480,6 +491,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               child: Text(
                                 "Land-mark:",
                                 style: TextStyle(
+                                    color: Colors.white,
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),
                             ),
@@ -494,6 +506,7 @@ class _WorkScreenState extends State<WorkScreen> {
                                   overflow: TextOverflow.clip,
                                   textAlign: TextAlign.justify,
                                   style: TextStyle(
+                                      color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w300),
                                 ),
@@ -509,6 +522,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               child: Text(
                                 "Service:",
                                 style: TextStyle(
+                                    color: Colors.white,
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),
                             ),
@@ -522,6 +536,7 @@ class _WorkScreenState extends State<WorkScreen> {
                                       : "Work",
                                   //textAlign: TextAlign.justify,
                                   style: TextStyle(
+                                      color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w300),
                                 ),
@@ -534,9 +549,16 @@ class _WorkScreenState extends State<WorkScreen> {
                   ],
                 ),
               ),
-
               Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(
+                  thickness: 1,
+                  color: Colors.white,
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
@@ -551,7 +573,7 @@ class _WorkScreenState extends State<WorkScreen> {
                           width: MediaQuery.of(context).size.width / 3 - 30,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5.0),
-                            color: Colors.orangeAccent.withOpacity(.9),
+                            color: Colors.white,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black,
@@ -597,7 +619,7 @@ class _WorkScreenState extends State<WorkScreen> {
                           width: MediaQuery.of(context).size.width / 3 - 30,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5.0),
-                            color: Colors.orangeAccent.withOpacity(.9),
+                            color: Colors.white,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black,
@@ -625,13 +647,13 @@ class _WorkScreenState extends State<WorkScreen> {
                               _bloc.latestViewModel.activeOrderStatus
                                   .toString(),
                               name: "AOS");
-                          _showJobInfoDialogBox();
+                          _showJobInfoDialogBox(formattedAddress);
                         },
                         child: Container(
                           width: MediaQuery.of(context).size.width / 3 - 30,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5.0),
-                            color: Colors.orangeAccent.withOpacity(.9),
+                            color: Colors.white,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black,
@@ -655,89 +677,114 @@ class _WorkScreenState extends State<WorkScreen> {
                   ],
                 ),
               ),
-              Divider(),
+              SizedBox(
+                height: 10,
+              ),
               (viewModel.activeOrderStatus != "RESOLVED")
                   ? Expanded(
                       child: mapWidget = GoogleMap(
                       markers: markers,
                       onMapCreated: (GoogleMapController googleMapController) {
+                        googleMapController.setMapStyle(Constants.MAP_STYLES);
                         mapController = googleMapController;
                       },
                       initialCameraPosition: CameraPosition(
                           target: LatLng(38.8977, 77.0365), zoom: 16),
                     ))
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(
-                          height: 40,
-                        ),
-                        WorkAnimation(),
-                        SizedBox(
-                          height: 40,
-                        ),
-                        (widget.cashOnDelivery)
-                            ? InkWell(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    _showCompleteOrderDialogBoxForPayOnDelivery();
-                                  },
-                                  child: Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 3,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5.0),
-                                      color:
-                                          Colors.orangeAccent.withOpacity(.9),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black,
-                                          blurRadius: 2.0,
-                                          spreadRadius: 0.0,
-                                          offset: Offset(2.0,
-                                              2.0), // shadow direction: bottom right
-                                        )
-                                      ],
-                                    ),
-                                    child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          "ARE YOU DONE?",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                          textAlign: TextAlign.center,
-                                        )),
-                                  ),
-                                ),
-                              )
-                            : Container(),
-                        (!widget.cashOnDelivery)
-                            ? Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  child: RaisedButton(
-                                    elevation: 3,
-                                    textColor: Colors.yellow,
-                                    color: PrimaryColors.backgroundColor,
-                                    onPressed: () {
-                                      _showCompleteOrderDialogBoxForPayOnline();
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14),
-                                      child: Text(
-                                        "Completed!",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
+                  : Expanded(
+                      child: Container(
+                        decoration:
+                            BoxDecoration(color: PrimaryColors.backgroundColor),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height / 2 - 320,
+                            ),
+                            WorkAnimation(),
+                            SizedBox(
+                              height:
+                                  MediaQuery.of(context).size.height / 2 - 300,
+                            ),
+                            (widget.cashOnDelivery)
+                                ? InkWell(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _showCompleteOrderDialogBoxForPayOnDelivery();
+                                      },
+                                      child: Container(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                          color: Colors.orangeAccent
+                                              .withOpacity(.9),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black,
+                                              blurRadius: 2.0,
+                                              spreadRadius: 0.0,
+                                              offset: Offset(2.0,
+                                                  2.0), // shadow direction: bottom right
+                                            )
+                                          ],
                                         ),
+                                        child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "ARE YOU DONE?",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                              textAlign: TextAlign.center,
+                                            )),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              )
-                            : Container(),
-                      ],
+                                  )
+                                : Container(),
+                            (!widget.cashOnDelivery)
+                                ? InkWell(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _showCompleteOrderDialogBoxForPayOnline();
+                                      },
+                                      child: Container(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                          color: Colors.orangeAccent
+                                              .withOpacity(.9),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black,
+                                              blurRadius: 2.0,
+                                              spreadRadius: 0.0,
+                                              offset: Offset(2.0,
+                                                  2.0), // shadow direction: bottom right
+                                            )
+                                          ],
+                                        ),
+                                        child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              "COMPLETED?",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16),
+                                              textAlign: TextAlign.center,
+                                            )),
+                                      ),
+                                    ),
+                                  )
+                                : SizedBox(),
+                          ],
+                        ),
+                      ),
                     ),
             ],
           ));
@@ -814,24 +861,24 @@ class _WorkScreenState extends State<WorkScreen> {
                     print("Trying to complete");
                     if (m.onJobCompleted) {
                       Navigator.pop(context);
-                      Navigator.of(context).pushReplacement(
-                          new MaterialPageRoute(
-                              builder: (BuildContext context) {
-                        return BillingScreen(
-                          orderId: widget.orderId,
-                          cashOnDelivery: widget.cashOnDelivery,
-                          amount: widget.amount,
-                          address: widget.addressLine,
-                          userName: widget.userName,
-                          status: 'COMPLETED',
-                          timeStamp: widget.timeStamp,
-                          serviceName: widget.serviceName,
-                          serviceCharge: widget.serviceCharge,
-                          basePrice: widget.basePrice,
-                          taxPercent: widget.taxPercent,
-                          addOns: _bloc.latestViewModel.jobModel.addons,
-                        );
-                      }));
+//                      Navigator.of(context).pushReplacement(
+//                          new MaterialPageRoute(
+//                              builder: (BuildContext context) {
+//                        return BillingScreen(
+//                          orderId: widget.orderId,
+//                          cashOnDelivery: widget.cashOnDelivery,
+//                          amount: widget.amount,
+//                          address: widget.addressLine,
+//                          userName: widget.userName,
+//                          status: 'COMPLETED',
+//                          timeStamp: widget.timeStamp,
+//                          serviceName: widget.serviceName,
+//                          serviceCharge: widget.serviceCharge,
+//                          basePrice: widget.basePrice,
+//                          taxPercent: widget.taxPercent,
+//                          addOns: _bloc.latestViewModel.jobModel.addons,
+//                        );
+//                      }));
                     } else
                       Scaffold.of(context).showSnackBar(new SnackBar(
                           content: new Text('Unable to complete order!')));
@@ -850,7 +897,7 @@ class _WorkScreenState extends State<WorkScreen> {
         });
   }
 
-  _showJobInfoDialogBox() {
+  _showJobInfoDialogBox(String formattedAddress) {
     return showDialog(
         barrierDismissible: false,
         context: context,
@@ -915,7 +962,7 @@ class _WorkScreenState extends State<WorkScreen> {
                       ),
                       InfoPanel(
                         title: "Address:",
-                        answer: widget.addressLine,
+                        answer: formattedAddress,
                         maxLines: null,
                       ),
                       InfoPanel(

@@ -1,11 +1,12 @@
 import 'package:fixbee_partner/bloc.dart';
+import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/add_new_service_event.dart';
 import 'package:fixbee_partner/models/add_new_service_model.dart';
 import 'package:fixbee_partner/models/service_options.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
 
-class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel> {
+class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel> with Trackable<AddNewServiceEvent, AddNewServiceModel>{
   AddNewServiceBloc(AddNewServiceModel genesisViewModel)
       : super(genesisViewModel);
 
@@ -99,6 +100,13 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel> {
 }''';
     print(query);
     await CustomGraphQLClient.instance.mutate(query);
+    return latestViewModel;
+  }
+
+  @override
+  AddNewServiceModel setTrackingFlag(AddNewServiceEvent event, bool trackFlag, Map message) {
+    if(event==AddNewServiceEvent.fetchServicesAvailableForMe)
+      latestViewModel..loading=trackFlag;
     return latestViewModel;
   }
 }

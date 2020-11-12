@@ -6,6 +6,7 @@ import 'package:fixbee_partner/blocs/splash_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/models/splash_model.dart';
+import 'package:fixbee_partner/ui/custom_widget/no_internet_widget.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
@@ -78,30 +79,34 @@ class _SplashScreenState extends State<SplashScreen>
     _setupFCM();
     _bloc = SplashBloc(SplashModel());
     _bloc.fire(Event(100), onHandled: (e, m) {
+      if (m.connection) {
+        if (m.tokenFound) {
+          if (m?.me?.services ==null || m.me.services.length == 0 )
+            {
+              log("SERVICE SELECTED",name :"SELECTED");
+              try{
+                Navigator.pushReplacement(
+                    context,
+                    PageTransition(
+                        type: PageTransitionType.fade,
+                        child: ServiceSelectionScreen()));
+              }
+              catch(e){}
+            }
+          else {
+            _getCurrentLocation();
+            if (_currentPosition != null)
+              DataStore.beePosition = _currentPosition;
 
-    if(m.connection){
-      if (m.tokenFound) {
-        if (m.me.services.length == 0)
-          Navigator.pushReplacement(
-              context,
-              PageTransition(
-                  type: PageTransitionType.fade,
-                  child: ServiceSelectionScreen()));
-        else {
-          _getCurrentLocation();
-          if (_currentPosition != null)
-            DataStore.beePosition = _currentPosition;
-
-          Navigator.pushReplacement(
-              context,
-              PageTransition(
-                  type: PageTransitionType.fade, child: NavigationScreen()));
-        }
-      } else
-        Navigator.pushReplacement(context,
-            PageTransition(type: PageTransitionType.fade, child: Login()));
-    }
-
+            Navigator.pushReplacement(
+                context,
+                PageTransition(
+                    type: PageTransitionType.fade, child: NavigationScreen()));
+          }
+        } else
+          Navigator.pushReplacement(context,
+              PageTransition(type: PageTransitionType.fade, child: Login()));
+      }
     });
     _scaleController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 200));
@@ -185,7 +190,7 @@ class _SplashScreenState extends State<SplashScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.width / 2 ,
+                        height: MediaQuery.of(context).size.width / 2,
                       ),
                       Container(
                         padding: EdgeInsets.all(20.0),
@@ -216,16 +221,14 @@ class _SplashScreenState extends State<SplashScreen>
                                       width: 150,
                                     ),
                                     Padding(
-                                      padding:
-                                          const EdgeInsets.only(top: 22.0),
+                                      padding: const EdgeInsets.only(top: 22.0),
                                       child: RichText(
                                         text: TextSpan(
                                           children: <TextSpan>[
                                             TextSpan(
                                               text: 'Partner',
                                               style: TextStyle(
-                                                  fontWeight:
-                                                      FontWeight.w700,
+                                                  fontWeight: FontWeight.w700,
                                                   color: PrimaryColors
                                                       .backgroundColor,
                                                   fontSize: 20),
@@ -259,70 +262,67 @@ class _SplashScreenState extends State<SplashScreen>
                                 1.6,
                                 AnimatedBuilder(
                                   animation: _scaleController,
-                                  builder: (context, child) =>
-                                      Transform.scale(
-                                          scale: _scaleAnimation.value,
-                                          child: Center(
-                                            child: AnimatedBuilder(
-                                              animation: _widthController,
-                                              builder: (context, child) =>
-                                                  Container(
-                                                width:
-                                                    _widthAnimation.value,
-                                                height: 80,
-                                                padding: EdgeInsets.all(10),
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius
-                                                            .circular(50),
-                                                    color:
-                                                        Colors.transparent),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    _scaleController
-                                                        .forward();
-                                                  },
-                                                  child: Stack(
-                                                      children: <Widget>[
-                                                        AnimatedBuilder(
-                                                          animation:
-                                                              _positionController,
-                                                          builder: (context,
-                                                                  child) =>
-                                                              Positioned(
-                                                            left:
-                                                                _positionAnimation
-                                                                    .value,
-                                                            child:
-                                                                AnimatedBuilder(
-                                                              animation:
-                                                                  _scale2Controller,
-                                                              builder: (context,
-                                                                      child) =>
-                                                                  Transform.scale(
-                                                                      scale: _scale2Animation.value,
-                                                                      child: Container(
-                                                                        width:
-                                                                            60,
-                                                                        height:
-                                                                            60,
-                                                                        decoration:
-                                                                            BoxDecoration(shape: BoxShape.circle, color: PrimaryColors.backgroundColor),
-                                                                        child: hideIcon == false
-                                                                            ? Icon(
-                                                                                Icons.arrow_forward,
-                                                                                color: Colors.yellow,
-                                                                              )
-                                                                            : Container(),
-                                                                      )),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ]),
+                                  builder: (context, child) => Transform.scale(
+                                      scale: _scaleAnimation.value,
+                                      child: Center(
+                                        child: AnimatedBuilder(
+                                          animation: _widthController,
+                                          builder: (context, child) =>
+                                              Container(
+                                            width: _widthAnimation.value,
+                                            height: 80,
+                                            padding: EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(50),
+                                                color: Colors.transparent),
+                                            child: InkWell(
+                                              onTap: () {
+                                                _scaleController.forward();
+                                              },
+                                              child: Stack(children: <Widget>[
+                                                AnimatedBuilder(
+                                                  animation:
+                                                      _positionController,
+                                                  builder: (context, child) =>
+                                                      Positioned(
+                                                    left: _positionAnimation
+                                                        .value,
+                                                    child: AnimatedBuilder(
+                                                      animation:
+                                                          _scale2Controller,
+                                                      builder: (context,
+                                                              child) =>
+                                                          Transform.scale(
+                                                              scale:
+                                                                  _scale2Animation
+                                                                      .value,
+                                                              child: Container(
+                                                                width: 60,
+                                                                height: 60,
+                                                                decoration: BoxDecoration(
+                                                                    shape: BoxShape
+                                                                        .circle,
+                                                                    color: PrimaryColors
+                                                                        .backgroundColor),
+                                                                child: hideIcon ==
+                                                                        false
+                                                                    ? Icon(
+                                                                        Icons
+                                                                            .arrow_forward,
+                                                                        color: Colors
+                                                                            .yellow,
+                                                                      )
+                                                                    : Container(),
+                                                              )),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
+                                              ]),
                                             ),
-                                          )),
+                                          ),
+                                        ),
+                                      )),
                                 )),
                             SizedBox(
                               height: 60,
@@ -343,7 +343,41 @@ class _SplashScreenState extends State<SplashScreen>
                     ],
                   ),
                 )
-              : Text("Unable to connect to Server!");
+              : NoInternetWidget(
+                  retryConnecting: () {
+
+                    _bloc.fire(Event(100), onHandled: (e, m) {
+                      log(m.connection.toString(), name: "CONNECTION");
+                      if (m.connection) {
+                        if (m.tokenFound) {
+                          if (m.me.services.length == 0)
+                            Navigator.pushReplacement(
+                                context,
+                                PageTransition(
+                                    type: PageTransitionType.fade,
+                                    child: ServiceSelectionScreen()));
+                          else {
+                            _getCurrentLocation();
+                            if (_currentPosition != null)
+                              DataStore.beePosition = _currentPosition;
+
+                            Navigator.pushReplacement(
+                                context,
+                                PageTransition(
+                                    type: PageTransitionType.fade,
+                                    child: NavigationScreen()));
+                          }
+                        } else
+                          Navigator.pushReplacement(
+                              context,
+                              PageTransition(
+                                  type: PageTransitionType.fade,
+                                  child: Login()));
+                      }
+                    });
+                  },
+                  loading: _bloc.latestViewModel.tryReconnecting,
+                );
         }),
       ),
     );

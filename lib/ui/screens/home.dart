@@ -47,10 +47,13 @@ class _HomeState extends State<Home> {
       if (m.activeStatus) {
         _bloc.subscribeToLocationUpdate( (Position deviceLocation) {
           if (mapController != null)
-            mapController.animateCamera(
-                CameraUpdate.newLatLng(LatLng(
-                    deviceLocation.latitude,
-                    deviceLocation.longitude)));
+            setState(() {
+              mapController.animateCamera(
+                  CameraUpdate.newLatLng(LatLng(
+                      deviceLocation.latitude,
+                      deviceLocation.longitude)));
+            });
+
         });
       }
     });
@@ -69,6 +72,7 @@ class _HomeState extends State<Home> {
       myLocationEnabled: true,
       markers: markers,
       onMapCreated: (GoogleMapController googleMapController) {
+        googleMapController.setMapStyle(Constants.MAP_STYLES);
         mapController = googleMapController;
       },
       initialCameraPosition:
@@ -116,7 +120,7 @@ class _HomeState extends State<Home> {
                       Spacer(),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: !viewModel.loading
+                        child: (!viewModel.loading)
                             ? Switch(
                                 value: viewModel.activeStatus,
                                 inactiveThumbColor: Colors.green,
@@ -136,6 +140,7 @@ class _HomeState extends State<Home> {
                                       _bloc.subscribeToLocationUpdate(
                                           (Position deviceLocation) {
                                         if (mapController != null)
+
                                           mapController.animateCamera(
                                               CameraUpdate.newLatLng(LatLng(
                                                   deviceLocation.latitude,

@@ -166,8 +166,8 @@ class _BankDetailsState extends State<BankDetails> {
                                 color: Colors.black,
                                 blurRadius: 2.0,
                                 spreadRadius: 0.0,
-                                offset: Offset(2.0,
-                                    2.0), // shadow direction: bottom right
+                                offset: Offset(
+                                    2.0, 2.0), // shadow direction: bottom right
                               )
                             ],
                           ),
@@ -225,6 +225,7 @@ class _BankDetailsState extends State<BankDetails> {
 
   _newAccountForm(context) {
     showModalBottomSheet(
+        backgroundColor: PrimaryColors.backgroundcolorlight,
         isScrollControlled: true,
         isDismissible: false,
         context: context,
@@ -274,16 +275,21 @@ class _BankDetailsState extends State<BankDetails> {
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
-                                    errorStyle: TextStyle(color: Colors.black),
-                                    labelText: "Bank Account Number",
-                                    labelStyle: TextStyle(
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.bold),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 2.0),
-                                      borderRadius: BorderRadius.circular(15.0),
-                                    )),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  errorStyle: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold),
+                                  labelText: "Bank Account Number",
+                                  labelStyle: TextStyle(
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.bold),
+//                                    enabledBorder: OutlineInputBorder(
+//                                      borderSide: const BorderSide(
+//                                          color: Colors.black, width: 2.0),
+//                                      borderRadius: BorderRadius.circular(15.0),
+//                                    )
+                                ),
                               ),
                             ),
                             Padding(
@@ -301,15 +307,19 @@ class _BankDetailsState extends State<BankDetails> {
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
-                                    errorStyle: TextStyle(color: Colors.black),
-                                    labelText: "IFSC Code",
-                                    labelStyle:
-                                        TextStyle(color: Colors.black54),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 2.0),
-                                      borderRadius: BorderRadius.circular(15.0),
-                                    )),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  errorStyle: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold),
+                                  labelText: "IFSC Code",
+                                  labelStyle: TextStyle(color: Colors.black54),
+//                                    enabledBorder: OutlineInputBorder(
+//                                      borderSide: const BorderSide(
+//                                          color: Colors.black, width: 2.0),
+//                                      borderRadius: BorderRadius.circular(15.0),
+//                                    )
+                                ),
                               ),
                             ),
                             Padding(
@@ -327,17 +337,19 @@ class _BankDetailsState extends State<BankDetails> {
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
-                                    errorStyle: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
-                                    labelText: "Bank Account Holders Name",
-                                    labelStyle:
-                                        TextStyle(color: Colors.black54),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 2.0),
-                                      borderRadius: BorderRadius.circular(15.0),
-                                    )),
+                                  fillColor: Colors.white,
+                                  filled: true,
+                                  errorStyle: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold),
+                                  labelText: "Bank Account Holders Name",
+                                  labelStyle: TextStyle(color: Colors.black54),
+//                                    enabledBorder: OutlineInputBorder(
+//                                      borderSide: const BorderSide(
+//                                          color: Colors.black, width: 2.0),
+//                                      borderRadius: BorderRadius.circular(15.0),
+//                                    )
+                                ),
                               ),
                             ),
                           ],
@@ -396,8 +408,9 @@ class _BankDetailsState extends State<BankDetails> {
                                       const EdgeInsets.symmetric(vertical: 14),
                                   child: Text(
                                     "CONFIRM",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
                                   ),
                                 ),
                               ),

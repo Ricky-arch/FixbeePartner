@@ -16,6 +16,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 const kSpacingUnit = 10;
 const kDarkPrimaryColor = Color(0xFF212121);
 const kDarkSecondaryColor = Color(0xFF373737);
@@ -27,18 +28,23 @@ final kTitleTextStyle = TextStyle(
   fontWeight: FontWeight.w600,
 );
 
-
 class CustomProfile extends StatefulWidget {
   @override
   _CustomProfileState createState() => _CustomProfileState();
 }
 
 class _CustomProfileState extends State<CustomProfile> {
+  String firstname;
+  String middlename;
+  String lastname;
   CustomProfileBloc _bloc;
   @override
   void initState() {
     _bloc = CustomProfileBloc(CustomProfileModel());
     _bloc.fire(CustomProfileEvent.downloadDp);
+    firstname = DataStore.me.firstName;
+    middlename = DataStore.me.middleName ?? "";
+    lastname = DataStore.me.lastName ?? "";
     super.initState();
   }
 
@@ -71,7 +77,7 @@ class _CustomProfileState extends State<CustomProfile> {
 
                   Route route =
                       MaterialPageRoute(builder: (context) => SplashScreen());
-                  Navigator.pushAndRemoveUntil(context, route,(e)=>false);
+                  Navigator.pushAndRemoveUntil(context, route, (e) => false);
                 },
                 child: Text("Yes"),
               ),
@@ -85,6 +91,7 @@ class _CustomProfileState extends State<CustomProfile> {
     ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
 
     return Scaffold(
+      backgroundColor: PrimaryColors.backgroundcolorlight,
         appBar: AppBar(
           backgroundColor: PrimaryColors.backgroundColor,
           automaticallyImplyLeading: false,
@@ -101,11 +108,10 @@ class _CustomProfileState extends State<CustomProfile> {
                           decoration: BoxDecoration(
                               color: Colors.white, shape: BoxShape.circle),
                           child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: SvgPicture.asset(
-                              "assets/logo/bee_outline.svg",
-                            )
-                          )),
+                              padding: const EdgeInsets.all(3.0),
+                              child: SvgPicture.asset(
+                                "assets/logo/bee_outline.svg",
+                              ))),
                       SizedBox(
                         width: 10,
                       ),
@@ -162,11 +168,7 @@ class _CustomProfileState extends State<CustomProfile> {
                         ),
                         SizedBox(height: kSpacingUnit.w * 1),
                         Text(
-                          DataStore.me.firstName +
-                              " " +
-                              DataStore.me.middleName +
-                              " " +
-                              DataStore.me.lastName,
+                          getMyName(firstname, middlename, lastname),
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: ScreenUtil().setSp(kSpacingUnit.w * 2),
@@ -174,6 +176,38 @@ class _CustomProfileState extends State<CustomProfile> {
                           ),
                         ),
                         SizedBox(height: kSpacingUnit.w * 1),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Rated 4.5 ",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: ScreenUtil().setSp(kSpacingUnit.w*1.7),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              TextSpan(
+                                text: "\u2605",
+                                style: TextStyle(
+                                  color: Colors.amber,
+                                  fontSize: ScreenUtil().setSp(kSpacingUnit.w*2),
+                                  fontWeight: FontWeight.w600,
+                                ),
+
+                              )
+                            ]
+                          ),
+                        ),
+//                        Text(
+//                          "Rated 4.5 \u2605",
+//                          style: TextStyle(
+//                            color: Colors.black,
+//                            fontSize: ScreenUtil().setSp(kSpacingUnit.w*1.7),
+//                            fontWeight: FontWeight.w600,
+//                          ),
+//                        ),
+                        SizedBox(height: kSpacingUnit.w * 3),
                       ],
                     ),
                   ),
@@ -186,13 +220,20 @@ class _CustomProfileState extends State<CustomProfile> {
                     ProfileListItem(
                       icon: LineAwesomeIcons.user_shield,
                       text: 'Update Personal',
-                      task: ()async {
-                        String updated=await Navigator.push(context,
+                      task: () async {
+                        String updated = await Navigator.push(context,
                             MaterialPageRoute(builder: (ctx) {
                           return UpdateProfile();
                         }));
-                        if(updated=="UPDATED"){
-                          log(updated, name:"UPDATED");
+                        if (updated ==
+                            "CHANGED TO PERSONAL ADDED SUCCESSFULLY!") {
+                          _onProfileUpdatedDialogBox(updated);
+                          setState(() {
+                            firstname = DataStore.me.firstName;
+                            middlename = DataStore.me.middleName ?? "";
+                            lastname = DataStore.me.lastName ?? "";
+                          });
+                          log(updated, name: "UPDATED");
                         }
                       },
                     ),
@@ -226,7 +267,6 @@ class _CustomProfileState extends State<CustomProfile> {
                         }));
                       },
                     ),
-
                     ProfileListItem(
                         icon: LineAwesomeIcons.alternate_sign_out,
                         text: 'Logout',
@@ -243,6 +283,42 @@ class _CustomProfileState extends State<CustomProfile> {
   onImagePicked(String path) {
     _bloc.fire(CustomProfileEvent.updateDp,
         message: {"path": "$path", "file": "partnerDP"});
+  }
+
+  String getMyName(String first, middle, last) {
+    String name = first;
+    if (middle != "") name = name + " " + middle;
+    if (last != "") name = name + " " + last;
+    return name;
+  }
+
+  _onProfileUpdatedDialogBox(String message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(
+              message,
+              maxLines: null,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                color: PrimaryColors.backgroundColor,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "OK",
+                    style: TextStyle(color: Colors.orangeAccent),
+                  ),
+                ),
+              )
+            ],
+          );
+        });
   }
 }
 

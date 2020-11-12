@@ -1,5 +1,5 @@
 name: fixbee_partner
-description: A new Flutter application.
+description: Fixbee Partner Application
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -47,6 +47,7 @@ dependencies:
   flutter_launcher_icons: ^0.7.4
   vibration: ^1.7.0
   flutter_launcher_name: ^0.0.1
+  flare_flutter: ^2.0.6
   flutter:
     sdk: flutter
 
@@ -61,7 +62,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/logo/swarm_outline.png"
+  image_path: "assets/logo/launcher_icon.png"
 
 
 
@@ -95,6 +96,13 @@ flutter:
     - assets/logo/partner_logo.png
     - assets/logo/bee_white.png
     - assets/logo/swarm_outline.png
+    - assets/logo/launcher_icon.png
+    - assets/logo/dead_bee.png
+    - assets/animations/liquid_loader.flr
+    - assets/animations/loader.flr
+    - assets/animations/loading.flr
+    - assets/animations/cms.flr
+    - assets/animations/cms_remix.flr
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

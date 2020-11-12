@@ -20,7 +20,7 @@ class NewServiceNotification extends StatefulWidget {
       this.address,
       this.onConfirm,
       this.onDecline,
-      this.loading=false})
+      this.loading = false})
       : super(key: key);
   @override
   _NewServiceNotificationState createState() => _NewServiceNotificationState();
@@ -32,37 +32,42 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
     return Wrap(
       children: [
         Column(
+
           children: <Widget>[
-            SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: PrimaryColors.backgroundColor,
-                  borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    (widget.orderId != null)
-                        ? "#Order ID: ${widget.orderId}"
-                        : "#Order ID: 1234567890",
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orangeAccent),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "NEW ORDER NOTIFICATION",
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
                   ),
-                ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      (widget.orderId != null)
+                          ? "ORDER ID: #${widget.orderId}"
+                          : "ORDER ID: #1234567890",
+                      style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: PrimaryColors.backgroundcolorlight),
+                    ),
+                  ),
+
+                ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 8),
-              child: Divider(
-                thickness: 2,
-              ),
-            ),
+            SizedBox(height: 10,),
             Container(
               child: Text(
                 (widget.userName != null) ? widget.userName : "Ram Nath Kovind",

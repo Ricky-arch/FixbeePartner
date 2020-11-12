@@ -2,10 +2,14 @@ import 'package:fixbee_partner/blocs/registration_bloc.dart';
 import 'package:fixbee_partner/events/registration_events.dart';
 import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/registration_model.dart';
+import 'package:fixbee_partner/ui/custom_widget/OvalBottomBorderClipper.dart';
 import 'package:fixbee_partner/ui/custom_widget/date_picker.dart';
 import 'package:fixbee_partner/ui/screens/otp_for_login.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_svg/svg.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -62,7 +66,6 @@ class _RegistrationState extends State<Registration> {
     }
   }
 
-
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -85,7 +88,7 @@ class _RegistrationState extends State<Registration> {
             scrollDirection: Axis.vertical,
             children: <Widget>[
               ClipPath(
-                clipper: WaveClipperTwo(),
+                clipper: OvalBottomBorderClipper(),
                 child: Container(
                   color: PrimaryColors.backgroundColor,
                   child: Form(
@@ -94,7 +97,8 @@ class _RegistrationState extends State<Registration> {
                       child: Column(
                         children: <Widget>[
                           SizedBox(
-                            height: 10,
+                            height:
+                                MediaQuery.of(context).size.height / 2 - 380,
                           ),
                           Row(
                             children: [
@@ -125,6 +129,10 @@ class _RegistrationState extends State<Registration> {
                                 ),
                               ),
                             ],
+                          ),
+                          SizedBox(
+                            height:
+                                MediaQuery.of(context).size.height / 2 - 400,
                           ),
                           (viewModel.loading)
                               ? Padding(
@@ -288,80 +296,116 @@ class _RegistrationState extends State<Registration> {
               ),
               Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "TERMS AND CONDITIONS",
-                        style: TextStyle(
-                            color: PrimaryColors.backgroundColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      InkWell(
-                        child: GestureDetector(
-                          onTap: () {
-                            _launched = _launchInWebViewWithJavaScript("${EndPoints.TNC}");
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0),
-                              color: Colors.orangeAccent.withOpacity(.9),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black,
-                                  blurRadius: 2.0,
-                                  spreadRadius: 0.0,
-                                  offset: Offset(2.0,
-                                      2.0), // shadow direction: bottom right
-                                )
+                  Container(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                WidgetSpan(
+                                    child: Container(
+                                  padding: EdgeInsets.fromLTRB(0.0, 8, 8, 8),
+                                  child: Text(
+                                    "By tapping next I agree to Fixbee: ",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: PrimaryColors.backgroundColor),
+                                  ),
+                                )),
+                                TextSpan(
+                                    text: "\n· ",
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red)),
+                                TextSpan(
+                                    text: "Terms and Conditions ",
+                                    style: TextStyle(
+                                        decoration: TextDecoration.underline,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        _launched =
+                                            _launchInWebViewWithJavaScript(
+                                                "${EndPoints.TNC}");
+                                      }),
+                                TextSpan(
+                                    text: "\n· ",
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red)),
+                                TextSpan(
+                                    text: "Privacy Policy",
+                                    style: TextStyle(
+                                        decoration: TextDecoration.underline,
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        _launched =
+                                            _launchInWebViewWithJavaScript(
+                                                "${EndPoints.PRIVACY_POLICY}");
+                                      }),
                               ],
                             ),
-                            width: MediaQuery.of(context).size.width / 5,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Text(
-                                  "READ",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "I ACCEPT",
-                        style: TextStyle(
-                            color: PrimaryColors.backgroundColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Switch(
-                        activeColor: Colors.red,
-                        activeTrackColor: Colors.black,
-                        inactiveThumbColor: Colors.green,
-                        inactiveTrackColor: Colors.black.withOpacity(.5),
 
-                        onChanged: (value) {
-                          setState(() {
-                            isEnabledButton = value;
-                          });
-                        },
-                        value: isEnabledButton,
+//                      Text(
+//                        "TERMS AND CONDITIONS",
+//                        style: TextStyle(
+//                            color: PrimaryColors.backgroundColor,
+//                            fontSize: 12,
+//                            fontWeight: FontWeight.bold),
+//                      ),
+//                      SizedBox(
+//                        width: 10,
+//                      ),
+//                      InkWell(
+//                        child: GestureDetector(
+//                          onTap: () {
+//                            _launched = _launchInWebViewWithJavaScript("${EndPoints.TNC}");
+//                          },
+//                          child: Container(
+//                            decoration: BoxDecoration(
+//                              borderRadius: BorderRadius.circular(5.0),
+//                              color: Colors.orangeAccent.withOpacity(.9),
+//                              boxShadow: [
+//                                BoxShadow(
+//                                  color: Colors.black,
+//                                  blurRadius: 2.0,
+//                                  spreadRadius: 0.0,
+//                                  offset: Offset(2.0,
+//                                      2.0), // shadow direction: bottom right
+//                                )
+//                              ],
+//                            ),
+//                            width: MediaQuery.of(context).size.width / 5,
+//                            child: Center(
+//                              child: Padding(
+//                                padding: const EdgeInsets.all(10.0),
+//                                child: Text(
+//                                  "READ",
+//                                  style: TextStyle(
+//                                      color: Colors.black,
+//                                      fontSize: 12,
+//                                      fontWeight: FontWeight.bold),
+//                                ),
+//                              ),
+//                            ),
+//                          ),
+//                        ),
+//                      ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                   Padding(
                     padding: EdgeInsets.only(
@@ -373,45 +417,41 @@ class _RegistrationState extends State<Registration> {
                           elevation: 3,
                           disabledColor: Colors.teal[100],
                           disabledTextColor: Colors.white,
-                          onPressed: isEnabledButton
-                              ? () {
-                                  if (_formKey.currentState.validate()) {
-                                    _bloc.fire(
-                                        RegistrationEvents.registrationFieldSet,
+                          onPressed: () {
+                            if (_formKey.currentState.validate()) {
+                              _bloc.fire(
+                                RegistrationEvents.registrationFieldSet,
+                                message: {
+                                  'firstname': firstName.text,
+                                  'middlename': middleName.text,
+                                  'lastname': lastName.text,
+                                  'phonenumber': _phoneNumberController.text,
+                                  'dateofbirth': dateOfBirth.text
+                                },
+                                onHandled: (e, m) {
+                                  if (m.registered) {
+                                    _bloc.fire(RegistrationEvents.requestOtp,
                                         message: {
-                                          'firstname': firstName.text,
-                                          'middlename': middleName.text,
-                                          'lastname': lastName.text,
                                           'phonenumber':
-                                              _phoneNumberController.text,
-                                          'dateofbirth': dateOfBirth.text
+                                              _phoneNumberController.text
                                         }, onHandled: (e, m) {
-                                      if (m.registered) {
-                                        _bloc.fire(
-                                            RegistrationEvents.requestOtp,
-                                            message: {
-                                              'phonenumber':
-                                                  _phoneNumberController.text
-                                            }, onHandled: (e, m) {
-                                          if (m.sent) {
-                                            goToOtpLoginScreen(ctx);
-                                          } else {
-                                            Scaffold.of(ctx)
-                                                .showSnackBar(SnackBar(
-                                              content:
-                                                  Text('Registration failed'),
-                                            ));
-                                          }
-                                        });
+                                      if (m.sent) {
+                                        goToOtpLoginScreen(ctx);
                                       } else {
                                         Scaffold.of(ctx).showSnackBar(SnackBar(
                                           content: Text('Registration failed'),
                                         ));
                                       }
-                                    },);
+                                    });
+                                  } else {
+                                    Scaffold.of(ctx).showSnackBar(SnackBar(
+                                      content: Text('Registration failed'),
+                                    ));
                                   }
-                                }
-                              : null,
+                                },
+                              );
+                            }
+                          },
                           child: Text("NEXT"),
                           textColor: Colors.yellow,
                           color: PrimaryColors.backgroundColor,

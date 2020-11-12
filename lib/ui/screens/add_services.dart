@@ -68,55 +68,59 @@ class _AddServicesState extends State<AddServices> {
 
           return StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-              return ListView(
-                children: [
-                  ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: viewModel.allServicesAvailableForMe.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        String parentName = parents[index];
-                        List<ServiceOptionModel> services =
-                            viewModel.allServicesAvailableForMe[parentName];
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(12.0, 8, 8, 0),
-                              child: Container(
-                                child: Text(
-                                  parentName.toUpperCase() + " :",
-                                  style: TextStyle(
-                                      color: Colors.orange,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            Column(
-                                children: services.map((service) {
-                              return AddNewServiceBanner(
-                                serviceName: service.serviceName,
-                                subService: service,
-                                onServiceChecked: (subService, value) {
-                                  if (value) {
-                                    viewModel.newSelectedServices
-                                        .add(subService);
-                                    _bloc.pushViewModel(viewModel);
-                                  } else {
-                                    viewModel.newSelectedServices
-                                        .remove(subService);
-                                    _bloc.pushViewModel(viewModel);
-                                  }
-                                },
+              return (viewModel.loading)
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView(
+                      children: [
+                        ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount:
+                                viewModel.allServicesAvailableForMe.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              String parentName = parents[index];
+                              List<ServiceOptionModel> services = viewModel
+                                  .allServicesAvailableForMe[parentName];
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        12.0, 8, 8, 0),
+                                    child: Container(
+                                      child: Text(
+                                        parentName.toUpperCase() + " :",
+                                        style: TextStyle(
+                                            color: Colors.orange,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                  Column(
+                                      children: services.map((service) {
+                                    return AddNewServiceBanner(
+                                      serviceName: service.serviceName,
+                                      subService: service,
+                                      onServiceChecked: (subService, value) {
+                                        if (value) {
+                                          viewModel.newSelectedServices
+                                              .add(subService);
+                                          _bloc.pushViewModel(viewModel);
+                                        } else {
+                                          viewModel.newSelectedServices
+                                              .remove(subService);
+                                          _bloc.pushViewModel(viewModel);
+                                        }
+                                      },
+                                    );
+                                  }).toList()),
+                                ],
                               );
-                            }).toList()),
-                          ],
-                        );
-                      })
-                ],
-              );
+                            })
+                      ],
+                    );
             },
           );
         }));
@@ -137,7 +141,6 @@ class _AddServicesState extends State<AddServices> {
                         onHandled: (e, m) {
                       Navigator.pop(context);
                       Navigator.pop(context);
-
                     });
                   },
                   child: Padding(

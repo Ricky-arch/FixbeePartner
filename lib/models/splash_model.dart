@@ -6,6 +6,7 @@ class SplashModel extends ViewModel{
   bool tokenFound=false;
   bool serviceSelected=false;
   bool jobOngoing=false;
+  bool tryReconnecting=false;
   Bee me;
 
 }

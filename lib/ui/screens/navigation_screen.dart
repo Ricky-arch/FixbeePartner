@@ -114,6 +114,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 _bloc.fire(NavigationEvent.onConfirmJob,
                     message: {"orderId": orderId, "Accept": true},
                     onHandled: (e, m) {
+                  Navigator.pop(context);
+
                   Route route = MaterialPageRoute(
                       builder: (context) => WorkScreen(
                             userId: m.user.userId,
