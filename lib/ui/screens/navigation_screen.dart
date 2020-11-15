@@ -17,7 +17,6 @@ import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class NavigationScreen extends StatefulWidget {
   final bool gotJob;
-
   const NavigationScreen({Key key, this.gotJob = false}) : super(key: key);
   @override
   _NavigationScreenState createState() => _NavigationScreenState();
@@ -53,7 +52,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
     _bloc = NavigationBloc(NavigationModel());
     _bloc.fire(NavigationEvent.checkActiveService);
     _setupFCM();
-
     _visible = widget.gotJob;
     super.initState();
   }
@@ -68,11 +66,13 @@ class _NavigationScreenState extends State<NavigationScreen> {
         _getJobDetails(message);
       },
       onResume: (Map<String, dynamic> message) async {
+        FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_RESUME');
 
         _getJobDetails(message);
       },
       onLaunch: (message) async {
+        FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_LAUNCH');
 
         _getJobDetails(message);

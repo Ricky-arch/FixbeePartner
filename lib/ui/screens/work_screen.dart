@@ -751,9 +751,7 @@ class _WorkScreenState extends State<WorkScreen> {
                                         _showCompleteOrderDialogBoxForPayOnline();
                                       },
                                       child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                                3,
+
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(5.0),
@@ -772,7 +770,7 @@ class _WorkScreenState extends State<WorkScreen> {
                                         child: Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(
-                                              "COMPLETED?",
+                                              "COMPLETED BY USER?",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16),

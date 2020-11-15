@@ -81,19 +81,16 @@ class _SplashScreenState extends State<SplashScreen>
     _bloc.fire(Event(100), onHandled: (e, m) {
       if (m.connection) {
         if (m.tokenFound) {
-          if (m?.me?.services ==null || m.me.services.length == 0 )
-            {
-              log("SERVICE SELECTED",name :"SELECTED");
-              try{
-                Navigator.pushReplacement(
-                    context,
-                    PageTransition(
-                        type: PageTransitionType.fade,
-                        child: ServiceSelectionScreen()));
-              }
-              catch(e){}
-            }
-          else {
+          if (m?.me?.services == null || m.me.services.length == 0) {
+            log("SERVICE SELECTED", name: "SELECTED");
+            try {
+              Navigator.pushReplacement(
+                  context,
+                  PageTransition(
+                      type: PageTransitionType.fade,
+                      child: ServiceSelectionScreen()));
+            } catch (e) {}
+          } else {
             _getCurrentLocation();
             if (_currentPosition != null)
               DataStore.beePosition = _currentPosition;
@@ -181,17 +178,17 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Scaffold(
       backgroundColor: Colors.white,
+
       body: SafeArea(
         child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return (viewModel.connection)
               ? Container(
+
                   width: double.infinity,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.width / 2,
-                      ),
+
                       Container(
                         padding: EdgeInsets.all(20.0),
                         child: Column(
@@ -239,22 +236,7 @@ class _SplashScreenState extends State<SplashScreen>
                                     ),
                                   ],
                                 )),
-//                        SizedBox(
-//                          height: 5,
-//                        ),
-//                        FadeAnimation(
-//                            1.3,
-//                            Padding(
-//                              padding: const EdgeInsets.only(left: 10),
-//                              child: Text(
-//                                "FOR OPTIMAL SERVICES!",
-//                                style: TextStyle(
-//                                    color: PrimaryColors.backgroundColor,
-//                                    fontWeight: FontWeight.bold,
-//                                    fontStyle: FontStyle.italic,
-//                                    fontSize: 14),
-//                              ),
-//                            )),
+
                             SizedBox(
                               height: 40,
                             ),
@@ -331,7 +313,7 @@ class _SplashScreenState extends State<SplashScreen>
                         ),
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.width / 2 - 50,
+                        height: MediaQuery.of(context).size.width / 2,
                       ),
                       Align(
                         alignment: FractionalOffset.bottomCenter,
@@ -345,7 +327,6 @@ class _SplashScreenState extends State<SplashScreen>
                 )
               : NoInternetWidget(
                   retryConnecting: () {
-
                     _bloc.fire(Event(100), onHandled: (e, m) {
                       log(m.connection.toString(), name: "CONNECTION");
                       if (m.connection) {

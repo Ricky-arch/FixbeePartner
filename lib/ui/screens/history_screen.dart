@@ -32,10 +32,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-
         child: _bloc.widget(onViewModelUpdated: (context, viewModel) {
       return DefaultTabController(
-        length: 4,
+        length: 5,
         child: Scaffold(
           backgroundColor: PrimaryColors.backgroundcolorlight,
           body: CustomScrollView(
@@ -112,6 +111,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
+                          Tab(
+                            child: Text(
+                              'WITHDRAWALS',
+                              style: TextStyle(
+                                  color: Colors.orangeAccent,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
                         ]),
                   ),
                 ),
@@ -120,8 +128,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: TabBarView(
                 children: <Widget>[
                   Tab(
-                    child: Text('CREDIT', style: TextStyle(color: Colors.black)),
-                  ),
+                      child: FutureBuilder<HistoryModel>(
+                    future: _bloc.fetchCreditTransactions(),
+                    builder: (ctx, snapshot) {
+                      if (!snapshot.hasData)
+                        return CircularProgressIndicator();
+                      else {
+                        log(snapshot.data.isCreditPresent.toString(),
+                            name: "CREDIT");
+                        return (snapshot.data.isCreditPresent)
+                            ? ListView(
+                                children: [
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: snapshot.data.credits.length,
+                                    itemBuilder: (BuildContext ctx, int i) {
+                                      int index =
+                                          snapshot.data.credits.length - i - 1;
+                                      return Credit(
+                                        amount:
+                                        snapshot.data.credits[index].amount,
+                                        date: snapshot
+                                            .data.credits[index].timeStamp,
+                                        notes:
+                                            snapshot.data.credits[index].notes,
+                                      );
+                                    },
+                                  )
+                                ],
+                              )
+                            : Text('No Past Credit Transaction',
+                                style: TextStyle(color: Colors.black));
+                      }
+                    },
+                  )),
                   Tab(
                     child: Text('DEBIT', style: TextStyle(color: Colors.black)),
                   ),
@@ -286,6 +327,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       style: TextStyle(color: Colors.black));
                             }
                           })),
+                  Tab(
+                    child: Text('WITHDRAWALS',
+                        style: TextStyle(color: Colors.black)),
+                  ),
                 ],
               )),
             ],

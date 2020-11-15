@@ -17,16 +17,16 @@ class _BottomNavBarState extends State<BottomNavBar>
   List<BottomNavigationItem> items = [
     BottomNavigationItem(
         Icon(
-          Icons.home,
+          Icons.dashboard,
         ),
         Text(
           "Home",
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         )),
     BottomNavigationItem(
-        Icon(Icons.event),
+        Icon(Icons.access_alarm),
         Text(
-          "History",
+          "Log",
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         )),
     BottomNavigationItem(

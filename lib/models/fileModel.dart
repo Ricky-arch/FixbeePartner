@@ -7,6 +7,9 @@ class FileModel extends ViewModel{
   bool ageProofUploaded=false;
   bool addressProofUploaded=false;
   bool additionalCertificateUploaded=false;
+  bool onErrorUpload=false;
+  List<String> uploadedDocuments=[];
+  bool onFetchUploadedDocumentsList=false;
 }
 class File extends ViewModel{
   String fileUrl;

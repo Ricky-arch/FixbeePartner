@@ -26,219 +26,224 @@ class _LoginState extends State<Login> {
     textEditingController = TextEditingController();
     _bloc = LoginBloc(LoginModel());
   }
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: PrimaryColors.backgroundColor,
-        body: SafeArea(
-          child: BlocWidget<LoginEvents, LoginModel>(
-            bloc: _bloc,
-            onViewModelUpdated: (ctx, viewModel) {
-              return ListView(
-                shrinkWrap: true,
-                scrollDirection: Axis.vertical,
-                children: <Widget>[
-                  Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(40.0, 40, 0, 20),
-                        child:     Container(
-                            height: 80,
-                            width: 80,
-                            decoration: BoxDecoration(
-                                color: Color.fromRGBO(255,255, 0, 1), shape: BoxShape.circle),
-                            child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: SvgPicture.asset(
-                                  "assets/logo/bee_outline.svg",
-                                  height: 65,
-                                ))),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.only(
-                            left: 40,
-                          ),
-                          child: Column(
-                            children: [
-                              RichText(
-                                textAlign: TextAlign.start,
-                                text: TextSpan(
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                      text: "Hello! bee,\n",
-                                      style: TextStyle(
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color.fromRGBO(255,255, 0, 1)),
-                                    ),
-                                    TextSpan(
-                                      text: "sign in to continue",
-                                      style: TextStyle(
-                                          fontSize: 23,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          )),
-                      SizedBox(
-                        height: 50,
-                      ),
-                      Container(
-                          height: MediaQuery.of(context).size.height,
+        body: BlocWidget<LoginEvents, LoginModel>(
+          bloc: _bloc,
+          onViewModelUpdated: (ctx, viewModel) {
+            return ListView(
+              shrinkWrap: true,
+              scrollDirection: Axis.vertical,
+              children: <Widget>[
+                Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(40.0, 40, 0, 20),
+                      child:     Container(
+                          height: 80,
+                          width: 80,
                           decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(75.0),
-                              )),
-                          child: Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.only(top: 45.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: <Widget>[
-                                    Flexible(
-                                      child: new Container(),
-                                      flex: 1,
-                                    ),
-                                    Flexible(
-                                      child: new TextFormField(
-                                        //decoration: InputDecoration(border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.red))),
-                                        textAlign: TextAlign.center,
-                                        autofocus: false,
-                                        enabled: false,
-                                        initialValue: "+91",
-                                        style: TextStyle(
-                                            fontSize: 20.0,
-                                            color: Color(0xff1d1b27)),
-                                      ),
-                                      flex: 3,
-                                    ),
-                                    Flexible(
-                                      child: new Container(),
-                                      flex: 1,
-                                    ),
-                                    Flexible(
-                                      child: new TextFormField(
-
-                                        validator: (value) {
-                                          if (value.isEmpty) {
-                                            return "Please enter your number";
-                                          }
-                                          return null;
-                                        },
-                                        onChanged: isPhoneNumberValid,
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(10)
-                                        ],
-                                        decoration: InputDecoration(
-                                          hintText: "Enter Your Phone No.",
-                                          hintStyle: TextStyle(
-                                              fontSize: 18.5,
-                                              color: Colors.teal[500]),
-                                        ),
-                                        controller: textEditingController,
-                                        textAlign: TextAlign.start,
-                                        autofocus: false,
-                                        enabled: true,
-                                        keyboardType: TextInputType.phone,
-                                        textInputAction: TextInputAction.done,
-                                        style: TextStyle(
-                                            fontSize: 20.0,
-                                            color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
-                                      ),
-                                      flex: 8,
-                                    ),
-                                    Flexible(
-                                      child: new Container(),
-                                      flex: 1,
-                                    ),
-                                  ],
-                                ),
+                              color: Color.fromRGBO(255,255, 0, 1), shape: BoxShape.circle),
+                          child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: SvgPicture.asset(
+                                "assets/logo/bee_outline.svg",
+                                height: 65,
+                              ))),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.only(
+                          left: 40,
+                        ),
+                        child: Column(
+                          children: [
+                            RichText(
+                              textAlign: TextAlign.start,
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: "Hello! bee,\n",
+                                    style: TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromRGBO(255,255, 0, 1)),
+                                  ),
+                                  TextSpan(
+                                    text: "Sign in your phone number to continue...",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
                               ),
-                              (viewModel.loading)
-                                  ? Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 50.0,
-                                      ),
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.white),
-                                        backgroundColor:
-                                            PrimaryColors.backgroundColor,
-                                      ),
-                                    )
-                                  : InkWell(
+                            ),
+                          ],
+                        )),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    Container(
+                        height: MediaQuery.of(context).size.height,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(75.0),
+                            )),
+                        child: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(top: 45.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Flexible(
+                                    child: new Container(),
+                                    flex: 1,
+                                  ),
+                                  Flexible(
+                                    child: new TextFormField(
+                                      //decoration: InputDecoration(border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.red))),
+                                      textAlign: TextAlign.center,
+                                      autofocus: false,
+                                      enabled: false,
+                                      initialValue: "+91",
+                                      style: TextStyle(
+                                          fontSize: 20.0,
+                                          color: Color(0xff1d1b27)),
+                                    ),
+                                    flex: 3,
+                                  ),
+                                  Flexible(
+                                    child: new Container(),
+                                    flex: 1,
+                                  ),
+                                  Flexible(
+                                    child: new TextFormField(
 
-                                child: Center(
-                                  child: Padding(
+
+                                      validator: (value) {
+                                        if (value.isEmpty) {
+                                          return "Please enter your number";
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: isPhoneNumberValid,
+                                      inputFormatters: [
+                                        LengthLimitingTextInputFormatter(10),
+
+                                      ],
+                                      decoration: InputDecoration(
+                                        hintText: "Enter Your Phone No.",
+                                        hintStyle: TextStyle(
+                                            fontSize: 18.5,
+                                            color: Colors.teal[500]),
+                                      ),
+                                      controller: textEditingController,
+                                      textAlign: TextAlign.start,
+                                      autofocus: false,
+                                      enabled: true,
+                                      keyboardType: TextInputType.numberWithOptions(decimal: false),
+                                      textInputAction: TextInputAction.done,
+                                      style: TextStyle(
+                                          fontSize: 20.0,
+                                          color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
+                                    ),
+                                    flex: 8,
+                                  ),
+                                  Flexible(
+                                    child: new Container(),
+                                    flex: 1,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            (viewModel.loading)
+                                ? Padding(
                                     padding: const EdgeInsets.only(
                                       top: 50.0,
                                     ),
-                                    child: new Container(
-                                      width: 150.0,
-                                      height: 35.0,
-                                      child: new RaisedButton(
-                                          elevation: 3,
-                                          disabledColor: Colors.teal[100],
-                                          disabledTextColor: Colors.white,
-                                          onPressed: isButtonEnabled
-                                              ? () {
-                                            _bloc.fire(
-                                                LoginEvents.onLogIn,
-                                                message: {
-                                                  'phone':
-                                                  textEditingController
-                                                      .text
-                                                }, onHandled: (e, m) {
-                                              if (m.exist) {
-                                                goToOtpScreen(
-                                                    context, m.exist);
-                                              } else {
-                                                Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder:
-                                                            (ctx) {
-                                                          return Registration(
-                                                            phoneNumber:
-                                                            textEditingController
-                                                                .text,
-                                                          );
-                                                        }));
-                                              }
-                                            });
-                                          }
-                                              : null,
-                                          child: Text("Next"),
-                                          textColor:
+                                    child: CircularProgressIndicator(
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(
+                                              Colors.white),
+                                      backgroundColor:
                                           PrimaryColors.backgroundColor,
-                                          color: Colors.yellow,
-                                          shape: new RoundedRectangleBorder(
-                                              borderRadius:
-                                              new BorderRadius.circular(
-                                                  30.0))),
                                     ),
+                                  )
+                                : InkWell(
+
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 50.0,
+                                  ),
+                                  child: new Container(
+                                    width: 150.0,
+                                    height: 35.0,
+                                    child: new RaisedButton(
+                                        elevation: 3,
+                                        disabledColor: Colors.teal[100],
+                                        disabledTextColor: Colors.white,
+                                        onPressed: isButtonEnabled
+                                            ? () {
+                                          _bloc.fire(
+                                              LoginEvents.onLogIn,
+                                              message: {
+                                                'phone':
+                                                textEditingController
+                                                    .text
+                                              }, onHandled: (e, m) {
+                                            if (m.exist) {
+                                              goToOtpScreen(
+                                                  context, m.exist);
+                                            } else {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder:
+                                                          (ctx) {
+                                                        return Registration(
+                                                          phoneNumber:
+                                                          textEditingController
+                                                              .text,
+                                                        );
+                                                      }));
+                                            }
+                                          });
+                                        }
+                                            : null,
+                                        child: Text("Next"),
+                                        textColor:
+                                        PrimaryColors.backgroundColor,
+                                        color: Colors.yellow,
+                                        shape: new RoundedRectangleBorder(
+                                            borderRadius:
+                                            new BorderRadius.circular(
+                                                30.0))),
                                   ),
                                 ),
                               ),
-                            ],
-                          )),
-                    ],
-                  )
-                ],
-              );
-            },
-          ),
+                            ),
+                          ],
+                        )),
+                  ],
+                )
+              ],
+            );
+          },
         ));
   }
 

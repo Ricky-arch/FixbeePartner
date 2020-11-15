@@ -42,7 +42,45 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     return latestViewModel;
   }
 
-  fetchCreditTransactions() {}
+  Future<HistoryModel> fetchCreditTransactions() async{
+    String query='''
+    {
+  Me {
+    ... on Bee {
+      Wallet {
+        Transactions {
+          ... on Credit {
+            Amount
+            TimeStamp
+            Notes
+          }
+        }
+      }
+    }
+  }
+}
+    ''';
+    Map response= await CustomGraphQLClient.instance.query(query);
+    List<CreditTransactions> credits=[];
+    List fetchedCredits=response['Me']['Wallet']['Transactions'];
+    log("CALLED",
+        name: "CREDIT");
+    if(fetchedCredits.isEmpty || fetchedCredits.length==0 ){
+      if(fetchedCredits==null)
+        return latestViewModel..isCreditPresent=false;
+    }
+    fetchedCredits.forEach((credit) {
+      if(credit !=null){
+        CreditTransactions cred= CreditTransactions();
+        cred.amount=credit['Amount'];
+        cred.timeStamp=credit['TimeStamp'];
+        cred.notes=credit['Notes']['PaymentId'];
+        credits.add(cred);
+
+      }
+    });
+    return latestViewModel..credits=credits..isCreditPresent=true;
+  }
 
   fetchDebitTransactions() {}
 

@@ -5,11 +5,14 @@ class DummyData{
     {
       "Amount":1000,
       "TimeStamp":"22th-08-2030",
+      "Notes":"abcd",
+
 
     },
     {
       "Amount":2000,
       "TimeStamp":"22th-08-2030",
+      "Notes":"abcd",
     },
   ];
   static List transactionsCredit=[

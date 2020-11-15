@@ -9,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_svg/svg.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -90,6 +89,7 @@ class _RegistrationState extends State<Registration> {
               ClipPath(
                 clipper: OvalBottomBorderClipper(),
                 child: Container(
+                  width: double .infinity,
                   color: PrimaryColors.backgroundColor,
                   child: Form(
                       key: _formKey,
@@ -98,7 +98,7 @@ class _RegistrationState extends State<Registration> {
                         children: <Widget>[
                           SizedBox(
                             height:
-                                MediaQuery.of(context).size.height / 2 - 380,
+                            MediaQuery.of(context).size.height / 25,
                           ),
                           Row(
                             children: [
@@ -132,7 +132,7 @@ class _RegistrationState extends State<Registration> {
                           ),
                           SizedBox(
                             height:
-                                MediaQuery.of(context).size.height / 2 - 400,
+                                MediaQuery.of(context).size.height / 30,
                           ),
                           (viewModel.loading)
                               ? Padding(
@@ -181,6 +181,7 @@ class _RegistrationState extends State<Registration> {
                           Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: TextFormField(
+
                               controller: middleName,
                               validator: (value) {
                                 if (value.trim().isNotEmpty) {
@@ -285,7 +286,7 @@ class _RegistrationState extends State<Registration> {
                             ),
                           ),
                           SizedBox(
-                            height: MediaQuery.of(context).size.width / 2 - 120,
+                            height: MediaQuery.of(context).size.width / 7,
                           )
                         ],
                       )),

@@ -51,93 +51,96 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-      return Scaffold(
-       appBar: AppBar(
-        backgroundColor: PrimaryColors.backgroundColor,
-        automaticallyImplyLeading: false,
-        title: Stack(
-          children: <Widget>[
-            Container(
-                decoration:
-                BoxDecoration(color: PrimaryColors.backgroundColor),
-                child: Row(
-                  children: <Widget>[
-                    Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                            color: Colors.white, shape: BoxShape.circle),
-                        child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: SvgPicture.asset(
-                              "assets/logo/bee_outline.svg",
-                            ))),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        children: <TextSpan>[
-                          TextSpan(
-                              text: 'AVAILABLE SERVICES',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 15)),
-                        ],
+      return WillPopScope(
+        onWillPop: () async => false,
+        child: Scaffold(
+         appBar: AppBar(
+          backgroundColor: PrimaryColors.backgroundColor,
+          automaticallyImplyLeading: false,
+          title: Stack(
+            children: <Widget>[
+              Container(
+                  decoration:
+                  BoxDecoration(color: PrimaryColors.backgroundColor),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                              color: Colors.white, shape: BoxShape.circle),
+                          child: Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: SvgPicture.asset(
+                                "assets/logo/bee_outline.svg",
+                              ))),
+                      SizedBox(
+                        width: 10,
                       ),
-                    ),
-                  ],
-                ))
-          ],
+                      RichText(
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                                text: 'AVAILABLE SERVICES',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 15)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ))
+            ],
+          ),
         ),
-      ),
-        floatingActionButton: viewModel.selectedServices.length == 0
-            ? SizedBox()
-            : FloatingActionButton.extended(
-                backgroundColor: PrimaryColors.backgroundColor,
-                label: Text("ADD"),
-                onPressed: () {
-                  _bloc.fire(ServiceSelectionEvents.saveSelectedServices,
-                      onHandled: (e, m) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => NavigationScreen()));
-                  });
-                },
-              ),
-        backgroundColor: Color(0xfff6f6fb),
-        body: viewModel.fetching || viewModel.saving
-            ? Center(child: CircularProgressIndicator())
-            : SafeArea(
-                child: Services(
-                  viewModel.serviceOptions,
-                  onServiceSelected: (subServices) {
-                    showModalBottomSheet(
-                      isDismissible: false,
-                      context: ctx,
-                      builder: (ctx) {
-                        return SkillSetBottomSheet(
-                          onNext: () {
-                            Navigator.pop(ctx);
-                          },
-                          subServices: subServices,
-                          onServiceChecked: (subService, value) {
-                            if (value) {
-                              viewModel.selectedServices.add(subService);
-                              _bloc.pushViewModel(viewModel);
-                            } else {
-                              viewModel.selectedServices.remove(subService);
-                              _bloc.pushViewModel(viewModel);
-                            }
-                          },
-                        );
-                      },
-                    );
+          floatingActionButton: viewModel.selectedServices.length == 0
+              ? SizedBox()
+              : FloatingActionButton.extended(
+                  backgroundColor: PrimaryColors.backgroundColor,
+                  label: Text("ADD"),
+                  onPressed: () {
+                    _bloc.fire(ServiceSelectionEvents.saveSelectedServices,
+                        onHandled: (e, m) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NavigationScreen()));
+                    });
                   },
                 ),
-              ),
+          backgroundColor: Color(0xfff6f6fb),
+          body: viewModel.fetching || viewModel.saving
+              ? Center(child: CircularProgressIndicator())
+              : SafeArea(
+                  child: Services(
+                    viewModel.serviceOptions,
+                    onServiceSelected: (subServices) {
+                      showModalBottomSheet(
+                        isDismissible: false,
+                        context: ctx,
+                        builder: (ctx) {
+                          return SkillSetBottomSheet(
+                            onNext: () {
+                              Navigator.pop(ctx);
+                            },
+                            subServices: subServices,
+                            onServiceChecked: (subService, value) {
+                              if (value) {
+                                viewModel.selectedServices.add(subService);
+                                _bloc.pushViewModel(viewModel);
+                              } else {
+                                viewModel.selectedServices.remove(subService);
+                                _bloc.pushViewModel(viewModel);
+                              }
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+        ),
       );
     });
   }

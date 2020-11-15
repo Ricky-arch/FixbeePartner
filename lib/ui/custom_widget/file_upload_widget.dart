@@ -16,6 +16,7 @@ class FileUploadWidget extends StatefulWidget {
   final Widget text;
   final bool uploading;
   final FileUploadController controller;
+  final bool alreadyUploaded;
 
   FileUploadWidget({
     Key key,
@@ -27,6 +28,7 @@ class FileUploadWidget extends StatefulWidget {
     this.uploading,
     this.documentName,
     this.controller,
+    this.alreadyUploaded,
   }) : super(key: key);
 
   @override
@@ -42,7 +44,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
   void initState() {
     fileName = widget.inputString;
     widget?.controller?.onUpload = () {
-      log('OnUPLOAD',name: 'onUp1');
+      log('OnUPLOAD', name: 'onUp1');
       setState(() {
         _uploaded = true;
       });
@@ -55,14 +57,18 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
     return Container(
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
-        border: Border.all(color: PrimaryColors.backgroundColor),
-      ),
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          border: Border.all(color: Colors.tealAccent, width: 3)),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: <Widget>[
             (widget.imageURl == null || widget.imageURl.isEmpty)
-                ? Text(fileName)
+                ? Text(
+                    fileName,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
                 : fileName,
             Spacer(),
             InkWell(

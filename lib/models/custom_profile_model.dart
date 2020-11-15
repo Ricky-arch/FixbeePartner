@@ -6,4 +6,5 @@ class CustomProfileModel extends ViewModel {
   String filename;
   String mimetype;
   String encoding;
+  bool verifiedAccount=false;
 }

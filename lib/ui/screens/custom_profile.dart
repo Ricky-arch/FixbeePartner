@@ -42,6 +42,7 @@ class _CustomProfileState extends State<CustomProfile> {
   void initState() {
     _bloc = CustomProfileBloc(CustomProfileModel());
     _bloc.fire(CustomProfileEvent.downloadDp);
+    _bloc.fire(CustomProfileEvent.checkForVerifiedAccount);
     firstname = DataStore.me.firstName;
     middlename = DataStore.me.middleName ?? "";
     lastname = DataStore.me.lastName ?? "";
@@ -91,7 +92,7 @@ class _CustomProfileState extends State<CustomProfile> {
     ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
 
     return Scaffold(
-      backgroundColor: PrimaryColors.backgroundcolorlight,
+        backgroundColor: PrimaryColors.backgroundcolorlight,
         appBar: AppBar(
           backgroundColor: PrimaryColors.backgroundColor,
           automaticallyImplyLeading: false,
@@ -167,37 +168,52 @@ class _CustomProfileState extends State<CustomProfile> {
                           ),
                         ),
                         SizedBox(height: kSpacingUnit.w * 1),
-                        Text(
-                          getMyName(firstname, middlename, lastname),
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: ScreenUtil().setSp(kSpacingUnit.w * 2),
-                            fontWeight: FontWeight.w600,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              getMyName(firstname, middlename, lastname),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize:
+                                    ScreenUtil().setSp(kSpacingUnit.w * 2),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 4,
+                            ),
+                            (viewModel.verifiedAccount)
+                                ? Icon(Icons.check_circle,
+                                    color: Colors.blue,
+                                    size: ScreenUtil().setSp(
+                                      kSpacingUnit.w * 3,
+                                    ))
+                                : SizedBox(),
+                          ],
                         ),
                         SizedBox(height: kSpacingUnit.w * 1),
                         RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Rated 4.5 ",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: ScreenUtil().setSp(kSpacingUnit.w*1.7),
-                                  fontWeight: FontWeight.w600,
-                                ),
+                          text: TextSpan(children: [
+                            TextSpan(
+                              text: "Rated 4.5 ",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize:
+                                    ScreenUtil().setSp(kSpacingUnit.w * 1.7),
+                                fontWeight: FontWeight.w600,
                               ),
-                              TextSpan(
-                                text: "\u2605",
-                                style: TextStyle(
-                                  color: Colors.amber,
-                                  fontSize: ScreenUtil().setSp(kSpacingUnit.w*2),
-                                  fontWeight: FontWeight.w600,
-                                ),
-
-                              )
-                            ]
-                          ),
+                            ),
+                            TextSpan(
+                              text: "\u2605",
+                              style: TextStyle(
+                                color: Colors.amber,
+                                fontSize:
+                                    ScreenUtil().setSp(kSpacingUnit.w * 2),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                          ]),
                         ),
 //                        Text(
 //                          "Rated 4.5 \u2605",

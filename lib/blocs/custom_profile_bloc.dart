@@ -20,6 +20,8 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
       return await updateDP(message['path'], message['file']);
     }
     if (event == CustomProfileEvent.downloadDp) return await downloadDp();
+    if (event == CustomProfileEvent.checkForVerifiedAccount)
+      return await checkForVerifiedAccount();
     return latestViewModel;
   }
 
@@ -81,5 +83,24 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
         ..imageUrl = '${EndPoints.DOCUMENT}?id=$id';
     }
     return latestViewModel;
+  }
+
+  Future<CustomProfileModel> checkForVerifiedAccount() async {
+    String query = '''
+    {
+  Me {
+    ... on Bee {
+      DocumentVerification{
+        Status
+      }
+    }
+  }
+}
+
+    ''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+
+    return latestViewModel
+      ..verifiedAccount = response['Me']['DocumentVerification']['Status'];
   }
 }
