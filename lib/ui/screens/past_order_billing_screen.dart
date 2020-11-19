@@ -12,6 +12,7 @@ class PastOrderBillingScreen extends StatefulWidget {
   final bool cashOnDelivery;
   final int basePrice, serviceCharge, taxPercent, amount, quantity;
   final List<Service> addOns;
+  final int orderAmount, orderServiceCharge, orderDiscount, orderTaxCharge, orderBasePrice;
 
   const PastOrderBillingScreen(
       {Key key,
@@ -27,7 +28,7 @@ class PastOrderBillingScreen extends StatefulWidget {
       this.timeStamp,
       this.orderId,
       this.addOns,
-      this.quantity})
+      this.quantity, this.orderAmount, this.orderServiceCharge, this.orderDiscount, this.orderTaxCharge, this.orderBasePrice})
       : super(key: key);
   @override
   _PastOrderBillingScreenState createState() => _PastOrderBillingScreenState();
@@ -169,7 +170,7 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    "BASE SERVICE PAYMENT DETAILS",
+                    "ORDER PAYMENT DETAILS",
                     style: TextStyle(
                         color: Colors.orange,
                         fontSize: 13,
@@ -182,8 +183,14 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
               child: Column(
                 children: [
                   Banner(
+                    title: 'Quantity',
+                    value: (widget.quantity == null)
+                        ? "Un-Quantifiable"
+                        : widget.quantity.toString(),
+                  ),
+                  Banner(
                     title: 'Base Price',
-                    value: Constants.rupeeSign + " ${(widget.basePrice) / 100}",
+                    value: Constants.rupeeSign + " ${(widget.orderBasePrice) / 100}",
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -194,7 +201,17 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                   Banner(
                     title: 'Service Charge',
                     value: Constants.rupeeSign +
-                        " ${(widget.serviceCharge) / 100}",
+                        " ${(widget.orderServiceCharge) / 100}",
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
+                    child: Divider(
+                      color: Colors.tealAccent,
+                    ),
+                  ),
+                  Banner(
+                    title: 'Discount',
+                    value: "- "+Constants.rupeeSign + " ${(widget.orderDiscount) / 100}",
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -205,23 +222,11 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                   Banner(
                     title: 'Tax',
                     value: Constants.rupeeSign +
-                        (widget.taxPercent *
-                                ((widget.basePrice + widget.serviceCharge) /
-                                    10000))
+                        (widget.orderTaxCharge/100)
                             .toStringAsFixed(2),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                    child: Divider(
-                      color: Colors.tealAccent,
-                    ),
-                  ),
-                  Banner(
-                    title: 'Quantity',
-                    value: (widget.quantity == null)
-                        ? "Un-Quantifiable"
-                        : widget.quantity.toString(),
-                  ),
+
+
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
                     child: Divider(
@@ -240,7 +245,7 @@ class _PastOrderBillingScreenState extends State<PastOrderBillingScreen> {
                         ),
                         Text(
                           Constants.rupeeSign +
-                              " ${(widget.basePrice / 100) + (widget.serviceCharge / 100) + (widget.taxPercent * ((widget.basePrice + widget.serviceCharge) / 10000))}",
+                              (widget.orderAmount/100).toString(),
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 15),
                         ),

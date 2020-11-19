@@ -40,7 +40,7 @@ class _BankDetailsState extends State<BankDetails> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
+    // ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
     return Scaffold(
       body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
         return SafeArea(

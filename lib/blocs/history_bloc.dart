@@ -92,6 +92,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
   Me {
     ... on Bee {
       ActiveOrder {
+      Quantity
       Status
         ID
         Location {
@@ -159,6 +160,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     return latestViewModel
       ..isOrderActive=true
       ..order.orderId = response['Me']['ActiveOrder']['ID']
+      ..order.quantity=response['Me']['ActiveOrder']['Quantity']
       ..location.googlePlaceId =
       response['Me']['ActiveOrder']['Location']['GooglePlaceID']
       ..order.slotted = response['Me']['ActiveOrder']['Slot']['Slotted']
@@ -232,6 +234,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     String query='''{
   Order(_id: "$orderID") {
     Quantity
+    
     ID
     User{
       Name{
@@ -246,6 +249,10 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
       }
     }
     Amount
+    BasePrice
+    ServiceCharge
+    TaxCharge
+    Discount
     Status
     Quantity
     Addons {
@@ -283,6 +290,11 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     order.totalAmount=response['Order']['Amount'];
     order.status=response['Order']['Status'];
     order.serviceName=response['Order']['Service']['Name'];
+    order.orderAmount=response['Order']['Amount'];
+    order.orderBasePrice=response['Order']['BasePrice'];
+    order.orderServiceCharge=response['Order']['ServiceCharge'];
+    order.orderDiscount=response['Order']['Discount'];
+    order.orderTaxCharge=response['Order']['TaxCharge'];
     order.basePrice=response['Order']['Service']['Pricing']['BasePrice'];
     order.serviceCharge=response['Order']['Service']['Pricing']['ServiceCharge'];
     order.taxPercent=response['Order']['Service']['Pricing']['TaxPercent'];

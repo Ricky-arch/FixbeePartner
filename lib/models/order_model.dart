@@ -34,6 +34,11 @@ class OrderModel extends ViewModel{
   int totalAmount;
   String timeStamp;
   List<Service> addons;
+  int orderBasePrice;
+  int orderServiceCharge;
+  int orderDiscount;
+  int orderTaxCharge;
+  int orderAmount;
 }
 
 

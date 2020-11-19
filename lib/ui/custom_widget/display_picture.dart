@@ -4,13 +4,13 @@ import 'package:fixbee_partner/data_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'package:image_picker/image_picker.dart';
+// import 'package:image_picker/image_picker.dart';
 
 class DisplayPicture extends StatelessWidget {
   final Function(String path) onImagePicked;
   final String imageURl;
   final bool loading;
-  final ImagePicker _imagePicker = ImagePicker();
+  // final ImagePicker _imagePicker = ImagePicker();
   DisplayPicture({
     Key key,
     @required this.onImagePicked,
@@ -72,9 +72,9 @@ class DisplayPicture extends StatelessWidget {
           right: 0.004 * MediaQuery.of(context).size.height,
           child: InkWell(
             onTap: () async {
-              PickedFile image =
-                  await _imagePicker.getImage(source: ImageSource.gallery);
-              if (image != null) onImagePicked(image.path);
+              // PickedFile image =
+              //     await _imagePicker.getImage(source: ImageSource.gallery);
+              // if (image != null) onImagePicked(image.path);
             },
             child: Container(
               decoration: BoxDecoration(

@@ -2,13 +2,14 @@ import 'dart:ui';
 
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/addon.dart';
+import 'package:fixbee_partner/ui/custom_widget/custom_rating_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../Constants.dart';
 import 'navigation_screen.dart';
 
 class BillingScreen extends StatefulWidget {
-  final String serviceName, status, address, userName, timeStamp, orderId;
+  final String serviceName, status, address, userName, timeStamp, orderId, userID;
   final bool cashOnDelivery;
   final int basePrice, serviceCharge, taxPercent, amount;
   final List<int> addOnAmounts;
@@ -31,7 +32,7 @@ class BillingScreen extends StatefulWidget {
       this.addOnAmounts,
       this.addOnServiceCharge,
       this.addOnTaxPercent,
-      this.addOns})
+      this.addOns, this.userID})
       : super(key: key);
   @override
   BillingScreenState createState() => BillingScreenState();
@@ -41,32 +42,26 @@ class BillingScreenState extends State<BillingScreen> {
   int bp, sc;
   double tax;
   double amount;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   void initState() {
     amount = widget.amount.toDouble();
     for (var addOn in widget.addOns) {
       amount = amount + addOn.amount.toDouble();
     }
-//    bp = widget.basePrice;
-//    sc = widget.serviceCharge;
-//    tax = (bp + sc) * (widget.taxPercent / 100);
-//    amount = widget.amount.toDouble();
-//    for (var addOn in widget.addOns) {
-//      bp = bp + addOn.basePrice;
-//      sc = sc + addOn.serviceCharge;
-//      tax = tax + ((bp + sc) * (widget.taxPercent / 100));
-//      amount = amount + bp + sc + tax;
-//
-//    }
+
+
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
+        key: _scaffoldKey,
         body: SafeArea(
           child: ListView(
             children: [
@@ -226,8 +221,8 @@ class BillingScreenState extends State<BillingScreen> {
                       title: 'Tax',
                       value: Constants.rupeeSign +
                           (widget.taxPercent *
-                              ((widget.basePrice + widget.serviceCharge) /
-                                  10000))
+                                  ((widget.basePrice + widget.serviceCharge) /
+                                      10000))
                               .toStringAsFixed(2),
                     ),
                     Padding(
@@ -348,35 +343,69 @@ class BillingScreenState extends State<BillingScreen> {
                     ),
               Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushReplacement(
-                              new MaterialPageRoute(
-                                  builder: (BuildContext context) {
-                            return NavigationScreen();
-                          }));
-                        },
-                        child: Container(
-                          width: 70,
-                          color: Colors.yellow.withOpacity(.5),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                "DONE",
-                                style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: InkWell(
+                          child: GestureDetector(
+                            onTap: () {
+                              _showRatingBar();
+                            },
+                            child: Container(
+                              width: 110,
+                              color: Colors.yellow.withOpacity(.5),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "RATE USER",
+                                    style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: InkWell(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pushReplacement(
+                                  new MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                return NavigationScreen();
+                              }));
+                            },
+                            child: Container(
+                              width: 70,
+                              color: Colors.yellow.withOpacity(.5),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "DONE",
+                                    style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               )
@@ -385,6 +414,30 @@ class BillingScreenState extends State<BillingScreen> {
         ),
       ),
     );
+  }
+
+  _showRatingBar() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Constants.padding),
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            child: CustomRatingWidget(
+              userName: widget.userName,
+              userID: widget.userID,
+            ),
+          );
+        });
+  }
+  _showSnackBar(String value){
+    final snackBar = new SnackBar(content: new Text("Don't forget to rate our user!"),
+        backgroundColor: Colors.red);
+
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 }
 
@@ -420,7 +473,9 @@ class TotalChargesPanel extends StatelessWidget {
                         fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    Constants.rupeeSign+" "+(amount/100).toStringAsFixed(2),
+                    Constants.rupeeSign +
+                        " " +
+                        (amount / 100).toStringAsFixed(2),
                     style: TextStyle(
                         color: Colors.red,
                         fontSize: 15,
@@ -431,7 +486,6 @@ class TotalChargesPanel extends StatelessWidget {
             ),
           ),
         ),
-
       ],
     );
   }

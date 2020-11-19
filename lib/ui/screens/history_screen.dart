@@ -148,7 +148,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                           snapshot.data.credits.length - i - 1;
                                       return Credit(
                                         amount:
-                                        snapshot.data.credits[index].amount,
+                                            snapshot.data.credits[index].amount,
                                         date: snapshot
                                             .data.credits[index].timeStamp,
                                         notes:
@@ -227,24 +227,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                         builder: (BuildContext context) => PastOrderBillingScreen(
                                                             quantity: m.jobModel
                                                                 .quantity,
+                                                            orderAmount: m
+                                                                .jobModel
+                                                                .orderAmount,
+                                                            orderDiscount: m
+                                                                .jobModel
+                                                                .orderDiscount,
+                                                            orderBasePrice: m
+                                                                .jobModel
+                                                                .orderBasePrice,
+                                                            orderServiceCharge: m
+                                                                .jobModel
+                                                                .orderServiceCharge,
+                                                            orderTaxCharge: m
+                                                                .jobModel
+                                                                .orderTaxCharge,
                                                             addOns: m.jobModel
                                                                 .addons,
                                                             serviceName: m
                                                                 .jobModel
                                                                 .serviceName,
-                                                            amount: m.jobModel
-                                                                .totalAmount,
-                                                            status: m.jobModel
-                                                                .status,
-                                                            orderId: m.jobModel
-                                                                .orderId,
-                                                            cashOnDelivery: m
-                                                                .jobModel
-                                                                .cashOnDelivery,
-                                                            address: m.jobModel
-                                                                .addressLine,
-                                                            userName: m.jobModel
-                                                                .userFirstname,
+                                                            amount: m.jobModel.totalAmount,
+                                                            status: m.jobModel.status,
+                                                            orderId: m.jobModel.orderId,
+                                                            cashOnDelivery: m.jobModel.cashOnDelivery,
+                                                            address: m.jobModel.addressLine,
+                                                            userName: m.jobModel.userFirstname,
                                                             serviceCharge: m.jobModel.serviceCharge,
                                                             basePrice: m.jobModel.basePrice,
                                                             taxPercent: m.jobModel.taxPercent,
@@ -278,6 +286,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       seeMore: () {
                                         Route route = MaterialPageRoute(
                                             builder: (context) => WorkScreen(
+                                              quantity: snapshot.data.order.quantity,
                                                   userId:
                                                       snapshot.data.user.userId,
                                                   activeOrderStatus: snapshot

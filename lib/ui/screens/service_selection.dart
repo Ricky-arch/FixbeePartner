@@ -19,21 +19,11 @@ class ServiceSelectionScreen extends StatefulWidget {
 
 class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
   SetServicesBloc _bloc;
-  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+
 
   Position _currentPosition;
 
-  _getCurrentLocation() {
-    geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-      });
-    }).catchError((e) {
-      print(e);
-    });
-  }
+
 
   @override
   void initState() {

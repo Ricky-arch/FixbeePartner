@@ -37,10 +37,10 @@ class _SplashScreenState extends State<SplashScreen>
 
   bool hideIcon = false;
   Position _currentPosition;
-  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
 
   _getCurrentLocation() {
-    geolocator
+
+    Geolocator
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
         .then((Position position) {
       setState(() {

@@ -150,7 +150,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                           'otp': _otpInsertController.text
                                         },
                                         onHandled: (e, m) {
-                                          if (!m.exist) {
+                                          if (!m.otpValid) {
                                             print("otpppp: " +
                                                 _otpInsertController.text);
                                             goToRegistrationScreen(context);

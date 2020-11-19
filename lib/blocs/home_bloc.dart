@@ -12,11 +12,8 @@ import 'flavours.dart';
 
 class HomeBloc extends Bloc<HomeEvents, HomeModel>
     with Trackable<HomeEvents, HomeModel>, SecondaryStreamable<HomeModel> {
-  HomeBloc(HomeModel genesisViewModel) : super(genesisViewModel) {
-    _geolocator = Geolocator();
-  }
+  HomeBloc(HomeModel genesisViewModel) : super(genesisViewModel) ;
 
-  Geolocator _geolocator;
   Timer locationTimer;
   StreamSubscription locationStream;
 
@@ -137,7 +134,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
   Future<Position> _getLocation() async {
     var currentLocation;
     try {
-      currentLocation = await _geolocator.getCurrentPosition(
+      currentLocation = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.best);
     } catch (e) {
       currentLocation = null;

@@ -4,7 +4,7 @@ class OtpModel extends ViewModel{
   bool valid=false;
   bool verifying=false;
   bool enableButton=false;
-  bool exist=false;
+  bool otpValid=false;
   bool serviceSelected=false;
   bool resendingOtp=false;
 

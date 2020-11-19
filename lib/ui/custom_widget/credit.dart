@@ -135,7 +135,7 @@ class _CreditState extends State<Credit> {
                       child: Text(
                         widget.notes,
                         style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),

@@ -6,6 +6,7 @@ class WorkScreenEvents extends Event{
   static final WorkScreenEvents fetchUserDp= WorkScreenEvents(101);
   static final WorkScreenEvents verifyOtpToStartService=WorkScreenEvents(102);
   static final WorkScreenEvents rateUser=WorkScreenEvents(103);
+  static final WorkScreenEvents findUserRating= WorkScreenEvents(108);
   static final WorkScreenEvents cancelAcceptedJob= WorkScreenEvents(104);
   static final WorkScreenEvents onJobCompletion=WorkScreenEvents(105);
   static final WorkScreenEvents checkActiveOrderStatus= WorkScreenEvents(106);

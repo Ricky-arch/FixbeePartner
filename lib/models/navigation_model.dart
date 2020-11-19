@@ -23,7 +23,7 @@ class User {
   String phoneNumber;
   String profilePicUrl;
   String profilePicId;
-
+  double userRating;
 }
 class Location{
   String locationId;

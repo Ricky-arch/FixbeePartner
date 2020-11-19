@@ -79,7 +79,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
+    // ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
     return Scaffold(
       backgroundColor: PrimaryColors.backgroundcolorlight,
       appBar: AppBar(

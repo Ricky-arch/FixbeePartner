@@ -6,6 +6,7 @@ class WorkScreenModel extends ViewModel {
   OrderModel jobModel= OrderModel();
   bool onServiceStarted=false;
   bool otpValid=false;
+  double userRating=0;
 
   bool slotted=false;
   bool orderResolved=false;

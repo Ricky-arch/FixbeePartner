@@ -52,10 +52,11 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
         body: {'phone': phone, 'otp': otp}).makeRequest();
 
     if (response.containsKey('error')) {
-      if (response['error'] == 'No such account exists') {
-        return latestViewModel..exist = false;
-      } else if (response['error'] == 'OTP invalid or past expiration') {
-        return latestViewModel..exist = true;
+      // if (response['error'] == 'No such account exists') {
+      //   return latestViewModel..exist = false;
+      // } else
+      if (response['error'] == 'OTP invalid or past expiration') {
+        return latestViewModel..otpValid = false;
       }
     }
 
@@ -64,7 +65,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       DataStore.token = response['token'];
       latestViewModel
         ..valid = true
-        ..exist = true;
+        ..otpValid = true;
     }
     return latestViewModel;
   }

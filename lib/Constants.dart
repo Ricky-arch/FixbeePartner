@@ -11,6 +11,8 @@ class Constants {
   static const fields = 'name,formatted_address,geometry';
   static const PING_TIMEOUT = 5;
   static const RAZORPAY_KEY = 'rzp_live_ntFJBLTXRv0Ure';
+  static const double padding =20;
+  static const double avatarRadius =45;
   static const RAZORPAY_KEY_SECRET = 'TEnKYa9uZXail5Yu3ptCPZv8';
   static const MAP_STYLES='''[
   {

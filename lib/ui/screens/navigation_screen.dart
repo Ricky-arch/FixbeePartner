@@ -45,6 +45,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
       slot,
       slotted,
       paymentMode;
+  int _lastNotification = 0;
 
   @override
   void initState() {
@@ -58,12 +59,17 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   void _setupFCM() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
     _firebaseMessaging.configure(
+
       onMessage: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
-
         log(message.toString(), name: 'ON_MESSAGE');
-        _getJobDetails(message);
+        if ((DateTime.now().microsecondsSinceEpoch - _lastNotification) >
+            1000000) {
+          _lastNotification = DateTime.now().microsecondsSinceEpoch;
+          _getJobDetails(message);
+        }
       },
       onResume: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
@@ -97,7 +103,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
         context: context,
         builder: (BuildContext context) {
           Vibration.vibrate(duration: 1000);
-          Future.delayed(const Duration(seconds: 150), () async {
+          Future.delayed(const Duration(seconds: 150), () {
             Navigator.pop(context);
           });
           return Dialog(
@@ -118,6 +124,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
                   Route route = MaterialPageRoute(
                       builder: (context) => WorkScreen(
+                        quantity: m.order.quantity,
                             userId: m.user.userId,
                             activeOrderStatus: m.order.status,
                             orderId: m.order.orderId,

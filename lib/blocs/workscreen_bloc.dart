@@ -32,6 +32,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     if (event == WorkScreenEvents.refreshOrderDetails) {
       return await refreshOrderDetails(message);
     }
+    if (event == WorkScreenEvents.findUserRating) {
+      return await findUserRating(message);
+    }
     return latestViewModel;
   }
 
@@ -205,6 +208,34 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
         ..taxPercent = addon['Service']['Pricing']['TaxPercent']
         ..amount = addon['Amount'];
       latestViewModel.jobModel.addons.add(service);
+    }
+    return latestViewModel;
+  }
+
+  Future<WorkScreenModel> findUserRating(Map<String, dynamic> message) async {
+    String orderId = message['orderID'];
+    String query = '''
+    {
+  Order(_id:"$orderId"){
+    User{
+      Ratings{
+        Score
+      }
+    }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    List allRating = response['Order']['User']['Ratings'];
+    double score = 0;
+    int numberOfRating = 0;
+    if (allRating.isNotEmpty) {
+      allRating.forEach((rating) {
+        score = score + rating['Score'];
+        numberOfRating++;
+      });
+      latestViewModel.userRating = score / numberOfRating;
+    } else {
+      latestViewModel.userRating = 0;
     }
     return latestViewModel;
   }

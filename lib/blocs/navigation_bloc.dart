@@ -29,9 +29,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     if (event == NavigationEvent.getUserData) {
       return await getUserData(message);
     }
-    if (event == NavigationEvent.getActiveOrder) {
-      return await getActiveOrder();
-    }
+
     if (event == NavigationEvent.checkActiveService) {
       return await checkActiveService();
     }
@@ -142,6 +140,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
       Phone{
         Number
       }
+      
        DisplayPicture{
         id
       }
@@ -149,7 +148,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     Timestamp
     OTP
     Amount
- 
+    Quantity
     Location {
       Name
       GooglePlaceID
@@ -171,6 +170,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
         name: "landmark");
     return latestViewModel
       ..order.orderId = response['AnswerOrderRequest']['ID']
+      ..order.quantity=response['AnswerOrderRequest']['Quantity']
       ..order.status=response['AnswerOrderRequest']['Status']
       ..location.googlePlaceId =
           response['AnswerOrderRequest']['Location']['GooglePlaceID']
@@ -239,106 +239,6 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     return latestViewModel;
   }
 
-  Future<NavigationModel> getActiveOrder() async {
-    String query = '''{
-  Me {
-    ... on Bee {
-      ActiveOrder {
-        ID
-        Location {
-          ID
-          Name
-          Address {
-            Line1
-            Landmark
-          }
-          GooglePlaceID
-        }
-        Service {
-          ID
-          Name
-          Pricing {
-            Priceable
-            BasePrice
-            ServiceCharge
-            TaxPercent
-          }
-        }
-        Status
-        Timestamp
-        Addons {
-          Service {
-            Name
-            Pricing {
-              BasePrice
-              ServiceCharge
-              TaxPercent
-            }
-          }
-          Amount
-        }
-        Amount
-        User {
-          ID
-          Name {
-            Firstname
-            Middlename
-            Lastname
-          }
-          DisplayPicture {
-            filename
-            id
-          }
-          Phone {
-            Number
-          }
-        }
-        CashOnDelivery
-        OrderId
-        Slot {
-          Slotted
-          At
-        }
-      }
-    }
-  }
-}
-''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    log(response['Me']['ActiveOrder']['Location']['Address']['Landmark'], name: "LANDMARK");
-    return latestViewModel
-      ..order.orderId = response['Me']['ActiveOrder']['ID']
-      ..location.googlePlaceId =
-      response['Me']['ActiveOrder']['Location']['GooglePlaceID']
-      ..order.slotted = response['Me']['ActiveOrder']['Slot']['Slotted']
-      ..service.serviceName = response['Me']['ActiveOrder']['Service']['Name']
-      ..user.firstname =
-      response['Me']['ActiveOrder']['User']['Name']['Firstname']
-      ..user.middlename =
-      response['Me']['ActiveOrder']['User']['Name']['Middlename']
-      ..user.lastname =
-      response['Me']['ActiveOrder']['User']['Name']['Lastname']
-      ..user.phoneNumber =
-      response['Me']['ActiveOrder']['User']['Phone']['Number']
-      ..user.profilePicUrl =
-          '${EndPoints.DOCUMENT}?id=${response['Me']['ActiveOrder']['User']['DisplayPicture']['id']}'
-      ..location.addressLine =
-      response['Me']['ActiveOrder']['Location']['Address']['Line1']
-      ..location.landmark =
-      response['Me']['ActiveOrder']['Location']['Address']['Landmark']
-      ..order.timeStamp = response['Me']['ActiveOrder']['Timestamp']
-      ..order.price = response['Me']['ActiveOrder']['Amount']
-      ..order.basePrice =
-      response['Me']['ActiveOrder']['Service']['Pricing']['BasePrice']
-      ..order.serviceCharge =
-      response['Me']['ActiveOrder']['Service']['Pricing']['ServiceCharge']
-      ..order.taxPercent =
-      response['Me']['ActiveOrder']['Service']['Pricing']['TaxPercent']
-      ..order.cashOnDelivery = response['Me']['ActiveOrder']['CashOnDelivery']
-      ..user.profilePicId =
-      response['Me']['ActiveOrder']['User']['DisplayPicture']['id']
-    ..order.status=response['Me']['ActiveOrder']["Status"];
-  }
 
   Future<NavigationModel> checkActiveService() async {
     String query = '''{
