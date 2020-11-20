@@ -4,7 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'navigation_model.dart';
 class OrderModel extends ViewModel{
   String userProfilePicUrl;
-  String userFirstname;
+  String userName;
   String userMiddlename;
   String userLastname;
   String userRating;

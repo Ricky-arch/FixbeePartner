@@ -83,7 +83,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
   @override
   WalletModel setTrackingFlag(WalletEvent event, bool trackFlag, Map message) {
     if (event == WalletEvent.fetchBankAccountsForWithdrawal)
-      return latestViewModel..bankAccountFetching = trackFlag;
+       latestViewModel..bankAccountFetching = trackFlag;
+    if(event== WalletEvent.fetchWalletAmount)
+      latestViewModel..whileFetchingWalletAmount=trackFlag;
     return latestViewModel;
   }
 

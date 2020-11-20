@@ -34,182 +34,185 @@ class _CustomizeServiceState extends State<CustomizeService> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: PrimaryColors.backgroundColor,
-        automaticallyImplyLeading: false,
-        title: Stack(
-          children: <Widget>[
-            Container(
-                decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
-                child: RichText(
-                  text: TextSpan(
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: 'CUSTOMIZE SERVICE',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 15)),
-                    ],
-                  ),
-                ))
-          ],
-        ),
-      ),
-      body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-        return ListView(
-          children: [
-            Column(
-              children: [
-                SizedBox(
-                  height: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      InkWell(
-                        child: GestureDetector(
-                          onTap: () async {
-                            await Navigator.push(context,
-                                MaterialPageRoute(builder: (ctx) {
-                              return AddServices();
-                            }));
-
-                            _bloc.fire(
-                                CustomizeServiceEvent.fetchSelectedServices);
-                            log('returned', name: 'RET');
-                          },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width / 5,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0),
-                              color: Colors.orangeAccent.withOpacity(.9),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black,
-                                  blurRadius: 2.0,
-                                  spreadRadius: 0.0,
-                                  offset: Offset(2.0,
-                                      2.0), // shadow direction: bottom right
-                                )
-                              ],
-                            ),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Text(
-                                  "ADD",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      InkWell(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (!showDeleteButton)
-                                showDeleteButton = true;
-                              else
-                                showDeleteButton = false;
-                            });
-                          },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width / 5,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5.0),
-                              color: Colors.orangeAccent.withOpacity(.9),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black,
-                                  blurRadius: 2.0,
-                                  spreadRadius: 0.0,
-                                  offset: Offset(2.0,
-                                      2.0), // shadow direction: bottom right
-                                )
-                              ],
-                            ),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Text(
-                                  (!showDeleteButton) ? "REMOVE" : "CANCEL",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10.0, 2, 10, 10),
-                  child: Row(
-                    children: [
-                      Text(
-                        "SERVICES:",
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            (!viewModel.fetchSelectedServices)
-                ? ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: viewModel.selectedServiceOptionModel.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Column(
-                        children: [
-                          ServiceBanner(
-                            serviceName: viewModel
-                                .selectedServiceOptionModel[index].serviceName,
-                            showDeleteIcon: showDeleteButton,
-                            deleteService: () {
-                              _showJobDeletionDialog(
-                                  viewModel.selectedServiceOptionModel[index]
-                                      .serviceName,
-                                  viewModel
-                                      .selectedServiceOptionModel[index].id);
-                            },
-                          ),
-                        ],
-                      );
-                    })
-                : Container(
-                    height: 200,
-                    width: 200,
-                    child: FlareActor(
-                      "assets/animations/loading.flr",
-                      alignment: Alignment.center,
-                      fit: BoxFit.contain,
-                      animation: "Start",
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: PrimaryColors.backgroundColor,
+          automaticallyImplyLeading: false,
+          title: Stack(
+            children: <Widget>[
+              Container(
+                  decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
+                  child: RichText(
+                    text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(
+                            text: 'CUSTOMIZE SERVICE',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 15)),
+                      ],
                     ),
-                  )
-          ],
-        );
-      }),
+                  ))
+            ],
+          ),
+        ),
+        body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+          return ListView(
+            children: [
+
+              Column(
+                children: [
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        InkWell(
+                          child: GestureDetector(
+                            onTap: () async {
+                              await Navigator.push(context,
+                                  MaterialPageRoute(builder: (ctx) {
+                                return AddServices();
+                              }));
+
+                              _bloc.fire(
+                                  CustomizeServiceEvent.fetchSelectedServices);
+                              log('returned', name: 'RET');
+                            },
+                            child: Container(
+                              width: MediaQuery.of(context).size.width / 5,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: Colors.orangeAccent.withOpacity(.9),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black,
+                                    blurRadius: 2.0,
+                                    spreadRadius: 0.0,
+                                    offset: Offset(2.0,
+                                        2.0), // shadow direction: bottom right
+                                  )
+                                ],
+                              ),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    "ADD",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        InkWell(
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (!showDeleteButton)
+                                  showDeleteButton = true;
+                                else
+                                  showDeleteButton = false;
+                              });
+                            },
+                            child: Container(
+                              width: MediaQuery.of(context).size.width / 5,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: Colors.orangeAccent.withOpacity(.9),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black,
+                                    blurRadius: 2.0,
+                                    spreadRadius: 0.0,
+                                    offset: Offset(2.0,
+                                        2.0), // shadow direction: bottom right
+                                  )
+                                ],
+                              ),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    (!showDeleteButton) ? "REMOVE" : "CANCEL",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10.0, 2, 10, 10),
+                    child: Row(
+                      children: [
+                        Text(
+                          "SERVICES:",
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              (!viewModel.fetchSelectedServices)
+                  ? ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: viewModel.selectedServiceOptionModel.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Column(
+                          children: [
+                            ServiceBanner(
+                              serviceName: viewModel
+                                  .selectedServiceOptionModel[index].serviceName,
+                              showDeleteIcon: showDeleteButton,
+                              deleteService: () {
+                                _showJobDeletionDialog(
+                                    viewModel.selectedServiceOptionModel[index]
+                                        .serviceName,
+                                    viewModel
+                                        .selectedServiceOptionModel[index].id);
+                              },
+                            ),
+                          ],
+                        );
+                      })
+                  : Container(
+                      height: 200,
+                      width: 200,
+                      child: FlareActor(
+                        "assets/animations/loading.flr",
+                        alignment: Alignment.center,
+                        fit: BoxFit.contain,
+                        animation: "Start",
+                      ),
+                    )
+            ],
+          );
+        }),
+      ),
     );
   }
 

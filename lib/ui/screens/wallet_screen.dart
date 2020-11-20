@@ -118,415 +118,394 @@ class _WalletScreenState extends State<WalletScreen> {
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Text(
-                            "Current Balance :",
-                            style: TextStyle(
-                                color: PrimaryColors.backgroundColor,
-                                fontSize: 17,
-                                fontWeight: FontWeight.w500),
-                          ),
                           Spacer(),
-                          IconButton(
-                            icon: Icon(
-                              Icons.more_horiz,
-                              color: PrimaryColors.backgroundColor,
-                            ),
-                            onPressed: () {
-                              print(walletAmount.toString());
-                            },
-                          )
+                          (viewModel.whileFetchingWalletAmount)
+                              ? SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                    backgroundColor:
+                                        PrimaryColors.backgroundColor,
+                                  ),
+                                )
+                              : SizedBox()
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Stack(children: [
-                    Container(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(40, 10, 0, 40),
-                        child: Container(
-                          height: 140,
-                          decoration: BoxDecoration(
-                              color: PrimaryColors.backgroundColor,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(40),
-                                  bottomLeft: Radius.circular(40))),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(8.0, 38, 8, 8),
-                                child: Image(
-                                  image: AssetImage("assets/images/rupee.png"),
-                                  height: 35,
-                                  width: 25,
+                  (viewModel.whileFetchingWalletAmount)
+                      ? Container()
+                      : Column(
+                          children: [
+                            SizedBox(height: 10),
+                            Container(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(
+                                      "Current Balance :",
+                                      style: TextStyle(
+                                          color: PrimaryColors.backgroundColor,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                    Spacer(),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.more_horiz,
+                                        color: PrimaryColors.backgroundColor,
+                                      ),
+                                      onPressed: () {
+                                        print(walletAmount.toString());
+                                      },
+                                    )
+                                  ],
                                 ),
                               ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(8.0, 30, 8, 8),
-                                child: Text(
-                                  (viewModel.amount == null)
-                                      ? "0.0"
-                                      : "${(viewModel.amount) / 100}",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: double.parse(
-                                          (walletAmount.toString().length *
-                                                  (MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      (walletAmount
-                                                              .toString()
-                                                              .length *
-                                                          6)))
-                                              .toString())),
+                            ),
+                            SizedBox(height: 10),
+                            Stack(children: [
+                              Container(
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(40, 10, 0, 40),
+                                  child: Container(
+                                    height: 140,
+                                    decoration: BoxDecoration(
+                                        color: PrimaryColors.backgroundColor,
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(40),
+                                            bottomLeft: Radius.circular(40))),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              8.0, 38, 8, 8),
+                                          child: Image(
+                                            image: AssetImage(
+                                                "assets/images/rupee.png"),
+                                            height: 35,
+                                            width: 25,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              8.0, 30, 8, 8),
+                                          child: Text(
+                                            (viewModel.amount == null)
+                                                ? "0.0"
+                                                : "${(viewModel.amount) / 100}",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w300,
+                                                fontSize: double.parse((walletAmount
+                                                            .toString()
+                                                            .length *
+                                                        (MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            (walletAmount
+                                                                    .toString()
+                                                                    .length *
+                                                                6)))
+                                                    .toString())),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              0.0, 60, 8, 8),
+                                          child: Text(
+                                            "INR",
+                                            style:
+                                                TextStyle(color: Colors.yellow),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(0.0, 60, 8, 8),
-                                child: Text(
-                                  "INR",
-                                  style: TextStyle(color: Colors.yellow),
+                              Positioned(
+                                top: 120,
+                                left: 270,
+                                child: FloatingActionButton(
+                                  backgroundColor:
+                                      PrimaryColors.backgroundColor,
+                                  child: Icon(
+                                    Icons.add_circle,
+                                    color: Colors.yellow,
+                                    size: 60,
+                                  ),
+                                  onPressed: () {
+                                    _showAddToWalletModalBottomSheet(context);
+                                  },
                                 ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 120,
-                      left: 270,
-                      child: FloatingActionButton(
-                        backgroundColor: PrimaryColors.backgroundColor,
-                        child: Icon(
-                          Icons.add_circle,
-                          color: Colors.yellow,
-                          size: 60,
-                        ),
-                        onPressed: () {
-                          _showAddToWalletModalBottomSheet(context);
-                        },
-                      ),
-                    ),
-                  ]),
+                              ),
+                            ]),
+                            SizedBox(height: 30),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                RaisedButton(
+                                  color: PrimaryColors.backgroundColor,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20))),
+                                  elevation: 6,
+                                  child: Container(
+                                    height: 90,
+                                    width: 105,
+                                    child: Center(
+                                        child: Text(
+                                      "TRANSACTIONS",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                                  ),
+                                  onPressed: () {},
+                                ),
+                                RaisedButton(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20))),
+                                  elevation: 6,
+                                  child: Container(
+                                    height: 90,
+                                    width: 105,
+                                    child: Center(
+                                        child: Text(
+                                      "WITHDRAWAL",
+                                      style: TextStyle(
+                                          color: PrimaryColors.backgroundColor),
+                                    )),
+                                  ),
+                                  onPressed: () {
+                                    int selectedRadio = 0;
+                                    if (viewModel.numberOfAccounts != 0) {
+                                      selectedAccountNumber = viewModel
+                                          .bankAccountList[0].bankAccountNumber;
+                                      selectedAccountID = viewModel
+                                          .bankAccountList[0].accountID;
+                                      print(selectedAccountID +
+                                          selectedAccountID);
+                                    }
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return Dialog(
+                                            insetPadding: EdgeInsets.all(10),
+                                            child:
+                                                (viewModel.numberOfAccounts ==
+                                                        0)
+                                                    ? Container(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Text(
+                                                                "Oops! No Accounts Linked",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        16),
+                                                              ),
+                                                              SizedBox(
+                                                                width: 5,
+                                                              ),
+                                                              Icon(
+                                                                Icons
+                                                                    .sentiment_very_dissatisfied,
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      )
+                                                    : ListView(
+                                                        shrinkWrap: true,
+                                                        children: [
+                                                          StatefulBuilder(
+                                                            builder: (BuildContext
+                                                                    context,
+                                                                StateSetter
+                                                                    setState) {
+                                                              return Column(
+                                                                children: [
+                                                                  SizedBox(
+                                                                    height: 10,
+                                                                  ),
+                                                                  Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: PrimaryColors
+                                                                          .backgroundColor,
+                                                                      borderRadius:
+                                                                          BorderRadius.all(
+                                                                              Radius.circular(15.0)),
+                                                                    ),
+                                                                    child:
+                                                                        Padding(
+                                                                      padding:
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
+                                                                      child: (viewModel.bankAccountList.length ==
+                                                                              0)
+                                                                          ? Text(
+                                                                              "No Bank Accounts Linked",
+                                                                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white))
+                                                                          : (viewModel.bankAccountList.length == 1)
+                                                                              ? Text("Confirm this account", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white))
+                                                                              : Text(
+                                                                                  "Choose an account for withdrawal",
+                                                                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                                                                                ),
+                                                                    ),
+                                                                  ),
+                                                                  SizedBox(
+                                                                    height: 10,
+                                                                  ),
+                                                                  ListView.builder(
+                                                                      shrinkWrap: true,
+                                                                      physics: NeverScrollableScrollPhysics(),
+                                                                      scrollDirection: Axis.vertical,
+                                                                      itemCount: viewModel.bankAccountList.length,
+                                                                      itemBuilder: (BuildContext context, int index) {
+                                                                        return Column(
+                                                                          children: [
+                                                                            Row(
+                                                                              children: [
+                                                                                Padding(
+                                                                                  padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
+                                                                                  child: Text(
+                                                                                    "Select account ${index + 1}",
+                                                                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                                                                  ),
+                                                                                ),
+                                                                                Spacer(),
+                                                                                Radio(
+                                                                                  value: index,
+                                                                                  activeColor: PrimaryColors.backgroundColor,
+                                                                                  groupValue: selectedRadio,
+                                                                                  onChanged: (val) {
+                                                                                    selectedAccountID = viewModel.bankAccountList[index].accountID;
+                                                                                    setState(() => selectedRadio = val);
+                                                                                    if (selectedRadio == 1) {
+                                                                                      selectedAccountNumber = viewModel.bankAccountList[index].bankAccountNumber;
+                                                                                      selectedAccountID = viewModel.bankAccountList[index].accountID;
+                                                                                    }
+                                                                                  },
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                            AvailableAccounts(
+                                                                              accountHoldersName: viewModel.bankAccountList[index].accountHoldersName,
+                                                                              accountNumber: viewModel.bankAccountList[index].bankAccountNumber,
+                                                                              verified: viewModel.bankAccountList[index].accountVerified,
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 10,
+                                                                            ),
+                                                                          ],
+                                                                        );
+                                                                      }),
+                                                                  Row(
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .spaceEvenly,
+                                                                    children: [
+                                                                      RaisedButton(
+                                                                        elevation:
+                                                                            4,
+                                                                        color: PrimaryColors
+                                                                            .backgroundColor,
+                                                                        child:
+                                                                            Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              Text(
+                                                                            "Next",
+                                                                            style:
+                                                                                TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                                          ),
+                                                                        ),
+                                                                        onPressed: (viewModel.bankAccountList.length !=
+                                                                                0)
+                                                                            ? () {
+                                                                                print(selectedAccountNumber);
+                                                                                Navigator.pop(context);
+                                                                                _showPaymentWithdrawalModalSheet(
+                                                                                  context,
+                                                                                );
+                                                                              }
+                                                                            : null,
+                                                                      ),
+                                                                      Container(
+                                                                        color: PrimaryColors
+                                                                            .backgroundColor,
+                                                                        height:
+                                                                            20,
+                                                                        width:
+                                                                            2,
+                                                                      ),
+                                                                      RaisedButton(
+                                                                        elevation:
+                                                                            4,
+                                                                        color: Colors
+                                                                            .white,
+                                                                        child:
+                                                                            Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              Text(
+                                                                            "Cancel",
+                                                                            style:
+                                                                                TextStyle(color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
+                                                                          ),
+                                                                        ),
+                                                                        onPressed:
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  SizedBox(
+                                                                    height: 20,
+                                                                  )
+                                                                ],
+                                                              );
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
+                                          );
+                                        });
+                                  },
+                                ),
+                              ],
+                            )
+                          ],
+                        )
                 ],
               ),
             ),
 
-            SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                RaisedButton(
-                  color: PrimaryColors.backgroundColor,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  elevation: 6,
-                  child: Container(
-                    height: 90,
-                    width: 105,
-                    child: Center(
-                        child: Text(
-                      "TRANSACTIONS",
-                      style: TextStyle(color: Colors.white),
-                    )),
-                  ),
-                  onPressed: () {},
-                ),
-                RaisedButton(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  elevation: 6,
-                  child: Container(
-                    height: 90,
-                    width: 105,
-                    child: Center(
-                        child: Text(
-                      "WITHDRAWAL",
-                      style: TextStyle(color: PrimaryColors.backgroundColor),
-                    )),
-                  ),
-                  onPressed: () {
-                    int selectedRadio = 0;
-                    if (viewModel.numberOfAccounts != 0) {
-                      selectedAccountNumber =
-                          viewModel.bankAccountList[0].bankAccountNumber;
-                      selectedAccountID =
-                          viewModel.bankAccountList[0].accountID;
-                      print(selectedAccountID + selectedAccountID);
-                    }
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            insetPadding: EdgeInsets.all(10),
-                            child: (viewModel.numberOfAccounts == 0)
-                                ? Container(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            "Oops! No Accounts Linked",
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Icon(
-                                            Icons.sentiment_very_dissatisfied,
-                                            color: Colors.black,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                : ListView(
-                                    shrinkWrap: true,
-                                    children: [
-                                      StatefulBuilder(
-                                        builder: (BuildContext context,
-                                            StateSetter setState) {
-                                          return Column(
-                                            children: [
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  color: PrimaryColors
-                                                      .backgroundColor,
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              15.0)),
-                                                ),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: (viewModel
-                                                              .bankAccountList
-                                                              .length ==
-                                                          0)
-                                                      ? Text(
-                                                          "No Bank Accounts Linked",
-                                                          style: TextStyle(
-                                                              fontSize: 14,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors.white))
-                                                      : (viewModel.bankAccountList
-                                                                  .length ==
-                                                              1)
-                                                          ? Text(
-                                                              "Confirm this account",
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .white))
-                                                          : Text(
-                                                              "Choose an account for withdrawal",
-                                                              style: TextStyle(
-                                                                  fontSize: 14,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Colors
-                                                                      .white),
-                                                            ),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              ListView.builder(
-                                                  shrinkWrap: true,
-                                                  physics:
-                                                      NeverScrollableScrollPhysics(),
-                                                  scrollDirection:
-                                                      Axis.vertical,
-                                                  itemCount: viewModel
-                                                      .bankAccountList.length,
-                                                  itemBuilder:
-                                                      (BuildContext context,
-                                                          int index) {
-                                                    return Column(
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                          .fromLTRB(
-                                                                      8.0,
-                                                                      0,
-                                                                      0,
-                                                                      0),
-                                                              child: Text(
-                                                                "Select account ${index + 1}",
-                                                                style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold),
-                                                              ),
-                                                            ),
-                                                            Spacer(),
-                                                            Radio(
-                                                              value: index,
-                                                              activeColor:
-                                                                  PrimaryColors
-                                                                      .backgroundColor,
-                                                              groupValue:
-                                                                  selectedRadio,
-                                                              onChanged: (val) {
-                                                                selectedAccountID =
-                                                                    viewModel
-                                                                        .bankAccountList[
-                                                                            index]
-                                                                        .accountID;
-                                                                setState(() =>
-                                                                    selectedRadio =
-                                                                        val);
-                                                                if (selectedRadio ==
-                                                                    1) {
-                                                                  selectedAccountNumber = viewModel
-                                                                      .bankAccountList[
-                                                                          index]
-                                                                      .bankAccountNumber;
-                                                                  selectedAccountID = viewModel
-                                                                      .bankAccountList[
-                                                                          index]
-                                                                      .accountID;
-                                                                }
-                                                              },
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        AvailableAccounts(
-                                                          accountHoldersName: viewModel
-                                                              .bankAccountList[
-                                                                  index]
-                                                              .accountHoldersName,
-                                                          accountNumber: viewModel
-                                                              .bankAccountList[
-                                                                  index]
-                                                              .bankAccountNumber,
-                                                          verified: viewModel
-                                                              .bankAccountList[
-                                                                  index]
-                                                              .accountVerified,
-                                                        ),
-                                                        SizedBox(
-                                                          height: 10,
-                                                        ),
-                                                      ],
-                                                    );
-                                                  }),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceEvenly,
-                                                children: [
-                                                  RaisedButton(
-                                                    elevation: 4,
-                                                    color: PrimaryColors
-                                                        .backgroundColor,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Text(
-                                                        "Next",
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                    ),
-                                                    onPressed: (viewModel
-                                                                .bankAccountList
-                                                                .length !=
-                                                            0)
-                                                        ? () {
-                                                            print(
-                                                                selectedAccountNumber);
-                                                            Navigator.pop(
-                                                                context);
-                                                            _showPaymentWithdrawalModalSheet(
-                                                              context,
-                                                            );
-                                                          }
-                                                        : null,
-                                                  ),
-                                                  Container(
-                                                    color: PrimaryColors
-                                                        .backgroundColor,
-                                                    height: 20,
-                                                    width: 2,
-                                                  ),
-                                                  RaisedButton(
-                                                    elevation: 4,
-                                                    color: Colors.white,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Text(
-                                                        "Cancel",
-                                                        style: TextStyle(
-                                                            color: PrimaryColors
-                                                                .backgroundColor,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                    ),
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(
-                                                height: 20,
-                                              )
-                                            ],
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                          );
-                        });
-                  },
-                ),
-              ],
-            ) //Divider(height: 10, thickness: 5,),
+            //Divider(height: 10, thickness: 5,),
           ],
         ),
       );
@@ -833,8 +812,7 @@ class _WalletScreenState extends State<WalletScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             backgroundColor: Colors.transparent,
-           elevation: 0,
-
+            elevation: 0,
             content: Container(
               height: 250,
               width: 250,

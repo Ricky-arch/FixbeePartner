@@ -61,7 +61,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
     _firebaseMessaging.configure(
-
       onMessage: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_MESSAGE');
@@ -103,7 +102,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
         context: context,
         builder: (BuildContext context) {
           Vibration.vibrate(duration: 1000);
-          Future.delayed(const Duration(seconds: 150), () {
+          Future.delayed(const Duration(seconds: 150), () async {
             Navigator.pop(context);
           });
           return Dialog(
@@ -124,7 +123,11 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
                   Route route = MaterialPageRoute(
                       builder: (context) => WorkScreen(
-                        quantity: m.order.quantity,
+                            orderBasePrice: m.order.orderBasePrice,
+                            orderTaxCharge: m.order.orderTaxCharge,
+                            orderServiceCharge: m.order.orderServiceCharge,
+                            orderAmount: m.order.orderAmount,
+                            quantity: m.order.quantity,
                             userId: m.user.userId,
                             activeOrderStatus: m.order.status,
                             orderId: m.order.orderId,

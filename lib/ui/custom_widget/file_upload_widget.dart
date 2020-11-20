@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 import '../../Constants.dart';
@@ -36,7 +36,7 @@ class FileUploadWidget extends StatefulWidget {
 }
 
 class _FileUploadWidgetState extends State<FileUploadWidget> {
-  // final ImagePicker _imagePicker = ImagePicker();
+  final ImagePicker _imagePicker = ImagePicker();
   String fileName;
   bool _uploaded = false;
 
@@ -73,13 +73,13 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
             Spacer(),
             InkWell(
               onTap: () async {
-                // PickedFile image =
-                //     await _imagePicker.getImage(source: ImageSource.gallery);
-                // var name = image.path.split(Platform.pathSeparator).last;
-                // setState(() {
-                //   fileName = widget.documentName;
-                // });
-                // if (image != null) widget.onImagePicked(image.path);
+                PickedFile image =
+                    await _imagePicker.getImage(source: ImageSource.gallery);
+                var name = image.path.split(Platform.pathSeparator).last;
+                setState(() {
+                  fileName = widget.documentName;
+                });
+                if (image != null) widget.onImagePicked(image.path);
               },
               child: Icon(
                 _uploaded ? Icons.check_circle : LineAwesomeIcons.folder,

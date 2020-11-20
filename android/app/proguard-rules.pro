@@ -14,4 +14,4 @@
   public void onPayment*(...);
 }
 
-#-keep class androidx.lifecycle.** { *; }
+-keep class androidx.lifecycle.** { *; }

@@ -1,5 +1,7 @@
 // @dart=2.9
 import 'package:fixbee_partner/Constants.dart';
+import 'package:fixbee_partner/ui/custom_widget/splash_widget.dart';
+import 'package:fixbee_partner/ui/screens/billing_rating_screen.dart';
 import 'package:fixbee_partner/ui/screens/dummy_screen.dart';
 import 'package:fixbee_partner/ui/screens/history_screen.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
@@ -23,8 +25,10 @@ void main() {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
           body:
-         //DummyScreen()
-        SplashScreen()
+
+          SplashScreen()
+        //DummyScreen()
+        //SplashScreen()
       ),
     ),
   );

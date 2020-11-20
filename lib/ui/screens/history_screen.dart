@@ -24,9 +24,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     _bloc = HistoryBloc(HistoryModel());
+    _bloc.fire(HistoryEvent.fetchCreditTransactions);
 
     print(_bloc.latestViewModel.pastOrderPresent.toString() + "PPP");
     super.initState();
+  }
+  @override
+  void dispose() {
+   _bloc.extinguish();
+    super.dispose();
   }
 
   @override
@@ -252,7 +258,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                             orderId: m.jobModel.orderId,
                                                             cashOnDelivery: m.jobModel.cashOnDelivery,
                                                             address: m.jobModel.addressLine,
-                                                            userName: m.jobModel.userFirstname,
+                                                            userName: m.jobModel.userName,
                                                             serviceCharge: m.jobModel.serviceCharge,
                                                             basePrice: m.jobModel.basePrice,
                                                             taxPercent: m.jobModel.taxPercent,

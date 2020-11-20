@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/history_event.dart';
@@ -70,13 +71,12 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
         return latestViewModel..isCreditPresent=false;
     }
     fetchedCredits.forEach((credit) {
-      if(credit !=null){
+      if(credit.isNotEmpty && credit!= null){
         CreditTransactions cred= CreditTransactions();
         cred.amount=credit['Amount'];
         cred.timeStamp=credit['TimeStamp'];
-        cred.notes=credit['Notes']['PaymentId'];
+         cred.notes=credit['Notes']['PaymentId'];
         credits.add(cred);
-
       }
     });
     return latestViewModel..credits=credits..isCreditPresent=true;
@@ -256,6 +256,10 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     Status
     Quantity
     Addons {
+      Quantity
+      BasePrice
+      ServiceCharge
+      TaxCharge
       Service {
         Name
         Pricing {
@@ -302,7 +306,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     order.cashOnDelivery=response['Order']['CashOnDelivery'];
     order.addressLine=response['Order']['Location']['Address']['Line1'];
     order.quantity=response['Order']['Quantity'];
-    order.userFirstname=getUserName(response['Order']['User']['Name']['Firstname'], response['Order']['User']['Name']['Middlename'], response['Order']['User']['Name']['Lastname']);
+    order.userName=getUserName(response['Order']['User']['Name']['Firstname'], response['Order']['User']['Name']['Middlename'], response['Order']['User']['Name']['Lastname']);
     order.addons=[];
     List addons = response['Order']['Addons'];
     for (Map addon in addons) {
@@ -311,10 +315,14 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
         ..basePrice = addon['Service']['Pricing']['BasePrice']
         ..serviceCharge = addon['Service']['Pricing']['ServiceCharge']
         ..taxPercent = addon['Service']['Pricing']['TaxPercent']
+        ..addOnBasePrice=addon['BasePrice']
+        ..addOnServiceCharge=addon['ServiceCharge']
+        ..addOnTaxCharge=addon['TaxCharge']
+        ..quantity=addon['Quantity']
         ..amount=addon['Amount'];
       order.addons.add(service);
     }
-    log(order.userFirstname, name:"NAME");
+    log(order.userName, name:"NAME");
     return latestViewModel..jobModel=order;
   }
 

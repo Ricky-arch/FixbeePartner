@@ -114,6 +114,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     bool accept = message['Accept'];
     String query = '''mutation {
   AnswerOrderRequest(_id: "$orderId", input: { Accept: $accept }) {
+  
   Status
     ID
     Slot{
@@ -121,6 +122,10 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
       At
     }
     CashOnDelivery
+    BasePrice
+    ServiceCharge
+    TaxCharge
+    Discount
     Service{
       Name
       Pricing{
@@ -171,6 +176,10 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     return latestViewModel
       ..order.orderId = response['AnswerOrderRequest']['ID']
       ..order.quantity=response['AnswerOrderRequest']['Quantity']
+      ..order.orderAmount=response['AnswerOrderRequest']['Amount']
+      ..order.orderBasePrice=response['AnswerOrderRequest']['BasePrice']
+      ..order.orderServiceCharge=response['AnswerOrderRequest']['ServiceCharge']
+      ..order.orderTaxCharge=response['AnswerOrderRequest']['TaxCharge']
       ..order.status=response['AnswerOrderRequest']['Status']
       ..location.googlePlaceId =
           response['AnswerOrderRequest']['Location']['GooglePlaceID']

@@ -4,6 +4,7 @@ import 'package:fixbee_partner/events/workscreen_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/workscreen_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'package:flutter/material.dart';
 
 import '../Constants.dart';
 import '../bloc.dart';
@@ -84,7 +85,7 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     print(location['Address']['Line1'] + "llll");
 
     return latestViewModel
-      ..jobModel.userFirstname = user['Name']["Firstname"]
+      ..jobModel.userName = user['Name']["Firstname"]
       ..jobModel.userMiddlename = user['Name']["Middlename"]
       ..jobModel.userLastname = user['Name']["Lastname"]
       ..jobModel.userPhoneNumber = user['Phone']['Number']
@@ -186,6 +187,10 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     Name
   }
   Addons{
+     Quantity
+      BasePrice
+      ServiceCharge
+      TaxCharge
     Service{
       Name
       Pricing{
@@ -206,6 +211,10 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
         ..basePrice = addon['Service']['Pricing']['BasePrice']
         ..serviceCharge = addon['Service']['Pricing']['ServiceCharge']
         ..taxPercent = addon['Service']['Pricing']['TaxPercent']
+        ..addOnBasePrice=addon['BasePrice']
+        ..addOnServiceCharge=addon['ServiceCharge']
+        ..addOnTaxCharge=addon['TaxCharge']
+        ..quantity=addon['Quantity']
         ..amount = addon['Amount'];
       latestViewModel.jobModel.addons.add(service);
     }

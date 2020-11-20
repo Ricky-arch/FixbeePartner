@@ -7,6 +7,7 @@ import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/models/splash_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/no_internet_widget.dart';
+import 'package:fixbee_partner/ui/custom_widget/splash_widget.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
@@ -182,149 +183,7 @@ class _SplashScreenState extends State<SplashScreen>
       body: SafeArea(
         child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return (viewModel.connection)
-              ? Container(
-
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-
-                      Container(
-                        padding: EdgeInsets.all(20.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Container(
-                                height: 80,
-                                width: 80,
-                                decoration: BoxDecoration(
-                                    color: Color.fromRGBO(255, 255, 0, 1),
-                                    shape: BoxShape.circle),
-                                child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: SvgPicture.asset(
-                                      "assets/logo/bee_outline.svg",
-                                      height: 65,
-                                    ))),
-
-                            FadeAnimation(
-                                1,
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/logo/fixbeeLogo2.png",
-                                      height: 70,
-                                      width: 150,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 22.0),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          children: <TextSpan>[
-                                            TextSpan(
-                                              text: 'Partner',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  color: PrimaryColors
-                                                      .backgroundColor,
-                                                  fontSize: 20),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )),
-
-                            SizedBox(
-                              height: 40,
-                            ),
-                            FadeAnimation(
-                                1.6,
-                                AnimatedBuilder(
-                                  animation: _scaleController,
-                                  builder: (context, child) => Transform.scale(
-                                      scale: _scaleAnimation.value,
-                                      child: Center(
-                                        child: AnimatedBuilder(
-                                          animation: _widthController,
-                                          builder: (context, child) =>
-                                              Container(
-                                            width: _widthAnimation.value,
-                                            height: 80,
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                                color: Colors.transparent),
-                                            child: InkWell(
-                                              onTap: () {
-                                                _scaleController.forward();
-                                              },
-                                              child: Stack(children: <Widget>[
-                                                AnimatedBuilder(
-                                                  animation:
-                                                      _positionController,
-                                                  builder: (context, child) =>
-                                                      Positioned(
-                                                    left: _positionAnimation
-                                                        .value,
-                                                    child: AnimatedBuilder(
-                                                      animation:
-                                                          _scale2Controller,
-                                                      builder: (context,
-                                                              child) =>
-                                                          Transform.scale(
-                                                              scale:
-                                                                  _scale2Animation
-                                                                      .value,
-                                                              child: Container(
-                                                                width: 60,
-                                                                height: 60,
-                                                                decoration: BoxDecoration(
-                                                                    shape: BoxShape
-                                                                        .circle,
-                                                                    color: PrimaryColors
-                                                                        .backgroundColor),
-                                                                child: hideIcon ==
-                                                                        false
-                                                                    ? Icon(
-                                                                        Icons
-                                                                            .arrow_forward,
-                                                                        color: Colors
-                                                                            .yellow,
-                                                                      )
-                                                                    : Container(),
-                                                              )),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ]),
-                                            ),
-                                          ),
-                                        ),
-                                      )),
-                                )),
-                            SizedBox(
-                              height: 60,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.width / 2,
-                      ),
-                      Align(
-                        alignment: FractionalOffset.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Text('Made with ❤️ for Tripura'),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
+              ? SplashWidget()
               : NoInternetWidget(
                   retryConnecting: () {
                     _bloc.fire(Event(100), onHandled: (e, m) {

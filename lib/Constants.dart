@@ -225,7 +225,8 @@ class SharedPrefKeys {
 }
 
 class PrimaryColors {
-  static Color backgroundColor = Color.fromRGBO(0, 7, 17, 9);
+  //static Color backgroundColor = Color.fromRGBO(0, 7, 17, 9);
+  static Color backgroundColor= Color(0xff121212);
   static Color yellowColor = Color.fromRGBO(255, 255, 0, 1);
   static Color whiteColor = Colors.white;
   static Color backgroundcolorlight = Color(0xfff5f5f5);

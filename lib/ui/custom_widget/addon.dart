@@ -5,16 +5,17 @@ class Addons extends StatelessWidget {
   final String serviceName;
   final int basePrice;
   final int serviceCharge;
-  final int taxPercent;
+  final int taxCharge;
   final int amount;
   final int quantity;
   final bool cashOnDelivery;
+
   const Addons(
       {Key key,
       this.serviceName,
       this.basePrice,
       this.serviceCharge,
-      this.taxPercent,
+      this.taxCharge,
       this.amount,
       this.quantity,
       this.cashOnDelivery})
@@ -27,6 +28,16 @@ class Addons extends StatelessWidget {
           Banner(
             title: 'Service',
             value: "$serviceName",
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
+            child: Divider(
+              color: Colors.tealAccent,
+            ),
+          ),
+          Banner(
+            title: 'Quantity',
+            value: (quantity != null) ? quantity.toString() : "Unquantifiable",
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -55,9 +66,10 @@ class Addons extends StatelessWidget {
             ),
           ),
           Banner(
-            title: 'Tax',
+            title: 'Tax Charge',
             value: Constants.rupeeSign +
-                (taxPercent * ((basePrice + serviceCharge) / 10000)).toStringAsFixed(2),
+                taxCharge
+                    .toStringAsFixed(2),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -65,10 +77,7 @@ class Addons extends StatelessWidget {
               color: Colors.tealAccent,
             ),
           ),
-//          Banner(
-//            title: 'Quantity',
-//            value: quantity.toString(),
-//          ),
+
 
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
@@ -76,7 +85,7 @@ class Addons extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Total (Inclusive of all taxes)',
+                  'Amount',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 Text(

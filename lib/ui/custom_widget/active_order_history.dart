@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
@@ -20,6 +21,7 @@ class ActiveOrderHistory extends StatefulWidget {
 }
 
 class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
+  DateTimeFormatter dtf= DateTimeFormatter();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -120,7 +122,12 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                           Spacer(),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(widget.timeStamp),
+                            child: Text(dtf.getDate(widget.timeStamp)),
+                          ),
+                          SizedBox(width: 10,),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(dtf.getTime(widget.timeStamp)),
                           ),
                         ],
                       ),

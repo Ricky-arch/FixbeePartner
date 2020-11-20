@@ -1,4 +1,5 @@
 import 'package:fixbee_partner/models/navigation_model.dart';
+import 'package:fixbee_partner/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
@@ -29,6 +30,7 @@ class PastOrder extends StatefulWidget {
 }
 
 class _PastOrderState extends State<PastOrder> {
+  DateTimeFormatter dtf= DateTimeFormatter();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -132,7 +134,12 @@ class _PastOrderState extends State<PastOrder> {
                           Spacer(),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(widget.timeStamp),
+                            child: Text(dtf.getDate(widget.timeStamp)),
+                          ),
+                          SizedBox(width: 10,),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(dtf.getTime(widget.timeStamp)),
                           ),
                         ],
                       ),

@@ -41,6 +41,10 @@ class Service {
   int serviceCharge;
   int taxPercent;
   int amount;
+  int addOnBasePrice;
+  int addOnTaxCharge;
+  int addOnServiceCharge;
+  int quantity;
 }
 
 class Order {
@@ -57,5 +61,10 @@ class Order {
   int basePrice;
   int serviceCharge;
   int taxPercent;
+  int orderBasePrice;
+  int orderServiceCharge;
+  int orderDiscount;
+  int orderTaxCharge;
+  int orderAmount;
 
 }

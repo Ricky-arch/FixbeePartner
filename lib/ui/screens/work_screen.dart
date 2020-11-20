@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/workscreen_bloc.dart';
@@ -10,7 +11,7 @@ import 'package:fixbee_partner/ui/custom_widget/custom_button_type2.dart';
 import 'package:fixbee_partner/ui/custom_widget/info_panel.dart';
 import 'package:fixbee_partner/ui/custom_widget/info_panel2.dart';
 import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
-import 'package:fixbee_partner/ui/screens/billing_Screen.dart';
+import 'package:fixbee_partner/ui/screens/billing_rating_screen.dart';
 import 'package:fixbee_partner/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +19,7 @@ import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-// import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+
 import 'package:http/http.dart' as http;
 
 class WorkScreen extends StatefulWidget {
@@ -41,6 +42,11 @@ class WorkScreen extends StatefulWidget {
   final int taxPercent;
   final int quantity;
   final String activeOrderStatus;
+  final int orderBasePrice;
+  final int orderServiceCharge;
+  final int orderDiscount;
+  final int orderTaxCharge;
+  final int orderAmount;
 
   const WorkScreen({
     Key key,
@@ -61,7 +67,13 @@ class WorkScreen extends StatefulWidget {
     this.serviceCharge,
     this.taxPercent,
     this.activeOrderStatus,
-    this.userId, this.quantity,
+    this.userId,
+    this.quantity,
+    this.orderBasePrice,
+    this.orderServiceCharge,
+    this.orderDiscount,
+    this.orderTaxCharge,
+    this.orderAmount,
   }) : super(key: key);
   @override
   _WorkScreenState createState() => _WorkScreenState();
@@ -76,6 +88,7 @@ class _WorkScreenState extends State<WorkScreen> {
   String gid, session, fields, key;
   String formattedAddress = "";
   String latitude, longitude;
+  String barcode = "";
 
   String _scanBarcode = 'Unknown';
   int rating;
@@ -115,33 +128,64 @@ class _WorkScreenState extends State<WorkScreen> {
     return ltng;
   }
 
-  Future<void> scanBarcode() async {
-
-    // String barcodeScanRes;
-    // try {
-    //   barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-    //       "#ff6666", "Cancel", true, ScanMode.BARCODE);
-    //   print(barcodeScanRes);
-    //   String validOtp = barcodeScanRes;
-    //   if (barcodeScanRes != null) {
-    //     _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
-    //         message: {"otp": validOtp, "orderId": widget.orderId},
-    //         onHandled: (e, m) {
-    //       _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
-    //           message: {'orderID': widget.orderId});
-    //       setState(() {
-    //         _onServiceStarted = m.onServiceStarted;
-    //       });
-    //     });
-    //   }
-    // } on PlatformException {
-    //   barcodeScanRes = 'Failed to get platform version.';
-    // }
-    // if (!mounted) return;
-    // setState(() {
-    //   _scanBarcode = barcodeScanRes;
-    // });
+  Future scan() async {
+    try {
+      String barcode = await BarcodeScanner.scan();
+      setState(() => this.barcode = barcode);
+      log(barcode, name: "VALUE");
+      if (barcode != null) {
+        _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
+            message: {"otp": barcode, "orderId": widget.orderId},
+            onHandled: (e, m) {
+          _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
+              message: {'orderID': widget.orderId});
+          setState(() {
+            _onServiceStarted = m.onServiceStarted;
+          });
+        });
+      }
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.CameraAccessDenied) {
+        setState(() {
+          this.barcode = 'The user did not grant the camera permission!';
+        });
+      } else {
+        setState(() => this.barcode = 'Unknown error: $e');
+      }
+    } on FormatException {
+      setState(() => this.barcode =
+          'null (User returned using the "back"-button before scanning anything. Result)');
+    } catch (e) {
+      setState(() => this.barcode = 'Unknown error: $e');
+    }
   }
+
+  // Future<void> scanBarcode() async {
+  //   String barcodeScanRes;
+  //   try {
+  //     barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+  //         "#ff6666", "Cancel", true, ScanMode.BARCODE);
+  //     print(barcodeScanRes);
+  //     String validOtp = barcodeScanRes;
+  //     if (barcodeScanRes != null) {
+  //       _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
+  //           message: {"otp": validOtp, "orderId": widget.orderId},
+  //           onHandled: (e, m) {
+  //         _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
+  //             message: {'orderID': widget.orderId});
+  //         setState(() {
+  //           _onServiceStarted = m.onServiceStarted;
+  //         });
+  //       });
+  //     }
+  //   } on PlatformException {
+  //     barcodeScanRes = 'Failed to get platform version.';
+  //   }
+  //   if (!mounted) return;
+  //   setState(() {
+  //     _scanBarcode = barcodeScanRes;
+  //   });
+  // }
 
   void _setupFCM() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
@@ -177,7 +221,6 @@ class _WorkScreenState extends State<WorkScreen> {
         message: {"orderID": widget.orderId});
     log(widget.activeOrderStatus, name: "STATUS");
     _setupFCM();
-
     fetchLocationData().then((value) async {
       try {
         mapController.animateCamera(CameraUpdate.newLatLng(value));
@@ -202,7 +245,9 @@ class _WorkScreenState extends State<WorkScreen> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-
+      onDoubleTap: () {
+        _refreshServiceDetails();
+      },
       child: WillPopScope(
         onWillPop: () async => false,
         child: Scaffold(
@@ -221,7 +266,8 @@ class _WorkScreenState extends State<WorkScreen> {
                             shape: BoxShape.circle,
                             color: Colors.white,
                             border: Border.all(
-                                color: PrimaryColors.backgroundColor, width: 2)),
+                                color: PrimaryColors.backgroundColor,
+                                width: 2)),
                         child: Padding(
                           padding: const EdgeInsets.all(3.0),
                           child: CircleAvatar(
@@ -257,7 +303,9 @@ class _WorkScreenState extends State<WorkScreen> {
                                   TextSpan(
                                     text: (viewModel.userRating == 0)
                                         ? 'User yet to be rated!'
-                                        : "Rated "+viewModel.userRating.toStringAsFixed(1),
+                                        : "Rated " +
+                                            viewModel.userRating
+                                                .toStringAsFixed(1),
                                     style: TextStyle(color: Colors.white),
                                   ),
                                   TextSpan(
@@ -328,7 +376,7 @@ class _WorkScreenState extends State<WorkScreen> {
                       CustomButtonType2(
                         onTap: (viewModel.activeOrderStatus != "RESOLVED")
                             ? () {
-                                scanBarcode();
+                                scan();
                               }
                             : null,
                         text: (viewModel.activeOrderStatus != "RESOLVED")
@@ -372,7 +420,8 @@ class _WorkScreenState extends State<WorkScreen> {
                     ? Expanded(
                         child: mapWidget = GoogleMap(
                         markers: markers,
-                        onMapCreated: (GoogleMapController googleMapController) {
+                        onMapCreated:
+                            (GoogleMapController googleMapController) {
                           googleMapController.setMapStyle(Constants.MAP_STYLES);
                           mapController = googleMapController;
                         },
@@ -381,8 +430,8 @@ class _WorkScreenState extends State<WorkScreen> {
                       ))
                     : Expanded(
                         child: Container(
-                          decoration:
-                              BoxDecoration(color: PrimaryColors.backgroundColor),
+                          decoration: BoxDecoration(
+                              color: PrimaryColors.backgroundColor),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
@@ -438,8 +487,7 @@ class _WorkScreenState extends State<WorkScreen> {
               ),
               FlatButton(
                 onPressed: () {
-
-                 _goToBillingScreen();
+                  _goToBillingScreen();
                 },
                 child: Text("Yes"),
               ),
@@ -500,20 +548,9 @@ class _WorkScreenState extends State<WorkScreen> {
   _goToBillingScreen() {
     Navigator.of(context)
         .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
-      return BillingScreen(
+      return BillingRatingScreen(
         userID: widget.userId,
-        orderId: widget.orderId,
-        cashOnDelivery: widget.cashOnDelivery,
-        amount: widget.amount,
-        address: widget.addressLine,
-        userName: widget.userName,
-        status: 'COMPLETED',
-        timeStamp: widget.timeStamp,
-        serviceName: widget.serviceName,
-        serviceCharge: widget.serviceCharge,
-        basePrice: widget.basePrice,
-        taxPercent: widget.taxPercent,
-        addOns: _bloc.latestViewModel.jobModel.addons,
+        orderID: widget.orderId,
       );
     }));
   }
@@ -563,7 +600,9 @@ class _WorkScreenState extends State<WorkScreen> {
                       VerticalDivider(),
                       InfoPanel(
                         title: "Rated:",
-                        answer: _bloc.latestViewModel.userRating.toStringAsFixed(1)+" \u2605",
+                        answer: _bloc.latestViewModel.userRating
+                                .toStringAsFixed(1) +
+                            " \u2605",
                         maxLines: 1,
                       ),
                       InfoPanel(
@@ -578,7 +617,7 @@ class _WorkScreenState extends State<WorkScreen> {
                       ),
                       InfoPanel(
                         title: "Quantity:",
-                        answer:widget.quantity.toString() ,
+                        answer: widget.quantity.toString(),
                         maxLines: 1,
                       ),
                       InfoPanel(

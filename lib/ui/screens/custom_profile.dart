@@ -17,6 +17,8 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'billing_rating_screen.dart';
+
 const kSpacingUnit = 10;
 const kDarkPrimaryColor = Color(0xFF212121);
 const kDarkSecondaryColor = Color(0xFF373737);
@@ -89,6 +91,7 @@ class _CustomProfileState extends State<CustomProfile> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(context, designSize: Size(414, 896), allowFontScaling: false);
 
     // ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
 
@@ -294,7 +297,22 @@ class _CustomProfileState extends State<CustomProfile> {
               )
             ],
           );
-        }));
+        }),
+      // floatingActionButton: FloatingActionButton(
+      //   child: Text("Tap"),
+      //   onPressed: (){
+      //     Navigator.push(context,
+      //         MaterialPageRoute(builder: (ctx) {
+      //           return BillingRatingScreen(
+      //             orderID: "5fb8050ec890200ec1be224c",
+      //             userID: "5fabd5d1f8e3c71b8e056d3e",
+      //           );
+      //         }));
+      //
+      //   },
+      // ),
+    );
+
   }
 
   onImagePicked(String path) {
