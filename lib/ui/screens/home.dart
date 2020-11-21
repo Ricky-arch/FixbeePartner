@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
@@ -24,22 +25,26 @@ class _HomeState extends State<Home> {
   static double longitude;
 
 
+   askForLocationPermissionIfDisabled() async {
+    if(! await GeolocatorPlatform.instance.isLocationServiceEnabled())
+      GeolocatorPlatform.instance.requestPermission();
+  }
+
   @override
   void initState() {
     super.initState();
+   askForLocationPermissionIfDisabled();
+
     _bloc = HomeBloc(HomeModel());
     _bloc.fire(HomeEvents.activityStatusRequested, onHandled: (e, m) {
       log("Active: ${m.activeStatus}");
       if (m.activeStatus) {
-        _bloc.subscribeToLocationUpdate( (Position deviceLocation) {
+        _bloc.subscribeToLocationUpdate((Position deviceLocation) {
           if (mapController != null)
             setState(() {
-              mapController.animateCamera(
-                  CameraUpdate.newLatLng(LatLng(
-                      deviceLocation.latitude,
-                      deviceLocation.longitude)));
+              mapController.animateCamera(CameraUpdate.newLatLng(
+                  LatLng(deviceLocation.latitude, deviceLocation.longitude)));
             });
-
         });
       }
     });
@@ -126,7 +131,6 @@ class _HomeState extends State<Home> {
                                       _bloc.subscribeToLocationUpdate(
                                           (Position deviceLocation) {
                                         if (mapController != null)
-
                                           mapController.animateCamera(
                                               CameraUpdate.newLatLng(LatLng(
                                                   deviceLocation.latitude,
@@ -150,7 +154,6 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-
                 (viewModel.verifiedBee && viewModel.activeStatus)
                     ? Expanded(child: mapWidget)
                     : SizedBox(),
@@ -249,7 +252,6 @@ class _HomeState extends State<Home> {
                         ],
                       )
                     : SizedBox(),
-
               ],
             );
           },

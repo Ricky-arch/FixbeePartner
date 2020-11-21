@@ -207,7 +207,7 @@ class _LoginState extends State<Login> {
                                                     .text
                                               }, onHandled: (e, m) {
                                             if (m.exist) {
-                                             
+
                                               goToOtpScreen(
                                                   context, m.exist);
                                             } else {
