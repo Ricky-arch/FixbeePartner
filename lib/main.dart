@@ -25,7 +25,6 @@ void main() {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
           body:
-
           SplashScreen()
         //DummyScreen()
         //SplashScreen()

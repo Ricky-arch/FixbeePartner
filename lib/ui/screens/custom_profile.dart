@@ -7,6 +7,7 @@ import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/customize_service.dart';
+import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
@@ -298,19 +299,16 @@ class _CustomProfileState extends State<CustomProfile> {
             ],
           );
         }),
-      // floatingActionButton: FloatingActionButton(
-      //   child: Text("Tap"),
-      //   onPressed: (){
-      //     Navigator.push(context,
-      //         MaterialPageRoute(builder: (ctx) {
-      //           return BillingRatingScreen(
-      //             orderID: "5fb8050ec890200ec1be224c",
-      //             userID: "5fabd5d1f8e3c71b8e056d3e",
-      //           );
-      //         }));
-      //
-      //   },
-      // ),
+    //   floatingActionButton: FloatingActionButton(
+    //     child: Text("Tap"),
+    //     onPressed: (){
+    //       Navigator.push(context,
+    //           MaterialPageRoute(builder: (ctx) {
+    //             return ServiceSelectionScreen();
+    //           }));
+    //
+    //     },
+    //   ),
     );
 
   }

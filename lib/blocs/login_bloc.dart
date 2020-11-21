@@ -31,7 +31,9 @@ class LoginBloc extends Bloc<LoginEvents, LoginModel>
         .makeRequest()
         .timeout(Duration(seconds: 5));
    if( response.containsKey('sent') && response['sent'])    {
+     print(response['otp']);
       return latestViewModel..exist = true;
+
     } else {
       return latestViewModel..exist = false;
     }
