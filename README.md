@@ -1,6 +1,5 @@
 # fixbee_partner
-
-A new Flutter application.
+This is a startup named as FIXBEE IN. I am involved in making their partner app known as fixbee partner. For more info please redirect to https://fixbee.in 
 
 ## Getting Started
 
