@@ -7,8 +7,10 @@ class Credit extends StatefulWidget {
   final int amount;
   final String date;
   final String notes;
-
-  const Credit({Key key, this.amount, this.date, this.notes}) : super(key: key);
+  final bool creditOnOrder;
+  const Credit(
+      {Key key, this.amount, this.date, this.notes, this.creditOnOrder})
+      : super(key: key);
   @override
   _CreditState createState() => _CreditState();
 }
@@ -39,12 +41,11 @@ class _CreditState extends State<Credit> {
                           (widget.amount / 100).toStringAsFixed(2),
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                          color: Colors.green,
                           fontSize: 20),
                     )
                   ]),
                 )),
-
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
               child: Row(
@@ -61,10 +62,6 @@ class _CreditState extends State<Credit> {
                     width: 4,
                   ),
                   Container(
-                    decoration: BoxDecoration(
-//                      color: Colors.yellow.withOpacity(.5),
-//                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
@@ -85,10 +82,6 @@ class _CreditState extends State<Credit> {
                     width: 4,
                   ),
                   Container(
-                    decoration: BoxDecoration(
-//                      color: Colors.yellow.withOpacity(.5),
-//                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
@@ -104,9 +97,8 @@ class _CreditState extends State<Credit> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left:12.0, right: 12),
+              padding: const EdgeInsets.only(left: 12.0, right: 12),
               child: Divider(
-
                 thickness: 1,
               ),
             ),
@@ -119,7 +111,7 @@ class _CreditState extends State<Credit> {
                     width: 10,
                   ),
                   Text(
-                    "PAYMENT ID:",
+                    (widget.creditOnOrder) ? "ORDER ID" : "PAYMENT ID:",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
@@ -127,8 +119,9 @@ class _CreditState extends State<Credit> {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.all(Radius.circular(18.0)),
+                      color: (widget.creditOnOrder)
+                          ? PrimaryColors.backgroundColor
+                          : Colors.blue,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),

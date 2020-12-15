@@ -29,7 +29,25 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     if (event == WalletEvent.processWalletDeposit) {
       return await processWalletDeposit(message);
     }
+    if (event == WalletEvent.fetchWalletAmountAfterTransaction) {
+      return await fetchWalletAmountAfterTransaction();
+    }
     return latestViewModel;
+  }
+
+  Future<WalletModel> fetchWalletAmountAfterTransaction() async {
+    String query = '''{
+    Me{
+      ...on Bee{
+                Wallet{
+                       Amount
+                       }
+                }
+       }
+   }''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    DataStore.me.walletAmount = response['Me']['Wallet']['Amount'];
+    return latestViewModel..amount = response['Me']['Wallet']['Amount'];
   }
 
   Future<WalletModel> fetchWalletAmount() async {
@@ -83,9 +101,11 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
   @override
   WalletModel setTrackingFlag(WalletEvent event, bool trackFlag, Map message) {
     if (event == WalletEvent.fetchBankAccountsForWithdrawal)
-       latestViewModel..bankAccountFetching = trackFlag;
-    if(event== WalletEvent.fetchWalletAmount)
-      latestViewModel..whileFetchingWalletAmount=trackFlag;
+      latestViewModel..bankAccountFetching = trackFlag;
+    if (event == WalletEvent.fetchWalletAmount)
+      latestViewModel..whileFetchingWalletAmount = trackFlag;
+    if (event == WalletEvent.withdrawAmount)
+      return latestViewModel..whileWithDrawingAmount = trackFlag;
     return latestViewModel;
   }
 
@@ -93,7 +113,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     String id = message['accountId'];
     int amount = message['amount'];
     String query = '''mutation{
-  ProcessWalletWithdraw(Amount:$amount, AccountId:$id){
+  ProcessWalletWithdraw(Amount:$amount, AccountId:"$id"){
     ...on Debit{
       Amount
       Notes

@@ -2,7 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class Constants {
+
   static const String HOST_IP = "fixbee.in";
+  static const updateLocationTimeOut=10;
   static const rupeeSign = "₹";
   static const String PROTOCOL = "https";
   static const WS_PROTOCOL = 'ws';
@@ -10,10 +12,11 @@ class Constants {
   static const googleSessionToken = '12345';
   static const fields = 'name,formatted_address,geometry';
   static const PING_TIMEOUT = 5;
-  static const RAZORPAY_KEY = 'rzp_live_ntFJBLTXRv0Ure';
+  static const RAZORPAY_KEY = 'rzp_live_T9wLKrbt1yS0q2';
   static const double padding =20;
   static const double avatarRadius =45;
   static const RAZORPAY_KEY_SECRET = 'TEnKYa9uZXail5Yu3ptCPZv8';
+  static const MINIMUM_WALLET_AMOUNT=1;
   static const MAP_STYLES='''[
   {
     "elementType": "geometry",

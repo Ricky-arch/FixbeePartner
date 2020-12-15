@@ -79,7 +79,7 @@ class _OTPInsertState extends State<OTPInsert> {
             child: TextField(
               controller: widget.controller,
               autofocus: true,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: false),
               showCursor: false,
               enableInteractiveSelection: false,
               decoration: InputDecoration(border: InputBorder.none),

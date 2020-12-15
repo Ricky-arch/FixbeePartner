@@ -93,7 +93,10 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => NavigationScreen()));
+                                builder: (context) => NavigationScreen())).then((value){
+                                  if(value!=null && value =='from_nav')
+                                    Navigator.pop(context);
+                        });
                       });
                     },
                   ),

@@ -6,6 +6,7 @@ import 'order_model.dart';
 class HistoryModel extends ViewModel {
  List<OrderModel> pastOrderList= [];
  List<CreditTransactions> credits=[];
+ List <DebitTransactions> debits=[];
  List<CreditTransactions> creditTransactions= [];
  List<DebitTransactions> debitTransaction=[];
  User user = User();
@@ -17,6 +18,7 @@ class HistoryModel extends ViewModel {
  bool isOrderActive=false;
  bool loadingDetails=false;
  bool isCreditPresent=false;
+ bool isDebitPresent=false;
 
  String checkActiveOrderStatus;
  String selectedOrderID;
@@ -25,9 +27,15 @@ class CreditTransactions{
  int amount;
  String timeStamp;
  String notes;
+ bool creditOnOrder=false;
 }
 class DebitTransactions{
  int amount;
- DateTime timeStamp;
- String notes;
+ String timeStamp;
+ String withDrawlTransactionId;
+ String accountID;
+ String withDrawlAccountHolderName;
+ String withDrawlAccountNumber;
+ String orderId;
+ bool debitOnOrder=false;
 }

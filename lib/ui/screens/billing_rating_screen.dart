@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:fixbee_partner/blocs/billing_rating_bloc.dart';
 import 'package:fixbee_partner/events/billing_rating_event.dart';
 import 'package:fixbee_partner/models/billing_rating_model.dart';
@@ -266,7 +265,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                     Banner(
                                       title: 'Tax Charge',
                                       value: Constants.rupeeSign +
-                                          " ${(viewModel.orderModel.basePrice + viewModel.orderModel.serviceCharge) * viewModel.orderModel.taxPercent / 10000}",
+                                          " ${(viewModel.orderModel.basePrice + viewModel.orderModel.serviceCharge) * viewModel.orderModel.taxPercent * viewModel.orderModel.quantity / 10000}",
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -278,7 +277,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                     Banner(
                                       title: 'Amount',
                                       value: Constants.rupeeSign +
-                                          " ${((viewModel.orderModel.basePrice + viewModel.orderModel.serviceCharge) * viewModel.orderModel.taxPercent / 10000) + (viewModel.orderModel.basePrice / 100) + (viewModel.orderModel.serviceCharge / 100)}",
+                                          " ${(viewModel.orderModel.basePrice + viewModel.orderModel.serviceCharge) * viewModel.orderModel.taxPercent * viewModel.orderModel.quantity / 10000 + (viewModel.orderModel.serviceCharge * viewModel.orderModel.quantity) / 100 + (viewModel.orderModel.basePrice * viewModel.orderModel.quantity) / 100}",
                                     ),
                                     SizedBox(
                                       height: 10,
@@ -388,7 +387,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                     Banner(
                                       title: 'Total Base Price',
                                       value: Constants.rupeeSign +
-                                          " ${viewModel.orderModel.orderBasePrice / 100}",
+                                          " ${viewModel.orderModel.orderBasePrice / 100 + (viewModel.orderModel.totalAddonBasePrice / 100)}",
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -400,7 +399,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                     Banner(
                                       title: 'Total Service Charge',
                                       value: Constants.rupeeSign +
-                                          " ${viewModel.orderModel.orderServiceCharge / 100}",
+                                          " ${viewModel.orderModel.orderServiceCharge / 100 + (viewModel.orderModel.totalAddonServiceCharge / 100)}",
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(

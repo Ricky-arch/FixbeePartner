@@ -151,11 +151,6 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                             'otp': _otpInsertController.text
                                           },
                                           onHandled: (e, m) {
-                                            if (!m.otpValid) {
-                                              print("otpppp: " +
-                                                  _otpInsertController.text);
-                                              goToRegistrationScreen(context);
-                                            } else {
                                               if (m.valid) {
                                                 FocusScope.of(context)
                                                     .requestFocus(FocusNode());
@@ -185,7 +180,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                                 _otpInsertController.clear();
                                                 _showOnOtpInvalid();
                                               }
-                                            }
+                                          //  }
                                           },
                                         );
                                       }

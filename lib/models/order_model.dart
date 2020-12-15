@@ -39,6 +39,9 @@ class OrderModel extends ViewModel{
   int orderDiscount;
   int orderTaxCharge;
   int orderAmount;
+  int totalAddonBasePrice=0;
+  int totalAddonServiceCharge=0;
+  int totalTaxCharge=0;
 }
 
 

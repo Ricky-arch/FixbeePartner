@@ -75,17 +75,73 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
         CreditTransactions cred= CreditTransactions();
         cred.amount=credit['Amount'];
         cred.timeStamp=credit['TimeStamp'];
+        Map notes= credit['Notes'];
+        if(notes.containsKey('PaymentId'))
          cred.notes=credit['Notes']['PaymentId'];
+        else{
+          cred.notes=credit['Notes']['OrderId'];
+          cred.creditOnOrder=true;
+        }
         credits.add(cred);
       }
     });
     return latestViewModel..credits=credits..isCreditPresent=true;
   }
 
-  fetchDebitTransactions() {}
+  Future<HistoryModel> fetchDebitTransactions() async{
+    String query='''
+    {
+  Me {
+    ... on Bee {
+      ID
+      Wallet {
+        Transactions {
+          ... on Debit {
+            Amount
+            Notes
+            TimeStamp
+            To {
+              AccountNumber
+              AccountHolderName
+              ID
+            }
+          }
+        }
+      }
+    }
+  }
+}
+    ''';
+    Map response= await CustomGraphQLClient.instance.query(query);
+    List<DebitTransactions> debits=[];
+    List fetchedDebits= response['Me']['Wallet']['Transactions'];
+    if(fetchedDebits.isEmpty || fetchedDebits.length==0 ){
+      if(fetchedDebits==null)
+        return latestViewModel..isDebitPresent=false;
+    }
+    fetchedDebits.forEach((debit) {
+      if(debit.isNotEmpty && debit!=null){
+        DebitTransactions deb= DebitTransactions();
+        deb.amount=debit['Amount'];
+        deb.timeStamp=debit['TimeStamp'];
+        Map notes=debit['Notes'];
+        if(notes.containsKey('TransactionID')){
 
+          deb.withDrawlTransactionId=notes['TransactionID'];
+          deb.withDrawlAccountNumber=debit['To']['AccountNumber'];
+          deb.accountID=debit['To']['ID'];
+          deb.withDrawlAccountHolderName=debit['To']['AccountHolderName'];
+        }
+        else{
+          deb.debitOnOrder=true;
+          deb.orderId=notes['OrderId'];
+        }
+        debits.add(deb);
+      }
+    });
+    return latestViewModel..debits=debits..isDebitPresent=true;
 
-
+  }
 
   Future<HistoryModel> fetchActiveOrder() async{
     String query = '''{
@@ -194,7 +250,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
       ..order.status=response['Me']['ActiveOrder']["Status"];
   }
 
- Future<HistoryModel> fetchBasicPastOrderDetails() async{
+  Future<HistoryModel> fetchBasicPastOrderDetails() async{
     String query='''{Me{
   ...on Bee{
     Orders{
@@ -308,6 +364,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     order.quantity=response['Order']['Quantity'];
     order.userName=getUserName(response['Order']['User']['Name']['Firstname'], response['Order']['User']['Name']['Middlename'], response['Order']['User']['Name']['Lastname']);
     order.addons=[];
+    int b=0,s=0;
     List addons = response['Order']['Addons'];
     for (Map addon in addons) {
       Service service = Service()
@@ -320,10 +377,12 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
         ..addOnTaxCharge=addon['TaxCharge']
         ..quantity=addon['Quantity']
         ..amount=addon['Amount'];
+      b=b+addon['BasePrice'];
+      s=s+addon['ServiceCharge'];
       order.addons.add(service);
     }
     log(order.userName, name:"NAME");
-    return latestViewModel..jobModel=order;
+    return latestViewModel..jobModel=order..jobModel.totalAddonBasePrice=b..jobModel.totalAddonServiceCharge=s;
   }
 
   String getUserName(String first, middle, last){

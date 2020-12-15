@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:fixbee_partner/events/workscreen_event.dart';
@@ -5,6 +6,7 @@ import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/workscreen_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../Constants.dart';
 import '../bloc.dart';
@@ -35,6 +37,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     }
     if (event == WorkScreenEvents.findUserRating) {
       return await findUserRating(message);
+    }
+    if(event==WorkScreenEvents.updateLiveLocation){
+      return await updateLiveLocation(message);
     }
     return latestViewModel;
   }
@@ -120,9 +125,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
       else if (response.containsKey("errors"))
         latestViewModel..otpValid = false;
     } catch (e) {
-      latestViewModel..otpInvalidMessage = response['message'];
+      // latestViewModel..otpInvalidMessage = response['message'];
     }
-    log(response['ResolveOrder']['Status'].toString(), name: "AOS");
+    // log(response['ResolveOrder']['Status'].toString(), name: "AOS");
     return latestViewModel;
   }
 
@@ -246,6 +251,46 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     } else {
       latestViewModel.userRating = 0;
     }
+    return latestViewModel;
+  }
+
+  Timer locationTimer;
+  startTimer() {
+    log("WORK TIMER STARTED", name: "TS");
+    var timeOut = Constants.updateLocationTimeOut;
+    Position location;
+    locationTimer = Timer.periodic(Duration(seconds: timeOut), (timer) async {
+        try {
+          location = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.best);
+          await updateLiveLocation(
+              {'latitude': location.latitude, 'longitude': location.longitude});
+        } catch (e) {
+          location = null;
+      }
+    });
+  }
+
+  endTimer() {
+    log("WORK TIMER ENDED", name: "TS");
+    locationTimer.cancel();
+  }
+  Future<WorkScreenModel> updateLiveLocation(
+      Map<String, dynamic> message) async {
+    double latitude = message['latitude'];
+    double longitude = message['longitude'];
+    String query = '''mutation {
+  Update(input:{UpdateLiveLocation:{Latitude: $latitude, Longitude: $longitude}}){
+    ... on Bee{
+      ID
+      LiveLocation{
+        Latitude
+        Longitude
+      }
+    }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
 }

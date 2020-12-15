@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'dart:developer';
-
+import 'package:background_location/background_location.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/event.dart';
@@ -7,9 +8,10 @@ import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/view_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../Constants.dart';
-
+enum TimerStatus{TICKING, PAUSED, STOPPED}
 class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     with Trackable {
   NavigationBloc(NavigationModel genesisViewModel) : super(genesisViewModel);
@@ -30,12 +32,16 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
       return await getUserData(message);
     }
 
-    if (event == NavigationEvent.checkActiveService) {
-      return await checkActiveService();
+    if (event == NavigationEvent.updateLiveLocation) {
+      return await updateLiveLocation(message);
     }
-    if (event == NavigationEvent.checkActiveOrderStatus) {
-      return await checkActiveOrderStatus(message);
+    if (event == NavigationEvent.startTimer) {
+      return startTimer();
     }
+    if (event == NavigationEvent.endTimer) {
+      return endTimer();
+    }
+
     return latestViewModel;
   }
 
@@ -175,17 +181,18 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
         name: "landmark");
     return latestViewModel
       ..order.orderId = response['AnswerOrderRequest']['ID']
-      ..order.quantity=response['AnswerOrderRequest']['Quantity']
-      ..order.orderAmount=response['AnswerOrderRequest']['Amount']
-      ..order.orderBasePrice=response['AnswerOrderRequest']['BasePrice']
-      ..order.orderServiceCharge=response['AnswerOrderRequest']['ServiceCharge']
-      ..order.orderTaxCharge=response['AnswerOrderRequest']['TaxCharge']
-      ..order.status=response['AnswerOrderRequest']['Status']
+      ..order.quantity = response['AnswerOrderRequest']['Quantity']
+      ..order.orderAmount = response['AnswerOrderRequest']['Amount']
+      ..order.orderBasePrice = response['AnswerOrderRequest']['BasePrice']
+      ..order.orderServiceCharge =
+          response['AnswerOrderRequest']['ServiceCharge']
+      ..order.orderTaxCharge = response['AnswerOrderRequest']['TaxCharge']
+      ..order.status = response['AnswerOrderRequest']['Status']
       ..location.googlePlaceId =
           response['AnswerOrderRequest']['Location']['GooglePlaceID']
       ..order.slotted = response['AnswerOrderRequest']['Slot']['Slotted']
       ..service.serviceName = response['AnswerOrderRequest']['Service']['Name']
-      ..user.userId= response['AnswerOrderRequest']['User']['ID']
+      ..user.userId = response['AnswerOrderRequest']['User']['ID']
       ..user.firstname =
           response['AnswerOrderRequest']['User']['Name']['Firstname']
       ..user.middlename =
@@ -248,7 +255,6 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     return latestViewModel;
   }
 
-
   Future<NavigationModel> checkActiveService() async {
     String query = '''{
   Me{
@@ -262,5 +268,98 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     if (response['Me']['Active'] && !response['Me']["Available"])
       latestViewModel..isOrderActive = true;
     return latestViewModel;
+  }
+
+  Timer locationTimer, timer, testTimer;
+  TimerStatus _timerStatus = TimerStatus.STOPPED;
+  startTimer() {
+    _timerStatus = TimerStatus.TICKING;
+    log("TIMER STARTED", name: "TS");
+    var timeOut = Constants.updateLocationTimeOut;
+
+    Position location;
+    if(testTimer==null)
+    testTimer = Timer.periodic(Duration(seconds: timeOut), (timer) async {
+      if(_timerStatus==TimerStatus.TICKING){
+        print('TICK');
+
+          try {
+            location = await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.best);
+            await updateLiveLocation(
+                {'latitude': location.latitude, 'longitude': location.longitude});
+          } catch (e) {
+            location = null;
+          }
+
+      }
+
+    });
+  }
+  pauseTimer(){
+    _timerStatus = TimerStatus.PAUSED;
+  }
+
+  endTimer() {
+    log("TIMER ENDED", name: "TS");
+    _timerStatus = TimerStatus.STOPPED;
+    testTimer.cancel();
+  }
+
+  Future<bool> getActiveStatus() async {
+    String query = '''{
+  Me{
+    ...on Bee{
+      Active
+    }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    return response['Me']['Active'].toString() == 'true';
+  }
+
+  subscribeToLocationUpdate(Function(Position) onUpdateLocation) {
+    locationTimer = Timer.periodic(
+        Duration(seconds: Constants.updateLocationTimeOut), (timer) async {
+      log("Location Updated", name: "LOCATIONNAV");
+      Position location = await _getLocation();
+      updateLiveLocation(
+          {'latitude': location.latitude, 'longitude': location.longitude});
+    });
+  }
+
+  Future<Position> _getLocation() async {
+    var currentLocation;
+    try {
+      currentLocation = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best);
+    } catch (e) {
+      currentLocation = null;
+    }
+    return currentLocation;
+  }
+
+  Future<NavigationModel> updateLiveLocation(
+      Map<String, dynamic> message) async {
+    double latitude = message['latitude'];
+    double longitude = message['longitude'];
+    String query = '''mutation {
+  Update(input:{UpdateLiveLocation:{Latitude: $latitude, Longitude: $longitude}}){
+    ... on Bee{
+      ID
+      LiveLocation{
+        Latitude
+        Longitude
+      }
+    }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.mutate(query);
+    return latestViewModel;
+  }
+
+  unsubscribeToLocationUpdate() {
+    timer.cancel();
+    locationTimer.cancel();
   }
 }

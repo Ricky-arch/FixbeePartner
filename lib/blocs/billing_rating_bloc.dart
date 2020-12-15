@@ -126,7 +126,9 @@ class BillingRatingBloc extends Bloc<BillingRatingEvent, BillingRatingModel>
         response['Order']['User']['Name']['Lastname']);
     order.addons = [];
     List addons = response['Order']['Addons'];
+    int b=0,s=0;
     for (Map addon in addons) {
+
       Service service = Service()
         ..serviceName = addon['Service']['Name']
         ..basePrice = addon['Service']['Pricing']['BasePrice']
@@ -137,10 +139,12 @@ class BillingRatingBloc extends Bloc<BillingRatingEvent, BillingRatingModel>
         ..addOnTaxCharge = addon['TaxCharge']
         ..quantity = addon['Quantity']
         ..amount = addon['Amount'];
+      b=b+addon['BasePrice'];
+      s=s+addon['ServiceCharge'];
       order.addons.add(service);
     }
     log(order.userName, name: "NAME");
-    return latestViewModel..orderModel = order;
+    return latestViewModel..orderModel = order..orderModel.totalAddonBasePrice=b..orderModel.totalAddonServiceCharge=s;
   }
 
   String getUserName(String first, middle, last) {

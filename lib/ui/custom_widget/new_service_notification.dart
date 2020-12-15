@@ -11,6 +11,7 @@ class NewServiceNotification extends StatefulWidget {
   final Function onConfirm;
   final Function onDecline;
   final bool loading;
+  final Function(bool) onChanged;
 
   const NewServiceNotification(
       {Key key,
@@ -20,7 +21,7 @@ class NewServiceNotification extends StatefulWidget {
       this.address,
       this.onConfirm,
       this.onDecline,
-      this.loading = false})
+      this.loading = false, this.onChanged})
       : super(key: key);
   @override
   _NewServiceNotificationState createState() => _NewServiceNotificationState();

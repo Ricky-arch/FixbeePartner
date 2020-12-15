@@ -7,7 +7,6 @@ import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/customize_service.dart';
-import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
@@ -18,7 +17,6 @@ import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'billing_rating_screen.dart';
 
 const kSpacingUnit = 10;
 const kDarkPrimaryColor = Color(0xFF212121);
@@ -63,16 +61,24 @@ class _CustomProfileState extends State<CustomProfile> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: Text("Are you sure, you want to log out?"),
+            content: Text("Do you want to log out?"),
             actions: [
-              FlatButton(
+              RaisedButton(
+                color: PrimaryColors.backgroundColor,
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("No"),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "NO",
+                    style: TextStyle(color: Colors.orangeAccent),
+                  ),
+                ),
               ),
-              FlatButton(
-                onPressed: () async {
+              RaisedButton(
+                color: PrimaryColors.backgroundColor,
+                onPressed: () async{
                   SharedPreferences preferences =
                       await SharedPreferences.getInstance();
                   await preferences.clear();
@@ -80,11 +86,18 @@ class _CustomProfileState extends State<CustomProfile> {
                   CustomGraphQLClient.instance.invalidateClient();
 
                   Route route =
-                      MaterialPageRoute(builder: (context) => SplashScreen());
+                  MaterialPageRoute(builder: (context) => SplashScreen());
                   Navigator.pushAndRemoveUntil(context, route, (e) => false);
                 },
-                child: Text("Yes"),
-              ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "YES",
+                    style: TextStyle(color: Colors.orangeAccent),
+                  ),
+                ),
+              )
+            
             ],
           );
         });
@@ -106,34 +119,17 @@ class _CustomProfileState extends State<CustomProfile> {
               Container(
                   decoration:
                       BoxDecoration(color: PrimaryColors.backgroundColor),
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                              color: Colors.white, shape: BoxShape.circle),
-                          child: Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: SvgPicture.asset(
-                                "assets/logo/bee_outline.svg",
-                              ))),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: 'PROFILE',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 15)),
-                          ],
-                        ),
-                      ),
-                    ],
+                  child: RichText(
+                    text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(
+                            text: 'PROFILE',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                fontSize: 15)),
+                      ],
+                    ),
                   ))
             ],
           ),
@@ -197,7 +193,7 @@ class _CustomProfileState extends State<CustomProfile> {
                                 : SizedBox(),
                           ],
                         ),
-                        SizedBox(height: kSpacingUnit.w * 1),
+
                         RichText(
                           text: TextSpan(children: [
                             TextSpan(
@@ -316,6 +312,7 @@ class _CustomProfileState extends State<CustomProfile> {
   onImagePicked(String path) {
     _bloc.fire(CustomProfileEvent.updateDp,
         message: {"path": "$path", "file": "partnerDP"});
+
   }
 
   String getMyName(String first, middle, last) {

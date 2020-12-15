@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:fixbee_partner/events/file_upload_event.dart';
+import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../Constants.dart';
@@ -85,7 +86,10 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                 ),
               ),
               (viewModel.onFetchUploadedDocumentsList)
-                  ? CircularProgressIndicator()
+                  ? Container(
+              height: 50,
+              width: 50,
+              child: CustomCircularProgressIndicator())
                   : Container(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,9 +98,9 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                             padding: EdgeInsets.fromLTRB(12, 0, 8, 0),
                             child: Text(
                               (!viewModel.uploadedDocuments
-                                      .contains("Aadhaar.jpg"))
-                                  ? "Add your AADHAAR CARD*"
-                                  : "AADHAAR CARD UPLOADED \u2713",
+                                      .contains("Identity_proof.jpg"))
+                                  ? "Add your IDENTITY-PROOF CARD*"
+                                  : "IDENTITY-PROOF CARD UPLOADED \u2713",
                               style: TextStyle(
                                   color: Colors.brown,
                                   fontWeight: FontWeight.bold),
@@ -108,14 +112,14 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                               onTap: () {},
                               child: FileUploadWidget(
                                 controller: _controllerAadhaar,
-                                documentName: "Aadhaar.jpeg",
+                                documentName: "Identity_proof.jpeg",
                                 inputString: (!viewModel.uploadedDocuments
-                                        .contains("Aadhaar.jpg"))
-                                    ? "Upload your aadhaar card"
-                                    : "Aadhaar.jpeg",
+                                        .contains("Identity_proof.jpg"))
+                                    ? "Upload your Identity-proof document"
+                                    : "Identity_proof.jpeg",
                                 onImagePicked: (path) {
                                   log('OnUPLOAD', name: 'onUp2');
-                                  onImagePicked(path, "Aadhaar",
+                                  onImagePicked(path, "Identity-proof",
                                       _controllerAadhaar.onUpload);
                                 },
                                 loading: false,

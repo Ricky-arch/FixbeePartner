@@ -1,10 +1,9 @@
 // @dart=2.9
 import 'package:fixbee_partner/Constants.dart';
-import 'package:fixbee_partner/ui/custom_widget/splash_widget.dart';
-import 'package:fixbee_partner/ui/screens/billing_rating_screen.dart';
+import 'package:fixbee_partner/ui/custom_widget/otp_digit_widget.dart';
 import 'package:fixbee_partner/ui/screens/dummy_screen.dart';
-import 'package:fixbee_partner/ui/screens/history_screen.dart';
-import 'package:fixbee_partner/ui/screens/registration.dart';
+import 'package:fixbee_partner/ui/screens/otp.dart';
+import 'package:fixbee_partner/ui/screens/otp_for_login.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +24,11 @@ void main() {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
           body:
+          //OtpDigitWidget()
+          //OtpForLogin()
           SplashScreen()
-        //DummyScreen()
+        //Dummy()
+        //SplashScreen()
         //SplashScreen()
       ),
     ),

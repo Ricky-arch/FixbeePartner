@@ -2,13 +2,14 @@ import 'dart:developer';
 import 'package:fixbee_partner/blocs/history_bloc.dart';
 import 'package:fixbee_partner/events/history_event.dart';
 import 'package:fixbee_partner/models/history_model.dart';
-import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/active_order_history.dart';
 import 'package:fixbee_partner/ui/custom_widget/credit.dart';
+import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
+import 'package:fixbee_partner/ui/custom_widget/debit.dart';
 import 'package:fixbee_partner/ui/custom_widget/past_order.dart';
+import 'package:fixbee_partner/ui/screens/debit_info.dart';
 import 'package:fixbee_partner/ui/screens/past_order_billing_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
-import 'package:fixbee_partner/utils/dummy_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -29,9 +30,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     print(_bloc.latestViewModel.pastOrderPresent.toString() + "PPP");
     super.initState();
   }
+
   @override
   void dispose() {
-   _bloc.extinguish();
+    _bloc.extinguish();
     super.dispose();
   }
 
@@ -40,7 +42,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return SafeArea(
         child: _bloc.widget(onViewModelUpdated: (context, viewModel) {
       return DefaultTabController(
-        length: 5,
+        length: 4,
         child: Scaffold(
           backgroundColor: PrimaryColors.backgroundcolorlight,
           body: CustomScrollView(
@@ -85,7 +87,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Text(
                               'CREDIT',
                               style: TextStyle(
-                                  color: Colors.orangeAccent,
+                                  color: Colors.amber,
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -94,7 +96,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Text(
                               'DEBIT',
                               style: TextStyle(
-                                  color: Colors.orangeAccent,
+                                  color: Colors.amber,
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -103,7 +105,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Text(
                               'PAST',
                               style: TextStyle(
-                                  color: Colors.orangeAccent,
+                                  color: Colors.amber,
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold),
                             ),
@@ -112,20 +114,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Text(
                               'IN-PROGRESS',
                               style: TextStyle(
-                                  color: Colors.orangeAccent,
+                                  color: Colors.amber,
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Tab(
-                            child: Text(
-                              'WITHDRAWALS',
-                              style: TextStyle(
-                                  color: Colors.orangeAccent,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
+
                         ]),
                   ),
                 ),
@@ -138,7 +132,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     future: _bloc.fetchCreditTransactions(),
                     builder: (ctx, snapshot) {
                       if (!snapshot.hasData)
-                        return CircularProgressIndicator();
+                        return CustomCircularProgressIndicator();
                       else {
                         log(snapshot.data.isCreditPresent.toString(),
                             name: "CREDIT");
@@ -159,6 +153,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                             .data.credits[index].timeStamp,
                                         notes:
                                             snapshot.data.credits[index].notes,
+                                        creditOnOrder: snapshot
+                                            .data.credits[index].creditOnOrder,
                                       );
                                     },
                                   )
@@ -170,14 +166,51 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     },
                   )),
                   Tab(
-                    child: Text('DEBIT', style: TextStyle(color: Colors.black)),
-                  ),
+                      child: FutureBuilder<HistoryModel>(
+                    future: _bloc.fetchDebitTransactions(),
+                    builder: (ctx, snapshot) {
+                      if (!snapshot.hasData)
+                        return CustomCircularProgressIndicator();
+                      else {
+                        return (snapshot.data.isDebitPresent)
+                            ? ListView(
+                                children: [
+                                  ListView.builder(
+                                    itemCount: snapshot.data.debits.length,
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    scrollDirection: Axis.vertical,
+                                    itemBuilder: (BuildContext ctx, int i) {
+
+                                      int index =
+                                          snapshot.data.debits.length - i - 1;
+                                      return Debit(
+                                        amount:
+                                            snapshot.data.debits[index].amount,
+                                        timeStamp: snapshot
+                                            .data.debits[index].timeStamp,
+                                        onOrderDebit: snapshot
+                                            .data.debits[index].debitOnOrder,
+                                        seeMore: () {
+                                          _showDebitDialogBox(
+                                              snapshot.data.debits[index]);
+                                        },
+                                      );
+                                    },
+                                  )
+                                ],
+                              )
+                            : Text('No Debits done!',
+                                style: TextStyle(color: Colors.black));
+                      }
+                    },
+                  )),
                   Tab(
                     child: FutureBuilder<HistoryModel>(
                       future: _bloc.fetchBasicPastOrderDetails(),
                       builder: (ctx, snapshot) {
                         if (!snapshot.hasData) {
-                          return CircularProgressIndicator();
+                          return CustomCircularProgressIndicator();
                         } else {
                           log(snapshot.data.pastOrderPresent.toString(),
                               name: "PastOrder");
@@ -253,6 +286,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                             serviceName: m
                                                                 .jobModel
                                                                 .serviceName,
+                                                            totalAddonBasePrice: m.jobModel.totalAddonServiceCharge,
+                                                            totalAddonServiceCharge: m.jobModel.totalAddonBasePrice,
                                                             amount: m.jobModel.totalAmount,
                                                             status: m.jobModel.status,
                                                             orderId: m.jobModel.orderId,
@@ -280,7 +315,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           future: _bloc.fetchActiveOrder(),
                           builder: (ctx, snapshot) {
                             if (!snapshot.hasData)
-                              return CircularProgressIndicator();
+                              return CustomCircularProgressIndicator();
                             else {
                               return (snapshot.data.isOrderActive)
                                   ? ActiveOrderHistory(
@@ -292,7 +327,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       seeMore: () {
                                         Route route = MaterialPageRoute(
                                             builder: (context) => WorkScreen(
-                                              quantity: snapshot.data.order.quantity,
+                                                  quantity: snapshot
+                                                      .data.order.quantity,
                                                   userId:
                                                       snapshot.data.user.userId,
                                                   activeOrderStatus: snapshot
@@ -342,10 +378,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                       style: TextStyle(color: Colors.black));
                             }
                           })),
-                  Tab(
-                    child: Text('WITHDRAWALS',
-                        style: TextStyle(color: Colors.black)),
-                  ),
+
                 ],
               )),
             ],
@@ -353,5 +386,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
       );
     }));
+  }
+
+  _showDebitDialogBox(DebitTransactions debit) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            insetPadding: EdgeInsets.symmetric(horizontal: 12),
+            child: DebitInfo(
+              timeStamp: debit.timeStamp,
+              amount: debit.amount,
+              accountId: debit.accountID,
+              debitOnOrder: debit.debitOnOrder,
+              withDrawlAccountHolderName: debit.withDrawlAccountHolderName,
+              withDrawlAccountNumber: debit.withDrawlAccountNumber,
+              withDrawlTransactionId: debit.withDrawlTransactionId,
+              orderId: debit.orderId,
+            ),
+          );
+        });
   }
 }

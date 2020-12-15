@@ -97,7 +97,9 @@ class SplashBloc extends Bloc<Event, SplashModel>
     Map name = response['Me']['Name'];
     Map phone = response['Me']['Phone'];
     List services = response['Me']['Services'] ?? [];
-    String dpUrl = response['Me']['DisplayPicture']['id'] ?? '';
+    String dpUrl = (response['Me']['DisplayPicture']['id'] == null)
+        ? null
+        : EndPoints.DOCUMENT + '?id=' + response['Me']['DisplayPicture']['id'];
 
     bee = Bee()
       ..firstName = name['Firstname']
@@ -105,17 +107,16 @@ class SplashBloc extends Bloc<Event, SplashModel>
       ..lastName = name['Lastname'] ?? ''
       ..phoneNumber = phone['Number']
       ..verified = phone['Verified']
-      ..active = response['Me']['Active']
-      ..dpUrl = EndPoints.DOCUMENT + '?id=' + dpUrl
+      ..dpUrl =dpUrl
+      ..active=response['Me']['Active'].toString().toLowerCase()=='true'
       ..services = services.map((service) {
         if (service != null)
           return ServiceOptionModel()
             ..id = service['ID']
             ..serviceName = service['Name'];
       }).toList();
-
+    log(bee.active.toString(), name:"ACTIVE");
     DataStore.me = bee;
-
     return bee;
   }
 

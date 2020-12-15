@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/bank_details_event.dart';
+import 'package:fixbee_partner/events/billing_rating_event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
@@ -96,7 +97,6 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> with Trac
   
 }
     ''';
-
     try {
       Map response = await CustomGraphQLClient.instance.mutate(query);
       List accounts = response['Update']['BankAccounts'];
@@ -120,6 +120,8 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> with Trac
 
   @override
   BankDetailsModel setTrackingFlag(BankDetailsEvent event, bool trackFlag, Map message) {
+    if(event== BillingRatingEvent.fetchOderBillDetails)
+      return latestViewModel..fetchingBankAccounts=trackFlag;
     latestViewModel..addingAccount=trackFlag;
     return latestViewModel;
   }

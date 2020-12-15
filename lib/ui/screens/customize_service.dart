@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:fixbee_partner/blocs/customize_service_bloc.dart';
 import 'package:fixbee_partner/events/customize_service_event.dart';
 import 'package:fixbee_partner/models/customize_service_model.dart';
+import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:fixbee_partner/ui/custom_widget/service_banner.dart';
 import 'package:fixbee_partner/ui/screens/add_services.dart';
 import 'package:flare_flutter/flare_actor.dart';
@@ -42,7 +43,8 @@ class _CustomizeServiceState extends State<CustomizeService> {
           title: Stack(
             children: <Widget>[
               Container(
-                  decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
+                  decoration:
+                      BoxDecoration(color: PrimaryColors.backgroundColor),
                   child: RichText(
                     text: TextSpan(
                       children: <TextSpan>[
@@ -61,7 +63,6 @@ class _CustomizeServiceState extends State<CustomizeService> {
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return ListView(
             children: [
-
               Column(
                 children: [
                   SizedBox(
@@ -186,7 +187,8 @@ class _CustomizeServiceState extends State<CustomizeService> {
                           children: [
                             ServiceBanner(
                               serviceName: viewModel
-                                  .selectedServiceOptionModel[index].serviceName,
+                                  .selectedServiceOptionModel[index]
+                                  .serviceName,
                               showDeleteIcon: showDeleteButton,
                               deleteService: () {
                                 _showJobDeletionDialog(
@@ -199,15 +201,14 @@ class _CustomizeServiceState extends State<CustomizeService> {
                           ],
                         );
                       })
-                  : Container(
-                      height: 200,
-                      width: 200,
-                      child: FlareActor(
-                        "assets/animations/loading.flr",
-                        alignment: Alignment.center,
-                        fit: BoxFit.contain,
-                        animation: "Start",
-                      ),
+                  : Center(
+                      child: Wrap(children: [
+
+                        Container(
+                            height: 50,
+                            width: 50,
+                            child: CustomCircularProgressIndicator()),
+                      ]),
                     )
             ],
           );

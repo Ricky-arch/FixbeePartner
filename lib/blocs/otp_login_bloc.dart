@@ -39,7 +39,9 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
 
   @override
   OtpModel setTrackingFlag(OtpEvents event, bool loading, Map message) {
-    if (event == OtpEvents.onOtpVerify)
+    if (event == OtpEvents.onOtpVerify ||
+        event == OtpEvents.fetchSaveBeeDetails ||
+        event == OtpEvents.checkForServiceSelected)
       return latestViewModel..verifying = loading;
     else if (event == OtpEvents.resendOtp)
       return latestViewModel..resendingOtp = loading;
@@ -52,9 +54,6 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
         body: {'phone': phone, 'otp': otp}).makeRequest();
 
     if (response.containsKey('error')) {
-      // if (response['error'] == 'No such account exists') {
-      //   return latestViewModel..exist = false;
-      // } else
       if (response['error'] == 'OTP invalid or past expiration') {
         return latestViewModel..otpValid = false;
       }
@@ -74,8 +73,6 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString(SharedPrefKeys.TOKEN, token);
   }
-
-
 
   Future<OtpModel> checkForServiceSelected() async {
     String query = '''{
@@ -98,6 +95,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     String query = '''{
   Me{
     ...on Bee{
+    Active
       ID
       Name{
         Firstname
@@ -132,7 +130,9 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       ..firstName = response['Me']['Name']['Firstname']
       ..middleName = response['Me']['Name']['Middlename'] ?? ''
       ..lastName = response['Me']['Name']['Lastname'] ?? ''
-      ..dpUrl=EndPoints.DOCUMENT+'?id='+response['Me']['DisplayPicture']['id']
+      ..active=response['Me']['Active'].toString().toLowerCase()=='true'
+      ..dpUrl =(response['Me']['DisplayPicture']['id']==null)?null:
+          EndPoints.DOCUMENT + '?id=' + response['Me']['DisplayPicture']['id']
       ..phoneNumber = response['Me']['Phone']['Number'];
     DataStore.me = bee;
     DataStore.fcmToken = response['Me']['FCMToken'];

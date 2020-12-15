@@ -19,6 +19,7 @@ class WalletScreen extends StatefulWidget {
 
 class _WalletScreenState extends State<WalletScreen> {
   final _addAmountFormKey = GlobalKey<FormState>();
+  final _withdrawAmountFormKey = GlobalKey<FormState>();
   TextEditingController walletDepositAmountController =
       new TextEditingController();
   TextEditingController walletWithdrawAmountController =
@@ -33,9 +34,8 @@ class _WalletScreenState extends State<WalletScreen> {
 
   int walletAmountInpaise;
   Razorpay _razorpay = Razorpay();
-  String email = (DataStore?.me?.emailAddress == null)
-      ? 'Tap to enter a valid mail'
-      : DataStore.me.emailAddress;
+  String email =
+      (DataStore?.me?.emailAddress == null) ? '' : DataStore.me.emailAddress;
 
   @override
   void initState() {
@@ -76,7 +76,8 @@ class _WalletScreenState extends State<WalletScreen> {
       'paymentSignature': response.signature
     }, onHandled: (e, m) {
       if (m.isProcessed) {
-        _bloc.fire(WalletEvent.fetchWalletAmount, onHandled: (e, m) {
+        _bloc.fire(WalletEvent.fetchWalletAmountAfterTransaction,
+            onHandled: (e, m) {
           _showPaymentSuccessDialog();
         });
       }
@@ -94,7 +95,9 @@ class _WalletScreenState extends State<WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+    return Scaffold(
+
+        body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
       return SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -253,37 +256,21 @@ class _WalletScreenState extends State<WalletScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: <Widget>[
+                                Spacer(),
                                 RaisedButton(
-                                  color: PrimaryColors.backgroundColor,
+                                  color:PrimaryColors.backgroundColor,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
-                                          Radius.circular(20))),
+                                          Radius.circular(5))),
                                   elevation: 6,
                                   child: Container(
-                                    height: 90,
-                                    width: 105,
-                                    child: Center(
-                                        child: Text(
-                                      "TRANSACTIONS",
-                                      style: TextStyle(color: Colors.white),
-                                    )),
-                                  ),
-                                  onPressed: () {},
-                                ),
-                                RaisedButton(
-                                  color: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(20))),
-                                  elevation: 6,
-                                  child: Container(
-                                    height: 90,
-                                    width: 105,
+                                    height: 50,
+                                    width: 100,
                                     child: Center(
                                         child: Text(
                                       "WITHDRAWAL",
                                       style: TextStyle(
-                                          color: PrimaryColors.backgroundColor),
+                                          color: Colors.white),
                                     )),
                                   ),
                                   onPressed: () {
@@ -403,7 +390,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                                     setState(() => selectedRadio = val);
                                                                                     if (selectedRadio == 1) {
                                                                                       selectedAccountNumber = viewModel.bankAccountList[index].bankAccountNumber;
-                                                                                      selectedAccountID = viewModel.bankAccountList[index].accountID;
+                                                                                      selectedAccountID = viewModel.bankAccountList[index].accountID.toString();
                                                                                     }
                                                                                   },
                                                                                 ),
@@ -412,7 +399,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                             AvailableAccounts(
                                                                               accountHoldersName: viewModel.bankAccountList[index].accountHoldersName,
                                                                               accountNumber: viewModel.bankAccountList[index].bankAccountNumber,
-                                                                              verified: viewModel.bankAccountList[index].accountVerified,
+                                                                              verified: viewModel.bankAccountList[index]. accountVerified,
                                                                             ),
                                                                             SizedBox(
                                                                               height: 10,
@@ -496,6 +483,9 @@ class _WalletScreenState extends State<WalletScreen> {
                                           );
                                         });
                                   },
+                                ),
+                                SizedBox(
+                                  width: 20,
                                 ),
                               ],
                             )
@@ -675,6 +665,14 @@ class _WalletScreenState extends State<WalletScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      (_bloc.latestViewModel.whileWithDrawingAmount)
+                          ? LinearProgressIndicator(
+                              minHeight: 4,
+                              backgroundColor: PrimaryColors.backgroundColor,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            )
+                          : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Row(
@@ -682,8 +680,6 @@ class _WalletScreenState extends State<WalletScreen> {
                             Container(
                               decoration: BoxDecoration(
                                 color: PrimaryColors.backgroundColor,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(15.0)),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -714,8 +710,8 @@ class _WalletScreenState extends State<WalletScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: PrimaryColors.backgroundColor,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0)),
+                            // borderRadius:
+                            //     BorderRadius.all(Radius.circular(15.0)),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -735,19 +731,35 @@ class _WalletScreenState extends State<WalletScreen> {
                           height: 100,
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: TextFormField(
-                              style: TextStyle(
-                                  color: PrimaryColors.backgroundColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15),
-                              decoration: InputDecoration(
-                                  hintText: "Eg: 500",
-                                  errorStyle: TextStyle(color: Colors.red),
-                                  border: new UnderlineInputBorder(
-                                      borderSide:
-                                          new BorderSide(color: Colors.green))),
-                              controller: walletWithdrawAmountController,
-                              keyboardType: TextInputType.number,
+                            child: Form(
+                              key: _withdrawAmountFormKey,
+                              child: TextFormField(
+                                validator: (value) {
+                                  if (value.trim().isNotEmpty) {
+                                    if (!isNumeric(value))
+                                      return 'Enter a valid amount!';
+                                    else if (_bloc.latestViewModel.amount -
+                                            (int.parse(value) * 100) <
+                                        Constants.MINIMUM_WALLET_AMOUNT * 100)
+                                      return 'Withdrawal amount exceeds threshold!';
+                                  } else if (value.isEmpty) {
+                                    return 'Enter any amount!';
+                                  }
+                                  return null;
+                                },
+                                style: TextStyle(
+                                    color: PrimaryColors.backgroundColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15),
+                                decoration: InputDecoration(
+                                    // hintText: "Eg: 500",
+                                    errorStyle: TextStyle(color: Colors.red),
+                                    border: new UnderlineInputBorder(
+                                        borderSide: new BorderSide(
+                                            color: Colors.green))),
+                                controller: walletWithdrawAmountController,
+                                keyboardType: TextInputType.number,
+                              ),
                             ),
                           ),
                         ),
@@ -759,18 +771,34 @@ class _WalletScreenState extends State<WalletScreen> {
                             color: PrimaryColors.backgroundColor,
                             textColor: Colors.white,
                             onPressed: () {
-                              print(selectedAccountNumber);
-                              print(walletWithdrawAmountController.text);
-                              _bloc.fire(WalletEvent.withdrawAmount, message: {
-                                'amount': walletWithdrawAmountController.text,
-                                'accountId': selectedAccountID
-                              });
-                              walletWithdrawAmountController.clear();
+                              if (_withdrawAmountFormKey.currentState
+                                  .validate()) {
+                                String withdrawAmount =
+                                    walletWithdrawAmountController.text
+                                        .toString();
+                                int amount = int.parse(withdrawAmount) * 100;
+                                _bloc.fire(WalletEvent.withdrawAmount,
+                                    message: {
+                                      'amount': amount,
+                                      'accountId': selectedAccountID
+                                    }, onHandled: (e, m) {
+                                  log("Requested for Withdrawal $amount  from $selectedAccountID",
+                                      name: "WITHDRAW");
+                                  Navigator.pop(context);
+                                  _bloc.fire(
+                                      WalletEvent
+                                          .fetchWalletAmountAfterTransaction,
+                                      onHandled: (e, m) {
+                                    _showPaymentSuccessDialog();
+                                  });
+                                });
+                                walletWithdrawAmountController.clear();
+                              }
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
-                                "ADD",
+                                "WITHDRAW",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -782,6 +810,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                 width: 2, color: PrimaryColors.backgroundColor),
                             textColor: PrimaryColors.backgroundColor,
                             onPressed: () {
+                              walletWithdrawAmountController.clear();
                               Navigator.pop(context);
                             },
                             child: Padding(
@@ -833,7 +862,7 @@ class _WalletScreenState extends State<WalletScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             content: Text(
-              message.toString(),
+              message.toString() + "!",
               style: TextStyle(
                   color: PrimaryColors.backgroundColor,
                   fontWeight: FontWeight.bold),

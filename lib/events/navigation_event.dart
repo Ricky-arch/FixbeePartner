@@ -8,5 +8,8 @@ class NavigationEvent extends Event{
   static final NavigationEvent onConfirmJob=NavigationEvent(101);
   static final NavigationEvent getActiveOrder=NavigationEvent(104);
   static final NavigationEvent checkActiveService=NavigationEvent(105);
+  static final NavigationEvent updateLiveLocation= NavigationEvent(107);
   static final NavigationEvent checkActiveOrderStatus= NavigationEvent(106);
+  static final NavigationEvent startTimer= NavigationEvent(107);
+  static final NavigationEvent endTimer= NavigationEvent(108);
 }

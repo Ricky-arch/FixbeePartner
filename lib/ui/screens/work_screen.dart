@@ -137,6 +137,9 @@ class _WorkScreenState extends State<WorkScreen> {
         _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
             message: {"otp": barcode, "orderId": widget.orderId},
             onHandled: (e, m) {
+          if(!m.otpValid)
+            _showOtpInvalidDialog();
+          else if(m.otpValid)
           _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
               message: {'orderID': widget.orderId});
           setState(() {
@@ -160,32 +163,6 @@ class _WorkScreenState extends State<WorkScreen> {
     }
   }
 
-  // Future<void> scanBarcode() async {
-  //   String barcodeScanRes;
-  //   try {
-  //     barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-  //         "#ff6666", "Cancel", true, ScanMode.BARCODE);
-  //     print(barcodeScanRes);
-  //     String validOtp = barcodeScanRes;
-  //     if (barcodeScanRes != null) {
-  //       _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
-  //           message: {"otp": validOtp, "orderId": widget.orderId},
-  //           onHandled: (e, m) {
-  //         _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
-  //             message: {'orderID': widget.orderId});
-  //         setState(() {
-  //           _onServiceStarted = m.onServiceStarted;
-  //         });
-  //       });
-  //     }
-  //   } on PlatformException {
-  //     barcodeScanRes = 'Failed to get platform version.';
-  //   }
-  //   if (!mounted) return;
-  //   setState(() {
-  //     _scanBarcode = barcodeScanRes;
-  //   });
-  // }
 
   void _setupFCM() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
@@ -219,6 +196,7 @@ class _WorkScreenState extends State<WorkScreen> {
         message: {'orderID': widget.orderId});
     _bloc.fire(WorkScreenEvents.findUserRating,
         message: {"orderID": widget.orderId});
+    _bloc.startTimer();
     log(widget.activeOrderStatus, name: "STATUS");
     _setupFCM();
     fetchLocationData().then((value) async {
@@ -238,6 +216,7 @@ class _WorkScreenState extends State<WorkScreen> {
   @override
   void dispose() {
     otpController.dispose();
+    _bloc.endTimer();
     _bloc.extinguish();
     super.dispose();
   }
@@ -247,6 +226,8 @@ class _WorkScreenState extends State<WorkScreen> {
     return GestureDetector(
       onDoubleTap: () {
         _refreshServiceDetails();
+        _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
+            message: {'orderID': widget.orderId});
       },
       child: WillPopScope(
         onWillPop: () async => false,
@@ -441,7 +422,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               ),
                               (widget.cashOnDelivery)
                                   ? CustomButtonType1(
-                                      onTap: () {
+                                      onTap: ()  {
                                         _showCompleteOrderDialogBoxForPayOnDelivery();
                                       },
                                       flexibleSize: 0,
@@ -519,7 +500,7 @@ class _WorkScreenState extends State<WorkScreen> {
                   ),
                 ),
               ),
-              RaisedButton(
+              (widget.cashOnDelivery)?RaisedButton(
                 color: PrimaryColors.backgroundColor,
                 onPressed: () {
                   _bloc.fire(WorkScreenEvents.onJobCompletion,
@@ -539,13 +520,14 @@ class _WorkScreenState extends State<WorkScreen> {
                     style: TextStyle(color: Colors.orangeAccent),
                   ),
                 ),
-              )
+              ):Container(),
             ],
           );
         });
   }
 
   _goToBillingScreen() {
+    _bloc.endTimer();
     Navigator.of(context)
         .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
       return BillingRatingScreen(
@@ -705,6 +687,15 @@ class _WorkScreenState extends State<WorkScreen> {
           );
         });
   }
+  _showOtpInvalidDialog(){
+    showDialog(context: context,
+    builder: (BuildContext context){
+      return AlertDialog(
+        content: Text("Scanned Otp is Invalid! Please try again.", style: TextStyle(fontWeight: FontWeight.bold),),
+      );
+    }
+    );
+  }
 
   _showJobCompletionNotificationForOnlinePayment(String message) {
     showDialog(
@@ -716,7 +707,8 @@ class _WorkScreenState extends State<WorkScreen> {
               maxLines: null,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            actions: <Widget>[
+            actions: [
+              (widget.cashOnDelivery)?
               RaisedButton(
                 color: PrimaryColors.backgroundColor,
                 onPressed: () {
@@ -730,7 +722,7 @@ class _WorkScreenState extends State<WorkScreen> {
                     style: TextStyle(color: Colors.orangeAccent),
                   ),
                 ),
-              )
+              ):SizedBox(),
             ],
           );
         });

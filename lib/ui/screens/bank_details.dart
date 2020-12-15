@@ -42,6 +42,7 @@ class _BankDetailsState extends State<BankDetails> {
   Widget build(BuildContext context) {
     // ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
     return Scaffold(
+
       body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
         return SafeArea(
           child: ListView(
@@ -87,7 +88,7 @@ class _BankDetailsState extends State<BankDetails> {
                   ],
                 ),
               ),
-              (viewModel.bankAccountList.length == 0)
+              (viewModel.fetchingBankAccounts)?CircularProgressIndicator(): (viewModel.bankAccountList.length == 0)
                   ? Container(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -121,7 +122,11 @@ class _BankDetailsState extends State<BankDetails> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text("Account $index"),
+                                  child: Text(
+                                    "Account ${index + 1}:",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                                 Spacer(),
                                 IconButton(

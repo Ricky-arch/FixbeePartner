@@ -12,10 +12,11 @@ import 'flavours.dart';
 
 class HomeBloc extends Bloc<HomeEvents, HomeModel>
     with Trackable<HomeEvents, HomeModel>, SecondaryStreamable<HomeModel> {
-  HomeBloc(HomeModel genesisViewModel) : super(genesisViewModel) ;
+  HomeBloc(HomeModel genesisViewModel) : super(genesisViewModel);
 
   Timer locationTimer;
   StreamSubscription locationStream;
+  void Function(bool) onSwitchChange;
 
   @override
   Future<HomeModel> mapEventToViewModel(
@@ -80,6 +81,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
     log(response['Me']['Active'].toString(), name: "activee");
+    onSwitchChange(response['Me']['Active']);
     return latestViewModel..activeStatus = response['Me']['Active'];
   }
 
@@ -114,7 +116,6 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
 
   subscribeToLocationUpdate(Function(Position) onUpdateLocation) {
     Position location;
-
 
     locationTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
       log("Location Updated", name: "LOCATION1");

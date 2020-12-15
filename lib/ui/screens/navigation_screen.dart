@@ -10,10 +10,13 @@ import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vibration/vibration.dart';
 import 'custom_profile.dart';
 import 'history_screen.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:background_location/background_location.dart';
 
 class NavigationScreen extends StatefulWidget {
   final bool gotJob;
@@ -22,15 +25,11 @@ class NavigationScreen extends StatefulWidget {
   _NavigationScreenState createState() => _NavigationScreenState();
 }
 
-List<Widget> pages = [
-  Home(),
-  HistoryScreen(),
-  WalletScreen(),
-  CustomProfile(),
-];
-
 class _NavigationScreenState extends State<NavigationScreen> {
+  List<Widget> pages;
   PageController _pageController;
+  static GoogleMapController mapController;
+  bool check = false;
   bool _visible;
   NavigationBloc _bloc;
   int _currentIndex = 0;
@@ -49,9 +48,24 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   @override
   void initState() {
+    pages = [
+      Home(
+        onSwitchChangedState: (active) {
+          print('SWITCH');
+          if (active) {
+            _bloc.startTimer();
+          } else {
+            _bloc.pauseTimer();
+          }
+        },
+      ),
+      HistoryScreen(),
+      WalletScreen(),
+      CustomProfile(),
+    ];
+
     _pageController = PageController();
     _bloc = NavigationBloc(NavigationModel());
-    _bloc.fire(NavigationEvent.checkActiveService);
     _setupFCM();
     _visible = widget.gotJob;
     super.initState();
@@ -97,6 +111,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
     _showNotificationDialog();
   }
 
+  bool isLoading = false;
+  bool onChanged() {
+    setState(() {
+      isLoading = _bloc.latestViewModel.onJobConfirmed;
+    });
+    return isLoading;
+  }
+
   _showNotificationDialog() {
     showDialog(
         context: context,
@@ -109,54 +131,59 @@ class _NavigationScreenState extends State<NavigationScreen> {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             insetPadding: EdgeInsets.all(10),
-            child: NewServiceNotification(
-              orderId: orderId.toString().toUpperCase(),
-              userName: userName.toString().toUpperCase(),
-              address: billingAddress,
-              paymentMode: paymentMode,
-              loading: _bloc.latestViewModel.onJobConfirmed,
-              onConfirm: () {
-                _bloc.fire(NavigationEvent.onConfirmJob,
-                    message: {"orderId": orderId, "Accept": true},
-                    onHandled: (e, m) {
-                  Navigator.pop(context);
+            child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+              return NewServiceNotification(
+                orderId: orderId.toString().toUpperCase(),
+                userName: userName.toString().toUpperCase(),
+                address: billingAddress,
+                paymentMode: paymentMode,
+                loading: onChanged(),
+                onConfirm: () {
+                  _bloc.fire(NavigationEvent.onConfirmJob,
+                      message: {"orderId": orderId, "Accept": true},
+                      onFired: (e, m) {
+                    onChanged();
+                  }, onHandled: (e, m) {
+                    Navigator.pop(context);
 
-                  Route route = MaterialPageRoute(
-                      builder: (context) => WorkScreen(
-                            orderBasePrice: m.order.orderBasePrice,
-                            orderTaxCharge: m.order.orderTaxCharge,
-                            orderServiceCharge: m.order.orderServiceCharge,
-                            orderAmount: m.order.orderAmount,
-                            quantity: m.order.quantity,
-                            userId: m.user.userId,
-                            activeOrderStatus: m.order.status,
-                            orderId: m.order.orderId,
-                            googlePlaceId: m.location.googlePlaceId,
-                            phoneNumber: m.user.phoneNumber,
-                            userName: m.user.firstname +
-                                " " +
-                                m.user.middlename +
-                                " " +
-                                m.user.lastname,
-                            userProfilePicUrl: m.user.profilePicUrl,
-                            addressLine: m.location.addressLine,
-                            landmark: m.location.landmark,
-                            serviceName: m.service.serviceName,
-                            timeStamp: m.order.timeStamp,
-                            amount: m.order.price,
-                            userProfilePicId: m.user.profilePicId,
-                            cashOnDelivery: m.order.cashOnDelivery,
-                            basePrice: m.order.basePrice,
-                            taxPercent: m.order.taxPercent,
-                            serviceCharge: m.order.serviceCharge,
-                          ));
-                  Navigator.pushReplacement(context, route);
-                });
-              },
-              onDecline: () {
-                _showCancelBox();
-              },
-            ),
+                    Route route = MaterialPageRoute(
+                        builder: (context) => WorkScreen(
+                              orderBasePrice: m.order.orderBasePrice,
+                              orderTaxCharge: m.order.orderTaxCharge,
+                              orderServiceCharge: m.order.orderServiceCharge,
+                              orderAmount: m.order.orderAmount,
+                              quantity: m.order.quantity,
+                              userId: m.user.userId,
+                              activeOrderStatus: m.order.status,
+                              orderId: m.order.orderId,
+                              googlePlaceId: m.location.googlePlaceId,
+                              phoneNumber: m.user.phoneNumber,
+                              userName: m.user.firstname +
+                                  " " +
+                                  m.user.middlename +
+                                  " " +
+                                  m.user.lastname,
+                              userProfilePicUrl: m.user.profilePicUrl,
+                              addressLine: m.location.addressLine,
+                              landmark: m.location.landmark,
+                              serviceName: m.service.serviceName,
+                              timeStamp: m.order.timeStamp,
+                              amount: m.order.price,
+                              userProfilePicId: m.user.profilePicId,
+                              cashOnDelivery: m.order.cashOnDelivery,
+                              basePrice: m.order.basePrice,
+                              taxPercent: m.order.taxPercent,
+                              serviceCharge: m.order.serviceCharge,
+                            ));
+                    Navigator.pushReplacement(context, route);
+                  });
+                },
+                onDecline: () {
+                  _showCancelBox();
+                },
+              );
+            }),
           );
         },
         barrierDismissible: false);
@@ -165,6 +192,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   void dispose() {
     _pageController.dispose();
+    _bloc.endTimer();
+    _bloc.extinguish();
     super.dispose();
   }
 

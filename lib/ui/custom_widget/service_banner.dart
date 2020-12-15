@@ -33,29 +33,38 @@ class _ServiceBannerState extends State<ServiceBanner> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            widget.serviceName,
-                            style: TextStyle(
-                                color: PrimaryColors.backgroundColor,
-                                fontWeight: FontWeight.bold),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width/2,
+                            child: Text(
+                              widget.serviceName,
+                              maxLines: null,
+                              // overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+
+                                  color: PrimaryColors.backgroundColor,
+                                  fontWeight: FontWeight.bold),
+                            ),
                           ),
                         ),
+                        Spacer(),
                         (widget.showDeleteIcon)
-                            ? GestureDetector(
-                                onTap: widget.deleteService,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Icon(
-                                    Icons.delete,
-                                    color: Colors.black,
-                                    size: 16,
+                            ? Container(
+                              child: GestureDetector(
+                                  onTap: widget.deleteService,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Icon(
+                                      Icons.delete,
+                                      color: Colors.black,
+                                      size: 16,
+                                    ),
                                   ),
                                 ),
-                              )
+                            )
                             : SizedBox(),
                       ],
                     ),

@@ -43,7 +43,7 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
                         child: Text(
-                          widget.orderId.toUpperCase(),
+                         "ORDER ID: " +widget.orderId.toUpperCase(),
                           style: TextStyle(color: Colors.black, fontSize: 16,  fontWeight: FontWeight.bold),
                         ),
                       ),

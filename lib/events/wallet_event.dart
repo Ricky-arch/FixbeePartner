@@ -7,4 +7,5 @@ class WalletEvent extends Event {
   static WalletEvent processWalletDeposit = WalletEvent(104);
   static WalletEvent fetchBankAccountsForWithdrawal = WalletEvent(102);
   static WalletEvent withdrawAmount = WalletEvent(103);
+  static WalletEvent fetchWalletAmountAfterTransaction=WalletEvent(105);
 }

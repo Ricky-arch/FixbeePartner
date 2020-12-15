@@ -23,107 +23,109 @@ class _AddServicesState extends State<AddServices> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: PrimaryColors.backgroundColor,
-          automaticallyImplyLeading: false,
-          title: Stack(
-            children: <Widget>[
-              Container(
-                  decoration:
-                      BoxDecoration(color: PrimaryColors.backgroundColor),
-                  child: RichText(
-                    text: TextSpan(
-                      children: <TextSpan>[
-                        TextSpan(
-                            text: 'ADD TO YOUR SKILL LIST',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 15)),
-                      ],
-                    ),
-                  )),
-            ],
+    return SafeArea(
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: PrimaryColors.backgroundColor,
+            automaticallyImplyLeading: false,
+            title: Stack(
+              children: <Widget>[
+                Container(
+                    decoration:
+                        BoxDecoration(color: PrimaryColors.backgroundColor),
+                    child: RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: 'ADD TO YOUR SKILL LIST',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 15)),
+                        ],
+                      ),
+                    )),
+              ],
+            ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          elevation: 4,
-          onPressed: () {
-            if (_bloc.latestViewModel.newSelectedServices.length == 0) {
-              _showDialogForNoServiceSelected();
-            } else {
-              for (var i in _bloc.latestViewModel.newSelectedServices) {
-                print(i.serviceName.toString());
+          floatingActionButton: FloatingActionButton(
+            elevation: 4,
+            onPressed: () {
+              if (_bloc.latestViewModel.newSelectedServices.length == 0) {
+                _showDialogForNoServiceSelected();
+              } else {
+                for (var i in _bloc.latestViewModel.newSelectedServices) {
+                  print(i.serviceName.toString());
+                }
+                _showSelectedSkillDialogBox();
               }
-              _showSelectedSkillDialogBox();
-            }
-          },
-          backgroundColor: Colors.black,
-          child: Icon(Icons.add),
-        ),
-        body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-          List<String> parents =
-              viewModel.allServicesAvailableForMe.keys.toList();
+            },
+            backgroundColor: Colors.black,
+            child: Icon(Icons.add),
+          ),
+          body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+            List<String> parents =
+                viewModel.allServicesAvailableForMe.keys.toList();
 
-          return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return (viewModel.loading)
-                  ? Center(child: CircularProgressIndicator())
-                  : ListView(
-                      children: [
-                        ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount:
-                                viewModel.allServicesAvailableForMe.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              String parentName = parents[index];
-                              List<ServiceOptionModel> services = viewModel
-                                  .allServicesAvailableForMe[parentName];
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        12.0, 8, 8, 0),
-                                    child: Container(
-                                      child: Text(
-                                        parentName.toUpperCase() + " :",
-                                        style: TextStyle(
-                                            color: Colors.orange,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
+            return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return (viewModel.loading)
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView(
+                        children: [
+                          ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount:
+                                  viewModel.allServicesAvailableForMe.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                String parentName = parents[index];
+                                List<ServiceOptionModel> services = viewModel
+                                    .allServicesAvailableForMe[parentName];
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          12.0, 8, 8, 0),
+                                      child: Container(
+                                        child: Text(
+                                          parentName.toUpperCase() + " :",
+                                          style: TextStyle(
+                                              color: Colors.orange,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Column(
-                                      children: services.map((service) {
-                                    return AddNewServiceBanner(
-                                      serviceName: service.serviceName,
-                                      subService: service,
-                                      onServiceChecked: (subService, value) {
-                                        if (value) {
-                                          viewModel.newSelectedServices
-                                              .add(subService);
-                                          _bloc.pushViewModel(viewModel);
-                                        } else {
-                                          viewModel.newSelectedServices
-                                              .remove(subService);
-                                          _bloc.pushViewModel(viewModel);
-                                        }
-                                      },
-                                    );
-                                  }).toList()),
-                                ],
-                              );
-                            })
-                      ],
-                    );
-            },
-          );
-        }));
+                                    Column(
+                                        children: services.map((service) {
+                                      return AddNewServiceBanner(
+                                        serviceName: service.serviceName,
+                                        subService: service,
+                                        onServiceChecked: (subService, value) {
+                                          if (value) {
+                                            viewModel.newSelectedServices
+                                                .add(subService);
+                                            _bloc.pushViewModel(viewModel);
+                                          } else {
+                                            viewModel.newSelectedServices
+                                                .remove(subService);
+                                            _bloc.pushViewModel(viewModel);
+                                          }
+                                        },
+                                      );
+                                    }).toList()),
+                                  ],
+                                );
+                              })
+                        ],
+                      );
+              },
+            );
+          })),
+    );
   }
 
   _showSelectedSkillDialogBox() {

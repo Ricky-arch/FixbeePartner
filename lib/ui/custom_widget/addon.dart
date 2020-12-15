@@ -68,7 +68,7 @@ class Addons extends StatelessWidget {
           Banner(
             title: 'Tax Charge',
             value: Constants.rupeeSign +
-                taxCharge
+                (taxCharge/100)
                     .toStringAsFixed(2),
           ),
           Padding(

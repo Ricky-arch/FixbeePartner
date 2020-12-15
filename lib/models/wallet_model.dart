@@ -6,6 +6,7 @@ class WalletModel extends ViewModel{
   int amount;
   bool bankAccountFetching=false;
   bool whileFetchingWalletAmount=false;
+  bool whileWithDrawingAmount=false;
   int depositAmount;
   int withdrawAmount;
   int numberOfAccounts;

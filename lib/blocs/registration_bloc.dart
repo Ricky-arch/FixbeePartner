@@ -53,7 +53,9 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
       ..middleName = message['middlename'] ?? ''
       ..lastName = message['lastname'] ?? ''
       ..phoneNumber = message['number']
-      ..verified = message['verified'];
+      ..verified = message['verified']
+      ..active=false
+    ..dpUrl=null;
 
     DataStore.me = bee;
     print(response.containsValue('created'));
@@ -75,5 +77,4 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
     } else
       return latestViewModel..sent = false;
   }
-
 }

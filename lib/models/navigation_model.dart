@@ -31,6 +31,8 @@ class Location{
   String addressLine;
   String googlePlaceId;
   String userRating;
+  double latitude;
+  double longitude;
 }
 
 class Service {
