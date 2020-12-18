@@ -3,6 +3,7 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hive/hive.dart';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -11,6 +12,7 @@ class DisplayPicture extends StatelessWidget {
   final String imageURl;
   final bool loading;
   final ImagePicker _imagePicker = ImagePicker();
+
   DisplayPicture({
     Key key,
     @required this.onImagePicked,

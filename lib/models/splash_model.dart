@@ -8,5 +8,4 @@ class SplashModel extends ViewModel{
   bool jobOngoing=false;
   bool tryReconnecting=false;
   Bee me;
-
 }

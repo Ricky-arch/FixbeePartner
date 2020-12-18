@@ -9,6 +9,7 @@ import 'package:fixbee_partner/ui/custom_widget/registration_date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hive/hive.dart';
 import 'package:string_validator/string_validator.dart';
 
 import '../../Constants.dart';
@@ -34,9 +35,21 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController dateOfBirth = TextEditingController();
   TextEditingController genderController = TextEditingController();
   DateTime dt;
+  Box _BEENAME;
+  _openHive(){
+    _BEENAME = Hive.box<String>("BEE");
+  }
+
+  String getMyName(String first, middle, last) {
+    String name = first;
+    if (middle != "") name = name + " " + middle;
+    if (last != "") name = name + " " + last;
+    return name;
+  }
 
   @override
   void initState() {
+    _openHive();
     super.initState();
     _bloc = UpdateProfileBloc(UpdateProfileModel());
     _bloc.fire(UpdateProfileEvent.fetchProfile, onHandled: (e, m) {
@@ -401,6 +414,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                     color: Colors.black,
                                     onPressed: () {
                                       if (_formKey.currentState.validate()) {
+
                                         _bloc.fire(
                                             UpdateProfileEvent.updateProfile,
                                             message: {
@@ -416,6 +430,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                               'dateOfBirth': dateOfBirth.text,
                                               'gender': gender[_selectedGender],
                                             }, onHandled: (e, m) {
+                                              _BEENAME.put("myName", getMyName(firstName.text, middleName.text ?? '', lastName.text ?? ''));
                                           Bee bee = Bee()
                                             ..firstName = firstName.text
                                             ..middleName = middleName.text ?? ''

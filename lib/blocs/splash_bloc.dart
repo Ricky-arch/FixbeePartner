@@ -66,8 +66,14 @@ class SplashBloc extends Bloc<Event, SplashModel>
     {
   Me {
     ... on Bee {
-    Active
-      Ratings{
+      DocumentVerification {
+        Status
+      }
+      Wallet {
+        Amount
+      }
+      Active
+      Ratings {
         Score
       }
       DisplayPicture {
@@ -90,6 +96,7 @@ class SplashBloc extends Bloc<Event, SplashModel>
   }
 }
 
+
     ''';
     Map response = await CustomGraphQLClient.instance.query(query);
     Bee bee;
@@ -106,8 +113,9 @@ class SplashBloc extends Bloc<Event, SplashModel>
       ..middleName = name['Middlename'] ?? ''
       ..lastName = name['Lastname'] ?? ''
       ..phoneNumber = phone['Number']
-      ..verified = phone['Verified']
+      ..verified = response['Me']['DocumentVerification']['Status']
       ..dpUrl =dpUrl
+      ..walletAmount=response['Me']['Wallet']['Amount']
       ..active=response['Me']['Active'].toString().toLowerCase()=='true'
       ..services = services.map((service) {
         if (service != null)

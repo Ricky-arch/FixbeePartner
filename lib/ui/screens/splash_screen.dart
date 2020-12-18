@@ -10,6 +10,7 @@ import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hive/hive.dart';
 import 'package:page_transition/page_transition.dart';
 import 'login.dart';
 
@@ -27,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen>
   bool hideIcon = false;
   Position _currentPosition;
 
-
+  Box _BEENAME;
 
   void _setupFCM() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
@@ -52,13 +53,38 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 
+  String getMyName(String first, middle, last) {
+    String name = first;
+    if (middle != "") name = name + " " + middle;
+    if (last != "") name = name + " " + last;
+    return name;
+  }
+
+  _openHive() async {
+    await Hive.openBox<String>("BEE");
+    _BEENAME = Hive.box<String>("BEE");
+  }
+
   @override
   void initState() {
     _setupFCM();
+    _openHive();
+
     _bloc = SplashBloc(SplashModel());
     _bloc.fire(Event(100), onHandled: (e, m) {
       if (m.connection) {
         if (m.tokenFound) {
+          if (!_BEENAME.containsKey("myName"))
+            _BEENAME.put(("myName"),
+                getMyName(m.me.firstName, m.me.middleName, m.me.lastName));
+          if (!_BEENAME.containsKey("myDocumentVerification"))
+            _BEENAME.put(
+                "myDocumentVerification", (m.me.verified) ? "true" : "false");
+          if (!_BEENAME.containsKey("dpUrl")) _BEENAME.put("dpUrl", m.me.dpUrl);
+          if (!_BEENAME.containsKey("myActiveStatus"))
+            _BEENAME.put("myActiveStatus", (m.me.active) ? "true" : "false");
+          if (!_BEENAME.containsKey("myWallet"))
+            _BEENAME.put("myWallet", m.me.walletAmount.toString());
           if (m?.me?.services == null || m.me.services.length == 0) {
             log("SERVICE SELECTED", name: "SELECTED");
             try {
@@ -69,8 +95,6 @@ class _SplashScreenState extends State<SplashScreen>
                       child: ServiceSelectionScreen()));
             } catch (e) {}
           } else {
-
-
             Navigator.pushReplacement(
                 context,
                 PageTransition(
@@ -88,7 +112,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _bloc?.extinguish();
-
+    //Hive.close();
     super.dispose();
   }
 

@@ -13,6 +13,10 @@ import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive/hive.dart';
+
+
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,12 +41,22 @@ class CustomProfile extends StatefulWidget {
 class _CustomProfileState extends State<CustomProfile> {
   String firstname;
   String middlename;
-  String lastname;
+  String lastname, n="";
   CustomProfileBloc _bloc;
+
+   Box<String> _BEENAME;
+  _openHive() async{
+    _BEENAME = Hive.box<String>("BEE");
+  }
   @override
   void initState() {
+    _openHive();
+    print(_BEENAME.length.toString()+"LLL");
+    print(_BEENAME.get("myName"));
     _bloc = CustomProfileBloc(CustomProfileModel());
-    _bloc.fire(CustomProfileEvent.downloadDp);
+    _bloc.fire(CustomProfileEvent.downloadDp, onHandled: (e,m){
+      _BEENAME.put("dpUrl", m.imageUrl);
+    });
     _bloc.fire(CustomProfileEvent.checkForVerifiedAccount);
     firstname = DataStore.me.firstName;
     middlename = DataStore.me.middleName ?? "";
@@ -84,7 +98,7 @@ class _CustomProfileState extends State<CustomProfile> {
                   await preferences.clear();
                   CustomGraphQLClient.instance.invalidateWSClient();
                   CustomGraphQLClient.instance.invalidateClient();
-
+                  _BEENAME.deleteFromDisk();
                   Route route =
                   MaterialPageRoute(builder: (context) => SplashScreen());
                   Navigator.pushAndRemoveUntil(context, route, (e) => false);
@@ -105,9 +119,8 @@ class _CustomProfileState extends State<CustomProfile> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context, designSize: Size(414, 896), allowFontScaling: false);
 
-    // ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
+    ScreenUtil.init(context, designSize: Size(414, 896), allowFontScaling: false);
 
     return Scaffold(
         backgroundColor: PrimaryColors.backgroundcolorlight,
@@ -145,46 +158,56 @@ class _CustomProfileState extends State<CustomProfile> {
                   Expanded(
                     child: Column(
                       children: <Widget>[
-                        Container(
-                          height: kSpacingUnit.w * 10,
-                          width: kSpacingUnit.w * 10,
-                          margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                              border: Border.all(
-                                  color: PrimaryColors.backgroundColor,
-                                  width: 1)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(1.0),
-                            child: Stack(
-                              children: <Widget>[
-                                DisplayPicture(
-                                  onImagePicked: onImagePicked,
-                                  imageURl: viewModel.imageUrl,
-                                  loading: false,
+                        ValueListenableBuilder(
+                          valueListenable: _BEENAME.listenable(),
+                          builder: (context, box,widget){
+                            return Container(
+                              height: kSpacingUnit.w * 10,
+                              width: kSpacingUnit.w * 10,
+                              margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: PrimaryColors.backgroundColor,
+                                      width: 1)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: Stack(
+                                  children: <Widget>[
+                                    DisplayPicture(
+                                      onImagePicked: onImagePicked,
+                                      imageURl: _BEENAME.get("dpUrl"),
+                                      loading: false,
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                          },
                         ),
                         SizedBox(height: kSpacingUnit.w * 1),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              getMyName(firstname, middlename, lastname),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize:
+                            ValueListenableBuilder(
+                              valueListenable: _BEENAME.listenable(),
+                              builder: (context, box , widget) {
+                                return Text(
+                                  _BEENAME.get("myName"),
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize:
                                     ScreenUtil().setSp(kSpacingUnit.w * 2),
-                                fontWeight: FontWeight.w600,
-                              ),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              },
                             ),
                             SizedBox(
                               width: 4,
                             ),
-                            (viewModel.verifiedAccount)
+                            (_BEENAME.get("myDocumentVerification")=="true")
                                 ? Icon(Icons.check_circle,
                                     color: Colors.blue,
                                     size: ScreenUtil().setSp(
@@ -311,7 +334,9 @@ class _CustomProfileState extends State<CustomProfile> {
 
   onImagePicked(String path) {
     _bloc.fire(CustomProfileEvent.updateDp,
-        message: {"path": "$path", "file": "partnerDP"});
+        message: {"path": "$path", "file": "partnerDP"}, onHandled: (e,m){
+      _BEENAME.put("dpUrl",m.imageUrl);
+        });
 
   }
 

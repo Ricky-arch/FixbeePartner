@@ -73,7 +73,7 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> wit
   Future<UpdateProfileModel> updateBeeDetails(
       Map<String, dynamic> message) async {
     String firstName = message['firstName'],
-        middleName = (message['secondName']) ?? "",
+        middleName = (message['middleName']) ?? "",
         lastName = message['lastName'] ?? "",
         email = message['email'],
         address = message['address'],

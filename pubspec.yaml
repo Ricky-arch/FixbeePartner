@@ -43,6 +43,10 @@ dependencies:
   flutter_launcher_name: ^0.0.1
   flare_flutter: ^2.0.6
   background_location: ^0.2.2
+  firebase_analytics: ^6.3.0
+  hive: ^1.4.4+1
+  path_provider: ^1.6.24
+  hive_flutter: ^0.3.1
   flutter:
     sdk: flutter
 
