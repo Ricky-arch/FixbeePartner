@@ -66,6 +66,7 @@ class SplashBloc extends Bloc<Event, SplashModel>
     {
   Me {
     ... on Bee {
+      ID
       DocumentVerification {
         Status
       }
@@ -114,16 +115,17 @@ class SplashBloc extends Bloc<Event, SplashModel>
       ..lastName = name['Lastname'] ?? ''
       ..phoneNumber = phone['Number']
       ..verified = response['Me']['DocumentVerification']['Status']
-      ..dpUrl =dpUrl
-      ..walletAmount=response['Me']['Wallet']['Amount']
-      ..active=response['Me']['Active'].toString().toLowerCase()=='true'
+      ..dpUrl = dpUrl
+      ..walletAmount = response['Me']['Wallet']['Amount']
+      ..id=response['Me']['ID']
+      ..active = response['Me']['Active'].toString().toLowerCase() == 'true'
       ..services = services.map((service) {
         if (service != null)
           return ServiceOptionModel()
             ..id = service['ID']
             ..serviceName = service['Name'];
       }).toList();
-    log(bee.active.toString(), name:"ACTIVE");
+    log(bee.active.toString(), name: "ACTIVE");
     DataStore.me = bee;
     return bee;
   }

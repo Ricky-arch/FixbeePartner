@@ -95,6 +95,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     String query = '''{
   Me{
     ...on Bee{
+    ID
     Active
       ID
       Name{
@@ -104,6 +105,9 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       }
       DisplayPicture {
         id
+      }
+      DocumentVerification{
+        Status
       }
       Ratings{
         Score
@@ -115,6 +119,9 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       Services{
         ID
         Name
+      }
+      Wallet{
+        Amount
       }
       BankAccounts{
         ID
@@ -128,8 +135,11 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     Map response = await CustomGraphQLClient.instance.query(query);
     Bee bee = Bee()
       ..firstName = response['Me']['Name']['Firstname']
+      ..id=response['Me']['ID']
       ..middleName = response['Me']['Name']['Middlename'] ?? ''
       ..lastName = response['Me']['Name']['Lastname'] ?? ''
+      ..verified=response['Me']['DocumentVerification']['Status']
+      ..walletAmount=response['Me']['Wallet']['Amount']
       ..active=response['Me']['Active'].toString().toLowerCase()=='true'
       ..dpUrl =(response['Me']['DisplayPicture']['id']==null)?null:
           EndPoints.DOCUMENT + '?id=' + response['Me']['DisplayPicture']['id']
@@ -137,7 +147,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     DataStore.me = bee;
     DataStore.fcmToken = response['Me']['FCMToken'];
     print("xxxxx" + response['Me']['FCMToken']);
-    return latestViewModel;
+    return latestViewModel..bee=bee;
   }
 
   Future<OtpModel> getFcmToken() async {

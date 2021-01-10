@@ -1,5 +1,7 @@
 import 'package:fixbee_partner/models/view_model.dart';
 
+import 'bee_model.dart';
+
 class OtpModel extends ViewModel{
   bool valid=false;
   bool verifying=false;
@@ -8,6 +10,7 @@ class OtpModel extends ViewModel{
   bool serviceSelected=false;
   bool resendingOtp=false;
   bool fetchingAllBeeConfiguration=false;
+  Bee bee;
 
 
 }

@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/home_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
@@ -27,7 +27,7 @@ class _HomeState extends State<Home> {
   static Set<Marker> markers = Set();
 
   Box _BEENAME;
-  _openHive(){
+  _openHive() {
     _BEENAME = Hive.box<String>("BEE");
   }
 
@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  void initState()  {
+  void initState() {
     _openHive();
     BitmapDescriptor.fromAssetImage(
             ImageConfiguration(size: Size(12, 12)), 'assets\logo\bee_white.png')
@@ -49,14 +49,12 @@ class _HomeState extends State<Home> {
     askForLocationPermissionIfDisabled();
     _bloc = HomeBloc(HomeModel());
     _bloc.onSwitchChange = widget.onSwitchChangedState;
-    // _bloc.fire(HomeEvents.activityStatusRequested, onHandled: (e, m) {
-    //   log("Activeee: ${m.activeStatus}");
-    //   if (m.activeStatus) {}
-    // });
     _bloc.fire(HomeEvents.getDocumentVerificationStatus);
 
     var marker = Marker(
-        markerId: MarkerId("Center"), position: LatLng(23.829321, 91.277847));
+        markerId: MarkerId("Center"),
+        position: LatLng(23.829321, 91.277847),
+        icon: customIcon);
     markers.add(marker);
     mapWidget = GoogleMap(
       myLocationEnabled: true,
@@ -112,34 +110,38 @@ class _HomeState extends State<Home> {
                         padding: const EdgeInsets.all(8.0),
                         child: (!viewModel.loading)
                             ? ValueListenableBuilder(
-                          valueListenable: _BEENAME.listenable(),
-                          builder: (context, box, _){
-                            return Switch(
-                              value: (_BEENAME.get("myActiveStatus")=="true")?true:false,
-                              inactiveThumbColor: Colors.green,
-                              inactiveTrackColor: Colors.white,
-                              activeColor: Colors.red,
-                              onChanged: (bool value) {
-                                DataStore.me.active = viewModel.activeStatus;
-                                if (value == true)
-                                  askForLocationPermissionIfDisabled();
-                                if (value == false)
-                                  // _bloc
-                                  //     .unsubscribeToLocationUpdate();
-                                  print(DataStore.token);
-                                _bloc.fire(
-                                    HomeEvents.getDocumentVerificationStatus);
-                                _bloc.fire(HomeEvents.activityStatusSet,
-                                    message: {'status': value},
-                                    onHandled: (e, m) {
-                                  _BEENAME.put("myActiveStatus", value?"true":"false");
-                                      widget.onSwitchChangedState(m.activeStatus);
-                                      if (m.activeStatus) {}
-                                    });
-                              },
-                            );
-                          },
-                        )
+                                valueListenable: _BEENAME.listenable(),
+                                builder: (context, box, _) {
+                                  return Switch(
+                                    value: (_BEENAME.get("myActiveStatus") ==
+                                            "true")
+                                        ? true
+                                        : false,
+                                    inactiveThumbColor: Colors.green,
+                                    inactiveTrackColor: Colors.white,
+                                    activeColor: Colors.red,
+                                    onChanged: (bool value) {
+                                      DataStore.me.active =
+                                          viewModel.activeStatus;
+                                      if (value == true)
+                                        askForLocationPermissionIfDisabled();
+                                      if (value == false)
+                                        print(DataStore.token);
+                                      _bloc.fire(HomeEvents
+                                          .getDocumentVerificationStatus);
+                                      _bloc.fire(HomeEvents.activityStatusSet,
+                                          message: {'status': value},
+                                          onHandled: (e, m) {
+                                        _BEENAME.put("myActiveStatus",
+                                            value ? "true" : "false");
+                                        widget.onSwitchChangedState(
+                                            m.activeStatus);
+                                        if (m.activeStatus) {}
+                                      });
+                                    },
+                                  );
+                                },
+                              )
                             : SizedBox(
                                 child: CircularProgressIndicator(
                                   valueColor: AlwaysStoppedAnimation<Color>(
@@ -154,10 +156,11 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-                (_BEENAME.get("myDocumentVerification")=="true" && _BEENAME.get("myActiveStatus")=="true")
+                (_BEENAME.get("myDocumentVerification") == "true" &&
+                        _BEENAME.get("myActiveStatus") == "true")
                     ? Expanded(child: mapWidget)
                     : SizedBox(),
-                (_BEENAME.get("myActiveStatus")=="false")
+                (_BEENAME.get("myActiveStatus") == "false")
                     ? Column(
                         children: <Widget>[
                           SizedBox(
@@ -194,7 +197,8 @@ class _HomeState extends State<Home> {
                         ],
                       )
                     : SizedBox(),
-                (_BEENAME.get("myDocumentVerification")=="false" && _BEENAME.get("myActiveStatus")=="true")
+                (_BEENAME.get("myDocumentVerification") == "false" &&
+                        _BEENAME.get("myActiveStatus") == "true")
                     ? Column(
                         children: <Widget>[
                           SizedBox(

@@ -1,11 +1,14 @@
 import 'package:fixbee_partner/blocs/otp_login_bloc.dart';
 import 'package:fixbee_partner/events/otp_events.dart';
+import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:fixbee_partner/ui/custom_widget/numeric_pad.dart';
+import 'package:fixbee_partner/ui/screens/all_service_selection_screen.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 import '../../Constants.dart';
 import 'navigation_screen.dart';
@@ -22,11 +25,24 @@ class _OTPState extends State<OTP> {
   bool _isButtonEnabled;
   OtpLoginBloc _bloc;
   String code = "";
+  Box _BEENAME;
+  String getMyName(String first, middle, last) {
+    String name = first;
+    if (middle != "") name = name + " " + middle;
+    if (last != "") name = name + " " + last;
+    return name;
+  }
+
+  _openHive() async {
+    await Hive.openBox<String>("BEE");
+    _BEENAME = Hive.box<String>("BEE");
+  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _openHive();
     _isButtonEnabled = false;
     _bloc = OtpLoginBloc(OtpModel());
   }
@@ -51,10 +67,10 @@ class _OTPState extends State<OTP> {
           );
         else
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            //crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               SizedBox(
-                height: MediaQuery.of(context).size.height / 6,
+                height: MediaQuery.of(context).size.height / 7,
               ),
               Expanded(
                 child: Container(
@@ -151,7 +167,7 @@ class _OTPState extends State<OTP> {
                 ),
               ),
               SizedBox(
-                height: 30,
+                height: MediaQuery.of(context).size.height / 12,
               ),
               Column(
                 children: [
@@ -178,45 +194,80 @@ class _OTPState extends State<OTP> {
                             ),
                             onPressed: _isButtonEnabled
                                 ? () {
-                              _bloc.fire(
-                                OtpEvents.onOtpVerify,
-                                message: {
-                                  'phone': widget.phoneNumber,
-                                  'otp': code
-                                },
-                                onHandled: (e, m) {
-                                  if (m.valid) {
-                                    FocusScope.of(context)
-                                        .requestFocus(FocusNode());
-
                                     _bloc.fire(
-                                        OtpEvents.fetchSaveBeeDetails,
-                                        onHandled: (e, m) {
+                                      OtpEvents.onOtpVerify,
+                                      message: {
+                                        'phone': widget.phoneNumber,
+                                        'otp': code
+                                      },
+                                      onHandled: (e, m) {
+                                        if (m.valid) {
+                                          FocusScope.of(context)
+                                              .requestFocus(FocusNode());
+
                                           _bloc.fire(
-                                              OtpEvents.getFcmToken, onHandled: (e,m){
-                                            _bloc.fire(
-                                                OtpEvents
-                                                    .checkForServiceSelected,
+                                              OtpEvents.fetchSaveBeeDetails,
+                                              onHandled: (e, m) {
+                                            _bloc.fire(OtpEvents.getFcmToken,
                                                 onHandled: (e, m) {
+                                              _bloc.fire(
+                                                  OtpEvents
+                                                      .checkForServiceSelected,
+                                                  onHandled: (e, m) {
+                                                if (_BEENAME
+                                                    .containsKey('ID')) {
+                                                  if (m.bee.id !=
+                                                      _BEENAME.get('ID'))
+                                                    refreshAllData(m.bee);
+                                                } else
+                                                  _BEENAME.put('ID', m.bee.id);
+                                                if (!_BEENAME
+                                                    .containsKey("myName"))
+                                                  _BEENAME.put(
+                                                      ("myName"),
+                                                      getMyName(
+                                                          m.bee.firstName,
+                                                          m.bee.middleName,
+                                                          m.bee.lastName));
+                                                if (!_BEENAME.containsKey(
+                                                    "myDocumentVerification"))
+                                                  _BEENAME.put(
+                                                      "myDocumentVerification",
+                                                      (m.bee.verified)
+                                                          ? "true"
+                                                          : "false");
+                                                if (!_BEENAME
+                                                    .containsKey("dpUrl"))
+                                                  _BEENAME.put(
+                                                      "dpUrl", m.bee.dpUrl);
+                                                if (!_BEENAME.containsKey(
+                                                    "myActiveStatus"))
+                                                  _BEENAME.put(
+                                                      "myActiveStatus",
+                                                      (m.bee.active)
+                                                          ? "true"
+                                                          : "false");
+                                                if (!_BEENAME
+                                                    .containsKey("myWallet"))
+                                                  _BEENAME.put(
+                                                      "myWallet",
+                                                      m.bee.walletAmount
+                                                          .toString());
 
-                                                  if (!m.serviceSelected) {
-                                                    goToJobSelectionScreen(ctx);
-                                                  }
-                                                  else{
-                                                    goToNavigationScreen(ctx);
-                                                  }
-                                                });
-
+                                                if (!m.serviceSelected) {
+                                                  goToJobSelectionScreen(ctx);
+                                                } else {
+                                                  goToNavigationScreen(ctx);
+                                                }
+                                              });
+                                            });
                                           });
-
-                                        });
-                                  } else {
-
-                                    _showOnOtpInvalid();
-                                  }
-                                  //  }
-                                },
-                              );
+                                        } else {
+                                          _showOnOtpInvalid();
+                                        }
+                                        //  }
+                                      },
+                                    );
                                   }
                                 : null,
                           ),
@@ -291,7 +342,7 @@ class _OTPState extends State<OTP> {
 
   void goToJobSelectionScreen(BuildContext context) {
     Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => ServiceSelectionScreen()));
+        MaterialPageRoute(builder: (context) => AllServiceSelection()));
   }
 
   void goToRegistrationScreen(BuildContext context) {
@@ -327,5 +378,14 @@ class _OTPState extends State<OTP> {
             ],
           );
         });
+  }
+
+  void refreshAllData(Bee bee) {
+    _BEENAME.put(
+        ("myName"), getMyName(bee.firstName, bee.middleName, bee.lastName));
+    _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");
+    _BEENAME.put("dpUrl", bee.dpUrl);
+    _BEENAME.put("myActiveStatus", (bee.active) ? "true" : "false");
+    _BEENAME.put("myWallet", bee.walletAmount.toString());
   }
 }

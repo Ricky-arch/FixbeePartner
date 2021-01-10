@@ -1,7 +1,7 @@
 import 'package:fixbee_partner/models/service_options.dart';
 
 class Bee {
-  int id;
+  String id;
   bool verified = false;
   List<ServiceOptionModel> services = [];
 

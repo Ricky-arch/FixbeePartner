@@ -35,6 +35,9 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel> wit
   Services(Cannonical:false){
     ID
     Name
+    Pricing{
+      Priceable
+    }
     Parent{
       Name
       Image{
@@ -72,6 +75,7 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel> wit
       s.serviceName = service['Name'];
       s.parentName = service['Parent']['Name'];
       s.imageLink = service['Parent']['Image']['id'];
+      s.priceable=service['Pricing']['Priceable'];
 
       String parentName = service['Parent']['Name'];
       if (!sortedServices.containsKey(parentName)) {

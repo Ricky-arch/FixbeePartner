@@ -22,6 +22,7 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
     if (event == CustomProfileEvent.downloadDp) return await downloadDp();
     if (event == CustomProfileEvent.checkForVerifiedAccount)
       return await checkForVerifiedAccount();
+    if(event== CustomProfileEvent.deactivateBee) return await deactivateBee();
     return latestViewModel;
   }
 
@@ -102,5 +103,18 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
 
     return latestViewModel
       ..verifiedAccount = response['Me']['DocumentVerification']['Status'];
+  }
+
+  Future<CustomProfileModel> deactivateBee() async{
+    bool deactivate=false;
+    String query = '''mutation{
+  Update(input:{SetActive:$deactivate}){
+    ... on Bee{
+      Active
+    }
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    return latestViewModel;
   }
 }

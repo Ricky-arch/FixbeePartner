@@ -57,6 +57,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  hive_generator: ^0.8.2
+  build_runner: ^1.10.11
 
 flutter_icons:
   android: true
@@ -96,6 +98,7 @@ flutter:
     - assets/logo/bee_white.png
     - assets/logo/swarm_outline.png
     - assets/logo/launcher_icon.png
+    - assets/logo/new_launcher_icon.png
     - assets/logo/dead_bee.png
     - assets/animations/liquid_loader.flr
     - assets/animations/loader.flr

@@ -12,6 +12,7 @@ class NavigationModel extends ViewModel {
   Order order=Order();
   Location location=Location();
   bool loading=false;
+  bool orderExpired=false;
 }
 
 

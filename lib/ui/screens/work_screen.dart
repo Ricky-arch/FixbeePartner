@@ -137,11 +137,11 @@ class _WorkScreenState extends State<WorkScreen> {
         _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
             message: {"otp": barcode, "orderId": widget.orderId},
             onHandled: (e, m) {
-          if(!m.otpValid)
+          if (!m.otpValid)
             _showOtpInvalidDialog();
-          else if(m.otpValid)
-          _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
-              message: {'orderID': widget.orderId});
+          else if (m.otpValid)
+            _bloc.fire(WorkScreenEvents.checkActiveOrderStatus,
+                message: {'orderID': widget.orderId});
           setState(() {
             _onServiceStarted = m.onServiceStarted;
           });
@@ -162,7 +162,6 @@ class _WorkScreenState extends State<WorkScreen> {
       setState(() => this.barcode = 'Unknown error: $e');
     }
   }
-
 
   void _setupFCM() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
@@ -386,7 +385,7 @@ class _WorkScreenState extends State<WorkScreen> {
                       CustomButtonType2(
                           text: "ADD-ON INFO",
                           onTap: () {
-                            _showJobInfoDialogBox(formattedAddress);
+                            _showAddOnInfoDialogBox();
                           },
                           icon: Icon(
                             Icons.info,
@@ -422,7 +421,7 @@ class _WorkScreenState extends State<WorkScreen> {
                               ),
                               (widget.cashOnDelivery)
                                   ? CustomButtonType1(
-                                      onTap: ()  {
+                                      onTap: () {
                                         _showCompleteOrderDialogBoxForPayOnDelivery();
                                       },
                                       flexibleSize: 0,
@@ -500,27 +499,31 @@ class _WorkScreenState extends State<WorkScreen> {
                   ),
                 ),
               ),
-              (widget.cashOnDelivery)?RaisedButton(
-                color: PrimaryColors.backgroundColor,
-                onPressed: () {
-                  _bloc.fire(WorkScreenEvents.onJobCompletion,
-                      message: {'orderID': widget.orderId}, onHandled: (e, m) {
-                    print("Trying to complete");
-                    if (m.onJobCompleted) {
-                      _goToBillingScreen();
-                    } else
-                      Scaffold.of(context).showSnackBar(new SnackBar(
-                          content: new Text('Unable to complete order!')));
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "YES",
-                    style: TextStyle(color: Colors.orangeAccent),
-                  ),
-                ),
-              ):Container(),
+              (widget.cashOnDelivery)
+                  ? RaisedButton(
+                      color: PrimaryColors.backgroundColor,
+                      onPressed: () {
+                        _bloc.fire(WorkScreenEvents.onJobCompletion,
+                            message: {'orderID': widget.orderId},
+                            onHandled: (e, m) {
+                          print("Trying to complete");
+                          if (m.onJobCompleted) {
+                            _goToBillingScreen();
+                          } else
+                            Scaffold.of(context).showSnackBar(new SnackBar(
+                                content:
+                                    new Text('Unable to complete order!')));
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "YES",
+                          style: TextStyle(color: Colors.orangeAccent),
+                        ),
+                      ),
+                    )
+                  : Container(),
             ],
           );
         });
@@ -537,12 +540,82 @@ class _WorkScreenState extends State<WorkScreen> {
     }));
   }
 
+  _showAddOnInfoDialogBox() {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          log(_bloc.latestViewModel.jobModel.addons.length.toString(),
+              name: "SIZE");
+          return Dialog(
+            backgroundColor: PrimaryColors.backgroundColor,
+            child: Wrap(
+              children: [
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "ADD-ON INFORMATION",
+                          style: TextStyle(
+                              color: Colors.orangeAccent,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      (_bloc.latestViewModel.jobModel.addons.length == 0)
+                          ? Container(
+                              padding: EdgeInsets.all(10),
+                              child: Center(
+                                  child: Text(
+                                "User did not request for any add-on!",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              )),
+                            )
+                          : ListView.builder(
+                              itemCount:
+                                  _bloc.latestViewModel.jobModel.addons.length,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (BuildContext context, int index) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10.0, 0, 10, 0),
+                                  child: InfoPanel(
+                                    title: "ADD-ON ${index + 1}",
+                                    answer: _bloc.latestViewModel.jobModel
+                                            .addons[index].serviceName +
+                                        " (X) " +
+                                        _bloc.latestViewModel.jobModel
+                                            .addons[index].quantity
+                                            .toString(),
+                                    maxLines: 1,
+                                  ),
+                                );
+                              },
+                            ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        });
+  }
+
   _showJobInfoDialogBox(String formattedAddress) {
     return showDialog(
         barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: PrimaryColors.backgroundColor,
             insetPadding: EdgeInsets.symmetric(horizontal: 10),
             content: Wrap(
               children: <Widget>[
@@ -551,20 +624,12 @@ class _WorkScreenState extends State<WorkScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration:
-                            BoxDecoration(color: PrimaryColors.backgroundColor),
-                        child: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Text(
-                            "BASIC INFORMATION",
-                            style: TextStyle(
-                                color: Colors.orangeAccent,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
+                      Text(
+                        "BASIC INFORMATION",
+                        style: TextStyle(
+                            color: Colors.orangeAccent,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
                       ),
                       SizedBox(
                         height: 10,
@@ -687,14 +752,18 @@ class _WorkScreenState extends State<WorkScreen> {
           );
         });
   }
-  _showOtpInvalidDialog(){
-    showDialog(context: context,
-    builder: (BuildContext context){
-      return AlertDialog(
-        content: Text("Scanned Otp is Invalid! Please try again.", style: TextStyle(fontWeight: FontWeight.bold),),
-      );
-    }
-    );
+
+  _showOtpInvalidDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(
+              "Scanned Otp is Invalid! Please try again.",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          );
+        });
   }
 
   _showJobCompletionNotificationForOnlinePayment(String message) {
@@ -708,21 +777,22 @@ class _WorkScreenState extends State<WorkScreen> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             actions: [
-              (widget.cashOnDelivery)?
-              RaisedButton(
-                color: PrimaryColors.backgroundColor,
-                onPressed: () {
-                  _goToBillingScreen();
-                },
-                //ADD BILLING SCREEN
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "OK",
-                    style: TextStyle(color: Colors.orangeAccent),
-                  ),
-                ),
-              ):SizedBox(),
+              (widget.cashOnDelivery)
+                  ? RaisedButton(
+                      color: PrimaryColors.backgroundColor,
+                      onPressed: () {
+                        _goToBillingScreen();
+                      },
+                      //ADD BILLING SCREEN
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "OK",
+                          style: TextStyle(color: Colors.orangeAccent),
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
             ],
           );
         });

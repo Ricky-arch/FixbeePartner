@@ -30,7 +30,7 @@ class InfoPanel extends StatelessWidget {
                 answer,
                 textAlign: TextAlign.end,
                 maxLines: null,
-                style: TextStyle(color: Colors.black, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
             )
           ],

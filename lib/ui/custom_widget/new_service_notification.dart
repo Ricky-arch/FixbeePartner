@@ -10,7 +10,7 @@ class NewServiceNotification extends StatefulWidget {
   final String address;
   final Function onConfirm;
   final Function onDecline;
-  final bool loading;
+
   final Function(bool) onChanged;
 
   const NewServiceNotification(
@@ -21,7 +21,7 @@ class NewServiceNotification extends StatefulWidget {
       this.address,
       this.onConfirm,
       this.onDecline,
-      this.loading = false, this.onChanged})
+      this.onChanged})
       : super(key: key);
   @override
   _NewServiceNotificationState createState() => _NewServiceNotificationState();
@@ -109,18 +109,7 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                (widget.loading)
-                    ? Padding(
-                        padding: const EdgeInsets.only(
-                          top: 50.0,
-                        ),
-                        child: CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                          backgroundColor: PrimaryColors.backgroundColor,
-                        ),
-                      )
-                    : FlatButton(
+               FlatButton(
                         onPressed: widget.onConfirm,
                         color: PrimaryColors.backgroundColor,
                         child: Text("CONFIRM",

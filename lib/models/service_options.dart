@@ -7,10 +7,12 @@ class ServiceOptionModel extends ViewModel {
   bool availability;
   String imageLink;
   String parentName;
+  bool priceable=false;
   List<ServiceOptionModel> subServices = [];
 }
 
 class ServiceOptionModels extends ViewModel {
+  String imageLink;
   List<ServiceOptionModel> serviceOptions = [];
   List<ServiceOptionModel> selectedServices = [];
   bool fetching = true;

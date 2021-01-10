@@ -172,52 +172,54 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
 }
 
 ''';
-    Map response = await CustomGraphQLClient.instance.mutate(query);
-    print(response.toString() + "oooo");
+    Map response;
+    try{
+      response = await CustomGraphQLClient.instance.mutate(query);
 
-    log(
-        response['AnswerOrderRequest']['Location']['Address']['Lankmark']
-            .toString(),
-        name: "landmark");
-    return latestViewModel
-      ..order.orderId = response['AnswerOrderRequest']['ID']
-      ..order.quantity = response['AnswerOrderRequest']['Quantity']
-      ..order.orderAmount = response['AnswerOrderRequest']['Amount']
-      ..order.orderBasePrice = response['AnswerOrderRequest']['BasePrice']
-      ..order.orderServiceCharge =
-          response['AnswerOrderRequest']['ServiceCharge']
-      ..order.orderTaxCharge = response['AnswerOrderRequest']['TaxCharge']
-      ..order.status = response['AnswerOrderRequest']['Status']
-      ..location.googlePlaceId =
-          response['AnswerOrderRequest']['Location']['GooglePlaceID']
-      ..order.slotted = response['AnswerOrderRequest']['Slot']['Slotted']
-      ..service.serviceName = response['AnswerOrderRequest']['Service']['Name']
-      ..user.userId = response['AnswerOrderRequest']['User']['ID']
-      ..user.firstname =
-          response['AnswerOrderRequest']['User']['Name']['Firstname']
-      ..user.middlename =
-          response['AnswerOrderRequest']['User']['Name']['Middlename']
-      ..user.lastname =
-          response['AnswerOrderRequest']['User']['Name']['Lastname']
-      ..user.phoneNumber =
-          response['AnswerOrderRequest']['User']['Phone']['Number']
-      ..user.profilePicUrl =
-          '${EndPoints.DOCUMENT}?id=${response['AnswerOrderRequest']['User']['DisplayPicture']['id']}'
-      ..location.addressLine =
-          response['AnswerOrderRequest']['Location']['Address']['Line1']
-      ..location.landmark =
-          response['AnswerOrderRequest']['Location']['Address']['Landmark']
-      ..order.timeStamp = response['AnswerOrderRequest']['Timestamp']
-      ..order.price = response['AnswerOrderRequest']['Amount']
-      ..order.basePrice =
-          response['AnswerOrderRequest']['Service']['Pricing']['BasePrice']
-      ..order.serviceCharge =
-          response['AnswerOrderRequest']['Service']['Pricing']['ServiceCharge']
-      ..order.taxPercent =
-          response['AnswerOrderRequest']['Service']['Pricing']['TaxPercent']
-      ..order.cashOnDelivery = response['AnswerOrderRequest']['CashOnDelivery']
-      ..user.profilePicId =
-          response['AnswerOrderRequest']['User']['DisplayPicture']['id'];
+      return latestViewModel
+        ..order.orderId = response['AnswerOrderRequest']['ID']
+        ..order.quantity = response['AnswerOrderRequest']['Quantity']
+        ..order.orderAmount = response['AnswerOrderRequest']['Amount']
+        ..order.orderBasePrice = response['AnswerOrderRequest']['BasePrice']
+        ..order.orderServiceCharge =
+        response['AnswerOrderRequest']['ServiceCharge']
+        ..order.orderTaxCharge = response['AnswerOrderRequest']['TaxCharge']
+        ..order.status = response['AnswerOrderRequest']['Status']
+        ..location.googlePlaceId =
+        response['AnswerOrderRequest']['Location']['GooglePlaceID']
+        ..order.slotted = response['AnswerOrderRequest']['Slot']['Slotted']
+        ..service.serviceName = response['AnswerOrderRequest']['Service']['Name']
+        ..user.userId = response['AnswerOrderRequest']['User']['ID']
+        ..user.firstname =
+        response['AnswerOrderRequest']['User']['Name']['Firstname']
+        ..user.middlename =
+        response['AnswerOrderRequest']['User']['Name']['Middlename']
+        ..user.lastname =
+        response['AnswerOrderRequest']['User']['Name']['Lastname']
+        ..user.phoneNumber =
+        response['AnswerOrderRequest']['User']['Phone']['Number']
+        ..user.profilePicUrl =
+            '${EndPoints.DOCUMENT}?id=${response['AnswerOrderRequest']['User']['DisplayPicture']['id']}'
+        ..location.addressLine =
+        response['AnswerOrderRequest']['Location']['Address']['Line1']
+        ..location.landmark =
+        response['AnswerOrderRequest']['Location']['Address']['Landmark']
+        ..order.timeStamp = response['AnswerOrderRequest']['Timestamp']
+        ..order.price = response['AnswerOrderRequest']['Amount']
+        ..order.basePrice =
+        response['AnswerOrderRequest']['Service']['Pricing']['BasePrice']
+        ..order.serviceCharge =
+        response['AnswerOrderRequest']['Service']['Pricing']['ServiceCharge']
+        ..order.taxPercent =
+        response['AnswerOrderRequest']['Service']['Pricing']['TaxPercent']
+        ..order.cashOnDelivery = response['AnswerOrderRequest']['CashOnDelivery']
+        ..user.profilePicId =
+        response['AnswerOrderRequest']['User']['DisplayPicture']['id'];
+    }
+    catch(e) {
+      return latestViewModel..orderExpired = true;
+    }
+
   }
 
   Future<NavigationModel> getServiceData(Map<String, dynamic> message) async {
@@ -303,6 +305,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
   endTimer() {
     log("TIMER ENDED", name: "TS");
     _timerStatus = TimerStatus.STOPPED;
+    if(testTimer!=null)
     testTimer.cancel();
   }
 

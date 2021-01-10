@@ -6,6 +6,7 @@ import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/models/splash_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/no_internet_widget.dart';
 import 'package:fixbee_partner/ui/custom_widget/splash_widget.dart';
+import 'package:fixbee_partner/ui/screens/all_service_selection_screen.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
                   context,
                   PageTransition(
                       type: PageTransitionType.fade,
-                      child: ServiceSelectionScreen()));
+                      child: AllServiceSelection()));
             } catch (e) {}
           } else {
             Navigator.pushReplacement(

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:fixbee_partner/ui/screens/otp.dart';
 
 import 'package:flutter/services.dart';
+import 'package:string_validator/string_validator.dart';
 import '../../Constants.dart';
 import 'otp_for_login.dart';
 
@@ -31,6 +32,7 @@ class _LoginState extends State<Login> {
 
     _bloc = LoginBloc(LoginModel());
   }
+
   @override
   void dispose() {
     // textEditingController.dispose();
@@ -52,16 +54,19 @@ class _LoginState extends State<Login> {
                 Container(
                   child: Column(
                     children: [
-                      SizedBox(height: MediaQuery.of(context).size.height/20,),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 20,
+                      ),
                       Row(
                         children: [
                           Padding(
                             padding: const EdgeInsets.fromLTRB(40.0, 10, 0, 20),
-                            child:     Container(
-                                height: MediaQuery.of(context).size.width/6,
-                                width: MediaQuery.of(context).size.width/6,
+                            child: Container(
+                                height: MediaQuery.of(context).size.width / 6,
+                                width: MediaQuery.of(context).size.width / 6,
                                 decoration: BoxDecoration(
-                                    color: Color.fromRGBO(255,255, 0, 1), shape: BoxShape.circle),
+                                    color: Color.fromRGBO(255, 255, 0, 1),
+                                    shape: BoxShape.circle),
                                 child: Padding(
                                     padding: const EdgeInsets.all(10.0),
                                     child: SvgPicture.asset(
@@ -87,10 +92,12 @@ class _LoginState extends State<Login> {
                                       style: TextStyle(
                                           fontSize: 28,
                                           fontWeight: FontWeight.bold,
-                                          color: Color.fromRGBO(255,255, 0, 1)),
+                                          color:
+                                              Color.fromRGBO(255, 255, 0, 1)),
                                     ),
                                     TextSpan(
-                                      text: "Sign in your phone number to continue...",
+                                      text:
+                                          "Sign in your phone number to continue...",
                                       style: TextStyle(
                                           fontSize: 18,
                                           color: Colors.white,
@@ -102,7 +109,7 @@ class _LoginState extends State<Login> {
                             ],
                           )),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height/20,
+                        height: MediaQuery.of(context).size.height / 20,
                       ),
                     ],
                   ),
@@ -116,10 +123,11 @@ class _LoginState extends State<Login> {
                           )),
                       child: Column(
                         children: <Widget>[
-                          SizedBox(height: MediaQuery.of(context).size.height/16,),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 16,
+                          ),
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Flexible(
                                 child: new Container(),
@@ -133,8 +141,7 @@ class _LoginState extends State<Login> {
                                   enabled: false,
                                   initialValue: "+91",
                                   style: TextStyle(
-                                      fontSize: 20.0,
-                                      color: Color(0xff1d1b27)),
+                                      fontSize: 20.0, color: Color(0xff1d1b27)),
                                 ),
                                 flex: 3,
                               ),
@@ -144,8 +151,6 @@ class _LoginState extends State<Login> {
                               ),
                               Flexible(
                                 child: new TextFormField(
-
-
                                   validator: (value) {
                                     if (value.isEmpty) {
                                       return "Please enter your number";
@@ -155,7 +160,6 @@ class _LoginState extends State<Login> {
                                   onChanged: isPhoneNumberValid,
                                   inputFormatters: [
                                     LengthLimitingTextInputFormatter(10),
-
                                   ],
                                   decoration: InputDecoration(
                                     hintText: "Enter Your Phone No.",
@@ -167,11 +171,13 @@ class _LoginState extends State<Login> {
                                   textAlign: TextAlign.start,
                                   autofocus: false,
                                   enabled: true,
-                                  keyboardType: TextInputType.numberWithOptions(decimal: false),
+                                  keyboardType: TextInputType.numberWithOptions(
+                                      decimal: false),
                                   textInputAction: TextInputAction.done,
                                   style: TextStyle(
                                       fontSize: 20.0,
-                                      color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
+                                      color: PrimaryColors.backgroundColor,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 flex: 8,
                               ),
@@ -187,69 +193,70 @@ class _LoginState extends State<Login> {
                                     top: 50.0,
                                   ),
                                   child: CircularProgressIndicator(
-                                    valueColor:
-                                        AlwaysStoppedAnimation<Color>(
-                                            Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
                                     backgroundColor:
                                         PrimaryColors.backgroundColor,
                                   ),
                                 )
                               : InkWell(
-
-                            child: Center(
-                              child: Column(
-
-                                children: [
-                                  SizedBox(height: MediaQuery.of(context).size.height/20,),
-                                   Container(
-                                    width: 150.0,
-                                    height: 35.0,
-                                    child: new RaisedButton(
-                                        elevation: 3,
-                                        disabledColor: Colors.teal[100],
-                                        disabledTextColor: Colors.white,
-                                        onPressed: isButtonEnabled
-                                            ? () {
-                                          _bloc.fire(
-                                              LoginEvents.onLogIn,
-                                              message: {
-                                                'phone':
-                                                textEditingController
-                                                    .text
-                                              }, onHandled: (e, m) {
-                                            if (m.exist) {
-
-                                              goToOtpScreen(
-                                                  context, m.exist);
-                                            } else {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder:
-                                                          (ctx) {
-                                                        return Registration(
-                                                          phoneNumber:
-                                                          textEditingController
-                                                              .text,
-                                                        );
-                                                      }));
-                                            }
-                                          });
-                                        }
-                                            : null,
-                                        child: Text("Next"),
-                                        textColor:
-                                        PrimaryColors.backgroundColor,
-                                        color: Colors.yellow,
-                                        shape: new RoundedRectangleBorder(
-                                            borderRadius:
-                                            new BorderRadius.circular(
-                                                30.0))),
+                                  child: Center(
+                                    child: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              20,
+                                        ),
+                                        Container(
+                                          width: 150.0,
+                                          height: 35.0,
+                                          child: new RaisedButton(
+                                              elevation: 3,
+                                              disabledColor: Colors.teal[100],
+                                              disabledTextColor: Colors.white,
+                                              onPressed: isButtonEnabled
+                                                  ? () {
+                                                      _bloc.fire(
+                                                          LoginEvents.onLogIn,
+                                                          message: {
+                                                            'phone':
+                                                                textEditingController
+                                                                    .text
+                                                          }, onHandled: (e, m) {
+                                                        if (m.exist) {
+                                                          goToOtpScreen(
+                                                              context, m.exist);
+                                                        } else {
+                                                          Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (ctx) {
+                                                            return Registration(
+                                                              phoneNumber:
+                                                                  textEditingController
+                                                                      .text,
+                                                            );
+                                                          }));
+                                                        }
+                                                      });
+                                                    }
+                                                  : null,
+                                              child: Text("Next"),
+                                              textColor:
+                                                  PrimaryColors.backgroundColor,
+                                              color: Colors.yellow,
+                                              shape: new RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      new BorderRadius.circular(
+                                                          30.0))),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                ),
                         ],
                       )),
                 ),
@@ -261,7 +268,8 @@ class _LoginState extends State<Login> {
 
   void isPhoneNumberValid(String value) {
     setState(() {
-      if (textEditingController.text.trim().length == 10) {
+      if (isNumeric(textEditingController.text.trim()) &&
+          textEditingController.text.trim().length == 10) {
         isButtonEnabled = true;
       } else {
         isButtonEnabled = false;

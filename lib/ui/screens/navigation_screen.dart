@@ -12,7 +12,9 @@ import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hive/hive.dart';
 import 'package:vibration/vibration.dart';
+import '../../Constants.dart';
 import 'custom_profile.dart';
 import 'history_screen.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -46,8 +48,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
       paymentMode;
   int _lastNotification = 0;
 
+  Box<String> _BEENAME;
+  _openHive() async {
+    _BEENAME = Hive.box<String>("BEE");
+  }
+
   @override
   void initState() {
+    _openHive();
     pages = [
       Home(
         onSwitchChangedState: (active) {
@@ -66,6 +74,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
     _pageController = PageController();
     _bloc = NavigationBloc(NavigationModel());
+    if (_BEENAME.get("myActiveStatus") == "true") _bloc.startTimer();
     _setupFCM();
     _visible = widget.gotJob;
     super.initState();
@@ -93,7 +102,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
       onLaunch: (message) async {
         FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_LAUNCH');
-
         _getJobDetails(message);
       },
     );
@@ -124,67 +132,67 @@ class _NavigationScreenState extends State<NavigationScreen> {
         context: context,
         builder: (BuildContext context) {
           Vibration.vibrate(duration: 1000);
-          Future.delayed(const Duration(seconds: 150), () async {
+          Future.delayed(const Duration(seconds: 90), () async {
             Navigator.pop(context);
           });
           return Dialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            insetPadding: EdgeInsets.all(10),
-            child: StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) {
-              return NewServiceNotification(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              insetPadding: EdgeInsets.all(10),
+              child: NewServiceNotification(
                 orderId: orderId.toString().toUpperCase(),
                 userName: userName.toString().toUpperCase(),
                 address: billingAddress,
                 paymentMode: paymentMode,
-                loading: onChanged(),
                 onConfirm: () {
                   _bloc.fire(NavigationEvent.onConfirmJob,
                       message: {"orderId": orderId, "Accept": true},
                       onFired: (e, m) {
                     onChanged();
                   }, onHandled: (e, m) {
-                    Navigator.pop(context);
+                    if (m.orderExpired) {
+                      Navigator.pop(context);
+                      _showOrderExpiredDialog(
+                          "Order request invalid or expired");
+                    } else {
 
-                    Route route = MaterialPageRoute(
-                        builder: (context) => WorkScreen(
-                              orderBasePrice: m.order.orderBasePrice,
-                              orderTaxCharge: m.order.orderTaxCharge,
-                              orderServiceCharge: m.order.orderServiceCharge,
-                              orderAmount: m.order.orderAmount,
-                              quantity: m.order.quantity,
-                              userId: m.user.userId,
-                              activeOrderStatus: m.order.status,
-                              orderId: m.order.orderId,
-                              googlePlaceId: m.location.googlePlaceId,
-                              phoneNumber: m.user.phoneNumber,
-                              userName: m.user.firstname +
-                                  " " +
-                                  m.user.middlename +
-                                  " " +
-                                  m.user.lastname,
-                              userProfilePicUrl: m.user.profilePicUrl,
-                              addressLine: m.location.addressLine,
-                              landmark: m.location.landmark,
-                              serviceName: m.service.serviceName,
-                              timeStamp: m.order.timeStamp,
-                              amount: m.order.price,
-                              userProfilePicId: m.user.profilePicId,
-                              cashOnDelivery: m.order.cashOnDelivery,
-                              basePrice: m.order.basePrice,
-                              taxPercent: m.order.taxPercent,
-                              serviceCharge: m.order.serviceCharge,
-                            ));
-                    Navigator.pushReplacement(context, route);
+                      Route route = MaterialPageRoute(
+                          builder: (context) => WorkScreen(
+                                orderBasePrice: m.order.orderBasePrice,
+                                orderTaxCharge: m.order.orderTaxCharge,
+                                orderServiceCharge: m.order.orderServiceCharge,
+                                orderAmount: m.order.orderAmount,
+                                quantity: m.order.quantity,
+                                userId: m.user.userId,
+                                activeOrderStatus: m.order.status,
+                                orderId: m.order.orderId,
+                                googlePlaceId: m.location.googlePlaceId,
+                                phoneNumber: m.user.phoneNumber,
+                                userName: m.user.firstname +
+                                    " " +
+                                    m.user.middlename +
+                                    " " +
+                                    m.user.lastname,
+                                userProfilePicUrl: m.user.profilePicUrl,
+                                addressLine: m.location.addressLine,
+                                landmark: m.location.landmark,
+                                serviceName: m.service.serviceName,
+                                timeStamp: m.order.timeStamp,
+                                amount: m.order.price,
+                                userProfilePicId: m.user.profilePicId,
+                                cashOnDelivery: m.order.cashOnDelivery,
+                                basePrice: m.order.basePrice,
+                                taxPercent: m.order.taxPercent,
+                                serviceCharge: m.order.serviceCharge,
+                              ));
+                      Navigator.pushReplacement(context, route);
+                    }
                   });
                 },
                 onDecline: () {
                   _showCancelBox();
                 },
-              );
-            }),
-          );
+              ));
         },
         barrierDismissible: false);
   }
@@ -200,7 +208,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false,
+      //onWillPop: () async => false,
       child: Scaffold(
         backgroundColor: Colors.white,
         bottomNavigationBar: BottomNavBar(
@@ -246,6 +254,35 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 },
                 child: Text("No"),
               ),
+            ],
+          );
+        });
+  }
+
+  _showOrderExpiredDialog(String message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Text(
+              message,
+              maxLines: null,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            actions: <Widget>[
+              RaisedButton(
+                color: PrimaryColors.backgroundColor,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "OK",
+                    style: TextStyle(color: Colors.orangeAccent),
+                  ),
+                ),
+              )
             ],
           );
         });
