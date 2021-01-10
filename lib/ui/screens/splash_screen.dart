@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/blocs/splash_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/event.dart';
+import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/splash_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/no_internet_widget.dart';
 import 'package:fixbee_partner/ui/custom_widget/splash_widget.dart';
@@ -66,6 +67,14 @@ class _SplashScreenState extends State<SplashScreen>
     _BEENAME = Hive.box<String>("BEE");
   }
 
+  void refreshAllData(Bee bee) {
+    _BEENAME.put(
+        ("myName"), getMyName(bee.firstName, bee.middleName, bee.lastName));
+    _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");
+    _BEENAME.put("dpUrl", bee.dpUrl);
+    _BEENAME.put("myActiveStatus", (bee.active) ? "true" : "false");
+    _BEENAME.put("myWallet", bee.walletAmount.toString());
+  }
   @override
   void initState() {
     _setupFCM();
@@ -75,6 +84,13 @@ class _SplashScreenState extends State<SplashScreen>
     _bloc.fire(Event(100), onHandled: (e, m) {
       if (m.connection) {
         if (m.tokenFound) {
+          if (_BEENAME
+              .containsKey('ID')) {
+            if (m.me.id !=
+                _BEENAME.get('ID'))
+              refreshAllData(m.me);
+          } else
+            _BEENAME.put('ID', m.me.id);
           if (!_BEENAME.containsKey("myName"))
             _BEENAME.put(("myName"),
                 getMyName(m.me.firstName, m.me.middleName, m.me.lastName));

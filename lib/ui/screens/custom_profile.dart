@@ -107,8 +107,8 @@ class _CustomProfileState extends State<CustomProfile> {
                     //closeHiveBox();
                     Route route =
                         MaterialPageRoute(builder: (context) => SplashScreen());
-                    Navigator.push(context, route);
-                    // Navigator.pushAndRemoveUntil(context, route, (e) => false);
+                    //Navigator.push(context, route);
+                     Navigator.pushAndRemoveUntil(context, route, (e) => false);
                   });
                 },
                 child: Padding(
