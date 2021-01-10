@@ -213,47 +213,8 @@ class _OTPState extends State<OTP> {
                                               _bloc.fire(
                                                   OtpEvents
                                                       .checkForServiceSelected,
-                                                  onHandled: (e, m) {
-                                                if (_BEENAME
-                                                    .containsKey('ID')) {
-                                                  if (m.bee.id !=
-                                                      _BEENAME.get('ID'))
-                                                    refreshAllData(m.bee);
-                                                } else
-                                                  _BEENAME.put('ID', m.bee.id);
-                                                if (!_BEENAME
-                                                    .containsKey("myName"))
-                                                  _BEENAME.put(
-                                                      ("myName"),
-                                                      getMyName(
-                                                          m.bee.firstName,
-                                                          m.bee.middleName,
-                                                          m.bee.lastName));
-                                                if (!_BEENAME.containsKey(
-                                                    "myDocumentVerification"))
-                                                  _BEENAME.put(
-                                                      "myDocumentVerification",
-                                                      (m.bee.verified)
-                                                          ? "true"
-                                                          : "false");
-                                                if (!_BEENAME
-                                                    .containsKey("dpUrl"))
-                                                  _BEENAME.put(
-                                                      "dpUrl", m.bee.dpUrl);
-                                                if (!_BEENAME.containsKey(
-                                                    "myActiveStatus"))
-                                                  _BEENAME.put(
-                                                      "myActiveStatus",
-                                                      (m.bee.active)
-                                                          ? "true"
-                                                          : "false");
-                                                if (!_BEENAME
-                                                    .containsKey("myWallet"))
-                                                  _BEENAME.put(
-                                                      "myWallet",
-                                                      m.bee.walletAmount
-                                                          .toString());
-
+                                                  onHandled: (e, m) async{
+                                                 await refreshAllData(m.bee);
                                                 if (!m.serviceSelected) {
                                                   goToJobSelectionScreen(ctx);
                                                 } else {
@@ -380,7 +341,9 @@ class _OTPState extends State<OTP> {
         });
   }
 
-  void refreshAllData(Bee bee) {
+  Future<void> refreshAllData(Bee bee) async{
+    print(bee.id);
+    _BEENAME.put("ID", bee.id);
     _BEENAME.put(
         ("myName"), getMyName(bee.firstName, bee.middleName, bee.lastName));
     _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");
