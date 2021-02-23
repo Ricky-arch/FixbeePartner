@@ -8,6 +8,8 @@
 -dontwarn com.razorpay.**
 -keep class com.razorpay.** {*;}
 
+-keep class com.shockwave.**
+
 -optimizations !method/inlining/*
 
 -keepclasseswithmembers class * {

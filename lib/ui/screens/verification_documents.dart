@@ -2,8 +2,10 @@ import 'dart:developer';
 
 import 'package:fixbee_partner/events/file_upload_event.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
+import 'package:fixbee_partner/ui/custom_widget/document_view_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import '../../Constants.dart';
 import 'package:fixbee_partner/blocs/file_upload_bloc.dart';
 import 'package:fixbee_partner/models/fileModel.dart';
@@ -16,7 +18,7 @@ class VerificationDocuments extends StatefulWidget {
 
 class _VerificationDocumentsState extends State<VerificationDocuments> {
   FileUploadBloc _bloc;
-  FileUploadController _controllerAadhaar,
+  FileUploadController _controllerID,
       _controllerAge,
       _controllerAddress,
       _controllerAdditional;
@@ -25,7 +27,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
   void initState() {
     _bloc = FileUploadBloc(FileModel());
     _bloc.fire(FileUploadEvent.checkUploaded);
-    _controllerAadhaar = FileUploadController();
+    _controllerID = FileUploadController();
     _controllerAge = FileUploadController();
     _controllerAddress = FileUploadController();
     _controllerAdditional = FileUploadController();
@@ -87,9 +89,9 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               ),
               (viewModel.onFetchUploadedDocumentsList)
                   ? Container(
-              height: 50,
-              width: 50,
-              child: CustomCircularProgressIndicator())
+                      height: 50,
+                      width: 50,
+                      child: CustomCircularProgressIndicator())
                   : Container(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,8 +101,8 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                             child: Text(
                               (!viewModel.uploadedDocuments
                                       .contains("Identity_proof.jpg"))
-                                  ? "Add your IDENTITY-PROOF CARD*"
-                                  : "IDENTITY-PROOF CARD UPLOADED \u2713",
+                                  ? "Add an IDENTITY PROOF CERTIFICATE*"
+                                  : "IDENTITY PROOF CERTIFICATE UPLOADED \u2713",
                               style: TextStyle(
                                   color: Colors.brown,
                                   fontWeight: FontWeight.bold),
@@ -111,21 +113,38 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                             child: InkWell(
                               onTap: () {},
                               child: FileUploadWidget(
-                                controller: _controllerAadhaar,
-                                documentName: "Identity_proof.jpeg",
+                                controller: _controllerID,
+                                documentName: "Identity-proof.jpeg",
                                 inputString: (!viewModel.uploadedDocuments
                                         .contains("Identity_proof.jpg"))
-                                    ? "Upload your Identity-proof document"
-                                    : "Identity_proof.jpeg",
+                                    ? "Upload any Identity-proof Certificate"
+                                    : "Identity-proof.jpeg",
                                 onImagePicked: (path) {
                                   log('OnUPLOAD', name: 'onUp2');
-                                  onImagePicked(path, "Identity-proof",
-                                      _controllerAadhaar.onUpload);
+                                  onImagePicked(path, "Identity_proof",
+                                      _controllerID.onUpload);
                                 },
                                 loading: false,
                                 text: Text(viewModel.files == null
                                     ? "Document"
-                                    : "Aadhaar Card uploaded"),
+                                    : "Identity proof certificate uploaded"),
+                                viewWidget: (viewModel.uploadedDocuments
+                                        .contains("Identity_proof.jpg"))
+                                    ? IconButton(
+                                        padding: EdgeInsets.zero,
+                                        icon: Icon(
+                                          Icons.remove_red_eye,
+                                          size: 25,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(context,
+                                              MaterialPageRoute(builder:
+                                                  (BuildContext context) {
+                                            return DocumentViewerPage();
+                                          }));
+                                        },
+                                      )
+                                    : SizedBox(),
                               ),
                             ),
                           ),
@@ -170,6 +189,13 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                 text: Text(viewModel.files == null
                                     ? "Document"
                                     : "Age proof certificate uploaded"),
+                                viewWidget: (viewModel.uploadedDocuments
+                                        .contains("Age_proof.jpg"))
+                                    ? IconButton(
+                                        icon: Icon(Icons.remove_red_eye),
+                                        onPressed: () {},
+                                      )
+                                    : SizedBox(),
                               ),
                             ),
                           ),
@@ -214,6 +240,13 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                 text: Text(viewModel.files == null
                                     ? "Document"
                                     : "Address proof certificate uploaded"),
+                                viewWidget: (viewModel.uploadedDocuments
+                                        .contains("Address.jpg"))
+                                    ? IconButton(
+                                        icon: Icon(Icons.remove_red_eye),
+                                        onPressed: () {},
+                                      )
+                                    : SizedBox(),
                               ),
                             ),
                           ),
@@ -258,6 +291,13 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                 text: Text(viewModel.files == null
                                     ? "Document"
                                     : "Additional Certifications uploaded"),
+                                viewWidget: (viewModel.uploadedDocuments
+                                        .contains("Additional.jpg"))
+                                    ? IconButton(
+                                        icon: Icon(Icons.remove_red_eye),
+                                        onPressed: () {},
+                                      )
+                                    : SizedBox(),
                               ),
                             ),
                           ),

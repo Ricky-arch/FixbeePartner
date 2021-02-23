@@ -8,6 +8,8 @@ class ServiceOptionModel extends ViewModel {
   String imageLink;
   String parentName;
   bool priceable=false;
+  String description;
+  String excerpt;
   List<ServiceOptionModel> subServices = [];
 }
 

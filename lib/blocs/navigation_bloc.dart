@@ -347,14 +347,12 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     double latitude = message['latitude'];
     double longitude = message['longitude'];
     String query = '''mutation {
-  Update(input:{UpdateLiveLocation:{Latitude: $latitude, Longitude: $longitude}}){
-    ... on Bee{
-      ID
-      LiveLocation{
-        Latitude
-        Longitude
-      }
-    }
+  updateLiveLocation(input:{
+    lat: $latitude
+    lng: $longitude
+  }){
+    lat
+    lng
   }
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);

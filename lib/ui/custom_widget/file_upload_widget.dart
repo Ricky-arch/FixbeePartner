@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
+
+
 import '../../Constants.dart';
 
 class FileUploadWidget extends StatefulWidget {
@@ -17,6 +19,9 @@ class FileUploadWidget extends StatefulWidget {
   final bool uploading;
   final FileUploadController controller;
   final bool alreadyUploaded;
+  final Function viewDocument;
+  final Widget viewWidget;
+
 
   FileUploadWidget({
     Key key,
@@ -28,7 +33,7 @@ class FileUploadWidget extends StatefulWidget {
     this.uploading,
     this.documentName,
     this.controller,
-    this.alreadyUploaded,
+    this.alreadyUploaded, this.viewDocument, this.viewWidget,
   }) : super(key: key);
 
   @override
@@ -39,6 +44,8 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
   final ImagePicker _imagePicker = ImagePicker();
   String fileName;
   bool _uploaded = false;
+
+
 
   @override
   void initState() {
@@ -81,9 +88,22 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                 });
                 if (image != null) widget.onImagePicked(image.path);
               },
-              child: Icon(
-                _uploaded ? Icons.check_circle : LineAwesomeIcons.folder,
-                color: _uploaded ? Colors.green : PrimaryColors.backgroundColor,
+              child: SizedBox(
+                height: 35,
+                child: Row(
+                  children: [
+                    Icon(
+                      _uploaded ? Icons.check_circle : LineAwesomeIcons.folder,
+                      color: _uploaded
+                          ? Colors.green
+                          : PrimaryColors.backgroundColor,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    widget.viewWidget
+                  ],
+                ),
               ),
             ),
           ],

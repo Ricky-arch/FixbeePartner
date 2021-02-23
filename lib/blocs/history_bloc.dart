@@ -128,9 +128,17 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
         if(notes.containsKey('TransactionID')){
 
           deb.withDrawlTransactionId=notes['TransactionID'];
-          deb.withDrawlAccountNumber=debit['To']['AccountNumber'];
-          deb.accountID=debit['To']['ID'];
-          deb.withDrawlAccountHolderName=debit['To']['AccountHolderName'];
+
+          if(debit['To']!=null){
+            deb.withDrawlAccountNumber=debit['To']['AccountNumber'];
+            deb.accountID=debit['To']['ID'];
+            deb.withDrawlAccountHolderName=debit['To']['AccountHolderName'];
+          }
+         else{
+           deb.accountID="Account Details Unavailable";
+           deb.withDrawlAccountNumber="Account Details Unavailable";
+           deb.withDrawlAccountHolderName="Account Details Unavailable";
+          }
         }
         else{
           deb.debitOnOrder=true;

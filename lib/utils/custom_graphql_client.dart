@@ -29,22 +29,26 @@ class CustomGraphQLClient {
     (_wsClient.link as WebSocketLink)?.dispose();
     _wsClient = null;
   }
-  void invalidateClient(){
-    _instance=null;
+
+  void invalidateClient() {
+    _instance = null;
   }
 
-  CustomGraphQLClient._privateConstructor() {
-    if (DataStore.token == null) {
-      print('Set user token to datastore first');
-    }
-
-    _link = HttpLink(
-        uri: EndPoints.GRAPHQL, headers: {'authorization': DataStore.token});
-
+  CustomGraphQLClient._privateConstructor({String token}) {
+    if (token != null)
+      _link =
+          HttpLink(uri: EndPoints.GRAPHQL, headers: {'authorization': token});
+    else
+      _link = HttpLink(uri: EndPoints.GRAPHQL);
 
     _graphQLClient = GraphQLClient(
         cache: OptimisticCache(dataIdFromObject: typenameDataIdFromObject),
         link: _link);
+  }
+
+  CustomGraphQLClient reinstantiate(String token) {
+    _instance = CustomGraphQLClient._privateConstructor(token: token);
+    return _instance;
   }
 
   static CustomGraphQLClient get instance {
@@ -54,7 +58,7 @@ class CustomGraphQLClient {
   }
 
   Future<Map> query(String queryString) async {
-    log('auth:${DataStore.token}\n$queryString',name: 'QUERY');
+    log('auth:${DataStore.token}\n$queryString', name: 'QUERY');
     QueryOptions options = QueryOptions(
         documentNode: gql(queryString),
         fetchPolicy: FetchPolicy.cacheAndNetwork);
@@ -83,6 +87,7 @@ class CustomGraphQLClient {
     log((result.data as Map).toString(), name: "RESPONSE GQL");
     return result.data as Map;
   }
+
   Stream<FetchResult> subscribe(GraphQLClient wsClient, String queryString) {
     Operation operation = Operation(documentNode: gql(queryString));
     return wsClient.subscribe(operation);

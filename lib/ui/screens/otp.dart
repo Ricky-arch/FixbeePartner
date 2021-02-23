@@ -6,7 +6,6 @@ import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicat
 import 'package:fixbee_partner/ui/custom_widget/numeric_pad.dart';
 import 'package:fixbee_partner/ui/screens/all_service_selection_screen.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
-import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
@@ -23,6 +22,7 @@ class OTP extends StatefulWidget {
 
 class _OTPState extends State<OTP> {
   bool _isButtonEnabled;
+  bool _showRequestAgainButton;
   OtpLoginBloc _bloc;
   String code = "";
   Box _BEENAME;
@@ -31,6 +31,14 @@ class _OTPState extends State<OTP> {
     if (middle != "") name = name + " " + middle;
     if (last != "") name = name + " " + last;
     return name;
+  }
+
+  _triggerRequestAgainTimer() async {
+    await Future.delayed(const Duration(seconds: 120), () {
+      setState(() {
+        _showRequestAgainButton = true;
+      });
+    });
   }
 
   _openHive() async {
@@ -44,6 +52,9 @@ class _OTPState extends State<OTP> {
     super.initState();
     _openHive();
     _isButtonEnabled = false;
+
+    _showRequestAgainButton = false;
+    _triggerRequestAgainTimer();
     _bloc = OtpLoginBloc(OtpModel());
   }
 
@@ -92,7 +103,7 @@ class _OTPState extends State<OTP> {
                                     color: PrimaryColors.backgroundColor),
                               ),
                               TextSpan(
-                                text: "+91-8787300192",
+                                text: widget.phoneNumber,
                                 style: TextStyle(
                                     fontSize: 18,
                                     color: Colors.deepPurple,
@@ -135,31 +146,35 @@ class _OTPState extends State<OTP> {
                           SizedBox(
                             width: 8,
                           ),
-                          (viewModel.resendingOtp)
-                              ? Container(
-                                  child: CustomCircularProgressIndicator(),
-                                  height: 30,
-                                  width: 30,
-                                )
-                              : GestureDetector(
-                                  onTap: () {
-                                    _bloc.fire(
-                                      OtpEvents.resendOtp,
-                                      message: {'phone': widget.phoneNumber},
-                                    );
-                                    setState(() {
-                                      code = "";
-                                      _isButtonEnabled = false;
-                                    });
-                                  },
-                                  child: Text(
-                                    "Request again",
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.blue,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
+                          (_showRequestAgainButton)
+                              ? (viewModel.resendingOtp)
+                                  ? Container(
+                                      child: CustomCircularProgressIndicator(),
+                                      height: 30,
+                                      width: 30,
+                                    )
+                                  : GestureDetector(
+                                      onTap: () {
+                                        _bloc.fire(
+                                          OtpEvents.resendOtp,
+                                          message: {
+                                            'phone': widget.phoneNumber
+                                          },
+                                        );
+                                        setState(() {
+                                          code = "";
+                                          _isButtonEnabled = false;
+                                        });
+                                      },
+                                      child: Text(
+                                        "Request again",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    )
+                              : SizedBox(),
                         ],
                       ),
                     ],
@@ -204,24 +219,18 @@ class _OTPState extends State<OTP> {
                                         if (m.valid) {
                                           FocusScope.of(context)
                                               .requestFocus(FocusNode());
-
+                                          Scaffold.of(ctx).showSnackBar(SnackBar(
+                                            content: Text('Otp registered'),
+                                          ));
                                           _bloc.fire(
                                               OtpEvents.fetchSaveBeeDetails,
-                                              onHandled: (e, m) {
-                                            _bloc.fire(OtpEvents.getFcmToken,
-                                                onHandled: (e, m) {
-                                              _bloc.fire(
-                                                  OtpEvents
-                                                      .checkForServiceSelected,
-                                                  onHandled: (e, m) async{
-                                                 await refreshAllData(m.bee);
+                                              onHandled: (e, m) async{
+                                                await refreshAllData(m.bee);
                                                 if (!m.serviceSelected) {
                                                   goToJobSelectionScreen(ctx);
                                                 } else {
                                                   goToNavigationScreen(ctx);
                                                 }
-                                              });
-                                            });
                                           });
                                         } else {
                                           _showOnOtpInvalid();
@@ -341,9 +350,9 @@ class _OTPState extends State<OTP> {
         });
   }
 
-  Future<void> refreshAllData(Bee bee) async{
-    print(bee.id);
-    _BEENAME.put("ID", bee.id);
+  Future<void> refreshAllData(Bee bee) async {
+    print(bee.firstName);
+    _BEENAME.put("myPhone", bee.phoneNumber);
     _BEENAME.put(
         ("myName"), getMyName(bee.firstName, bee.middleName, bee.lastName));
     _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");

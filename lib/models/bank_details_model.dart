@@ -7,6 +7,9 @@ class BankDetailsModel extends ViewModel{
   bool deleted=false;
   bool addingAccount=false;
   bool fetchingBankAccounts=false;
+  bool vpaAdded=false;
+  List<VpaModel> vpaList=[];
+
 }
 class BankModel extends ViewModel{
   String accountHoldersName;
@@ -14,4 +17,8 @@ class BankModel extends ViewModel{
   String bankAccountNumber;
   String accountID;
   bool accountVerified;
+}
+class VpaModel extends ViewModel{
+  String id;
+  String address;
 }

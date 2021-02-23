@@ -37,36 +37,41 @@ class AllServiceBloc extends Bloc<AllServicesEvent, AllService>
   }
 
   Future<AllService> fetchGrand() async {
-    String query = '''
+
+    String query='''
     {
-  Services(Cannonical: true) {
-    ID
-    Name
-    Image {
-      id
-    }
+  services(skip:0, limit: 0) {
+    id
+    name
+    excerpt
+    image
+    description
   }
 }
     ''';
+    Map response;
+    try{
+     response = await CustomGraphQLClient.instance.query(query);
+     List<ServiceOptionModel> model = [];
 
-    Map response = await CustomGraphQLClient.instance.query(query);
-    List<ServiceOptionModel> model = [];
-
-    List services = response['Services'];
-    services.forEach((service) {
-      ServiceOptionModel grandService = ServiceOptionModel();
-
-      grandService.serviceName = service['Name'];
-      grandService.id = service['ID'];
-      if(service['Image']['id']!=null)
-      grandService.imageLink =
-          "${EndPoints.DOCUMENT}?id=${service['Image']['id']}";
-
-      model.add(grandService);
-    });
-
-    //SERVICE.put('GS',los);
-    return latestViewModel..allAvailableServices = model;
+     List services = response['services'];
+     services.forEach((service) {
+       ServiceOptionModel grandService = ServiceOptionModel();
+       grandService.serviceName = service['name'];
+       grandService.description=service['description']??'';
+       grandService.id = service['id'];
+       grandService.excerpt=service['excerpt']??'';
+       if(service['image']!=null)
+         grandService.imageLink =
+         "${EndPoints.DOCUMENT}?id=${service['image']}";
+       model.add(grandService);
+     });
+     return latestViewModel..allAvailableServices = model;
+    }
+    catch(e){
+      print(e);
+      return latestViewModel;
+    }
   }
 
   @override
@@ -90,35 +95,43 @@ class AllServiceBloc extends Bloc<AllServicesEvent, AllService>
       return latestViewModel..parentServices = serviceCache[grandID];
     String query = '''
     {
-  Service(_id: "$grandID") {
-    Children {
-      ID
-      Name
-       Pricing{
-        Priceable
-      }
-      Image{
-        id
-      }
+	service(id:"$grandID") {
+    children{
+      id
+      name
+      excerpt
+      image
+      description
+      priceable
     }
   }
 }
     ''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    List<ServiceOptionModel> parentServices = [];
-    List parent = response['Service']['Children'];
-    parent.forEach((parent) {
-      ServiceOptionModel parentService = ServiceOptionModel();
-      parentService.id = parent['ID'];
-      parentService.serviceName = parent['Name'];
-      if(parent['Image']['id'] != null)
+    try{
+      Map response = await CustomGraphQLClient.instance.query(query);
+      List<ServiceOptionModel> parentServices = [];
+      List parent = response['service']['children'];
+      parent.forEach((parent) {
+        ServiceOptionModel parentService = ServiceOptionModel();
+        parentService.id = parent['id'];
+        parentService.serviceName = parent['name'];
+        parentService.description=parent['description'];
+        parentService.excerpt=parent['excerpt'];
+        if(parent['image'] != null)
           parentService.imageLink =
-              "${EndPoints.DOCUMENT}?id=${parent['Image']['id']}";
-      parentService.priceable = parent['Pricing']['Priceable'];
-      parentServices.add(parentService);
-    });
-    serviceCache[grandID] = parentServices;
-    return latestViewModel..parentServices = parentServices;
+          "${EndPoints.DOCUMENT}?id=${parent['image']}";
+        parentService.priceable = parent['priceable'];
+        print(parent['priceable']);
+        parentServices.add(parentService);
+      });
+      serviceCache[grandID] = parentServices;
+      return latestViewModel..parentServices = parentServices;
+    }
+    catch(e){
+      print(e);
+      return latestViewModel;
+    }
+
   }
 
   Future<AllService> setCheckBox(Map<String, dynamic> message) async {
@@ -132,46 +145,59 @@ class AllServiceBloc extends Bloc<AllServicesEvent, AllService>
       return latestViewModel..childServices = serviceCache[parentId];
     }
     String query = '''{
-  Service(_id: "$parentId") {
-    Children {
-      ID
-      Name
-      Image {
-        id
-      }
+	service(id:"$parentId") {
+    children{
+      id
+      name
+      excerpt
+      image
+      description
+      
     }
   }
 }
 ''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    List children = response['Service']['Children'];
-    List<ServiceOptionModel> childServices = [];
-    children.forEach((child) {
-      ServiceOptionModel c = ServiceOptionModel();
-      c.id = child['ID'];
-      c.serviceName = child['Name'];
-      if(child['Image']['id']!=null)
-      c.imageLink = "${EndPoints.DOCUMENT}?id=${child['Image']['id']}";
-      childServices.add(c);
-    });
-    serviceCache[parentId] = childServices;
-    return latestViewModel..childServices = childServices;
+    try{
+      Map response = await CustomGraphQLClient.instance.query(query);
+      List children = response['service']['children'];
+      List<ServiceOptionModel> childServices = [];
+      children.forEach((child) {
+        ServiceOptionModel c = ServiceOptionModel();
+        c.id = child['id'];
+        c.serviceName = child['name'];
+        c.excerpt=child['excerpt'];
+        c.description=child['description'];
+        if(child['image']!=null)
+          c.imageLink = "${EndPoints.DOCUMENT}?id=${child['image']}";
+        childServices.add(c);
+      });
+      serviceCache[parentId] = childServices;
+      return latestViewModel..childServices = childServices;
+    }
+    catch(e){
+      print(e);
+      return latestViewModel;
+    }
+
   }
 
   Future<AllService> saveSelectedServices() async {
-    String query = '''mutation{
-  Update(input:{AddServices:${latestViewModel.selectedServices.map((service) {
-      return '"${service.id}"';
-    }).toList()}}){
-    ... on Bee{
-      Name{
-        Firstname
-      }
+
+    String query='''
+    mutation {
+  update(input: {
+    addServices: ${latestViewModel.selectedServices.map((service){return '"${service.id}"';}).toList()}
+  }){
+    services{
+      id
+      name
     }
   }
-}''';
-    print(query);
-    await CustomGraphQLClient.instance.mutate(query);
-    return latestViewModel;
+}
+    ''';
+
+      print(query);
+      await CustomGraphQLClient.instance.mutate(query);
+      return latestViewModel;
   }
 }

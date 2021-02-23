@@ -26,28 +26,28 @@ class CustomizeServiceBloc
   }
 
   Future<CustomizeServiceModel> fetchSelectedServices() async {
-    String query = '''{Me{
-  ...on Bee{
-   Services{
-    Name
-    ID
-  }
-  }
-}}''';
+    String query = '''{
+      profile{
+        services{
+          id
+    	    name
+        }
+      }
+    }''';
     Map response = await CustomGraphQLClient.instance.query(query);
     List<ServiceOptionModel> selectedService = [];
 
-    List services = response['Me']['Services'];
+    List services = response['profile']['services'];
 
     services.forEach((service) {
-      if(service!=null){
+      if (service != null) {
         ServiceOptionModel eachService = ServiceOptionModel();
-        eachService.serviceName = service['Name'];
-        eachService.id = service['ID'];
+        eachService.serviceName = service['name'];
+        eachService.id = service['id'];
         selectedService.add(eachService);
       }
     });
-    print("SSL" + services.length.toString());
+
     return latestViewModel
       ..selectedServiceOptionModel = selectedService
       ..numberOfSelectedServices = services.length;
@@ -66,43 +66,48 @@ class CustomizeServiceBloc
       Map<String, dynamic> message) async {
     String id = message['serviceId'];
 
-    String query = '''mutation{
-  Update(input:{RemoveService:"$id"}){
-    ...on Bee{
-      ID
-    }
-  }
-}''';
-    await CustomGraphQLClient.instance.mutate(query);
+    String query = '''mutation {
+        update(input: {
+          removeServices:["$id"]
+        }){
+        services{
+          id
+          name
+        }
+      }
+    }''';
+    try {
+      await CustomGraphQLClient.instance.mutate(query);
 
-    String query2 = '''{Me{
-  ...on Bee{
-   Services{
-    Name
-    ID
-  }
-  }
-}}''';
-    Map response = await CustomGraphQLClient.instance.query(query2);
-    List<ServiceOptionModel> selectedService = [];
-
-    List services = response['Me']['Services'];
-
-    services.forEach((service) {
-      ServiceOptionModel eachService = ServiceOptionModel();
-      if(service!=null)
-        {
-          eachService.serviceName = service['Name'];
-          eachService.id = service['ID'];
+      String query2 = '''{
+        profile{
+          services{
+              id
+    	        name
+            } 
+          }
+       }''';
+      Map response = await CustomGraphQLClient.instance.query(query2);
+      List<ServiceOptionModel> selectedService = [];
+      List services = response['profile']['services'];
+      services.forEach((service) {
+        ServiceOptionModel eachService = ServiceOptionModel();
+        if (service != null) {
+          eachService.serviceName = service['name'];
+          eachService.id = service['id'];
           selectedService.add(eachService);
         }
-    });
-    return latestViewModel
-      ..selectedServiceOptionModel = selectedService
-      ..numberOfSelectedServices = services.length;
+      });
+      return latestViewModel
+        ..selectedServiceOptionModel = selectedService
+        ..numberOfSelectedServices = services.length;
+    } catch (e) {
+      print(e);
+    }
+    return latestViewModel;
   }
 
   Future<CustomizeServiceModel> fetchAvailableServices() async {
- return latestViewModel;
+    return latestViewModel;
   }
 }

@@ -1,3 +1,4 @@
+
 import 'package:fixbee_partner/blocs/bank_details_bloc.dart';
 import 'package:fixbee_partner/events/bank_details_event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
@@ -42,7 +43,6 @@ class _BankDetailsState extends State<BankDetails> {
   Widget build(BuildContext context) {
     // ScreenUtil.init(context, height: 896, width: 414, allowFontScaling: true);
     return Scaffold(
-
       body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
         return SafeArea(
           child: ListView(
@@ -88,67 +88,78 @@ class _BankDetailsState extends State<BankDetails> {
                   ],
                 ),
               ),
-              (viewModel.fetchingBankAccounts)?CircularProgressIndicator(): (viewModel.bankAccountList.length == 0)
-                  ? Container(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Oops! No Accounts Linked",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Icon(
-                              Icons.sentiment_very_dissatisfied,
-                              color: Colors.black,
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      scrollDirection: Axis.vertical,
-                      itemCount: viewModel.bankAccountList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Column(
-                          children: [
-                            Row(
+              (viewModel.fetchingBankAccounts)
+                  ? Center(
+                    child: Wrap(
+                      children:[ Container(
+                          child: CircularProgressIndicator(),
+                          height: 50,
+                          width: 50,
+                        ),]
+                    ),
+                  )
+                  : (viewModel.bankAccountList.length==0)
+                      ? Container(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Account ${index + 1}:",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
+                                Text(
+                                  "Oops! No Accounts Linked",
+                                  style: TextStyle(fontSize: 16),
                                 ),
-                                Spacer(),
-                                IconButton(
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () {
-                                    _deleteAccount(viewModel
-                                        .bankAccountList[index].accountID);
-                                  },
-                                )
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Icon(
+                                  Icons.sentiment_very_dissatisfied,
+                                  color: Colors.black,
+                                ),
                               ],
                             ),
-                            AvailableAccounts(
-                              accountHoldersName: viewModel
-                                  .bankAccountList[index].accountHoldersName,
-                              accountNumber: viewModel
-                                  .bankAccountList[index].bankAccountNumber,
-                              verified: viewModel
-                                  .bankAccountList[index].accountVerified,
-                            ),
-                          ],
-                        );
-                      }),
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          scrollDirection: Axis.vertical,
+                          itemCount: viewModel.bankAccountList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "Account ${index + 1}:",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    IconButton(
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () {
+                                        _deleteAccount(viewModel
+                                            .bankAccountList[index].accountID);
+                                      },
+                                    )
+                                  ],
+                                ),
+                                AvailableAccounts(
+                                  accountHoldersName: viewModel
+                                      .bankAccountList[index]
+                                      .accountHoldersName,
+                                  accountNumber: viewModel
+                                      .bankAccountList[index].bankAccountNumber,
+                                  verified: viewModel
+                                      .bankAccountList[index].accountVerified,
+                                ),
+                              ],
+                            );
+                          }),
               SizedBox(
                 height: 20,
               ),
@@ -371,7 +382,7 @@ class _BankDetailsState extends State<BankDetails> {
                                 onPressed: () {
                                   if (_formKey.currentState.validate()) {
                                     _bloc.fire(
-                                      BankDetailsEvent.updateBankAccount,
+                                      BankDetailsEvent.addBankAccount,
                                       message: {
                                         'accountHoldersName':
                                             _accountHoldersName.text,

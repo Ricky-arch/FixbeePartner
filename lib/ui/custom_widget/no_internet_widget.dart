@@ -20,8 +20,8 @@ class _NoInternetWidgetState extends State<NoInternetWidget> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Center(
-            child: SvgPicture.asset(
-          "assets/logo/bee_outline.png",
+            child: Image.asset(
+          "assets/logo/dead_bee.png",
           height: 100,
           width: 100,
         )),

@@ -10,6 +10,7 @@ class OtpModel extends ViewModel{
   bool serviceSelected=false;
   bool resendingOtp=false;
   bool fetchingAllBeeConfiguration=false;
+  bool gotBeeDetails=false;
   Bee bee;
 
 

@@ -47,6 +47,8 @@ dependencies:
   hive: ^1.4.4+1
   path_provider: ^1.6.24
   hive_flutter: ^0.3.1
+
+  flutter_pdfview: ^1.0.4
   flutter:
     sdk: flutter
 
@@ -57,8 +59,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  hive_generator: ^0.8.2
-  build_runner: ^1.10.11
+
 
 flutter_icons:
   android: true

@@ -45,29 +45,30 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel>
       }
   }
   ''';
+    try {
+      Map response = await CustomGraphQLClient.instance.mutate(
+        query,
+        variables: {'file': multipartFile},
+      );
 
-    Map response = await CustomGraphQLClient.instance.mutate(
-      query,
-      variables: {'file': multipartFile},
-    );
+      log('OnUPLOAD', name: 'onUp4');
+      callback();
 
-    log('OnUPLOAD', name: 'onUp4');
-    callback();
-
-    print(response);
-    if (response.containsKey("errors")) {
+      print(response);
+      List documents = response['Update']['Documents'];
+      latestViewModel..numberOfFiles = response.length;
+      documents.forEach((document) {
+        File file = File();
+        file.fileName = document['filename'];
+        file.fileId = document['id'];
+        files.add(file);
+      });
+      return latestViewModel
+        ..files = files
+        ..onErrorUpload = false;
+    } catch (e) {
       return latestViewModel..onErrorUpload = true;
-    } else
-      latestViewModel.onErrorUpload = false;
-    List documents = response['Update']['Documents'];
-    latestViewModel..numberOfFiles = response.length;
-    documents.forEach((document) {
-      File file = File();
-      file.fileName = document['filename'];
-      file.fileId = document['id'];
-      files.add(file);
-    });
-    return latestViewModel..files = files;
+    }
   }
 
   Future<FileModel> checkUploaded() async {
@@ -84,15 +85,25 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel>
 }
 ''';
     List<String> uploadedDocuments = [];
+    List<File> files = [];
+    List<Map<String, String>> test=[];
     Map response = await CustomGraphQLClient.instance.query(query);
     List documents = response['Me']['Documents'];
     if (documents.isNotEmpty) {
       documents.forEach((document) {
-        if (document != null)
+        if (document != null) {
+          Map<String, String> f={};
+          f[document['filename']]=document['id'];
+          File file = File();
+          file.fileName = document['filename'];
+          file.fileId = document['id'];
+          files.add(file);
+          test.add(f);
           uploadedDocuments.add(document['filename'].toString());
+        }
       });
     }
-    return latestViewModel..uploadedDocuments = uploadedDocuments;
+    return latestViewModel..uploadedDocuments = uploadedDocuments..files=files..f=test;
   }
 
   @override

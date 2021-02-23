@@ -4,4 +4,5 @@ class LoginModel extends ViewModel{
   bool loading = false;
   String token;
   bool exist=false;
+  String errorText;
 }

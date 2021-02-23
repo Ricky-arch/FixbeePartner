@@ -3,6 +3,7 @@ import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/wallet_event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
+import 'package:fixbee_partner/models/view_model.dart';
 import 'package:fixbee_partner/models/wallet_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'dart:developer';
@@ -37,65 +38,67 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
 
   Future<WalletModel> fetchWalletAmountAfterTransaction() async {
     String query = '''{
-    Me{
-      ...on Bee{
-                Wallet{
-                       Amount
-                       }
-                }
-       }
-   }''';
+  wallet{
+    amount
+  }
+}''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    DataStore.me.walletAmount = response['Me']['Wallet']['Amount'];
-    return latestViewModel..amount = response['Me']['Wallet']['Amount'];
+    DataStore.me.walletAmount = response['wallet']['amount'];
+    return latestViewModel..amount = response['wallet']['amount'];
   }
 
   Future<WalletModel> fetchWalletAmount() async {
     String query = '''{
-    Me{
-      ...on Bee{
-                Wallet{
-                       Amount
-                       }
-                }
-       }
-   }''';
+  wallet{
+    amount
+  }
+}''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    DataStore.me.walletAmount = response['Me']['Wallet']['Amount'];
-    return latestViewModel..amount = response['Me']['Wallet']['Amount'];
+    DataStore.me.walletAmount = response['wallet']['amount'];
+    return latestViewModel..amount = response['wallet']['amount'];
   }
 
   Future<WalletModel> fetchBankAccountsForWithdrawal() async {
-    List<BankModel> models = [];
+    List<BankModel> bankAccounts = [];
+    List<VpaModel> vpaAccounts = [];
     String query = '''{
-  Me{
-    ... on Bee{
-      ID
-      BankAccounts{
-        ID
-        AccountNumber
-        IFSC
-        AccountHolderName
-        Verified
-      }
+  accounts{
+    id
+   bank_account{
+    name
+    account_number
+  }
+    vpa{
+      address
+      
     }
+    account_type
   }
 }''';
-    print("HelloWorld");
-
-    Map response = await CustomGraphQLClient.instance.query(query);
-    List accounts = response['Me']['BankAccounts'];
-    latestViewModel..numberOfAccounts = accounts.length;
-    accounts.forEach((account) {
-      BankModel bm = BankModel();
-      bm.accountHoldersName = account['AccountHolderName'];
-      bm.ifscCode = account['IFSC'];
-      bm.accountVerified = account['Verified'];
-      bm.accountID = account['ID'];
-      bm.bankAccountNumber = account['AccountNumber'];
-      models.add(bm);
-    });
-    return latestViewModel..bankAccountList = models;
+    try {
+      Map response = await CustomGraphQLClient.instance.query(query);
+      List accounts = response['accounts'];
+      latestViewModel..numberOfAccounts = accounts.length;
+      accounts.forEach((account) {
+        if (account['account_type'] == 'bank_account') {
+          BankModel bm = BankModel();
+          bm.accountHoldersName = account['bank_account']['name'];
+          bm.accountID = account['id'];
+          bm.bankAccountNumber = account['bank_account']['account_number'];
+          bankAccounts.add(bm);
+        } else {
+          VpaModel vm = VpaModel();
+          vm.address = account['vpa']['address'];
+          vm.id = account['id'];
+          vpaAccounts.add(vm);
+        }
+      });
+      return latestViewModel
+        ..bankAccountList = bankAccounts
+        ..vpaList = vpaAccounts;
+    } catch (e) {
+      return latestViewModel;
+    }
   }
 
   @override
@@ -113,25 +116,62 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     String id = message['accountId'];
     int amount = message['amount'];
     String query = '''mutation{
-  ProcessWalletWithdraw(Amount:$amount, AccountId:"$id"){
-    ...on Debit{
-      Amount
-      Notes
-      TimeStamp
+  transferFunds(input:{amount:$amount,faId:"$id"}) {
+    column
+    amount
+    currency
+    referenceId
+    faId
+    payment {
+      amount
+      currency
+      status
+      method
+      refund_status
+      amount_refunded
+      captured
     }
-  }
-}''';
-    await CustomGraphQLClient.instance.mutate(query);
-    return latestViewModel;
+    payout {
+      amount
+      currency
+      status
+      mode
+      utr
+    }
+    paymentId
+    payoutId
+  } 
+}
+''';
+    try{
+      Map response=await CustomGraphQLClient.instance.mutate(query);
+      return latestViewModel;
+    }
+    catch(e){
+      return latestViewModel;
+    }
+
   }
 
   Future<WalletModel> createWalletDeposit(Map<String, dynamic> message) async {
     int amount = message['Amount'];
     String query = '''mutation{
-  order_id:CreateWalletDeposit(Amount:$amount)
+  addFunds(input:{amount:$amount}) {
+    amount
+    currency
+    referenceId
+    paymentId
+    payoutId
+  }
 }''';
-    Map response = await CustomGraphQLClient.instance.mutate(query);
-    return latestViewModel..paymentID = response['order_id'];
+    try {
+      Map response = await CustomGraphQLClient.instance.mutate(query);
+      return latestViewModel
+        ..paymentID = response['addFunds']['paymentId']
+        ..referenceId = response['addFunds']['referenceId'];
+    } catch (e) {
+      return latestViewModel;
+    }
   }
 
   Future<WalletModel> processWalletDeposit(Map<String, dynamic> message) async {

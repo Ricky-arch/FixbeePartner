@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:fixbee_partner/ui/screens/otp.dart';
 
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:string_validator/string_validator.dart';
 import '../../Constants.dart';
 import 'otp_for_login.dart';
@@ -24,6 +25,7 @@ class _LoginState extends State<Login> {
   bool isButtonEnabled = false;
   LoginBloc _bloc;
   double width;
+
 
   @override
   void initState() {
@@ -41,6 +43,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         backgroundColor: PrimaryColors.backgroundColor,
         body: BlocWidget<LoginEvents, LoginModel>(
@@ -124,7 +127,7 @@ class _LoginState extends State<Login> {
                       child: Column(
                         children: <Widget>[
                           SizedBox(
-                            height: MediaQuery.of(context).size.height / 16,
+                            height: MediaQuery.of(context).size.height / 20,
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -190,7 +193,7 @@ class _LoginState extends State<Login> {
                           (viewModel.loading)
                               ? Padding(
                                   padding: const EdgeInsets.only(
-                                    top: 50.0,
+                                    top: 30.0,
                                   ),
                                   child: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(

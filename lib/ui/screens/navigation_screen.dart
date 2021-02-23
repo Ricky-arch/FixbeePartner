@@ -10,7 +10,6 @@ import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:vibration/vibration.dart';
@@ -18,7 +17,6 @@ import '../../Constants.dart';
 import 'custom_profile.dart';
 import 'history_screen.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:background_location/background_location.dart';
 
 class NavigationScreen extends StatefulWidget {
   final bool gotJob;
@@ -82,7 +80,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   void _setupFCM() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
+    _firebaseMessaging.requestNotificationPermissions();
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();

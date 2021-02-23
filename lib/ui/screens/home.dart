@@ -1,4 +1,3 @@
-
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/home_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
@@ -30,6 +29,9 @@ class _HomeState extends State<Home> {
   _openHive() {
     _BEENAME = Hive.box<String>("BEE");
   }
+  _updateHive(bool status){
+    _BEENAME.put("myDocumentVerification",status.toString());
+  }
 
   Future<bool> askForLocationPermissionIfDisabled() async {
     if (!await GeolocatorPlatform.instance.isLocationServiceEnabled())
@@ -40,16 +42,18 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     _openHive();
-    BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(size: Size(12, 12)), 'assets\logo\bee_white.png')
-        .then((d) {
-      customIcon = d;
-    });
+    // BitmapDescriptor.fromAssetImage(
+    //         ImageConfiguration(size: Size(12, 12)), 'assets\logo\bee_white.png')
+    //     .then((d) {
+    //   customIcon = d;
+    // });
     super.initState();
     askForLocationPermissionIfDisabled();
     _bloc = HomeBloc(HomeModel());
     _bloc.onSwitchChange = widget.onSwitchChangedState;
-    _bloc.fire(HomeEvents.getDocumentVerificationStatus);
+    _bloc.fire(HomeEvents.getDocumentVerificationStatus, onHandled: (e,m){
+      _updateHive(m.verifiedBee);
+    });
 
     var marker = Marker(
         markerId: MarkerId("Center"),
@@ -155,6 +159,13 @@ class _HomeState extends State<Home> {
                       )
                     ],
                   ),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: _BEENAME.listenable(),
+                  builder: (context, box, _) {
+                    print(_BEENAME.get("myDocumentVerification"));
+                    return Container();
+                  },
                 ),
                 (_BEENAME.get("myDocumentVerification") == "true" &&
                         _BEENAME.get("myActiveStatus") == "true")

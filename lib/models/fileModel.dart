@@ -2,6 +2,7 @@ import 'package:fixbee_partner/models/view_model.dart';
 
 class FileModel extends ViewModel{
  List <File> files= [];
+ List<Map<String, String>> f=[];
  int numberOfFiles;
   bool aadhaarUploaded=false;
   bool ageProofUploaded=false;

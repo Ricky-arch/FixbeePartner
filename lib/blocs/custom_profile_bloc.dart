@@ -22,7 +22,7 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
     if (event == CustomProfileEvent.downloadDp) return await downloadDp();
     if (event == CustomProfileEvent.checkForVerifiedAccount)
       return await checkForVerifiedAccount();
-    if(event== CustomProfileEvent.deactivateBee) return await deactivateBee();
+    if (event == CustomProfileEvent.deactivateBee) return await deactivateBee();
     return latestViewModel;
   }
 
@@ -63,24 +63,16 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
 
   Future<CustomProfileModel> downloadDp() async {
     String query = '''{
-  Me{
-    ... on Bee{
-      ID
-      DisplayPicture{
-        filename
-        mimetype
-        id
-        encoding
-      }
-    }
+  profile{
+    displayPicture
   }
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    String id = response['Me']['DisplayPicture']['id'];
+    String id = response['profile']['displayPicture'];
 
     if (id != null) {
       return latestViewModel
-        ..imageId = response['Me']['DisplayPicture']['id']
+        ..imageId = response['profile']['displayPicture']
         ..imageUrl = '${EndPoints.DOCUMENT}?id=$id';
     }
     return latestViewModel;
@@ -89,24 +81,19 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
   Future<CustomProfileModel> checkForVerifiedAccount() async {
     String query = '''
     {
-  Me {
-    ... on Bee {
-      DocumentVerification{
-        Status
+      profile{
+        documentsVerified
       }
     }
-  }
-}
-
     ''';
     Map response = await CustomGraphQLClient.instance.query(query);
 
     return latestViewModel
-      ..verifiedAccount = response['Me']['DocumentVerification']['Status'];
+      ..verifiedAccount = response['profile']['documentsVerified'];
   }
 
-  Future<CustomProfileModel> deactivateBee() async{
-    bool deactivate=false;
+  Future<CustomProfileModel> deactivateBee() async {
+    bool deactivate = false;
     String query = '''mutation{
   Update(input:{SetActive:$deactivate}){
     ... on Bee{

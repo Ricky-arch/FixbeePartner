@@ -30,9 +30,13 @@ class _DatePickerState extends State<DatePicker> {
         style: TextStyle(
             color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
         decoration: InputDecoration(
+          errorStyle: TextStyle(
+              color: PrimaryColors.whiteColor,
+              fontWeight: FontWeight.bold),
+          errorText: "Your age must be above 18 years",
           fillColor: Colors.white,
           filled: true,
-          labelText: "Date of Birth",
+          labelText: "Date of Birth*",
           labelStyle:
               TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
 //        enabledBorder: OutlineInputBorder(

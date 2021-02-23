@@ -21,6 +21,7 @@
         android:name=".Application"
         android:label="Fixbee Partner"
         android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBOtIGTYgsxiCKVDAXWy9ZPU0rUPr2P8sI"/>
@@ -53,5 +54,12 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_bee_outline" />
+<!--        <meta-data-->
+<!--            android:name="com.google.firebase.messaging.default_notification_sound"-->
+<!--            android:resource="@raw/fcmsound" />-->
+<!--            />-->
     </application>
 </manifest>

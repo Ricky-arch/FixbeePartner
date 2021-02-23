@@ -5,6 +5,7 @@ import 'package:fixbee_partner/models/all_Service.dart';
 import 'package:flutter/material.dart';
 import '../../Constants.dart';
 import 'child_service.dart';
+import 'home.dart';
 import 'navigation_screen.dart';
 
 class AllServiceSelection extends StatefulWidget {
@@ -235,6 +236,8 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 12),
                                     child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       children: [
                                         Container(
                                           height: 60,
@@ -260,24 +263,26 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                         SizedBox(
                                           width: 20,
                                         ),
-                                        Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              2,
-                                          child: Text(
-                                            _bloc
-                                                .latestViewModel
-                                                .parentServices[index]
-                                                .serviceName,
-                                            style: TextStyle(
-                                                color: PrimaryColors
-                                                    .backgroundColor,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14),
+                                        Expanded(
+                                          child: Container(
+                                            // width: MediaQuery.of(context)
+                                            //         .size
+                                            //         .width /
+                                            //     2,
+                                            child: Text(
+                                              _bloc
+                                                  .latestViewModel
+                                                  .parentServices[index]
+                                                  .serviceName,
+                                              style: TextStyle(
+                                                  color: PrimaryColors
+                                                      .backgroundColor,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 14),
+                                            ),
                                           ),
                                         ),
-                                        Spacer(),
+                                        // SizedBox(width:50),
                                         (_bloc
                                                 .latestViewModel
                                                 .parentServices[index]
@@ -427,8 +432,7 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                         onHandled: (e, m) {
                                       Navigator.of(context).pushAndRemoveUntil(
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  NavigationScreen()),
+                                              builder: (context) => NavigationScreen()),
                                           (Route<dynamic> route) => false);
                                     });
                                   },

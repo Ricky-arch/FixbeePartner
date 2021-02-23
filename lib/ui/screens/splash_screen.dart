@@ -14,7 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:page_transition/page_transition.dart';
+import 'home.dart';
 import 'login.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -36,16 +38,19 @@ class _SplashScreenState extends State<SplashScreen>
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
+        FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_MESSAGE');
       },
       onResume: (Map<String, dynamic> message) async {
         log(message.toString(), name: 'ON_RESUME');
+        FlutterRingtonePlayer.playNotification();
         Navigator.of(context).pushReplacement(
             new MaterialPageRoute(builder: (BuildContext context) {
           return NavigationScreen();
         }));
       },
       onLaunch: (message) async {
+        FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_LAUNCH');
         Navigator.of(context).pushReplacement(
             new MaterialPageRoute(builder: (BuildContext context) {
@@ -68,6 +73,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void refreshAllData(Bee bee) {
+    _BEENAME.put("myPhone", bee.phoneNumber);
     _BEENAME.put(
         ("myName"), getMyName(bee.firstName, bee.middleName, bee.lastName));
     _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");
@@ -75,6 +81,7 @@ class _SplashScreenState extends State<SplashScreen>
     _BEENAME.put("myActiveStatus", (bee.active) ? "true" : "false");
     _BEENAME.put("myWallet", bee.walletAmount.toString());
   }
+
   @override
   void initState() {
     _setupFCM();
@@ -84,13 +91,11 @@ class _SplashScreenState extends State<SplashScreen>
     _bloc.fire(Event(100), onHandled: (e, m) {
       if (m.connection) {
         if (m.tokenFound) {
-          if (_BEENAME
-              .containsKey('ID')) {
-            if (m.me.id !=
-                _BEENAME.get('ID'))
+          if (_BEENAME.containsKey('myPhone')) {
+            if (m.me.phoneNumber != _BEENAME.get('myPhone'))
               refreshAllData(m.me);
           } else
-            _BEENAME.put('ID', m.me.id);
+            _BEENAME.put('myPhone', m.me.phoneNumber);
           if (!_BEENAME.containsKey("myName"))
             _BEENAME.put(("myName"),
                 getMyName(m.me.firstName, m.me.middleName, m.me.lastName));
@@ -100,8 +105,8 @@ class _SplashScreenState extends State<SplashScreen>
           if (!_BEENAME.containsKey("dpUrl")) _BEENAME.put("dpUrl", m.me.dpUrl);
           if (!_BEENAME.containsKey("myActiveStatus"))
             _BEENAME.put("myActiveStatus", (m.me.active) ? "true" : "false");
-          if (!_BEENAME.containsKey("myWallet"))
-            _BEENAME.put("myWallet", m.me.walletAmount.toString());
+          // if (!_BEENAME.containsKey("myWallet"))
+          _BEENAME.put("myWallet", m.me.walletAmount.toString());
           if (m?.me?.services == null || m.me.services.length == 0) {
             log("SERVICE SELECTED", name: "SELECTED");
             try {
@@ -144,6 +149,9 @@ class _SplashScreenState extends State<SplashScreen>
               : NoInternetWidget(
                   retryConnecting: () {
                     _bloc.fire(Event(100), onHandled: (e, m) {
+                      print(m.me.firstName);
+                      print(m.me.services.length.toString());
+                      print(m.tokenFound.toString());
                       log(m.connection.toString(), name: "CONNECTION");
                       if (m.connection) {
                         if (m.tokenFound) {
@@ -152,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 context,
                                 PageTransition(
                                     type: PageTransitionType.fade,
-                                    child: ServiceSelectionScreen()));
+                                    child: AllServiceSelection()));
                           else {
                             Navigator.pushReplacement(
                                 context,

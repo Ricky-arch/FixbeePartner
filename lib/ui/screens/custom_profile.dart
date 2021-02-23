@@ -9,6 +9,7 @@ import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/customize_service.dart';
 import 'package:fixbee_partner/ui/screens/logout.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
+import 'package:fixbee_partner/ui/screens/transaction_account.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:flutter/material.dart';
@@ -303,10 +304,10 @@ class _CustomProfileState extends State<CustomProfile> {
                   ),
                   ProfileListItem(
                     icon: LineAwesomeIcons.cog,
-                    text: 'Update bank details',
+                    text: 'Add Transaction Account',
                     task: () {
                       Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                        return BankDetails();
+                        return TransactionAccount();
                       }));
                     },
                   ),

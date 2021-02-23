@@ -7,9 +7,11 @@ import 'package:fixbee_partner/events/billing_rating_event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
-class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> with Trackable<BankDetailsEvent, BankDetailsModel>{
+class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
+    with Trackable<BankDetailsEvent, BankDetailsModel> {
   BankDetailsBloc(BankDetailsModel genesisViewModel) : super(genesisViewModel);
-  List<BankModel> models = [];
+  List<BankModel> bankAccounts = [];
+  List<VpaModel> vPas = [];
   @override
   Future<BankDetailsModel> mapEventToViewModel(
       BankDetailsEvent event, Map<String, dynamic> message) async {
@@ -17,40 +19,79 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> with Trac
       return await fetchAllAccounts();
     if (event == BankDetailsEvent.deleteBankAccount)
       return await deleteAccount(message);
-    if (event == BankDetailsEvent.updateBankAccount)
-      return await updateBankAccount(message);
+    if (event == BankDetailsEvent.addBankAccount)
+      return await addBankAccount(message);
+    else if (event == BankDetailsEvent.addVpaAddress)
+      return await addVpaAddress(message);
     return null;
+  }
+
+  Future<BankDetailsModel> addVpaAddress(Map<String, dynamic> message) async {
+    String vpa = message['vpa'];
+    String query = '''
+      mutation {
+        addFundsAccount(input:{
+    	    address: "$vpa"
+        }) {
+              id
+              account_type
+              vpa {
+                address
+              }
+           } 
+      }
+    ''';
+    try {
+      Map response = await CustomGraphQLClient.instance.mutate(query);
+      VpaModel vm = VpaModel();
+      vm.address = vpa;
+      vm.id = response['addFundsAccount']['id'];
+      return latestViewModel
+        ..vpaAdded = true
+        ..vpaList.add(vm);
+    } catch (e) {
+      print(e);
+      return latestViewModel..vpaAdded = false;
+    }
   }
 
   Future<BankDetailsModel> fetchAllAccounts() async {
     String query = '''{
-  Me{
-    ... on Bee{
-      ID
-      BankAccounts{
-        ID
-        AccountNumber
-        IFSC
-        AccountHolderName
-        Verified
-      }
+  accounts{
+    id
+    account_type
+    bank_account{
+      name
+      account_number
+      ifsc
+    }
+    vpa{
+      address
     }
   }
 }''';
 
     Map response = await CustomGraphQLClient.instance.query(query);
-    List accounts = response['Me']['BankAccounts'];
+    List accounts = response['accounts'];
     latestViewModel..numberOfAccounts = accounts.length;
     accounts.forEach((account) {
-      BankModel bm = BankModel();
-      bm.accountHoldersName = account['AccountHolderName'];
-      bm.ifscCode = account['IFSC'];
-      bm.accountVerified = account['Verified'];
-      bm.accountID = account['ID'];
-      bm.bankAccountNumber = account['AccountNumber'];
-      models.add(bm);
+      if (account['account_type'] == 'bank_account') {
+        BankModel bm = BankModel();
+        bm.accountHoldersName = account['bank_account']['name'];
+        bm.ifscCode = account['bank_account']['ifsc'];
+        bm.accountID = account['id'];
+        bm.bankAccountNumber = account['bank_account']['account_number'];
+        bankAccounts.add(bm);
+      } else {
+        VpaModel vm = VpaModel();
+        vm.address = account['vpa']['address'];
+        vm.id = account['id'];
+        vPas.add(vm);
+      }
     });
-    return latestViewModel..bankAccountList = models;
+    return latestViewModel
+      ..bankAccountList = bankAccounts
+      ..vpaList = vPas;
   }
 
   Future<BankDetailsModel> deleteAccount(Map<String, dynamic> message) async {
@@ -68,61 +109,52 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel> with Trac
       ..bankAccountList.removeWhere((element) => element.accountID == id);
   }
 
-  Future<BankDetailsModel> updateBankAccount(
+  Future<BankDetailsModel> addBankAccount(
       Map<String, dynamic> message) async {
     String accountHoldersName = message['accountHoldersName'],
         accountNumber = message['accountNumber'],
         ifsc = message['ifscCode'];
-    String query = '''mutation{
-  Update(input:
-    {
-      AddBankAccount: {
-        AccountNumber:"$accountNumber"
-        IFSC:"$ifsc"
-        AccountHolderName:"$accountHoldersName"
+    String query = '''
+      mutation {
+        addFundsAccount(input:{
+          name: "$accountHoldersName"
+          ifsc: "$ifsc"
+          account_number: "$accountNumber"
+      }) {
+      id
+      account_type
+      bank_account {
+        name
+        ifsc
+        account_number
       }
-    }
-  ){
-    ... on Bee{
-      ID
-      BankAccounts{
-        ID
-        IFSC
-        AccountNumber
-        AccountHolderName
-        Verified
-      }
-    }
+    } 
   }
-  
-}
     ''';
     try {
       Map response = await CustomGraphQLClient.instance.mutate(query);
-      List accounts = response['Update']['BankAccounts'];
-      latestViewModel..numberOfAccounts = accounts.length;
-      BankModel nm= BankModel();
-      nm.accountHoldersName=accounts[accounts.length-1]['AccountHolderName'];
-      nm.ifscCode=accounts[accounts.length-1]['IFSC'];
-      nm.accountVerified=accounts[accounts.length-1]['Verified'];
-      nm.accountID=accounts[accounts.length-1]['ID'];
-      nm.bankAccountNumber=accounts[accounts.length-1]['AccountNumber'];
-      models.add(nm);
-
+      BankModel bm = BankModel();
+      bm.accountHoldersName = accountHoldersName;
+      bm.ifscCode = ifsc;
+      bm.accountID = response['addFundsAccount']['id'];
+      bm.bankAccountNumber = accountNumber;
       return latestViewModel
-        ..bankAccountList = models
+        ..bankAccountList.add(bm)
         ..updated = true;
     } catch (e) {
-      log(e.toString(), name:"Account Error");
-      return latestViewModel..updated = false..bankAccountList=models;
+      log(e.toString(), name: "Account Error");
+      return latestViewModel..updated = false
+          // ..bankAccountList = models
+          ;
     }
   }
 
   @override
-  BankDetailsModel setTrackingFlag(BankDetailsEvent event, bool trackFlag, Map message) {
-    if(event== BillingRatingEvent.fetchOderBillDetails)
-      return latestViewModel..fetchingBankAccounts=trackFlag;
-    latestViewModel..addingAccount=trackFlag;
+  BankDetailsModel setTrackingFlag(
+      BankDetailsEvent event, bool trackFlag, Map message) {
+    if (event == BillingRatingEvent.fetchOderBillDetails)
+      return latestViewModel..fetchingBankAccounts = trackFlag;
+    latestViewModel..addingAccount = trackFlag;
     return latestViewModel;
   }
 }

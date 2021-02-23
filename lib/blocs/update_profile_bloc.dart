@@ -22,6 +22,22 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> wit
     return latestViewModel;
   }
 
+//   {
+//   profile{
+//   name{
+//   firstName
+//   middleName
+//   lastName
+// }
+// email
+// personalDetails{
+// dateOfBirth
+// gender
+// }
+// }
+// }
+
+
   Future<UpdateProfileModel> fetchBeeDetails() async {
     String query = '''
     {Me

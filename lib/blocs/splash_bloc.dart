@@ -51,9 +51,11 @@ class SplashBloc extends Bloc<Event, SplashModel>
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.containsKey(SharedPrefKeys.TOKEN)) {
       String token = pref.getString(SharedPrefKeys.TOKEN);
-      log(token, name: 'TOKEN');
       DataStore.token = token;
+      log(DataStore.token, name: 'TOKEN');
+      CustomGraphQLClient.instance.reinstantiate(token);
       Bee bee = await _checkToken(token);
+
       return latestViewModel
         ..me = bee
         ..tokenFound = true;
@@ -64,70 +66,61 @@ class SplashBloc extends Bloc<Event, SplashModel>
   Future<Bee> _checkToken(String token) async {
     String query = '''
     {
-  Me {
-    ... on Bee {
-      ID
-      DocumentVerification {
-        Status
-      }
-      Wallet {
-        Amount
-      }
-      Active
-      Ratings {
-        Score
-      }
-      DisplayPicture {
-        id
-      }
-      Services {
-        ID
-        Name
-      }
-      Name {
-        Firstname
-        Middlename
-        Lastname
-      }
-      Phone {
-        Number
-        Verified
-      }
+  profile{
+    name{
+      firstName
+      middleName
+      lastName
+    }
+    documentsVerified
+    displayPicture
+    email
+    phone
+    services{id}
+    active
+    canReceiveOrders
+    services{
+      id
+      name
     }
   }
+  wallet{
+    amount
+  }
 }
-
-
     ''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    Bee bee;
 
-    Map name = response['Me']['Name'];
-    Map phone = response['Me']['Phone'];
-    List services = response['Me']['Services'] ?? [];
-    String dpUrl = (response['Me']['DisplayPicture']['id'] == null)
-        ? null
-        : EndPoints.DOCUMENT + '?id=' + response['Me']['DisplayPicture']['id'];
-
-    bee = Bee()
-      ..firstName = name['Firstname']
-      ..middleName = name['Middlename'] ?? ''
-      ..lastName = name['Lastname'] ?? ''
-      ..phoneNumber = phone['Number']
-      ..verified = response['Me']['DocumentVerification']['Status']
-      ..dpUrl = dpUrl
-      ..walletAmount = response['Me']['Wallet']['Amount']
-      ..id=response['Me']['ID']
-      ..active = response['Me']['Active'].toString().toLowerCase() == 'true'
-      ..services = services.map((service) {
-        if (service != null)
-          return ServiceOptionModel()
-            ..id = service['ID']
-            ..serviceName = service['Name'];
-      }).toList();
-    log(bee.active.toString(), name: "ACTIVE");
-    DataStore.me = bee;
-    return bee;
+    try {
+      Bee bee;
+      Map response = await CustomGraphQLClient.instance.query(query);
+      Map name = response['profile']['name'];
+      List services = response['profile']['services'] ?? [];
+      String dpUrl = (response['profile']['displayPicture'] == null)
+          ? null
+          : EndPoints.DOCUMENT + '?id=' + response['profile']['displayPicture'];
+      bee = Bee()
+        ..firstName = name['firstName']
+        ..middleName = name['middleName'] ?? ''
+        ..lastName = name['lastName'] ?? ''
+        ..phoneNumber = response['profile']['phone']
+        ..verified = response['profile']['documentsVerified']
+        ..dpUrl = dpUrl
+        ..walletAmount = response['wallet']['amount']
+        ..active =
+            response['profile']['active'].toString().toLowerCase() == 'true'
+        ..services = services.map((service) {
+          if (service != null)
+            return ServiceOptionModel()
+              ..id = service['id']
+              ..serviceName = service['name'];
+        }).toList();
+      log(bee.active.toString(), name: "ACTIVE");
+      DataStore.me = bee;
+      return bee;
+    } catch (e) {
+      print(e);
+      return Bee();
+    }
   }
 
   void getMessage() {

@@ -14,4 +14,6 @@ class WalletModel extends ViewModel{
   String signature;
   bool isProcessed=false;
   List<BankModel> bankAccountList=[];
+  String referenceId;
+  List<VpaModel> vpaList=[];
 }

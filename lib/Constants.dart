@@ -15,7 +15,7 @@ class Constants {
   static const RAZORPAY_KEY = 'rzp_live_T9wLKrbt1yS0q2';
   static const double padding =20;
   static const double avatarRadius =45;
-  static const RAZORPAY_KEY_SECRET = 'TEnKYa9uZXail5Yu3ptCPZv8';
+  static const RAZORPAY_KEY_SECRET = 'hvqdBB0YDVddsZ1EjKvfRw7f';
   static const MINIMUM_WALLET_AMOUNT=1;
   static const MAP_STYLES='''[
   {
@@ -211,7 +211,7 @@ class EndPoints {
       "${Constants.PROTOCOL}://${Constants.HOST_IP}/bee/request";
   static const REGISTER =
       "${Constants.PROTOCOL}://${Constants.HOST_IP}/bee/register";
-  static const GRAPHQL = "${Constants.PROTOCOL}://${Constants.HOST_IP}/graphql";
+  static const GRAPHQL = "${Constants.PROTOCOL}://${Constants.HOST_IP}/graphql/b";
   static const GRAPHQL_WS =
       "${Constants.WS_PROTOCOL}://${Constants.HOST_IP}/graphql";
   static const DOCUMENT =
@@ -234,3 +234,5 @@ class PrimaryColors {
   static Color whiteColor = Colors.white;
   static Color backgroundcolorlight = Color(0xfff5f5f5);
 }
+// RAZORPAY_KEY_ID=rzp_live_T9wLKrbt1yS0q2
+// RAZORPAY_KEY_SECRET=hvqdBB0YDVddsZ1EjKvfRw7f

@@ -2,6 +2,7 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/login_events.dart';
 import 'package:fixbee_partner/models/login_model.dart';
+import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:fixbee_partner/utils/request_maker.dart';
 import 'flavours.dart';
 
@@ -26,16 +27,24 @@ class LoginBloc extends Bloc<LoginEvents, LoginModel>
   }
 
   Future<LoginModel> _request(Map<String, dynamic> message) async {
-    Map response = await RequestMaker(
-            endpoint: EndPoints.REQUEST_OTP, body: {'phone': message['phone']})
-        .makeRequest()
-        .timeout(Duration(seconds: 5));
-   if( response.containsKey('sent') && response['sent'])    {
-     print(response['otp']);
-      return latestViewModel..exist = true;
-
-    } else {
-      return latestViewModel..exist = false;
+    String query='''mutation {
+  sendOtp(input:{phone:"${message['phone']}"}) {
+    phone
+  }
+}''';
+    try{
+      Map response= await CustomGraphQLClient.instance.mutate(query);
+      return latestViewModel..exist=true;
     }
+    catch(e){
+      print(e);
+      return latestViewModel..exist=false;
+    }
+   // if( response.containsKey('sent') && response['sent'])    {
+   //   print(response['otp']);
+   //    return latestViewModel..exist = true;
+   //  } else {
+   //    return latestViewModel..exist = false;
+   //  }
   }
 }

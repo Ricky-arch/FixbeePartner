@@ -49,24 +49,32 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
   }
 
   Future<OtpModel> _onOtpVerify(String phone, String otp) async {
-    Map response = await RequestMaker(
-        endpoint: EndPoints.LOGIN,
-        body: {'phone': phone, 'otp': otp}).makeRequest();
-
-    if (response.containsKey('error')) {
-      if (response['error'] == 'OTP invalid or past expiration') {
-        return latestViewModel..otpValid = false;
+    String query='''
+    mutation {
+  login(input:{
+    select:{ phone: "$phone" }
+    secret: { otp: "$otp" }
+  }) {
+    token
+  }
+}
+    ''';
+      try{
+        Map response;
+        response= await CustomGraphQLClient.instance.mutate(query);
+        String token=response['login']['token'];
+        print(token);
+        await _saveToken(token);
+        CustomGraphQLClient.instance.reinstantiate(token);
+        DataStore.token = token;
+        return latestViewModel
+          ..valid = true
+          ..otpValid = true;
       }
-    }
-
-    if (response.containsKey('token')) {
-      await _saveToken(response['token']);
-      DataStore.token = response['token'];
-      latestViewModel
-        ..valid = true
-        ..otpValid = true;
-    }
-    return latestViewModel;
+      catch(e){
+        print(e);
+        return latestViewModel..otpValid=false;
+      }
   }
 
   _saveToken(String token) async {
@@ -75,79 +83,59 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
   }
 
   Future<OtpModel> checkForServiceSelected() async {
-    String query = '''{
-  Me{
-    ...on Bee{
-      Services{
-        Name
-        ID
-      }
-    }
+    String query = '''{profile{
+  services{
+    id
   }
-}''';
+}}''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    List services = response['Me']['Services'];
+    List services = response['profile']['services'];
     if (services.length != 0) return latestViewModel..serviceSelected = true;
     return latestViewModel;
   }
 
   Future<OtpModel> fetchSaveBeeDetails() async {
-    String query = '''{
-  Me{
-    ...on Bee{
-    ID
-    Active
-      ID
-      Name{
-        Firstname
-        Middlename
-        Lastname
-      }
-      DisplayPicture {
-        id
-      }
-      DocumentVerification{
-        Status
-      }
-      Ratings{
-        Score
-      }
-      Email
-      Phone{Number}
-      FCMToken
-      DOB
-      Services{
-        ID
-        Name
-      }
-      Wallet{
-        Amount
-      }
-      BankAccounts{
-        ID
-        AccountNumber
-        IFSC
-        AccountHolderName
-      }
-    }
-  }
+    String query='''{
+ profile {
+   name {
+     firstName
+     middleName
+     lastName
+   }
+   displayPicture
+   documentsVerified
+   email
+   emailVerified
+   active
+   phone
+   services{id}
+   phoneVerified
+   personalDetails {
+     dateOfBirth
+     gender
+   }
+ }
 }''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    Bee bee = Bee()
-      ..firstName = response['Me']['Name']['Firstname']
-      ..id=response['Me']['ID']
-      ..middleName = response['Me']['Name']['Middlename'] ?? ''
-      ..lastName = response['Me']['Name']['Lastname'] ?? ''
-      ..verified=response['Me']['DocumentVerification']['Status']
-      ..walletAmount=response['Me']['Wallet']['Amount']
-      ..active=response['Me']['Active'].toString().toLowerCase()=='true'
-      ..dpUrl =(response['Me']['DisplayPicture']['id']==null)?null:
-          EndPoints.DOCUMENT + '?id=' + response['Me']['DisplayPicture']['id']
-      ..phoneNumber = response['Me']['Phone']['Number'];
-    DataStore.me = bee;
-    DataStore.fcmToken = response['Me']['FCMToken'];
-    print("xxxxx" + response['Me']['FCMToken']);
-    return latestViewModel..bee=bee;
+      Map response;
+      response = await CustomGraphQLClient.instance.query(query);
+      Map beeProfile= response['profile'];
+      Bee bee = Bee()
+        ..firstName = beeProfile['name']['firstName']
+        ..middleName = beeProfile['name']['middleName'] ?? ''
+        ..lastName = beeProfile['name']['lastName'] ?? ''
+        ..verified=beeProfile['documentsVerified']
+        ..walletAmount=00
+        ..active=beeProfile['active']
+        ..dpUrl =(beeProfile['displayPicture']==null)?null:
+        EndPoints.DOCUMENT + '?id=' + beeProfile['displayPicture']
+        ..phoneNumber = beeProfile['phone'];
+      DataStore.me = bee;
+      DataStore.fcmToken = beeProfile['fcmToken'];
+      if(beeProfile['services'].length==0)
+        latestViewModel.serviceSelected=false;
+      else
+        latestViewModel.serviceSelected=true;
+      return latestViewModel..bee=bee..gotBeeDetails=true;
   }
 
   Future<OtpModel> getFcmToken() async {
@@ -169,11 +157,12 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
   }
 
   Future<OtpModel> resendOtp(Map<String, dynamic> message) async {
-    Map response = await RequestMaker(
-            endpoint: EndPoints.REQUEST_OTP, body: {'phone': message['phone']})
-        .makeRequest()
-        .timeout(Duration(seconds: 5));
-    log(response.toString());
+    String query='''mutation {
+  sendOtp(input:{phone:"${message['phone']}"}) {
+    phone
+  }
+}''';
+      Map response= await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
 }
