@@ -133,13 +133,13 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
     ''';
     try {
       Map response = await CustomGraphQLClient.instance.mutate(query);
-      BankModel bm = BankModel();
-      bm.accountHoldersName = accountHoldersName;
-      bm.ifscCode = ifsc;
-      bm.accountID = response['addFundsAccount']['id'];
-      bm.bankAccountNumber = accountNumber;
+      // BankModel bm = BankModel();
+      // bm.accountHoldersName = accountHoldersName;
+      // bm.ifscCode = ifsc;
+      // bm.accountID = response['addFundsAccount']['id'];
+      // bm.bankAccountNumber = accountNumber;
       return latestViewModel
-        ..bankAccountList.add(bm)
+        // ..bankAccountList.add(bm)
         ..updated = true;
     } catch (e) {
       log(e.toString(), name: "Account Error");
@@ -152,9 +152,16 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
   @override
   BankDetailsModel setTrackingFlag(
       BankDetailsEvent event, bool trackFlag, Map message) {
-    if (event == BillingRatingEvent.fetchOderBillDetails)
-      return latestViewModel..fetchingBankAccounts = trackFlag;
-    latestViewModel..addingAccount = trackFlag;
+
+
+    if(event== BankDetailsEvent.addBankAccount){
+      latestViewModel..addingAccount = trackFlag;
+    }
+    else if(event== BankDetailsEvent.addVpaAddress){
+      latestViewModel..addingVpaAccount=trackFlag;
+    }
+   
+    
     return latestViewModel;
   }
 }

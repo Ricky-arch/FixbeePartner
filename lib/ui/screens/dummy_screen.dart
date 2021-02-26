@@ -1,11 +1,17 @@
 import 'dart:developer';
 
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:fixbee_partner/blocs/all_service_bloc.dart';
 import 'package:fixbee_partner/events/all_services_event.dart';
+import 'package:fixbee_partner/ui/custom_widget/date_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fixbee_partner/models/all_Service.dart';
+import 'package:flutter/rendering.dart';
 import 'package:hive/hive.dart';
+
+import '../../Constants.dart';
 
 class Dummy extends StatefulWidget {
   @override
@@ -13,52 +19,15 @@ class Dummy extends StatefulWidget {
 }
 
 class _DummyState extends State<Dummy> {
-  String code = "";
-  AllServiceBloc _bloc;
 
-  List gS = [];
-  Box SERVICE;
-  openHive() async {
-    SERVICE = Hive.box("SERVICE");
-  }
 
   @override
   void initState() {
-    _bloc = AllServiceBloc(AllService());
-    _bloc.openHive();
-    _bloc.fire(AllServicesEvent.fetchTreeService, onHandled: (e, m) {
-      openHive();
-      SERVICE.add('GET');
-    });
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-      log(SERVICE.values.toString(), name:"ppp");
-      return (viewModel.fetching)
-          ? CircularProgressIndicator()
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // ListView.builder(
-                //   shrinkWrap: true,
-                //   physics: NeverScrollableScrollPhysics(),
-                //   itemCount: 1,
-                //   itemBuilder: (BuildContext context, int index) {
-                //     return Container(
-                //       child: Padding(
-                //         padding: EdgeInsets.all(12),
-                //         child: Text(SERVICE.getAt(0)),
-                //       ),
-                //     );
-                //   },
-                // )
-              ],
-            );
-    }));
+    return Container();
   }
 }

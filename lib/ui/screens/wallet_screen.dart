@@ -53,15 +53,26 @@ class _WalletScreenState extends State<WalletScreen> {
     super.initState();
     _openHive();
     _bloc = WalletBloc(WalletModel());
-    setState(() {
-      walletAmountInpaise = int.parse(_BEENAME.get("myWallet"));
-      if (walletAmountInpaise != null) {
-        walletAmount = (walletAmountInpaise / 100).toDouble();
-      }
-    });
+
+
+
     _bloc.fire(WalletEvent.fetchBankAccountsForWithdrawal, onHandled: (e, m) {
       selectedAccountNumber = m.bankAccountList[0].bankAccountNumber;
     });
+    if(!_BEENAME.containsKey('myWallet')){
+      _bloc.fire(WalletEvent.fetchWalletAmount, onHandled: (e,m){
+        walletAmountInpaise = m.amount;
+        if (walletAmountInpaise != null) {
+
+          walletAmount = (walletAmountInpaise / 100).toDouble();
+          _BEENAME.put('myWallet',walletAmountInpaise.toString());
+        }
+      });
+    }
+    else{
+      walletAmountInpaise=int.parse(_BEENAME.get('myWallet'));
+      walletAmount = (walletAmountInpaise / 100).toDouble();
+    }
 
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -447,9 +458,13 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                                           onChanged: (val) {
                                                                                             selectedAccountID = viewModel.vpaList[index].id;
                                                                                             setState(() => selectedRadio = val);
-                                                                                            if (selectedRadio == 1) {
-                                                                                              selectedAccountNumber = viewModel.vpaList[index].address;
-                                                                                              selectedAccountID = viewModel.vpaList[index].id.toString();
+                                                                                            print(selectedRadio);
+                                                                                            if (viewModel.vpaList.length == 1) {
+                                                                                              selectedAccountNumber = viewModel.vpaList[0].address;
+                                                                                              selectedAccountID = viewModel.vpaList[0].id.toString();
+                                                                                            } else {
+                                                                                              selectedAccountNumber = viewModel.vpaList[selectedRadio].address;
+                                                                                              selectedAccountID = viewModel.vpaList[selectedRadio].id.toString();
                                                                                             }
                                                                                           },
                                                                                         ),
@@ -675,9 +690,12 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                                       onChanged: (val) {
                                                                                         selectedAccountID = viewModel.bankAccountList[index].accountID;
                                                                                         setState(() => selectedRadio = val);
-                                                                                        if (selectedRadio == 1) {
-                                                                                          selectedAccountNumber = viewModel.bankAccountList[index].bankAccountNumber;
-                                                                                          selectedAccountID = viewModel.bankAccountList[index].accountID.toString();
+                                                                                        if (viewModel.vpaList.length == 1) {
+                                                                                          selectedAccountNumber = viewModel.vpaList[0].address;
+                                                                                          selectedAccountID = viewModel.vpaList[0].id.toString();
+                                                                                        } else {
+                                                                                          selectedAccountNumber = viewModel.vpaList[selectedRadio].address;
+                                                                                          selectedAccountID = viewModel.vpaList[selectedRadio].id.toString();
                                                                                         }
                                                                                       },
                                                                                     ),

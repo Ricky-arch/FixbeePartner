@@ -18,56 +18,49 @@ class _DatePickerState extends State<DatePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
-      DateTimeField(
-        controller: widget.controller,
-        validator: (value) {
-          if (value.toIso8601String().isEmpty) {
-            return 'Please Enter Your Date of Birth';
-          }
-          return null;
-        },
-        style: TextStyle(
-            color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
-        decoration: InputDecoration(
-          errorStyle: TextStyle(
-              color: PrimaryColors.whiteColor,
-              fontWeight: FontWeight.bold),
-          errorText: "Your age must be above 18 years",
-          fillColor: Colors.white,
-          filled: true,
-          labelText: "Date of Birth*",
-          labelStyle:
-              TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
-//        enabledBorder: OutlineInputBorder(
-//          borderSide: const BorderSide(
-//              color: Colors.black, width: 2.0),
-//          borderRadius: BorderRadius.circular(15.0),
-//        )
-        ),
-        format: format,
-        onShowPicker: (context, currentValue) {
-          return showDatePicker(
-              builder: (BuildContext context, Widget child) {
-                return Theme(
-                  data: ThemeData.light().copyWith(
-                    colorScheme: ColorScheme.light(
-                        primary: PrimaryColors.backgroundColor),
-                    focusColor: Colors.yellow,
-                    backgroundColor: Colors.yellow,
-                    buttonTheme: ButtonThemeData(buttonColor: Colors.black),
-                  ),
-                  child: child,
-                );
-              },
-              context: context,
-              firstDate: DateTime(1950),
-              initialDate: currentValue ??
-                  _currentDate.subtract(Duration(days: 365 * 18)),
-              lastDate: _currentDate.subtract(Duration(days: 365 * 18)));
-        },
+    return DateTimeField(
+      controller: widget.controller,
+      validator: (value) {
+        if (value.toIso8601String().isEmpty) {
+          return 'Please Enter Your Date of Birth';
+        }
+        return null;
+      },
+      style: TextStyle(
+          color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
+      decoration: InputDecoration(
+        errorStyle: TextStyle(
+            color: PrimaryColors.whiteColor,
+            fontWeight: FontWeight.bold),
+        errorText: "Your age must be above 18 years",
+        fillColor: Colors.white,
+        filled: true,
+        labelText: "Date of Birth*",
+        labelStyle:
+            TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
       ),
-    ]);
+      format: format,
+      onShowPicker: (context, currentValue) {
+        return showDatePicker(
+            builder: (BuildContext context, Widget child) {
+              return Theme(
+                data: ThemeData.light().copyWith(
+                  colorScheme: ColorScheme.light(
+                      primary: PrimaryColors.backgroundColor),
+                  focusColor: Colors.yellow,
+                  backgroundColor: Colors.yellow,
+                  buttonTheme: ButtonThemeData(buttonColor: Colors.black),
+                ),
+                child: child,
+              );
+            },
+            context: context,
+            firstDate: DateTime(1950),
+            initialDate: currentValue ??
+                _currentDate.subtract(Duration(days: 365 * 18)),
+            lastDate: _currentDate.subtract(Duration(days: 365 * 18)));
+      },
+    );
   }
 }
 

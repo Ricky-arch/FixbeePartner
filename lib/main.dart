@@ -2,7 +2,9 @@
 import 'dart:io';
 
 import 'package:fixbee_partner/Constants.dart';
+import 'package:fixbee_partner/ui/custom_widget/custom_date_picker.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_digit_widget.dart';
+import 'package:fixbee_partner/ui/custom_widget/transaction_type.dart';
 import 'package:fixbee_partner/ui/screens/all_service_selection_screen.dart';
 import 'package:fixbee_partner/ui/screens/dummy_screen.dart';
 import 'package:fixbee_partner/ui/screens/login.dart';
@@ -42,8 +44,9 @@ void main() async{
           //SplashScreen()
         //Registration()
         //Login()
-        //Dummy()
+        //CustomDatePicker()
         //AllServiceSelection()
+        //TransactionType()
         SplashScreen()
       ),
     ),

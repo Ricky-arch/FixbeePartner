@@ -1,9 +1,9 @@
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/view_model.dart';
 
-class UpdateProfileModel extends ViewModel{
-  bool loading=false;
-  List<Address> addresses=[];
+class UpdateProfileModel extends ViewModel {
+  bool loading = false;
+  List<Address> addresses = [];
   int id;
   bool verified = false;
   String firstName;
@@ -19,8 +19,16 @@ class UpdateProfileModel extends ViewModel{
   DateTime dateOfBirth;
   String district;
   String gender;
+  bool updatingFirstName = false;
+  bool updatingMiddleName = false;
+  bool updatingLastName = false;
+  bool updatingEmail = false;
+  bool updatingAlternatePhoneNumber = false;
+  bool updatingAddress = false;
+  bool updatingPinCode = false;
 }
-class Address{
+
+class Address {
   String locationId;
   String landmark;
   String addressLine;

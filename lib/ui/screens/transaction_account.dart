@@ -23,6 +23,8 @@ class _TransactionAccountState extends State<TransactionAccount> {
   final _vpaKey = GlobalKey<FormState>();
   bool _bankValidate = false;
   bool _vpaValidate = false;
+  List<VpaModel> vpaList = [];
+  List<BankModel> bankList = [];
   @override
   void initState() {
     _bloc = BankDetailsBloc(BankDetailsModel());
@@ -117,53 +119,61 @@ class _TransactionAccountState extends State<TransactionAccount> {
                             child: CircularProgressIndicator(),
                           ))
                         ]);
-                      else
+                      else {
                         return TabBarView(
                           children: [
                             Tab(
                               child: Scaffold(
-                                body: (snapshot.data.bankAccountList.length !=
-                                        0)
-                                    ? ListView.builder(
-                                        shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        itemCount: snapshot
-                                            .data.bankAccountList.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          return Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      "Account ${index + 1}:",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold),
+                                body: (bankList.length != 0)
+                                    ? ListView(
+                                        children: [
+                                          ListView.builder(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  NeverScrollableScrollPhysics(),
+                                              scrollDirection: Axis.vertical,
+                                              itemCount: snapshot
+                                                  .data.bankAccountList.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                return Column(
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: Text(
+                                                            "Account ${index + 1}:",
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          ),
+                                                        ),
+                                                        Spacer(),
+                                                      ],
                                                     ),
-                                                  ),
-                                                  Spacer(),
-                                                ],
-                                              ),
-                                              AvailableAccounts(
-                                                isBankAccount: true,
-                                                accountHoldersName: snapshot
-                                                    .data
-                                                    .bankAccountList[index]
-                                                    .accountHoldersName,
-                                                accountNumber: snapshot
-                                                    .data
-                                                    .bankAccountList[index]
-                                                    .bankAccountNumber,
-                                              ),
-                                            ],
-                                          );
-                                        })
+                                                    AvailableAccounts(
+                                                      isBankAccount: true,
+                                                      accountHoldersName: snapshot
+                                                          .data
+                                                          .bankAccountList[
+                                                              index]
+                                                          .accountHoldersName,
+                                                      accountNumber: snapshot
+                                                          .data
+                                                          .bankAccountList[
+                                                              index]
+                                                          .bankAccountNumber,
+                                                    ),
+                                                  ],
+                                                );
+                                              }),
+                                        ],
+                                      )
                                     : Text('No Bank Accounts Added',
                                         style: TextStyle(color: Colors.black)),
                                 floatingActionButton: FloatingActionButton(
@@ -184,27 +194,37 @@ class _TransactionAccountState extends State<TransactionAccount> {
                             Tab(
                               child: Scaffold(
                                 body: (snapshot.data.vpaList.length != 0)
-                                    ? ListView.builder(
-                                        shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        scrollDirection: Axis.vertical,
-                                        itemCount: snapshot.data.vpaList.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          return Column(
-                                            children: [
-                                              SizedBox(height: 10,),
-                                              AvailableAccounts(
-                                                isBankAccount: false,
-                                                addressIndex: index + 1,
-                                                accountHoldersName: snapshot
-                                                    .data
-                                                    .vpaList[index]
-                                                    .address,
-                                              ),
-                                            ],
-                                          );
-                                        })
+                                    ? ListView(
+                                        children: [
+                                          ListView.builder(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  NeverScrollableScrollPhysics(),
+                                              scrollDirection: Axis.vertical,
+                                              itemCount:
+                                                  snapshot.data.vpaList.length,
+                                              itemBuilder:
+                                                  (BuildContext context,
+                                                      int index) {
+                                                return Column(
+                                                  children: [
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    AvailableAccounts(
+                                                      isBankAccount: false,
+                                                      addressIndex: index + 1,
+                                                      accountHoldersName:
+                                                          snapshot
+                                                              .data
+                                                              .vpaList[index]
+                                                              .address,
+                                                    ),
+                                                  ],
+                                                );
+                                              }),
+                                        ],
+                                      )
                                     : Text('No Vpa Accounts Added',
                                         style: TextStyle(color: Colors.black)),
                                 floatingActionButton: FloatingActionButton(
@@ -224,6 +244,7 @@ class _TransactionAccountState extends State<TransactionAccount> {
                             )
                           ],
                         );
+                      }
                     },
                   ),
                 )
@@ -246,6 +267,9 @@ class _TransactionAccountState extends State<TransactionAccount> {
             padding: MediaQuery.of(context).viewInsets,
             child: Wrap(
               children: <Widget>[
+                (_bloc.latestViewModel.addingAccount)
+                    ? LinearProgressIndicator()
+                    : SizedBox(),
                 Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -362,54 +386,54 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                 color: PrimaryColors.backgroundColor,
                                 onPressed: () {
                                   if (_bankKey.currentState.validate()) {
-                                    _bloc.fire(BankDetailsEvent.addBankAccount,
-                                        message: {
-                                          'accountHoldersName':
-                                              _accountHoldersName.text,
-                                          'ifscCode': _ifscCode.text,
-                                          'accountNumber':
-                                              _bankAccountNumber.text
-                                        }, onHandled: (e, m) {
-
-                                      Navigator.pop(context);
-                                      if (m.updated) {
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                content: Text(
-                                                  "Account added successfully!",
-                                                  style: TextStyle(
-                                                      color: PrimaryColors
-                                                          .backgroundColor,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14),
-                                                ),
-                                              );
-                                            });
-                                      } else {
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                content: Text(
-                                                  "Invalid Account!",
-                                                  style: TextStyle(
-                                                      color: PrimaryColors
-                                                          .backgroundColor,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 14),
-                                                ),
-                                              );
-                                            });
-                                      }
-                                    }, onFired: (e, m) {
-                                      _accountHoldersName.clear();
-                                      _ifscCode.clear();
-                                      _bankAccountNumber.clear();
-                                    });
+                                    _bloc.fire(
+                                      BankDetailsEvent.addBankAccount,
+                                      message: {
+                                        'accountHoldersName':
+                                            _accountHoldersName.text,
+                                        'ifscCode': _ifscCode.text,
+                                        'accountNumber': _bankAccountNumber.text
+                                      },
+                                      onHandled: (e, m) {
+                                        Navigator.pop(context);
+                                        _accountHoldersName.clear();
+                                        _ifscCode.clear();
+                                        _bankAccountNumber.clear();
+                                        if (m.updated) {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  content: Text(
+                                                    "Account added successfully!",
+                                                    style: TextStyle(
+                                                        color: PrimaryColors
+                                                            .backgroundColor,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14),
+                                                  ),
+                                                );
+                                              });
+                                        } else {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  content: Text(
+                                                    "Invalid Account!",
+                                                    style: TextStyle(
+                                                        color: PrimaryColors
+                                                            .backgroundColor,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14),
+                                                  ),
+                                                );
+                                              });
+                                        }
+                                      },
+                                    );
                                   }
                                 },
                                 child: Padding(
@@ -434,7 +458,6 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                     PrimaryColors.backgroundColor,
                                 textColor: PrimaryColors.backgroundColor,
                                 onPressed: () {
-
                                   Navigator.pop(context);
                                 },
                                 child: Padding(
@@ -471,6 +494,9 @@ class _TransactionAccountState extends State<TransactionAccount> {
             padding: MediaQuery.of(context).viewInsets,
             child: Wrap(
               children: <Widget>[
+                (_bloc.latestViewModel.addingVpaAccount)
+                    ? LinearProgressIndicator()
+                    : SizedBox(),
                 Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,7 +567,6 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                               .toString()
                                               .trim()
                                         }, onHandled: (e, m) {
-
                                       Navigator.pop(context);
                                       if (m.vpaAdded) {
                                         showDialog(

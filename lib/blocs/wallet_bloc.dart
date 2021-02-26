@@ -54,7 +54,10 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
   }
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
+
     DataStore.me.walletAmount = response['wallet']['amount'];
+    latestViewModel.walletAmount=response['wallet']['amount'];
+    print(latestViewModel.walletAmount.toString()+'FROM BLOC');
     return latestViewModel..amount = response['wallet']['amount'];
   }
 

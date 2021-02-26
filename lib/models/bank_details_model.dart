@@ -9,6 +9,7 @@ class BankDetailsModel extends ViewModel{
   bool fetchingBankAccounts=false;
   bool vpaAdded=false;
   List<VpaModel> vpaList=[];
+  bool addingVpaAccount=false;
 
 }
 class BankModel extends ViewModel{

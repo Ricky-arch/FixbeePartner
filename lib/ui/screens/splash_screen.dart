@@ -79,7 +79,19 @@ class _SplashScreenState extends State<SplashScreen>
     _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");
     _BEENAME.put("dpUrl", bee.dpUrl);
     _BEENAME.put("myActiveStatus", (bee.active) ? "true" : "false");
-    _BEENAME.put("myWallet", bee.walletAmount.toString());
+
+    //_BEENAME.put("myWallet", bee.walletAmount.toString());
+  }
+
+  void putIntoHive(Bee bee) {
+    _BEENAME.put("myPhone", bee.phoneNumber);
+    _BEENAME.put(
+        ("myName"), getMyName(bee.firstName, bee.middleName, bee.lastName));
+    _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");
+    _BEENAME.put("dpUrl", bee.dpUrl);
+    _BEENAME.put("myActiveStatus", (bee.active) ? "true" : "false");
+
+    //_BEENAME.put("myWallet", bee.walletAmount.toString());
   }
 
   @override
@@ -94,19 +106,9 @@ class _SplashScreenState extends State<SplashScreen>
           if (_BEENAME.containsKey('myPhone')) {
             if (m.me.phoneNumber != _BEENAME.get('myPhone'))
               refreshAllData(m.me);
-          } else
-            _BEENAME.put('myPhone', m.me.phoneNumber);
-          if (!_BEENAME.containsKey("myName"))
-            _BEENAME.put(("myName"),
-                getMyName(m.me.firstName, m.me.middleName, m.me.lastName));
-          if (!_BEENAME.containsKey("myDocumentVerification"))
-            _BEENAME.put(
-                "myDocumentVerification", (m.me.verified) ? "true" : "false");
-          if (!_BEENAME.containsKey("dpUrl")) _BEENAME.put("dpUrl", m.me.dpUrl);
-          if (!_BEENAME.containsKey("myActiveStatus"))
-            _BEENAME.put("myActiveStatus", (m.me.active) ? "true" : "false");
-          // if (!_BEENAME.containsKey("myWallet"))
-          _BEENAME.put("myWallet", m.me.walletAmount.toString());
+            else
+              putIntoHive(m.me);
+          }
           if (m?.me?.services == null || m.me.services.length == 0) {
             log("SERVICE SELECTED", name: "SELECTED");
             try {

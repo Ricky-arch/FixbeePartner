@@ -7,7 +7,8 @@ import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
 import '../bloc.dart';
 
-class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> with Trackable<UpdateProfileEvent, UpdateProfileModel> {
+class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel>
+    with Trackable<UpdateProfileEvent, UpdateProfileModel> {
   UpdateProfileBloc(UpdateProfileModel genesisViewModel)
       : super(genesisViewModel);
 
@@ -37,53 +38,50 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> wit
 // }
 // }
 
-
   Future<UpdateProfileModel> fetchBeeDetails() async {
     String query = '''
-    {Me
-  {... 
-    on Bee{
-  ID
-      
-  Name{
-    Firstname
-    Middlename
-    Lastname
-  }
-  Locations{
-    ID
-    Name
-    Address{ Line1
+    {
+  profile{
+    name{
+      firstName
+      middleName
+      lastName
     }
+    personalDetails{
+      dateOfBirth
+      gender
+    }
+    displayPicture
+    email
+    phone
   }
-  Email
-  DOB  
-  
-}}}''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    try{
-      List allLocations = response['Me']['Locations'];
-      List<Address> locations = [];
-      int noOfAddress = 1;
+}''';
 
-      allLocations.forEach((location) {
-        Address address = Address();
-        address.addressLine = location['Address']['Line1'];
-        address.locationId = location['ID'];
-        locations.add(address);
-      });
-      noOfAddress = allLocations.length - 1;
-      latestViewModel..address1 = locations[noOfAddress].addressLine;
-    }
-    catch(e){
-      log(e.toString(), name:"Account Error");
-    }
+    Map response = await CustomGraphQLClient.instance.query(query);
+    // try{
+    //   List allLocations = response['profile']['locations'];
+    //   List<Address> locations = [];
+    //   int noOfAddress = 1;
+    //
+    //   allLocations.forEach((location) {
+    //     Address address = Address();
+    //     address.addressLine = location['Address']['Line1'];
+    //     address.locationId = location['ID'];
+    //     locations.add(address);
+    //   });
+    //   noOfAddress = allLocations.length - 1;
+    //   latestViewModel..address1 = locations[noOfAddress].addressLine;
+    // }
+    // catch(e){
+    //   log(e.toString(), name:"Account Error");
+    // }
     return latestViewModel
-      ..firstName = response['Me']['Name']['Firstname']
-      ..middleName = response['Me']['Name']['Middlename'] ?? ""
-      ..lastName = response['Me']['Name']['Lastname'] ?? ""
-      ..emailAddress = response['Me']['Email']
-      ..dob = response['Me']['DOB'];
+      ..firstName = response['profile']['name']['firstName']
+      ..middleName = response['profile']['name']['middleName'] ?? ""
+      ..lastName = response['profile']['name']['lastName'] ?? ""
+      ..emailAddress = response['me']['email']
+      ..dob = response['me']['dob']
+      ..gender = response['gender'];
   }
 
   Future<UpdateProfileModel> updateBeeDetails(
@@ -124,10 +122,10 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel> wit
   }
 
   @override
-  UpdateProfileModel setTrackingFlag(UpdateProfileEvent event, bool trackFlag, Map message) {
-    if(event== UpdateProfileEvent.fetchProfile)
-      latestViewModel..loading=trackFlag;
+  UpdateProfileModel setTrackingFlag(
+      UpdateProfileEvent event, bool trackFlag, Map message) {
+    if (event == UpdateProfileEvent.fetchProfile)
+      latestViewModel..loading = trackFlag;
     return latestViewModel;
   }
 }
-

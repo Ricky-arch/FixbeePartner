@@ -36,7 +36,7 @@ class _UpdateProfileState extends State<UpdateProfile> {
   TextEditingController genderController = TextEditingController();
   DateTime dt;
   Box _BEENAME;
-  _openHive(){
+  _openHive() {
     _BEENAME = Hive.box<String>("BEE");
   }
 
@@ -414,7 +414,6 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                     color: Colors.black,
                                     onPressed: () {
                                       if (_formKey.currentState.validate()) {
-
                                         _bloc.fire(
                                             UpdateProfileEvent.updateProfile,
                                             message: {
@@ -430,7 +429,12 @@ class _UpdateProfileState extends State<UpdateProfile> {
                                               'dateOfBirth': dateOfBirth.text,
                                               'gender': gender[_selectedGender],
                                             }, onHandled: (e, m) {
-                                              _BEENAME.put("myName", getMyName(firstName.text, middleName.text ?? '', lastName.text ?? ''));
+                                          _BEENAME.put(
+                                              "myName",
+                                              getMyName(
+                                                  firstName.text,
+                                                  middleName.text ?? '',
+                                                  lastName.text ?? ''));
                                           Bee bee = Bee()
                                             ..firstName = firstName.text
                                             ..middleName = middleName.text ?? ''

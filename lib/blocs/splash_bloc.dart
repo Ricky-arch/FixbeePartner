@@ -84,9 +84,6 @@ class SplashBloc extends Bloc<Event, SplashModel>
       name
     }
   }
-  wallet{
-    amount
-  }
 }
     ''';
 
@@ -105,7 +102,6 @@ class SplashBloc extends Bloc<Event, SplashModel>
         ..phoneNumber = response['profile']['phone']
         ..verified = response['profile']['documentsVerified']
         ..dpUrl = dpUrl
-        ..walletAmount = response['wallet']['amount']
         ..active =
             response['profile']['active'].toString().toLowerCase() == 'true'
         ..services = services.map((service) {

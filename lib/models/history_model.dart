@@ -4,6 +4,7 @@ import 'package:fixbee_partner/models/view_model.dart';
 import 'order_model.dart';
 
 class HistoryModel extends ViewModel {
+ List<Transactions> transactions=[];
  List<OrderModel> pastOrderList= [];
  List<CreditTransactions> credits=[];
  List <DebitTransactions> debits=[];
@@ -38,4 +39,22 @@ class DebitTransactions{
  String withDrawlAccountNumber;
  String orderId;
  bool debitOnOrder=false;
+}
+class Transactions{
+ int amount;
+ String column, currency, referenceId, fald, paymentId, payoutId;
+ DateTime createdAt;
+ Payment payment= Payment();
+ Payout payout= Payout();
+}
+
+class Payout{
+ int amount;
+ String currency, status, mode, utr;
+}
+class Payment{
+ int amount;
+
+ String currency, status, method, refundStatus, amountRefunded;
+ bool captured;
 }

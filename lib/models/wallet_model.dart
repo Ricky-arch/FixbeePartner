@@ -4,6 +4,7 @@ import 'bank_details_model.dart';
 
 class WalletModel extends ViewModel{
   int amount;
+  int walletAmount;
   bool bankAccountFetching=false;
   bool whileFetchingWalletAmount=false;
   bool whileWithDrawingAmount=false;

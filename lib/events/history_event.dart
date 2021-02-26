@@ -10,4 +10,5 @@ class HistoryEvent extends Event{
   static final HistoryEvent fetchActiveOrderStatus=HistoryEvent(105);
   static final HistoryEvent fetchBasicPastOrderDetails=HistoryEvent(106);
   static final HistoryEvent fetchCompletePastOrderInfo=HistoryEvent(107);
+  static final HistoryEvent getTransactions=HistoryEvent(108);
 }
