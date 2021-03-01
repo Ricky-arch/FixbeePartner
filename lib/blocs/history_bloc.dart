@@ -1,11 +1,11 @@
 import 'dart:developer';
-import 'dart:ui';
 
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/history_event.dart';
 import 'package:fixbee_partner/models/history_model.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/order_model.dart';
+import 'package:fixbee_partner/models/orders_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 
 import '../Constants.dart';
@@ -152,109 +152,63 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
 
   Future<HistoryModel> fetchActiveOrder() async {
     String query = '''{
-  Me {
-    ... on Bee {
-      ActiveOrder {
-      Quantity
-      Status
-        ID
-        Location {
-          ID
-          Name
-          Address {
-            Line1
-            Landmark
-          }
-          GooglePlaceID
-        }
-        Service {
-          ID
-          Name
-          Pricing {
-            Priceable
-            BasePrice
-            ServiceCharge
-            TaxPercent
-          }
-        }
-        Status
-        Timestamp
-        Addons {
-          Service {
-            Name
-            Pricing {
-              BasePrice
-              ServiceCharge
-              TaxPercent
-            }
-          }
-          Amount
-        }
-        Amount
-        User {
-          ID
-          Name {
-            Firstname
-            Middlename
-            Lastname
-          }
-          DisplayPicture {
-            filename
-            id
-          }
-          Phone {
-            Number
-          }
-        }
-        CashOnDelivery
-        OrderId
-        Slot {
-          Slotted
-          At
-        }
-      }
+  activeOrder{
+    otp
+    user{
+      fullName
+      phone
+      displayPicture
     }
+    status
+    service{
+      name
+      quantity
+    }
+    location{
+      fullAddress
+      placeId
+    }
+    mode
+    addons{
+      name
+      quantity
+    }
+  
   }
 }
 ''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    if (response['Me']['ActiveOrder'] == null)
-      return latestViewModel..isOrderActive = false;
-    return latestViewModel
-      ..isOrderActive = true
-      ..order.orderId = response['Me']['ActiveOrder']['ID']
-      ..order.quantity = response['Me']['ActiveOrder']['Quantity']
-      ..location.googlePlaceId =
-          response['Me']['ActiveOrder']['Location']['GooglePlaceID']
-      ..order.slotted = response['Me']['ActiveOrder']['Slot']['Slotted']
-      ..service.serviceName = response['Me']['ActiveOrder']['Service']['Name']
-      ..user.userId = response['Me']['ActiveOrder']['User']['ID']
-      ..user.firstname =
-          response['Me']['ActiveOrder']['User']['Name']['Firstname']
-      ..user.middlename =
-          response['Me']['ActiveOrder']['User']['Name']['Middlename']
-      ..user.lastname =
-          response['Me']['ActiveOrder']['User']['Name']['Lastname']
-      ..user.phoneNumber =
-          response['Me']['ActiveOrder']['User']['Phone']['Number']
-      ..user.profilePicUrl =
-          '${EndPoints.DOCUMENT}?id=${response['Me']['ActiveOrder']['User']['DisplayPicture']['id']}'
-      ..location.addressLine =
-          response['Me']['ActiveOrder']['Location']['Address']['Line1']
-      ..location.landmark =
-          response['Me']['ActiveOrder']['Location']['Address']['Landmark']
-      ..order.timeStamp = response['Me']['ActiveOrder']['Timestamp']
-      ..order.price = response['Me']['ActiveOrder']['Amount']
-      ..order.basePrice =
-          response['Me']['ActiveOrder']['Service']['Pricing']['BasePrice']
-      ..order.serviceCharge =
-          response['Me']['ActiveOrder']['Service']['Pricing']['ServiceCharge']
-      ..order.taxPercent =
-          response['Me']['ActiveOrder']['Service']['Pricing']['TaxPercent']
-      ..order.cashOnDelivery = response['Me']['ActiveOrder']['CashOnDelivery']
-      ..user.profilePicId =
-          response['Me']['ActiveOrder']['User']['DisplayPicture']['id']
-      ..order.status = response['Me']['ActiveOrder']["Status"];
+    try {
+      Map response = await CustomGraphQLClient.instance.query(query);
+      if (response['activeOrder'] == null)
+        return latestViewModel..isOrderActive = false;
+      Orders order = Orders();
+      Map activeOrder = response['activeOrder'];
+      latestViewModel.isOrderActive = true;
+      order.quantity = activeOrder['service']['quantity'];
+      order.placeId = activeOrder['location']['placeId'];
+      order.serviceName = activeOrder['service']['name'];
+      order.user.firstname = activeOrder['user']['fullName'];
+      order.user.phoneNumber = activeOrder['user']['phone'];
+      order.user.profilePicId = activeOrder['user']['displayPicture'];
+      order.status = activeOrder['status'];
+      order.address = activeOrder['location']['fullAddress'];
+      order.otp=activeOrder['otp'];
+      order.cashOnDelivery = activeOrder['mode'] == "COD" ? true : false;
+      List<Service> addOns = [];
+      if (activeOrder['addons'].length != 0) {
+        for (Map addon in activeOrder['addons']) {
+          Service s = Service();
+          s.serviceName = addon['name'];
+          s.quantity = addon['quantity'];
+          addOns.add(s);
+        }
+      }
+      order.addOns = addOns;
+      return latestViewModel..orders = order;
+    } catch (e) {
+      print(e);
+      return latestViewModel;
+    }
   }
 
   Future<HistoryModel> fetchBasicPastOrderDetails() async {
@@ -411,7 +365,8 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
   Future<HistoryModel> getTransactions(Map<String, dynamic> message) async {
     String start = message['start'];
     String end = message['end'];
-    String type = message['type'];
+    String type = message['type'].toString().toLowerCase();
+    if (type == 'all') type = '';
     String query = '''{
   transactions(
     startDate:"$start"
@@ -443,9 +398,10 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     payoutId
     createdAt
   } 
-}''';
+}
+''';
     try {
-      latestViewModel.transactions=[];
+      latestViewModel.transactions = [];
       Map response = await CustomGraphQLClient.instance.query(query);
       List listOfTransaction = response['transactions'];
       List<Transactions> list = [];
@@ -456,7 +412,16 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
         t.currency = transaction['currency'];
         t.referenceId = transaction['referenceId'];
         t.paymentId = transaction['paymentId'];
+        t.payoutId = transaction['payoutId'];
         t.createdAt = transaction['createdAt'];
+        t.fundAccountID = transaction['faId'];
+        if (transaction['payout'] != null) {
+          t.payout.amount = transaction['payout']['amount'];
+          t.payout.currency = transaction['payout']['currency'];
+          t.payout.status = transaction['payout']['status'];
+          t.payout.mode = transaction['payout']['mode'];
+          t.payout.utr = transaction['payout']['utr'];
+        }
         if (transaction['payment'] != null) {
           t.payment.amount = transaction['payment']['amount'];
           t.payment.currency = transaction['payment']['currency'];
@@ -468,6 +433,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
         }
         list.add(t);
       });
+      print(list.length.toString() + 'LIST');
       return latestViewModel..transactions = list;
     } catch (e) {
       print(e);

@@ -10,6 +10,7 @@ import 'package:fixbee_partner/ui/screens/dummy_screen.dart';
 import 'package:fixbee_partner/ui/screens/login.dart';
 import 'package:fixbee_partner/ui/screens/otp.dart';
 import 'package:fixbee_partner/ui/screens/otp_for_login.dart';
+import 'package:fixbee_partner/ui/screens/profile_update.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,6 +48,7 @@ void main() async{
         //CustomDatePicker()
         //AllServiceSelection()
         //TransactionType()
+        //ProfileUpdate()
         SplashScreen()
       ),
     ),

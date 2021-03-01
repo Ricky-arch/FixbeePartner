@@ -34,9 +34,9 @@ class _WalletScreenState extends State<WalletScreen> {
   bool isButtonEnabled = false;
   WalletBloc _bloc;
   final String wallet = "400.00";
-  double walletAmount = 0;
+  double walletAmount=00 ;
 
-  int walletAmountInpaise;
+  int walletAmountInpaise=00;
   Razorpay _razorpay = Razorpay();
   String email =
       (DataStore?.me?.emailAddress == null) ? '' : DataStore.me.emailAddress;
@@ -58,21 +58,25 @@ class _WalletScreenState extends State<WalletScreen> {
 
     _bloc.fire(WalletEvent.fetchBankAccountsForWithdrawal, onHandled: (e, m) {
       selectedAccountNumber = m.bankAccountList[0].bankAccountNumber;
+
     });
-    if(!_BEENAME.containsKey('myWallet')){
+
+    if(_BEENAME.get('myWallet')==null){
+       print(_BEENAME.containsKey('myWallet'));
       _bloc.fire(WalletEvent.fetchWalletAmount, onHandled: (e,m){
         walletAmountInpaise = m.amount;
         if (walletAmountInpaise != null) {
-
           walletAmount = (walletAmountInpaise / 100).toDouble();
           _BEENAME.put('myWallet',walletAmountInpaise.toString());
         }
       });
     }
     else{
-      walletAmountInpaise=int.parse(_BEENAME.get('myWallet'));
-      walletAmount = (walletAmountInpaise / 100).toDouble();
+       print(_BEENAME.containsKey('myWallet'));
+        // walletAmountInpaise=int.parse(_BEENAME.get('myWallet'));
+        // walletAmount = (walletAmountInpaise / 100).toDouble();
     }
+
 
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);

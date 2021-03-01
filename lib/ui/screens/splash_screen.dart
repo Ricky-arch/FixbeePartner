@@ -80,7 +80,7 @@ class _SplashScreenState extends State<SplashScreen>
     _BEENAME.put("dpUrl", bee.dpUrl);
     _BEENAME.put("myActiveStatus", (bee.active) ? "true" : "false");
 
-    //_BEENAME.put("myWallet", bee.walletAmount.toString());
+    _BEENAME.put("myWallet", 'empty');
   }
 
   void putIntoHive(Bee bee) {
@@ -91,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen>
     _BEENAME.put("dpUrl", bee.dpUrl);
     _BEENAME.put("myActiveStatus", (bee.active) ? "true" : "false");
 
-    //_BEENAME.put("myWallet", bee.walletAmount.toString());
+    _BEENAME.put("myWallet", bee.walletAmount.toString());
   }
 
   @override

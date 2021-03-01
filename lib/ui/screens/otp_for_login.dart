@@ -86,7 +86,8 @@ class _OtpForLoginState extends State<OtpForLogin> {
                         OTPInsert(
                           controller: _otpInsertController,
                           onOTPOfInvalidLength: () {
-                            _bloc.pushViewModel(viewModel..enableButton = false);
+                            _bloc
+                                .pushViewModel(viewModel..enableButton = false);
                           },
                           onOTPOfValidLength: (otp) {
                             _bloc.pushViewModel(viewModel..enableButton = true);
@@ -151,36 +152,24 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                             'otp': _otpInsertController.text
                                           },
                                           onHandled: (e, m) {
-                                              if (m.valid) {
-                                                FocusScope.of(context)
-                                                    .requestFocus(FocusNode());
+                                            if (m.valid) {
+                                              FocusScope.of(context)
+                                                  .requestFocus(FocusNode());
 
-                                                _bloc.fire(
-                                                    OtpEvents.fetchSaveBeeDetails,
-                                                    onHandled: (e, m) {
-                                                  _bloc.fire(
-                                                      OtpEvents.getFcmToken, onHandled: (e,m){
-                                                    _bloc.fire(
-                                                        OtpEvents
-                                                            .checkForServiceSelected,
-                                                        onHandled: (e, m) {
-
-                                                          if (!m.serviceSelected) {
-                                                            goToJobSelectionScreen(ctx);
-                                                          }
-                                                          else{
-                                                            goToNavigationScreen(ctx);
-                                                          }
-                                                        });
-
-                                                  });
-
-                                                });
-                                              } else {
-                                                _otpInsertController.clear();
-                                                _showOnOtpInvalid();
-                                              }
-                                          //  }
+                                              _bloc.fire(
+                                                  OtpEvents.fetchSaveBeeDetails,
+                                                  onHandled: (e, m) {
+                                                if (!m.serviceSelected) {
+                                                  goToJobSelectionScreen(ctx);
+                                                } else {
+                                                  goToNavigationScreen(ctx);
+                                                }
+                                              });
+                                            } else {
+                                              _otpInsertController.clear();
+                                              _showOnOtpInvalid();
+                                            }
+                                            //  }
                                           },
                                         );
                                       }

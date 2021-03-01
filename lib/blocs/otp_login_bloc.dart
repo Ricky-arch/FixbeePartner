@@ -28,8 +28,8 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     if (event == OtpEvents.fetchSaveBeeDetails) {
       return await fetchSaveBeeDetails();
     }
-    if (event == OtpEvents.getFcmToken) {
-      return await getFcmToken();
+    if (event == OtpEvents.updateFcmToken) {
+      return await updateFcmToken();
     }
     if (event == OtpEvents.resendOtp) {
       return await resendOtp(message);
@@ -95,9 +95,13 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
   }
 
   Future<OtpModel> fetchSaveBeeDetails() async {
-    String query='''{
- profile {
-   name {
+    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    String fcmToken = await _firebaseMessaging.getToken();
+    DataStore.fcmToken = fcmToken;
+    log(fcmToken, name: 'FCM TOKEN');
+    String query='''mutation{
+  update(input:{fcmToken:"$fcmToken"}){
+     name {
      firstName
      middleName
      lastName
@@ -114,11 +118,11 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
      dateOfBirth
      gender
    }
- }
+  }
 }''';
       Map response;
-      response = await CustomGraphQLClient.instance.query(query);
-      Map beeProfile= response['profile'];
+      response = await CustomGraphQLClient.instance.mutate(query);
+      Map beeProfile= response['update'];
       Bee bee = Bee()
         ..firstName = beeProfile['name']['firstName']
         ..middleName = beeProfile['name']['middleName'] ?? ''
@@ -138,18 +142,14 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
       return latestViewModel..bee=bee..gotBeeDetails=true;
   }
 
-  Future<OtpModel> getFcmToken() async {
+  Future<OtpModel> updateFcmToken() async {
     final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     String fcmToken = await _firebaseMessaging.getToken();
     DataStore.fcmToken = fcmToken;
     log(fcmToken, name: 'FCM TOKEN');
     String query = '''mutation{
-  Update(input:{
-    FCMToken:"$fcmToken"
-  }){
-  ...on Bee{
-    ID
-  }
+  update(input:{fcmToken:"$fcmToken"}){
+    fcmToken
   }
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);

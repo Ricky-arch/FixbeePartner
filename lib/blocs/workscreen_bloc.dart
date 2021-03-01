@@ -17,9 +17,6 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   @override
   Future<WorkScreenModel> mapEventToViewModel(
       WorkScreenEvents event, Map<String, dynamic> message) async {
-    if (event == WorkScreenEvents.fetchOrderDetails) {
-      return await fetchOrderDetails(message);
-    }
     if (event == WorkScreenEvents.verifyOtpToStartService) {
       return await verifyOtpToStartService(message);
     }
@@ -30,105 +27,37 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
       return await onJobCompletion(message);
     }
     if (event == WorkScreenEvents.checkActiveOrderStatus) {
-      return await checkActiveOrderStatus(message);
+      return await checkActiveOrderStatus();
     }
     if (event == WorkScreenEvents.refreshOrderDetails) {
       return await refreshOrderDetails(message);
     }
-    if (event == WorkScreenEvents.findUserRating) {
-      return await findUserRating(message);
-    }
-    if(event==WorkScreenEvents.updateLiveLocation){
+
+    if (event == WorkScreenEvents.updateLiveLocation) {
       return await updateLiveLocation(message);
     }
     return latestViewModel;
   }
 
-  Future<WorkScreenModel> fetchOrderDetails(
-      Map<String, dynamic> message) async {
-    String id = message['order_id'];
-    String query = '''{Order(_id:"$id"){
-  Location{
-    Address{
-      Line1
-    }
-    GooglePlaceID
-    Name
-  }
-  Amount
-  OTP
-  Service{
-    Name
-    ID
-  }
-  CashOnDelivery
-  Timestamp
-  User{
-    ID
-    Name{
-      Firstname
-      Middlename
-      Lastname
-    }
-    DisplayPicture{
-      filename
-      mimetype
-      encoding
-    }
-    Ratings{
-      Score
-    }
-    Phone{
-      Number
-    }
-  }
-}}''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    Map order = response['Order'];
-    Map user = order['User'];
-    Map location = order['Location'];
-    print(location['Address']['Line1'] + "llll");
-
-    return latestViewModel
-      ..jobModel.userName = user['Name']["Firstname"]
-      ..jobModel.userMiddlename = user['Name']["Middlename"]
-      ..jobModel.userLastname = user['Name']["Lastname"]
-      ..jobModel.userPhoneNumber = user['Phone']['Number']
-      ..jobModel.serviceName = response['Order']['Service']["Name"]
-      ..jobModel.address = location['Address']['Line1']
-      ..jobModel.googlePlaceId = location['GooglePlaceID']
-      ..jobModel.userProfilePicUrl =
-          '${EndPoints.DOCUMENT}?id=${user['DisplayPicture']['id']}'
-      ..jobModel.totalAmount = order['Amount']
-      ..jobModel.cashOnDelivery = order['CashOnDelivery']
-      ..jobModel.timeStamp = order['Timestamp'];
-  }
-
   Future<WorkScreenModel> verifyOtpToStartService(
       Map<String, dynamic> message) async {
-    String id = message['orderId'];
     String otp = message['otp'];
 
     String query = '''mutation{
-  ResolveOrder(_id:"$id",input:{OTP:"$otp"}){
-    Status
+  verifyOrder(input:{otp:"$otp"}){
+    status
   }
 }''';
     Map response;
     try {
       response = await CustomGraphQLClient.instance.mutate(query);
-      if (response['ResolveOrder']['Status'] == 'RESOLVED')
-        latestViewModel
-          ..orderResolved = true
-          ..otpValid = true
-          ..activeOrderStatus = "RESOLVED";
-      else if (response.containsKey("errors"))
-        latestViewModel..otpValid = false;
+      return latestViewModel
+        ..otpValid = true
+        ..onServiceStarted = response['verifyOrder']['status'];
+
     } catch (e) {
-      // latestViewModel..otpInvalidMessage = response['message'];
+      return latestViewModel..otpValid = false;
     }
-    // log(response['ResolveOrder']['Status'].toString(), name: "AOS");
-    return latestViewModel;
   }
 
   Future<WorkScreenModel> rateUser(Map<String, dynamic> message) async {
@@ -170,88 +99,44 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     return latestViewModel;
   }
 
-  Future<WorkScreenModel> checkActiveOrderStatus(
-      Map<String, dynamic> message) async {
-    String id = message['orderID'];
+  Future<WorkScreenModel> checkActiveOrderStatus() async {
     String query = '''{
-  Order(_id:"$id"){
-    Status
+  activeOrder{
+    status
   }
 }''';
 
     Map response = await CustomGraphQLClient.instance.query(query);
-    log(response['Order']['Status'].toString(), name: "Order Status");
-    return latestViewModel..activeOrderStatus = response['Order']['Status'];
+
+    return latestViewModel
+      ..activeOrderStatus = response['activeOrder']['status'];
   }
 
   Future<WorkScreenModel> refreshOrderDetails(
       Map<String, dynamic> message) async {
-    String orderID = message['orderID'];
-    String query = '''{Order(_id:"$orderID"){
-  Service{
-    Name
-  }
-  Addons{
-     Quantity
-      BasePrice
-      ServiceCharge
-      TaxCharge
-    Service{
-      Name
-      Pricing{
-        BasePrice
-        ServiceCharge
-        TaxPercent
-      }
-    }
-    Amount
-  }
-}}''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    latestViewModel.jobModel.addons = [];
-    List addons = response['Order']['Addons'];
-    for (Map addon in addons) {
-      Service service = Service()
-        ..serviceName = addon['Service']['Name']
-        ..basePrice = addon['Service']['Pricing']['BasePrice']
-        ..serviceCharge = addon['Service']['Pricing']['ServiceCharge']
-        ..taxPercent = addon['Service']['Pricing']['TaxPercent']
-        ..addOnBasePrice=addon['BasePrice']
-        ..addOnServiceCharge=addon['ServiceCharge']
-        ..addOnTaxCharge=addon['TaxCharge']
-        ..quantity=addon['Quantity']
-        ..amount = addon['Amount'];
-      latestViewModel.jobModel.addons.add(service);
-    }
-    return latestViewModel;
-  }
-
-  Future<WorkScreenModel> findUserRating(Map<String, dynamic> message) async {
-    String orderId = message['orderID'];
-    String query = '''
-    {
-  Order(_id:"$orderId"){
-    User{
-      Ratings{
-        Score
-      }
+    String query = '''{
+  activeOrder{
+    addons{
+      name
+      quantity
     }
   }
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    List allRating = response['Order']['User']['Ratings'];
-    double score = 0;
-    int numberOfRating = 0;
-    if (allRating.isNotEmpty) {
-      allRating.forEach((rating) {
-        score = score + rating['Score'];
-        numberOfRating++;
-      });
-      latestViewModel.userRating = score / numberOfRating;
-    } else {
-      latestViewModel.userRating = 0;
+    try {
+      List<Service> addOns = [];
+      if (response['activeOrder']['addons'].length != 0) {
+        for (Map addOn in response['activeOrder']['addons']) {
+          Service s = Service();
+          s.serviceName = addOn['name'];
+          s.quantity = addOn['quantity'];
+          addOns.add(s);
+        }
+      }
+      return latestViewModel..ordersModel.addOns = addOns;
+    } catch (e) {
+      return latestViewModel;
     }
-    return latestViewModel;
   }
 
   Timer locationTimer;
@@ -260,13 +145,13 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     var timeOut = Constants.updateLocationTimeOut;
     Position location;
     locationTimer = Timer.periodic(Duration(seconds: timeOut), (timer) async {
-        try {
-          location = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.best);
-          await updateLiveLocation(
-              {'latitude': location.latitude, 'longitude': location.longitude});
-        } catch (e) {
-          location = null;
+      try {
+        location = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best);
+        await updateLiveLocation(
+            {'latitude': location.latitude, 'longitude': location.longitude});
+      } catch (e) {
+        location = null;
       }
     });
   }
@@ -275,19 +160,18 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     log("WORK TIMER ENDED", name: "TS");
     locationTimer.cancel();
   }
+
   Future<WorkScreenModel> updateLiveLocation(
       Map<String, dynamic> message) async {
     double latitude = message['latitude'];
     double longitude = message['longitude'];
     String query = '''mutation {
-  Update(input:{UpdateLiveLocation:{Latitude: $latitude, Longitude: $longitude}}){
-    ... on Bee{
-      ID
-      LiveLocation{
-        Latitude
-        Longitude
-      }
-    }
+  updateLiveLocation(input:{
+    lat: $latitude
+    lng: $longitude
+  }){
+    lat
+    lng
   }
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);

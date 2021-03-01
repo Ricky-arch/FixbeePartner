@@ -52,20 +52,20 @@ class _UpdateProfileState extends State<UpdateProfile> {
     _openHive();
     super.initState();
     _bloc = UpdateProfileBloc(UpdateProfileModel());
-    _bloc.fire(UpdateProfileEvent.fetchProfile, onHandled: (e, m) {
-      firstName = TextEditingController(text: m.firstName);
-      middleName = TextEditingController(text: m.middleName ?? "");
-      lastName = TextEditingController(text: m.lastName ?? "");
-      phoneNumber = TextEditingController(text: m.phoneNumber);
-      alternatePhoneNumber =
-          TextEditingController(text: m.alternatePhoneNumber ?? "");
-      email = TextEditingController(text: m.emailAddress ?? "");
-      address1 = TextEditingController(text: m.address1 ?? "");
-      address2 = TextEditingController(text: m.address2);
-      pinCode = TextEditingController(text: m.pinCode);
-      genderController = TextEditingController(text: m.gender);
-      dateOfBirth = TextEditingController(text: m.dob);
-    });
+    // _bloc.fire(UpdateProfileEvent.fetchProfile, onHandled: (e, m) {
+    //   firstName = TextEditingController(text: m.firstName);
+    //   middleName = TextEditingController(text: m.middleName ?? "");
+    //   lastName = TextEditingController(text: m.lastName ?? "");
+    //   phoneNumber = TextEditingController(text: m.phoneNumber);
+    //   alternatePhoneNumber =
+    //       TextEditingController(text: m.alternatePhoneNumber ?? "");
+    //   email = TextEditingController(text: m.emailAddress ?? "");
+    //   address1 = TextEditingController(text: m.address1 ?? "");
+    //   address2 = TextEditingController(text: m.address2);
+    //   pinCode = TextEditingController(text: m.pinCode);
+    //   genderController = TextEditingController(text: m.gender);
+    //   dateOfBirth = TextEditingController(text: m.dob);
+    // });
   }
 
   @override

@@ -23,8 +23,7 @@ class _TransactionAccountState extends State<TransactionAccount> {
   final _vpaKey = GlobalKey<FormState>();
   bool _bankValidate = false;
   bool _vpaValidate = false;
-  List<VpaModel> vpaList = [];
-  List<BankModel> bankList = [];
+
   @override
   void initState() {
     _bloc = BankDetailsBloc(BankDetailsModel());
@@ -124,7 +123,7 @@ class _TransactionAccountState extends State<TransactionAccount> {
                           children: [
                             Tab(
                               child: Scaffold(
-                                body: (bankList.length != 0)
+                                body: (snapshot.data.bankAccountList.length != 0)
                                     ? ListView(
                                         children: [
                                           ListView.builder(

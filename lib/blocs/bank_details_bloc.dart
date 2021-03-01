@@ -89,6 +89,7 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
         vPas.add(vm);
       }
     });
+    print(bankAccounts.length.toString());
     return latestViewModel
       ..bankAccountList = bankAccounts
       ..vpaList = vPas;

@@ -42,11 +42,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     _openHive();
-    // BitmapDescriptor.fromAssetImage(
-    //         ImageConfiguration(size: Size(12, 12)), 'assets\logo\bee_white.png')
-    //     .then((d) {
-    //   customIcon = d;
-    // });
     super.initState();
     askForLocationPermissionIfDisabled();
     _bloc = HomeBloc(HomeModel());
@@ -110,6 +105,12 @@ class _HomeState extends State<Home> {
                                 fontWeight: FontWeight.bold)),
                       ),
                       Spacer(),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.lightbulb, color: Colors.green
+                        )
+                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: (!viewModel.loading)

@@ -1,6 +1,8 @@
 import 'package:fixbee_partner/models/view_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'orders_model.dart';
+
 class NavigationModel extends ViewModel {
   bool gotJob = false;
   String jobId;
@@ -13,6 +15,7 @@ class NavigationModel extends ViewModel {
   Location location=Location();
   bool loading=false;
   bool orderExpired=false;
+  Orders ordersModel = Orders();
 }
 
 

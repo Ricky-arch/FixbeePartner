@@ -8,6 +8,8 @@ import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicat
 import 'package:fixbee_partner/ui/custom_widget/custom_date_picker.dart';
 import 'package:fixbee_partner/ui/custom_widget/debit.dart';
 import 'package:fixbee_partner/ui/custom_widget/past_order.dart';
+import 'package:fixbee_partner/ui/custom_widget/transaction_card.dart';
+import 'package:fixbee_partner/ui/custom_widget/transaction_detailed.dart';
 import 'package:fixbee_partner/ui/custom_widget/transaction_type.dart';
 import 'package:fixbee_partner/ui/screens/debit_info.dart';
 import 'package:fixbee_partner/ui/screens/past_order_billing_screen.dart';
@@ -57,8 +59,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _bloc.extinguish();
     super.dispose();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -162,7 +162,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         Container(
                           color: PrimaryColors.backgroundColor,
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
                               SizedBox(
                                 height: 10,
@@ -173,6 +172,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 children: [
                                   TransactionType(
                                     setTransactionType: (value) {
+                                      transactionCall = false;
                                       setState(() {
                                         transactionType = value;
                                       });
@@ -181,18 +181,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   CustomDatePicker(
                                     title: 'START',
                                     setDate: (value) {
+                                      transactionCall = false;
                                       setState(() {
                                         start = formatter.format(value);
-                                        print(start);
                                       });
                                     },
                                   ),
                                   CustomDatePicker(
                                     title: 'END',
                                     setDate: (value) {
+                                      transactionCall = false;
                                       setState(() {
                                         end = formatter.format(value);
-                                        print(end);
                                       });
                                     },
                                   ),
@@ -204,24 +204,97 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ],
                           ),
                         ),
-                        FutureBuilder(
-                            future: _bloc.getTransactions({
-                              'start': start,
-                              'end': end,
-                              'type': transactionType
-                            }),
-                            builder: (ctx, snapshot) {
-                              if (!snapshot.hasData)
-                                return CircularProgressIndicator();
-                              else {
-                                if (snapshot.data.transactions.length == 0)
-                                  return Center(
-                                    child: Text('Transaction not present'),
-                                  );
-                                return Center(
-                                    child: Text('Transaction  present'));
-                              }
-                            })
+                        (transactionCall)
+                            ? FutureBuilder(
+                                future: _bloc.getTransactions({
+                                  'start': start,
+                                  'end': end,
+                                  'type': transactionType
+                                }),
+                                builder: (ctx, snapshot) {
+                                  if (!snapshot.hasData)
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              4,
+                                        ),
+                                        CustomCircularProgressIndicator()
+                                      ],
+                                    );
+                                  else {
+                                    if (snapshot.data.transactions.length == 0)
+                                      return Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
+                                                4,
+                                          ),
+                                          Text(
+                                            'No such transactions available as per filter...',
+                                            style: TextStyle(
+                                                color: PrimaryColors
+                                                    .backgroundColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
+                                        ],
+                                      );
+                                    return Expanded(
+                                      child: ListView(
+                                        children: [
+                                          ListView.builder(
+                                              shrinkWrap: true,
+                                              physics:
+                                                  NeverScrollableScrollPhysics(),
+                                              itemCount: snapshot
+                                                  .data.transactions.length,
+                                              itemBuilder: (ctx, index) {
+                                                return TransactionCard(
+                                                    transaction: snapshot.data
+                                                        .transactions[index],
+                                                    seeMore: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  TransactionDetailed(
+                                                                    transaction:
+                                                                        snapshot
+                                                                            .data
+                                                                            .transactions[index],
+                                                                  )));
+                                                    });
+                                              }),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                })
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height / 4,
+                                  ),
+                                  Text(
+                                    'Enter appropriate filter...',
+                                    style: TextStyle(
+                                        color: PrimaryColors.backgroundColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                ],
+                              )
                       ],
                     ),
                   )),
@@ -346,88 +419,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                   ),
                   Tab(
-                      child: (true)
-                          ? Container()
-                          : FutureBuilder<HistoryModel>(
-                              future: _bloc.fetchActiveOrder(),
-                              builder: (ctx, snapshot) {
-                                if (!snapshot.hasData)
-                                  return CustomCircularProgressIndicator();
-                                else {
-                                  return (snapshot.data.isOrderActive)
-                                      ? ActiveOrderHistory(
-                                          serviceName:
-                                              snapshot.data.service.serviceName,
-                                          timeStamp:
-                                              snapshot.data.order.timeStamp,
-                                          orderId: snapshot.data.order.orderId,
-                                          status: 'IN PROGRESS',
-                                          seeMore: () {
-                                            Route route = MaterialPageRoute(
-                                                builder: (context) =>
-                                                    WorkScreen(
-                                                      quantity: snapshot
-                                                          .data.order.quantity,
-                                                      userId: snapshot
-                                                          .data.user.userId,
-                                                      activeOrderStatus:
-                                                          snapshot.data.order
-                                                              .status,
-                                                      orderId: snapshot
-                                                          .data.order.orderId,
-                                                      googlePlaceId: snapshot
-                                                          .data
-                                                          .location
-                                                          .googlePlaceId,
-                                                      phoneNumber: snapshot.data
-                                                          .user.phoneNumber,
-                                                      userName: snapshot.data
-                                                              .user.firstname +
-                                                          " " +
-                                                          snapshot.data.user
-                                                              .middlename +
-                                                          " " +
-                                                          snapshot.data.user
-                                                              .lastname,
-                                                      userProfilePicUrl:
-                                                          snapshot.data.user
-                                                              .profilePicUrl,
-                                                      addressLine: snapshot.data
-                                                          .location.addressLine,
-                                                      landmark: snapshot.data
-                                                          .location.landmark,
-                                                      serviceName: snapshot.data
-                                                          .service.serviceName,
-                                                      timeStamp: snapshot
-                                                          .data.order.timeStamp,
-                                                      amount: snapshot
-                                                          .data.order.price,
-                                                      userProfilePicId: snapshot
-                                                          .data
-                                                          .user
-                                                          .profilePicId,
-                                                      cashOnDelivery: snapshot
-                                                          .data
-                                                          .order
-                                                          .cashOnDelivery,
-                                                      basePrice: snapshot
-                                                          .data.order.basePrice,
-                                                      taxPercent: snapshot.data
-                                                          .order.taxPercent,
-                                                      serviceCharge: snapshot
-                                                          .data
-                                                          .order
-                                                          .serviceCharge,
-                                                    ));
-                                            Navigator.pushReplacement(
-                                                context, route);
-                                          },
-                                        )
-                                      : Text('No orders in progress',
-                                          style:
-                                              TextStyle(color: Colors.black));
-                                }
-                              })),
+                      child: FutureBuilder<HistoryModel>(
+                          future: _bloc.fetchActiveOrder(),
+                          builder: (ctx, snapshot) {
+                            if (!snapshot.hasData)
+                              return CustomCircularProgressIndicator();
+                            else {
+                              return (snapshot.data.isOrderActive)
+                                  ? ActiveOrderHistory(
+                                      serviceName:
+                                          snapshot.data.orders.serviceName,
+                                      seeMore: () {
+                                        Route route = MaterialPageRoute(
+                                            builder: (context) => WorkScreen(
+                                                  orderModel:
+                                                      snapshot.data.orders,
+                                                ));
+                                        Navigator.pushReplacement(
+                                            context, route);
+                                      },
+                                      userName:
+                                          snapshot.data.orders.user.firstname,
+                                      status: snapshot.data.orders.status,
+                                      timeStamp:
+                                          DateTime.now().toLocal().toString(),
+                                    )
+                                  : Text('No orders in progress',
+                                      style: TextStyle(color: Colors.black));
+                            }
+                          })),
                 ],
               )),
             ],

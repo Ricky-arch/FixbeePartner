@@ -12,4 +12,5 @@ class NavigationEvent extends Event{
   static final NavigationEvent checkActiveOrderStatus= NavigationEvent(106);
   static final NavigationEvent startTimer= NavigationEvent(107);
   static final NavigationEvent endTimer= NavigationEvent(108);
+  static final NavigationEvent updateFcmTest=NavigationEvent(109);
 }

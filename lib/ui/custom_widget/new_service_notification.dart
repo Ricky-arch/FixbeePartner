@@ -37,7 +37,7 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
           children: <Widget>[
             Container(
               width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
+              decoration: BoxDecoration(color: Colors.orange),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -48,7 +48,7 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
                       style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white),
+                          color: PrimaryColors.backgroundColor),
                     ),
                   ),
 
@@ -56,12 +56,12 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       (widget.orderId != null)
-                          ? "ORDER ID: #${widget.orderId}"
+                          ? "ORDER ID: ${widget.orderId}"
                           : "ORDER ID: #1234567890",
                       style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
-                          color: PrimaryColors.backgroundcolorlight),
+                          color: PrimaryColors.backgroundColor),
                     ),
                   ),
 
@@ -111,9 +111,9 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
               children: <Widget>[
                FlatButton(
                         onPressed: widget.onConfirm,
-                        color: PrimaryColors.backgroundColor,
+                        color: Colors.orange,
                         child: Text("CONFIRM",
-                            style: TextStyle(color: Colors.white)),
+                            style: TextStyle(color: PrimaryColors.backgroundColor)),
                       ),
                 Container(
                   color: PrimaryColors.backgroundColor,
@@ -121,7 +121,7 @@ class _NewServiceNotificationState extends State<NewServiceNotification> {
                   width: 2,
                 ),
                 OutlineButton(
-                  color: PrimaryColors.backgroundColor,
+                  color: Colors.orange,
                   onPressed: widget.onDecline,
                   child: Text(
                     "DECLINE",

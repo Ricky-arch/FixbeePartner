@@ -1,17 +1,22 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:background_location/background_location.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/event.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
+import 'package:fixbee_partner/models/orders_model.dart';
 import 'package:fixbee_partner/models/view_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../Constants.dart';
-enum TimerStatus{TICKING, PAUSED, STOPPED}
+import '../data_store.dart';
+
+enum TimerStatus { TICKING, PAUSED, STOPPED }
+
 class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     with Trackable {
   NavigationBloc(NavigationModel genesisViewModel) : super(genesisViewModel);
@@ -41,6 +46,9 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     if (event == NavigationEvent.endTimer) {
       return endTimer();
     }
+    if(event== NavigationEvent.updateFcmTest){
+      return await  updateFcmTest();
+    }
 
     return latestViewModel;
   }
@@ -64,7 +72,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
   Future<NavigationModel> getInitialJobDetails(String id) async {
     String query = '''
    {
-  Order(_id: "$id") {
+  Order(_id: "$id") {_bloc.fire(NavigationEvent.updateFcmTest);
     ID
     Location {
       ID
@@ -118,108 +126,49 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
       Map<String, dynamic> message) async {
     String orderId = message['orderId'];
     bool accept = message['Accept'];
-    String query = '''mutation {
-  AnswerOrderRequest(_id: "$orderId", input: { Accept: $accept }) {
-  
-  Status
-    ID
-    Slot{
-      Slotted
-      At
+    String query = '''mutation{
+  acceptOrder(id:"$orderId"){
+    status
+    otp
+    mode
+    user{
+      phone
+      fullName
+      displayPicture
     }
-    CashOnDelivery
-    BasePrice
-    ServiceCharge
-    TaxCharge
-    Discount
-    Service{
-      Name
-      Pricing{
-          BasePrice
-          ServiceCharge
-          TaxPercent
-        }
+    location{
+      fullAddress
+      placeId
     }
-    Amount
-    User{
-    ID
-      Name{
-        Firstname
-        Middlename
-        Lastname
-      }
-      Phone{
-        Number
-      }
-      
-       DisplayPicture{
-        id
-      }
-    }
-    Timestamp
-    OTP
-    Amount
-    Quantity
-    Location {
-      Name
-      GooglePlaceID
-      Address{
-        Line1
-        Landmark
-      }
+    service{
+      name
+      quantity
     }
   }
 }
 
+
 ''';
     Map response;
-    try{
+    try {
       response = await CustomGraphQLClient.instance.mutate(query);
-
-      return latestViewModel
-        ..order.orderId = response['AnswerOrderRequest']['ID']
-        ..order.quantity = response['AnswerOrderRequest']['Quantity']
-        ..order.orderAmount = response['AnswerOrderRequest']['Amount']
-        ..order.orderBasePrice = response['AnswerOrderRequest']['BasePrice']
-        ..order.orderServiceCharge =
-        response['AnswerOrderRequest']['ServiceCharge']
-        ..order.orderTaxCharge = response['AnswerOrderRequest']['TaxCharge']
-        ..order.status = response['AnswerOrderRequest']['Status']
-        ..location.googlePlaceId =
-        response['AnswerOrderRequest']['Location']['GooglePlaceID']
-        ..order.slotted = response['AnswerOrderRequest']['Slot']['Slotted']
-        ..service.serviceName = response['AnswerOrderRequest']['Service']['Name']
-        ..user.userId = response['AnswerOrderRequest']['User']['ID']
-        ..user.firstname =
-        response['AnswerOrderRequest']['User']['Name']['Firstname']
-        ..user.middlename =
-        response['AnswerOrderRequest']['User']['Name']['Middlename']
-        ..user.lastname =
-        response['AnswerOrderRequest']['User']['Name']['Lastname']
-        ..user.phoneNumber =
-        response['AnswerOrderRequest']['User']['Phone']['Number']
-        ..user.profilePicUrl =
-            '${EndPoints.DOCUMENT}?id=${response['AnswerOrderRequest']['User']['DisplayPicture']['id']}'
-        ..location.addressLine =
-        response['AnswerOrderRequest']['Location']['Address']['Line1']
-        ..location.landmark =
-        response['AnswerOrderRequest']['Location']['Address']['Landmark']
-        ..order.timeStamp = response['AnswerOrderRequest']['Timestamp']
-        ..order.price = response['AnswerOrderRequest']['Amount']
-        ..order.basePrice =
-        response['AnswerOrderRequest']['Service']['Pricing']['BasePrice']
-        ..order.serviceCharge =
-        response['AnswerOrderRequest']['Service']['Pricing']['ServiceCharge']
-        ..order.taxPercent =
-        response['AnswerOrderRequest']['Service']['Pricing']['TaxPercent']
-        ..order.cashOnDelivery = response['AnswerOrderRequest']['CashOnDelivery']
-        ..user.profilePicId =
-        response['AnswerOrderRequest']['User']['DisplayPicture']['id'];
-    }
-    catch(e) {
+      Orders order = Orders();
+      order
+        ..id = orderId
+        ..status = response['acceptOrder']['status']
+        ..otp = response['acceptOrder']['otp']
+        ..cashOnDelivery= response['acceptOrder']['mode']=='COD'?true:false
+        ..user.phoneNumber = response['acceptOrder']['user']['phone']
+        ..user.firstname = response['acceptOrder']['user']['fullName']
+        ..user.profilePicId = response['acceptOrder']['user']['displayPicture']
+        ..address = response['acceptOrder']['location']['fullAddress']
+        ..placeId = response['acceptOrder']['location']['placeId']
+        ..serviceName = response['acceptOrder']['name']
+        ..quantity = response['acceptOrder']['quantity'];
+      return latestViewModel..ordersModel = order;
+    } catch (e) {
       return latestViewModel..orderExpired = true;
     }
-
   }
 
   Future<NavigationModel> getServiceData(Map<String, dynamic> message) async {
@@ -280,33 +229,33 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     var timeOut = Constants.updateLocationTimeOut;
 
     Position location;
-    if(testTimer==null)
-    testTimer = Timer.periodic(Duration(seconds: timeOut), (timer) async {
-      if(_timerStatus==TimerStatus.TICKING){
-        print('TICK');
+    if (testTimer == null)
+      testTimer = Timer.periodic(Duration(seconds: timeOut), (timer) async {
+        if (_timerStatus == TimerStatus.TICKING) {
+          print('TICK');
 
           try {
             location = await Geolocator.getCurrentPosition(
                 desiredAccuracy: LocationAccuracy.best);
-            await updateLiveLocation(
-                {'latitude': location.latitude, 'longitude': location.longitude});
+            await updateLiveLocation({
+              'latitude': location.latitude,
+              'longitude': location.longitude
+            });
           } catch (e) {
             location = null;
           }
-
-      }
-
-    });
+        }
+      });
   }
-  pauseTimer(){
+
+  pauseTimer() {
     _timerStatus = TimerStatus.PAUSED;
   }
 
   endTimer() {
     log("TIMER ENDED", name: "TS");
     _timerStatus = TimerStatus.STOPPED;
-    if(testTimer!=null)
-    testTimer.cancel();
+    if (testTimer != null) testTimer.cancel();
   }
 
   Future<bool> getActiveStatus() async {
@@ -362,5 +311,19 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
   unsubscribeToLocationUpdate() {
     timer.cancel();
     locationTimer.cancel();
+  }
+
+  Future<NavigationModel> updateFcmTest() async{
+    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    String fcmToken = await _firebaseMessaging.getToken();
+    DataStore.fcmToken = fcmToken;
+    log(fcmToken, name: 'FCM TOKEN');
+    String query = '''mutation{
+  update(input:{fcmToken:"$fcmToken"}){
+    fcmToken
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.mutate(query);
+    return latestViewModel;
   }
 }

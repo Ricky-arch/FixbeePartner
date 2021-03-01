@@ -60,6 +60,23 @@ class _CustomizeServiceState extends State<CustomizeService> {
             ],
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+          mini: false,
+          elevation: 4,
+          backgroundColor: Colors.black,
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 30,
+          ),
+          onPressed: () async{
+            await Navigator.push(context,
+                MaterialPageRoute(builder: (ctx) {
+                  return AddServices();
+                }));
+
+          },
+        ),
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return ListView(
             children: [

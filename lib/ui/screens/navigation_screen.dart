@@ -43,7 +43,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
       phoneNumber,
       slot,
       slotted,
-      paymentMode;
+      paymentMode,
+      redirect,
+      address;
   int _lastNotification = 0;
 
   Box<String> _BEENAME;
@@ -73,8 +75,11 @@ class _NavigationScreenState extends State<NavigationScreen> {
     _pageController = PageController();
     _bloc = NavigationBloc(NavigationModel());
     if (_BEENAME.get("myActiveStatus") == "true") _bloc.startTimer();
+
     _setupFCM();
+
     _visible = widget.gotJob;
+    // _bloc.fire(NavigationEvent.updateFcmTest);
     super.initState();
   }
 
@@ -85,22 +90,26 @@ class _NavigationScreenState extends State<NavigationScreen> {
       onMessage: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_MESSAGE');
+        print('reached');
         if ((DateTime.now().microsecondsSinceEpoch - _lastNotification) >
             1000000) {
           _lastNotification = DateTime.now().microsecondsSinceEpoch;
+          print('reached1');
           _getJobDetails(message);
-        }
+
+       }
       },
       onResume: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_RESUME');
-
         _getJobDetails(message);
+
       },
       onLaunch: (message) async {
         FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_LAUNCH');
         _getJobDetails(message);
+
       },
     );
   }
@@ -108,12 +117,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
   _getJobDetails(Map<String, dynamic> message) {
     if (message.containsKey('data')) {
       Map data = message['data'];
+      redirect = data['redirect'];
       orderId = data['id'];
       userName = data['name'];
-      Map address = json.decode(data['address']);
-      billingAddress = address['Address']['Line1'];
+      address = data['address'];
       paymentMode = data['mode'];
     }
+    log(address, name: 'User Address');
+
     _showNotificationDialog();
   }
 
@@ -126,13 +137,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
   }
 
   _showNotificationDialog() {
+
     showDialog(
         context: context,
         builder: (BuildContext context) {
           Vibration.vibrate(duration: 1000);
-          Future.delayed(const Duration(seconds: 90), () async {
-            Navigator.pop(context);
-          });
+          // Future.delayed(const Duration(seconds: 90), () async {
+          //   Navigator.pop(context);
+          // });
           return Dialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20)),
@@ -140,7 +152,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
               child: NewServiceNotification(
                 orderId: orderId.toString().toUpperCase(),
                 userName: userName.toString().toUpperCase(),
-                address: billingAddress,
+                address: address,
                 paymentMode: paymentMode,
                 onConfirm: () {
                   _bloc.fire(NavigationEvent.onConfirmJob,
@@ -153,35 +165,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
                       _showOrderExpiredDialog(
                           "Order request invalid or expired");
                     } else {
-
                       Route route = MaterialPageRoute(
                           builder: (context) => WorkScreen(
-                                orderBasePrice: m.order.orderBasePrice,
-                                orderTaxCharge: m.order.orderTaxCharge,
-                                orderServiceCharge: m.order.orderServiceCharge,
-                                orderAmount: m.order.orderAmount,
-                                quantity: m.order.quantity,
-                                userId: m.user.userId,
-                                activeOrderStatus: m.order.status,
-                                orderId: m.order.orderId,
-                                googlePlaceId: m.location.googlePlaceId,
-                                phoneNumber: m.user.phoneNumber,
-                                userName: m.user.firstname +
-                                    " " +
-                                    m.user.middlename +
-                                    " " +
-                                    m.user.lastname,
-                                userProfilePicUrl: m.user.profilePicUrl,
-                                addressLine: m.location.addressLine,
-                                landmark: m.location.landmark,
-                                serviceName: m.service.serviceName,
-                                timeStamp: m.order.timeStamp,
-                                amount: m.order.price,
-                                userProfilePicId: m.user.profilePicId,
-                                cashOnDelivery: m.order.cashOnDelivery,
-                                basePrice: m.order.basePrice,
-                                taxPercent: m.order.taxPercent,
-                                serviceCharge: m.order.serviceCharge,
+                                orderModel: m.ordersModel,
                               ));
                       Navigator.pushReplacement(context, route);
                     }
@@ -205,26 +191,66 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      //onWillPop: () async => false,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        bottomNavigationBar: BottomNavBar(
-          onPageSelected: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-        ),
-        body: SafeArea(
-          child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-            return Stack(
+    return Scaffold(
+      floatingActionButton: (_currentIndex == 0)
+          ? Row(
               children: [
-                pages[_currentIndex],
+                Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(25.0, 0, 0, 30),
+                      child: FloatingActionButton(
+                        mini: false,
+                        elevation: 0,
+                        backgroundColor: Colors.amber,
+                        child: Icon(
+                          Icons.add_alert,
+                          color: PrimaryColors.backgroundColor,
+                          size: 25,
+                        ),
+                        onPressed: () {},
+                      ),
+                    ),
+                    Positioned(
+                        top: 1.0,
+                        right: 2.0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Colors.black, shape: BoxShape.circle),
+                          child: Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: Center(
+                              child: Text(
+                                '1',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        )),
+                  ],
+                ),
               ],
-            );
-          }),
-        ),
+            )
+          : SizedBox(),
+      backgroundColor: Colors.white,
+      bottomNavigationBar: BottomNavBar(
+        onPageSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+      body: SafeArea(
+        child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+          return Stack(
+            children: [
+              pages[_currentIndex],
+            ],
+          );
+        }),
       ),
     );
   }

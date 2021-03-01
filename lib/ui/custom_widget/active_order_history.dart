@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../Constants.dart';
 
 class ActiveOrderHistory extends StatefulWidget {
-  final String orderId, serviceName, status;
+  final String userName, serviceName, status;
   final String timeStamp;
   final Function seeMore;
 
@@ -14,14 +14,14 @@ class ActiveOrderHistory extends StatefulWidget {
       this.status,
       this.timeStamp,
       this.seeMore,
-      this.orderId})
+      this.userName})
       : super(key: key);
   @override
   _ActiveOrderHistoryState createState() => _ActiveOrderHistoryState();
 }
 
 class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
-  DateTimeFormatter dtf= DateTimeFormatter();
+  DateTimeFormatter dtf = DateTimeFormatter();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,20 +43,23 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                       padding: const EdgeInsets.all(8.0),
                       child: Container(
                         child: Text(
-                         "ORDER ID: " +widget.orderId.toUpperCase(),
-                          style: TextStyle(color: Colors.black, fontSize: 16,  fontWeight: FontWeight.bold),
+                          "User : " + widget.userName.toUpperCase(),
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
                             width: MediaQuery.of(context).size.width / 1.7,
                             child: Text(
-                              widget.serviceName,
+                              "Service : "+widget.serviceName,
                               maxLines: null,
                               style: TextStyle(
                                   color: PrimaryColors.backgroundColor,
@@ -68,7 +71,7 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Text(
-                                widget.status,
+                                widget.status.toUpperCase(),
                                 style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 10,
@@ -124,7 +127,9 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                             padding: const EdgeInsets.all(8.0),
                             child: Text(dtf.getDate(widget.timeStamp)),
                           ),
-                          SizedBox(width: 10,),
+                          SizedBox(
+                            width: 10,
+                          ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(dtf.getTime(widget.timeStamp)),
