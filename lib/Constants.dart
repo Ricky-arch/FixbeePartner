@@ -225,6 +225,7 @@ class EndPoints {
 class SharedPrefKeys {
   static const TOKEN = 'token@bee';
   static const ORDER = 'ORDER';
+  static const ORDER_PREF='ORDER_PREF';
 }
 
 class PrimaryColors {

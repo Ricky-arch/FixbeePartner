@@ -89,19 +89,24 @@ class _WorkScreenState extends State<WorkScreen> {
       setState(() => this.barcode = barcode);
       log(barcode, name: "VALUE");
       if (barcode != null) {
-        _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
-            message: {"otp": barcode}, onHandled: (e, m) {
-          if (!m.otpValid)
-            _showOtpValidityDialog('Otp Invalid!');
-          else if (m.otpValid)
-            {
-              _showOtpValidityDialog('Otp Validated!');
-              setState(() {
-                _onServiceStarted = m.onServiceStarted;
-              });
-            }
-
-        });
+        _bloc.verifyOtpToStartService({'otp':barcode}).then((value) {
+          if(value.otpValid){
+            _showOtpValidityDialog('Otp Validated!');
+            _onServiceStarted = value.onServiceStarted;
+          }
+          else
+              _showOtpValidityDialog('Otp Invalid!');
+        }
+        );
+        // _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
+        //     message: {"otp": barcode}, onHandled: (e, m) {
+        //   if (!m.otpValid)
+        //     _showOtpValidityDialog('Otp Invalid!');
+        //   else if (m.otpValid) {
+        //     _showOtpValidityDialog('Otp Validated!');
+        //     _onServiceStarted = m.onServiceStarted;
+        //   }
+        // });
       }
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
@@ -290,7 +295,6 @@ class _WorkScreenState extends State<WorkScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-
                     CustomButtonType2(
                         text: "BASIC INFO",
                         onTap: () {
@@ -303,16 +307,16 @@ class _WorkScreenState extends State<WorkScreen> {
                         )),
                     SizedBox(width: 10),
                     CustomButtonType2(
-                      onTap: (viewModel.activeOrderStatus != "RESOLVED")
+                      onTap: (viewModel.activeOrderStatus != "in progress")
                           ? () {
-                        scan();
-                      }
+                              scan();
+                            }
                           : null,
-                      text: (viewModel.activeOrderStatus != "RESOLVED")
+                      text: (viewModel.activeOrderStatus != "in progress")
                           ? "SCAN"
                           : "SCANNED",
                       icon: Icon(
-                        (viewModel.activeOrderStatus != "RESOLVED")
+                        (viewModel.activeOrderStatus != "in progress")
                             ? Icons.camera_alt
                             : Icons.check_circle,
                         size: 18,
@@ -323,7 +327,7 @@ class _WorkScreenState extends State<WorkScreen> {
                     CustomButtonType2(
                         text: "ADD-ON INFO",
                         onTap: () {
-                           _showAddOnInfoDialogBox();
+                          _showAddOnInfoDialogBox();
                         },
                         icon: Icon(
                           Icons.info,
@@ -336,7 +340,7 @@ class _WorkScreenState extends State<WorkScreen> {
               SizedBox(
                 height: 12,
               ),
-              (viewModel.activeOrderStatus != "RESOLVED")
+              (viewModel.activeOrderStatus != "in progress")
                   ? Expanded(
                       child: mapWidget = GoogleMap(
                       markers: markers,
@@ -517,8 +521,8 @@ class _WorkScreenState extends State<WorkScreen> {
                               )),
                             )
                           : ListView.builder(
-                              itemCount:
-                                  _bloc.latestViewModel.ordersModel.addOns.length,
+                              itemCount: _bloc
+                                  .latestViewModel.ordersModel.addOns.length,
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
                               itemBuilder: (BuildContext context, int index) {
@@ -572,7 +576,6 @@ class _WorkScreenState extends State<WorkScreen> {
                       SizedBox(
                         height: 10,
                       ),
-
                       InfoPanel(
                         title: "User:",
                         answer: widget.orderModel.user.firstname,
@@ -591,7 +594,9 @@ class _WorkScreenState extends State<WorkScreen> {
                       ),
                       InfoPanel(
                         title: "Quantity:",
-                        answer: (widget.orderModel.quantity!=null)?widget.orderModel.quantity.toString():"1",
+                        answer: (widget.orderModel.quantity != null)
+                            ? widget.orderModel.quantity.toString()
+                            : "1",
                         maxLines: 1,
                       ),
                       InfoPanel(

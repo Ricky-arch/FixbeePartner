@@ -435,7 +435,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                                   orderModel:
                                                       snapshot.data.orders,
                                                 ));
-                                        Navigator.pushReplacement(
+                                        Navigator.push(
                                             context, route);
                                       },
                                       userName:

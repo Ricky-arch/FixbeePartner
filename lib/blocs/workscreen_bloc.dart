@@ -54,7 +54,6 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
       return latestViewModel
         ..otpValid = true
         ..onServiceStarted = response['verifyOrder']['status'];
-
     } catch (e) {
       return latestViewModel..otpValid = false;
     }

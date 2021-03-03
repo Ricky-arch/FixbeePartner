@@ -74,3 +74,8 @@ class Order {
   int orderAmount;
 
 }
+
+class OrderNotificationModel{
+  bool cashOnDelivery;
+  String userName, serviceName, orderId, orderAddress;
+}
