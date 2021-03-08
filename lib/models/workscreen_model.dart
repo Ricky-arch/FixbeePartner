@@ -17,4 +17,5 @@ class WorkScreenModel extends ViewModel {
   String ratingRemark;
   bool ratedSuccessfully = false;
   String otpInvalidMessage = "";
+  bool paymentReceived=false;
 }

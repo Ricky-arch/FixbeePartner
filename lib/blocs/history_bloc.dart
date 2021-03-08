@@ -153,6 +153,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
   Future<HistoryModel> fetchActiveOrder() async {
     String query = '''{
   activeOrder{
+    id
     otp
     user{
       fullName
@@ -184,6 +185,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
       Orders order = Orders();
       Map activeOrder = response['activeOrder'];
       latestViewModel.isOrderActive = true;
+      order.id=activeOrder['id'];
       order.quantity = activeOrder['service']['quantity'];
       order.placeId = activeOrder['location']['placeId'];
       order.serviceName = activeOrder['service']['name'];

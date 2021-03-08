@@ -17,7 +17,7 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
   Future<CustomProfileModel> mapEventToViewModel(
       CustomProfileEvent event, Map<String, dynamic> message) async {
     if (event == CustomProfileEvent.updateDp) {
-      return await updateDP(message['path'], message['file']);
+      return await updateDP(message['path'], message['file'], message['tags']);
     }
     if (event == CustomProfileEvent.downloadDp) return await downloadDp();
     if (event == CustomProfileEvent.checkForVerifiedAccount)
@@ -26,7 +26,11 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
     return latestViewModel;
   }
 
-  Future<CustomProfileModel> updateDP(String path, String filename) async {
+  Future<CustomProfileModel> updateDP(
+      String path, String filename, List<String> t) async {
+    List tags = t.map((e) {
+      return '"$e"';
+    }).toList();
     MultipartFile multipartFile = await MultipartFile.fromPath(
       'image',
       path,
@@ -35,30 +39,38 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
     );
 
     String query = r'''
-  mutation($file: Upload!){
-      Update(input:{UpdateDisplayPicture:$file}){
-        ... on Bee{
-          DisplayPicture{
-            id
-          }
-        }
-      }
+mutation($file: Upload!, $tags: [String]) {
+  createMedia(input: { file: $file, tags: $tags }) {
+    key
+    filename
+    tags
   }
+}
   ''';
 
-    Map response = await CustomGraphQLClient.instance.mutate(
-      query,
-      variables: {'file': multipartFile},
-    );
+    try {
+      Map response = await CustomGraphQLClient.instance.mutate(
+        query,
+        variables: {'file': multipartFile, 'tags': tags.toString()},
+      );
+      String key = response['createMedia']['key'];
+      String mutate = '''mutation{
+              update(input:{displayPicture:"$key"}){
+                displayPicture
+              }
+            }''';
+      try {
+        Map responseOfMutation =
+            await CustomGraphQLClient.instance.mutate(mutate);
 
-    if (response.containsKey('Update')) {
-      String id = response['Update']['DisplayPicture']['id'];
-      String _imageURL = '${EndPoints.DOCUMENT}?id=$id';
-      print("xxx:" + id);
-      print("imageUrl" + _imageURL);
-      return latestViewModel..imageUrl = _imageURL;
-    } else
+        return latestViewModel..imageUrl = '${EndPoints.DOCUMENT}$key';
+      } catch (e) {}
+      print(e);
       return latestViewModel;
+    } catch (e) {
+      print(e);
+      return latestViewModel;
+    }
   }
 
   Future<CustomProfileModel> downloadDp() async {
@@ -68,13 +80,14 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
   }
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    String id = response['profile']['displayPicture'];
+    String key = response['profile']['displayPicture'];
 
-    if (id != null) {
+    if (key != null) {
       return latestViewModel
         ..imageId = response['profile']['displayPicture']
-        ..imageUrl = '${EndPoints.DOCUMENT}?id=$id';
+        ..imageUrl = '${EndPoints.DOCUMENT}$key';
     }
+
     return latestViewModel;
   }
 
@@ -95,10 +108,8 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
   Future<CustomProfileModel> deactivateBee() async {
     bool deactivate = false;
     String query = '''mutation{
-  Update(input:{SetActive:$deactivate}){
-    ... on Bee{
-      Active
-    }
+  update(input:{active:$deactivate}){
+    active
   }
 }''';
     Map response = await CustomGraphQLClient.instance.query(query);

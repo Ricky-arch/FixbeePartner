@@ -3,8 +3,15 @@ import 'package:flutter/material.dart';
 import '../../Constants.dart';
 
 class OrderWidget extends StatefulWidget {
-  final String serviceName, userName, userPhone, orderAddress, orderMode;
-  final Function confirm, decline;
+  final String serviceName,
+      userName,
+      userPhone,
+      orderAddress,
+      orderMode,
+      orderId;
+  final int index;
+  final Future<void> Function(String) confirm;
+  final Future<void> Function(int) decline;
 
   const OrderWidget(
       {Key key,
@@ -14,7 +21,9 @@ class OrderWidget extends StatefulWidget {
       this.orderAddress,
       this.orderMode,
       this.confirm,
-      this.decline})
+      this.decline,
+      this.orderId,
+      this.index})
       : super(key: key);
   @override
   _OrderWidgetState createState() => _OrderWidgetState();
@@ -36,6 +45,7 @@ class _OrderWidgetState extends State<OrderWidget> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 widget.userName.toUpperCase(),
@@ -102,70 +112,71 @@ class _OrderWidgetState extends State<OrderWidget> {
                 color: Colors.tealAccent,
                 thickness: 1,
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
-                child: Row(
-                  children: [
-                    InkWell(
-                      child: GestureDetector(
-                        onTap: widget.confirm,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5.0),
-                            color: Colors.orangeAccent.withOpacity(.9),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black,
-                                blurRadius: 2.0,
-                                spreadRadius: 0.0,
-                                offset: Offset(
-                                    2.0, 2.0), // shadow direction: bottom right
-                              )
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "CONFIRM",
-                              style: TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Spacer(),
-                    InkWell(
-                      child: GestureDetector(
-                        onTap: widget.confirm,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5.0),
-                            color: Colors.orangeAccent.withOpacity(.9),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black,
-                                blurRadius: 2.0,
-                                spreadRadius: 0.0,
-                                offset: Offset(
-                                    2.0, 2.0), // shadow direction: bottom right
-                              )
-                            ],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "DECLINE",
-                              style: TextStyle(
-                                  fontSize: 10, fontWeight: FontWeight.bold),
-                            ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Dismissible(
+                        key: UniqueKey(),
+                        onDismissed: (DismissDirection direction) async {
+                          if (direction == DismissDirection.startToEnd) {
+                            print('Swiped right');
+                            await widget.confirm(widget.orderId);
+                          } else {
+                            print('Swiped left');
+                            await widget.decline(widget.index);
+                          }
+                        },
+                        background: Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                          alignment: Alignment.centerLeft,
+                          color: Colors.green,
+                          child: Text(
+                            'ACCEPT',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
+                        secondaryBackground: Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                          alignment: Alignment.centerRight,
+                          color: Colors.red,
+                          child: Text(
+                            'DECLINE',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 8),
+                                child: Text(
+                                  'SWIPE RIGHT TO ACCEPT',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: PrimaryColors.yellowColor,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                            Icon(
+                              Icons.arrow_right_alt_rounded,
+                              color: Colors.green,
+                            )
+                          ],
+                        )),
+                  ),
+                ],
+              ),
+
+
             ],
           ),
         ),

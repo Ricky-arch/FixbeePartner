@@ -64,9 +64,9 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
     return Container(
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          border: Border.all(color: Colors.tealAccent, width: 3)),
+          color: PrimaryColors.backgroundColor,
+          borderRadius: BorderRadius.all(Radius.circular(5)),
+          border: Border.all(color: Colors.orange, width: 2)),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -74,7 +74,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
             (widget.imageURl == null || widget.imageURl.isEmpty)
                 ? Text(
                     fileName,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                   )
                 : fileName,
             Spacer(),
@@ -96,7 +96,7 @@ class _FileUploadWidgetState extends State<FileUploadWidget> {
                       _uploaded ? Icons.check_circle : LineAwesomeIcons.folder,
                       color: _uploaded
                           ? Colors.green
-                          : PrimaryColors.backgroundColor,
+                          : Colors.orange,
                     ),
                     SizedBox(
                       width: 10,

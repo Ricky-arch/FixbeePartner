@@ -19,6 +19,8 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel>
       return await fetchBeeDetails();
     } else if (event == UpdateProfileEvent.updateProfile) {
       return await updateBeeDetails(message);
+    } else if (event == UpdateProfileEvent.updateEachField) {
+      return await updateEachField(message);
     }
     return latestViewModel;
   }
@@ -47,41 +49,31 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel>
       middleName
       lastName
     }
+    email
+    phone
+    phoneVerified
+    altPhone
     personalDetails{
       dateOfBirth
       gender
     }
-    displayPicture
-    email
-    phone
   }
 }''';
-
-    Map response = await CustomGraphQLClient.instance.query(query);
-    // try{
-    //   List allLocations = response['profile']['locations'];
-    //   List<Address> locations = [];
-    //   int noOfAddress = 1;
-    //
-    //   allLocations.forEach((location) {
-    //     Address address = Address();
-    //     address.addressLine = location['Address']['Line1'];
-    //     address.locationId = location['ID'];
-    //     locations.add(address);
-    //   });
-    //   noOfAddress = allLocations.length - 1;
-    //   latestViewModel..address1 = locations[noOfAddress].addressLine;
-    // }
-    // catch(e){
-    //   log(e.toString(), name:"Account Error");
-    // }
-    return latestViewModel
-      ..firstName = response['profile']['name']['firstName']
-      ..middleName = response['profile']['name']['middleName'] ?? ""
-      ..lastName = response['profile']['name']['lastName'] ?? ""
-      ..emailAddress = response['me']['email']
-      ..dob = response['me']['dob']
-      ..gender = response['gender'];
+    try {
+      Map response = await CustomGraphQLClient.instance.query(query);
+      return latestViewModel
+        ..firstName = response['profile']['name']['firstName']
+        ..middleName = response['profile']['name']['middleName'] ?? ""
+        ..lastName = response['profile']['name']['lastName'] ?? ""
+        ..emailAddress = response['profile']['email'] ?? ""
+        ..phoneNumber = response['profile']['phone']
+        ..alternatePhoneNumber = response['profile']['altPhone']
+        ..dob = response['profile']['personalDetails']['dateOfBirth'] ?? ""
+        ..gender = response['profile']['personalDetails']['gender'] ?? "";
+    } catch (e) {
+      print(e);
+    }
+    return latestViewModel;
   }
 
   Future<UpdateProfileModel> updateBeeDetails(
@@ -127,5 +119,18 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel>
     if (event == UpdateProfileEvent.fetchProfile)
       latestViewModel..loading = trackFlag;
     return latestViewModel;
+  }
+
+  Future<UpdateProfileModel> updateEachField(
+      Map<String, dynamic> message) async {
+    String query = message['query'];
+    try {
+      Map response = await CustomGraphQLClient.instance.mutate(query);
+      return latestViewModel..updated=true;
+    } catch (e) {
+      print(e);
+      return latestViewModel..updated=false;
+    }
+
   }
 }

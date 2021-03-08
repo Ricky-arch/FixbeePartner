@@ -4,9 +4,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/blocs/navigation_bloc.dart';
 import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
+import 'package:fixbee_partner/models/orders_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/bottom_nav_bar.dart';
 import 'package:fixbee_partner/ui/custom_widget/new_service_notification.dart';
 import 'package:fixbee_partner/ui/custom_widget/order_notifcation.dart';
+import 'package:fixbee_partner/ui/custom_widget/order_widget.dart';
 import 'package:fixbee_partner/ui/custom_widget/profile_notification.dart';
 import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
@@ -28,10 +30,12 @@ class NavigationScreen extends StatefulWidget {
   _NavigationScreenState createState() => _NavigationScreenState();
 }
 
-String fcmTest='';
+String fcmTest = '';
 
 class _NavigationScreenState extends State<NavigationScreen> {
+  List<OrderNotificationModel> _onNotificationOrderList = [];
   List<Widget> pages;
+  List<String> orderIdReceivedFromNotification = [];
   PageController _pageController;
   static GoogleMapController mapController;
   bool check = false;
@@ -54,6 +58,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   int _lastNotification = 0;
 
   Box<String> _BEENAME;
+  OrderNotificationModel _orderNotificationModel = OrderNotificationModel();
 
   _openHive() async {
     _BEENAME = Hive.box<String>("BEE");
@@ -107,70 +112,52 @@ class _NavigationScreenState extends State<NavigationScreen> {
         onResume: (Map<String, dynamic> message) async {
           FlutterRingtonePlayer.playNotification();
           log(message.toString(), name: 'ON_RESUME');
-          print('FCM_RESUME:  '+fcmTest);
+          print('FCM_RESUME:  ' + fcmTest);
           _getJobDetails(message);
         },
         onLaunch: (message) async {
           FlutterRingtonePlayer.playNotification();
           log(message.toString(), name: 'ON_LAUNCH');
-          print('FCM_LAUNCH:  '+fcmTest);
+          print('FCM_LAUNCH:  ' + fcmTest);
           _getJobDetails(message);
         },
-        onBackgroundMessage: myBackgroundMessageHandler
-    );
+        onBackgroundMessage: myBackgroundMessageHandler);
   }
 
   static Future<dynamic> myBackgroundMessageHandler(
       Map<String, dynamic> message) async {
-
-    print('FCM_BACKGROUND_MESSAGE  :  ' + message.toString());
-    fcmTest= message['data']['id'];
+    //print('FCM_BACKGROUND_MESSAGE  :  ' + message.toString());
     return true;
   }
 
-  static void _putMapInSharedPref(
-      String key, String orderID, Map value, SharedPreferences pref) {
-    print('FCM_ID:  ' + orderID);
-    String mapAsStr = '{}';
-    if (pref.containsKey(key)) mapAsStr = pref.getString(key);
-    Map map = json.decode(mapAsStr);
-    print('FCM1:  ');
-    map[orderID] = value;
-    print('FCM2');
-    mapAsStr = json.encode(map);
-    print('FCM3');
-    print('FCM:    ' + mapAsStr);
-    pref.setString(key, mapAsStr);
-    print('FCM4');
-  }
-
-  static Map _getOrdersFromSharedPref(String key, SharedPreferences pref) {
-    String mapAsStr = '{}';
-    if (pref.containsKey(key)) mapAsStr = pref.getString(key);
-    Map map = json.decode(mapAsStr);
-    return map;
-  }
-
   _getJobDetails(Map<String, dynamic> message) {
+    //print(message);
     if (message.containsKey('data')) {
       Map data = message['data'];
+
       redirect = data['redirect'];
-      orderId = data['id'];
-      userName = data['name'];
-      address = data['address'];
-      paymentMode = data['mode'];
+      if (redirect == 'JOB_REQUEST') {
+        orderId = data['id'];
+        userName = data['name'];
+        address = data['address'];
+        paymentMode = data['mode'];
+        _orderNotificationModel
+          ..orderId = orderId
+          ..orderAddress = address
+          ..serviceName = 'Tell Sagnik'
+          ..userName = userName
+          ..cashOnDelivery = paymentMode == 'COD' ? true : false;
+
+        if (!orderIdReceivedFromNotification.contains(orderId)) {
+          setState(() {
+            orderIdReceivedFromNotification.add(orderId);
+            _onNotificationOrderList.add(_orderNotificationModel);
+          });
+        }
+      }
     }
-    log(address, name: 'User Address');
 
-    _showNotificationDialog();
-  }
-
-  bool isLoading = false;
-  bool onChanged() {
-    setState(() {
-      isLoading = _bloc.latestViewModel.onJobConfirmed;
-    });
-    return isLoading;
+    // _showNotificationDialog();
   }
 
   _orderSheet() {
@@ -179,7 +166,94 @@ class _NavigationScreenState extends State<NavigationScreen> {
         backgroundColor: PrimaryColors.backgroundColor,
         context: context,
         builder: (builder) {
-          return OrderNotification();
+          return Container(
+            child: SingleChildScrollView(
+              child: (_onNotificationOrderList == null ||
+                      _onNotificationOrderList.length == 0)
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 30.0, horizontal: 8.0),
+                      child: Center(
+                        child: Text(
+                          "NO WORRIES YOU WILL SOON RECEIVE  ORDER!",
+                          style: TextStyle(
+                              color: PrimaryColors.yellowColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15),
+                        ),
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          // margin: const EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(
+                            "YOUR ORDERS",
+                            style: TextStyle(
+                                color: PrimaryColors.yellowColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17),
+                          ),
+                        ),
+                        ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: _onNotificationOrderList.length,
+                            itemBuilder: (ctx, index) {
+                              return OrderWidget(
+                                orderId:
+                                    _onNotificationOrderList[index].orderId,
+                                index: index,
+                                userName:
+                                    _onNotificationOrderList[index].userName,
+                                serviceName:
+                                    _onNotificationOrderList[index].serviceName,
+                                confirm: (value) async {
+                                  setState(() {
+                                    _onNotificationOrderList.clear();
+                                    orderIdReceivedFromNotification.clear();
+                                  });
+                                  Navigator.pop(context);
+                                  Orders order= await _bloc.onConfirmDeclineJob(value);
+                                  if(order==null){
+                                    // Navigator.pop(context);
+                                    _showOrderExpiredDialog(
+                                        "Order request invalid or expired");
+                                  }
+                                  else{
+                                    // Navigator.pop(context);
+                                    Route route = MaterialPageRoute(
+                                        builder: (context) => WorkScreen(
+                                          orderModel: order,
+                                        ));
+                                    Navigator.push(context, route);
+                                  }
+                                },
+                                decline: (value) async {
+                                  setState(() {
+                                    _onNotificationOrderList.removeAt(value);
+                                    orderIdReceivedFromNotification.removeAt(value);
+                                    if(_onNotificationOrderList.length==0)
+                                      orderIdReceivedFromNotification.clear();
+                                  });
+
+
+                                  //Navigator.pop(context);
+                                },
+                                orderAddress: _onNotificationOrderList[index]
+                                    .orderAddress,
+                                orderMode: _onNotificationOrderList[index]
+                                        .cashOnDelivery
+                                    ? 'COD'
+                                    : 'ONLINE',
+                              );
+                            }),
+                      ],
+                    ),
+            ),
+          );
         });
   }
 
@@ -190,50 +264,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
         builder: (builder) {
           return ProfileNotification();
         });
-  }
-
-  _showNotificationDialog() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          Vibration.vibrate(duration: 1000);
-          // Future.delayed(const Duration(seconds: 90), () async {
-          //   Navigator.pop(context);
-          // });
-          return Dialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-              insetPadding: EdgeInsets.all(10),
-              child: NewServiceNotification(
-                orderId: orderId.toString().toUpperCase(),
-                userName: userName.toString().toUpperCase(),
-                address: address,
-                paymentMode: paymentMode,
-                onConfirm: () {
-                  _bloc.fire(NavigationEvent.onConfirmJob,
-                      message: {"orderId": orderId, "Accept": true},
-                      onFired: (e, m) {
-                    onChanged();
-                  }, onHandled: (e, m) {
-                    if (m.orderExpired) {
-                      Navigator.pop(context);
-                      _showOrderExpiredDialog(
-                          "Order request invalid or expired");
-                    } else {
-                      Route route = MaterialPageRoute(
-                          builder: (context) => WorkScreen(
-                                orderModel: m.ordersModel,
-                              ));
-                      Navigator.push(context, route);
-                    }
-                  });
-                },
-                onDecline: () {
-                  _showCancelBox();
-                },
-              ));
-        },
-        barrierDismissible: false);
   }
 
   @override
@@ -278,7 +308,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                             padding: const EdgeInsets.all(6.0),
                             child: Center(
                               child: Text(
-                                '1',
+                                _onNotificationOrderList.length.toString(),
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 12.0,
@@ -315,14 +345,11 @@ class _NavigationScreenState extends State<NavigationScreen> {
         },
       ),
       body: SafeArea(
-        child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-          return Stack(
-            children: [
-              pages[_currentIndex],
-            ],
-          );
-        }),
-      ),
+          child: Stack(
+        children: [
+          pages[_currentIndex],
+        ],
+      )),
     );
   }
 
@@ -338,7 +365,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   setState(() {
                     _visible = false;
                   });
-                  Navigator.pop(context);
                   Navigator.pop(context);
                 },
                 child: Text("Yes"),

@@ -64,8 +64,8 @@ class _AddServicesState extends State<AddServices> {
             child: Icon(Icons.add),
           ),
           body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-            List<String> parents =
-                viewModel.allServicesAvailableForMe.keys.toList();
+            // List<String> parents =
+            //     viewModel.availableServices.keys.toList();
 
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
@@ -77,11 +77,11 @@ class _AddServicesState extends State<AddServices> {
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
                               itemCount:
-                                  viewModel.allServicesAvailableForMe.length,
+                                  viewModel.availableServices.length,
                               itemBuilder: (BuildContext context, int index) {
-                                String parentName = parents[index];
-                                List<ServiceOptionModel> services = viewModel
-                                    .allServicesAvailableForMe[parentName];
+                                String parentName = viewModel.availableServices[index].serviceName;
+                                List<ServiceOptionModel> childServices = viewModel
+                                    .availableServices[index].subServices;
                                 return Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +100,7 @@ class _AddServicesState extends State<AddServices> {
                                       ),
                                     ),
                                     Column(
-                                        children: services.map((service) {
+                                        children: childServices.map((service) {
                                       return AddNewServiceBanner(
                                         serviceName: service.serviceName,
                                         subService: service,

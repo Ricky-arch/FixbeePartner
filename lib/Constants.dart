@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class Constants {
 
   static const String HOST_IP = "fixbee.in";
-  static const updateLocationTimeOut=10;
+  static const updateLocationTimeOut=30;
   static const rupeeSign = "₹";
   static const String PROTOCOL = "https";
   static const WS_PROTOCOL = 'ws';
@@ -15,7 +15,11 @@ class Constants {
   static const RAZORPAY_KEY = 'rzp_live_T9wLKrbt1yS0q2';
   static const double padding =20;
   static const double avatarRadius =45;
-  static const RAZORPAY_KEY_SECRET = 'hvqdBB0YDVddsZ1EjKvfRw7f';
+  static const DISPLAY_PICTURE_TAG='displayPicture';
+  static const IDENTITY_PROOF_TAG='identity';
+  static const AGE_PROOF_TAG='age';
+  static const ADDRESS_PROOF_TAG='address';
+  static const ADDITIONAL_TAG='additional';
   static const MINIMUM_WALLET_AMOUNT=1;
   static const MAP_STYLES='''[
   {
@@ -215,7 +219,7 @@ class EndPoints {
   static const GRAPHQL_WS =
       "${Constants.WS_PROTOCOL}://${Constants.HOST_IP}/graphql";
   static const DOCUMENT =
-      "${Constants.PROTOCOL}://${Constants.HOST_IP}/document";
+      "${Constants.PROTOCOL}://${Constants.HOST_IP}/graphql/view/b/";
   static const INFO = "${Constants.PROTOCOL}://${Constants.HOST_IP}/info";
   static const TNC = "${Constants.PROTOCOL}://${Constants.HOST_IP}/tnc";
   static const PRIVACY_POLICY =

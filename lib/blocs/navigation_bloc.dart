@@ -27,9 +27,9 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     if (event == NavigationEvent.onMessage) {
       return await onMessage(message);
     }
-    if (event == NavigationEvent.onConfirmJob) {
-      return await onConfirmDeclineJob(message);
-    }
+    // if (event == NavigationEvent.onConfirmJob) {
+    //   return await onConfirmDeclineJob(message);
+    // }
     if (event == NavigationEvent.getServiceData) {
       return await getServiceData(message);
     }
@@ -46,8 +46,8 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     if (event == NavigationEvent.endTimer) {
       return endTimer();
     }
-    if(event== NavigationEvent.updateFcmTest){
-      return await  updateFcmTest();
+    if (event == NavigationEvent.updateFcmTest) {
+      return await updateFcmTest();
     }
 
     return latestViewModel;
@@ -122,10 +122,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     return latestViewModel;
   }
 
-  Future<NavigationModel> onConfirmDeclineJob(
-      Map<String, dynamic> message) async {
-    String orderId = message['orderId'];
-    bool accept = message['Accept'];
+  Future<Orders> onConfirmDeclineJob(String orderId) async {
     String query = '''mutation{
   acceptOrder(id:"$orderId"){
     status
@@ -157,17 +154,18 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
         ..id = orderId
         ..status = response['acceptOrder']['status']
         ..otp = response['acceptOrder']['otp']
-        ..cashOnDelivery= response['acceptOrder']['mode']=='COD'?true:false
+        ..cashOnDelivery =
+            response['acceptOrder']['mode'] == 'COD' ? true : false
         ..user.phoneNumber = response['acceptOrder']['user']['phone']
         ..user.firstname = response['acceptOrder']['user']['fullName']
         ..user.profilePicId = response['acceptOrder']['user']['displayPicture']
         ..address = response['acceptOrder']['location']['fullAddress']
         ..placeId = response['acceptOrder']['location']['placeId']
-        ..serviceName = response['acceptOrder']['name']
-        ..quantity = response['acceptOrder']['quantity'];
-      return latestViewModel..ordersModel = order;
+        ..serviceName = response['acceptOrder']['service']['name']
+        ..quantity = response['acceptOrder']['service']['quantity'];
+      return order;
     } catch (e) {
-      return latestViewModel..orderExpired = true;
+      return null;
     }
   }
 
@@ -313,7 +311,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
     locationTimer.cancel();
   }
 
-  Future<NavigationModel> updateFcmTest() async{
+  Future<NavigationModel> updateFcmTest() async {
     final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     String fcmToken = await _firebaseMessaging.getToken();
     DataStore.fcmToken = fcmToken;

@@ -57,7 +57,7 @@ class CustomizeServiceBloc
   CustomizeServiceModel setTrackingFlag(
       CustomizeServiceEvent event, bool trackFlag, Map message) {
     if (event == CustomizeServiceEvent.fetchSelectedServices)
-      latestViewModel..fetchSelectedServices = trackFlag;
+      latestViewModel..fetchingMyServices = trackFlag;
 
     return latestViewModel;
   }

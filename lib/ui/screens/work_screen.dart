@@ -35,6 +35,8 @@ class WorkScreen extends StatefulWidget {
 }
 
 class _WorkScreenState extends State<WorkScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   WorkScreenBloc _bloc;
   bool _onNotificationReceivedForCompletionOfPayOnline = false;
   bool _onServiceStarted = false;
@@ -92,21 +94,16 @@ class _WorkScreenState extends State<WorkScreen> {
         _bloc.verifyOtpToStartService({'otp':barcode}).then((value) {
           if(value.otpValid){
             _showOtpValidityDialog('Otp Validated!');
-            _onServiceStarted = value.onServiceStarted;
+            setState(() {
+              _onServiceStarted = value.onServiceStarted;
+            });
+
           }
           else
               _showOtpValidityDialog('Otp Invalid!');
         }
         );
-        // _bloc.fire(WorkScreenEvents.verifyOtpToStartService,
-        //     message: {"otp": barcode}, onHandled: (e, m) {
-        //   if (!m.otpValid)
-        //     _showOtpValidityDialog('Otp Invalid!');
-        //   else if (m.otpValid) {
-        //     _showOtpValidityDialog('Otp Validated!');
-        //     _onServiceStarted = m.onServiceStarted;
-        //   }
-        // });
+
       }
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
@@ -124,26 +121,26 @@ class _WorkScreenState extends State<WorkScreen> {
     }
   }
 
-  void _setupFCM() {
-    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-    additionalReview = TextEditingController();
-    rating = 5;
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        FlutterRingtonePlayer.playNotification();
-        log(message.toString(), name: 'ON_MESSAGE');
-        _getMessage(message);
-      },
-      onResume: (Map<String, dynamic> message) async {
-        log(message.toString(), name: 'ON_RESUME');
-        _getMessage(message);
-      },
-      onLaunch: (message) async {
-        log(message.toString(), name: 'ON_LAUNCH');
-        _getMessage(message);
-      },
-    );
-  }
+  // void _setupFCM() {
+  //   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  //   additionalReview = TextEditingController();
+  //   rating = 5;
+  //   _firebaseMessaging.configure(
+  //     onMessage: (Map<String, dynamic> message) async {
+  //       FlutterRingtonePlayer.playNotification();
+  //       log(message.toString(), name: 'ON_MESSAGE');
+  //       _getMessage(message);
+  //     },
+  //     onResume: (Map<String, dynamic> message) async {
+  //       log(message.toString(), name: 'ON_RESUME');
+  //       _getMessage(message);
+  //     },
+  //     onLaunch: (message) async {
+  //       log(message.toString(), name: 'ON_LAUNCH');
+  //       _getMessage(message);
+  //     },
+  //   );
+  // }
 
   @override
   void initState() {
@@ -158,7 +155,7 @@ class _WorkScreenState extends State<WorkScreen> {
     _bloc.startTimer();
 
     log(widget.orderModel.status, name: "STATUS");
-    _setupFCM();
+//    _setupFCM();
     fetchLocationData().then((value) async {
       try {
         mapController.animateCamera(CameraUpdate.newLatLng(value));
@@ -190,6 +187,7 @@ class _WorkScreenState extends State<WorkScreen> {
         _bloc.fire(WorkScreenEvents.checkActiveOrderStatus);
       },
       child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: PrimaryColors.backgroundColor,
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return SafeArea(
@@ -409,7 +407,7 @@ class _WorkScreenState extends State<WorkScreen> {
               ),
               FlatButton(
                 onPressed: () {
-                  _goToBillingScreen();
+                 // _goToBillingScreen();
                 },
                 child: Text("Yes"),
               ),
@@ -633,12 +631,12 @@ class _WorkScreenState extends State<WorkScreen> {
       _showPaymentReceivedNotification(body);
     else if (m == 'JOB_UPDATED')
       _refreshServiceDetails();
-    else if (body == "You're Done!") {
-      setState(() {
-        _onNotificationReceivedForCompletionOfPayOnline = true;
-      });
-    } else
-      _showJobCompletionNotificationForOnlinePayment(body);
+    // else if (body == "You're Done!") {
+    //   setState(() {
+    //     _onNotificationReceivedForCompletionOfPayOnline = true;
+    //   });
+    // } else
+    //   _showJobCompletionNotificationForOnlinePayment(body);
   }
 
   _showPaymentReceivedNotification(String message) {
@@ -698,7 +696,16 @@ class _WorkScreenState extends State<WorkScreen> {
                   ? RaisedButton(
                       color: PrimaryColors.backgroundColor,
                       onPressed: () {
-                        _goToBillingScreen();
+                        _bloc.fire(WorkScreenEvents.receivePayment, onHandled: (e,m){
+                          if(m.paymentReceived)
+                            _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                                content: new Text('Payment Received')
+                            ));
+                          else
+                            _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                                content: new Text('Payment Received error')
+                            ));
+                        });
                       },
                       //ADD BILLING SCREEN
                       child: Padding(

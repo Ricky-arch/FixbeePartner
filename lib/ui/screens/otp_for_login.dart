@@ -4,10 +4,12 @@ import 'package:fixbee_partner/events/otp_events.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_field.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_insert.dart';
+import 'package:fixbee_partner/ui/screens/all_service_selection_screen.dart';
 import 'package:fixbee_partner/ui/screens/navigation_screen.dart';
 import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:fixbee_partner/ui/screens/service_selection.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
 class OtpForLogin extends StatefulWidget {
   final String phoneNumber;
@@ -21,9 +23,14 @@ class _OtpForLoginState extends State<OtpForLogin> {
   OTPController _otpController = OTPController();
   TextEditingController _otpInsertController = TextEditingController();
   OtpLoginBloc _bloc;
+  Box _BEENAME;
+  _openHive() async {
+    _BEENAME = Hive.box<String>("BEE");
+  }
 
   @override
   void initState() {
+    _openHive();
     _bloc = OtpLoginBloc(OtpModel());
 
     super.initState();
@@ -41,9 +48,9 @@ class _OtpForLoginState extends State<OtpForLogin> {
       child: Scaffold(
         body: Center(
           child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-            if (viewModel.verifying) {
-              return CircularProgressIndicator();
-            } else {
+            // if (viewModel.verifying) {
+            //   return CircularProgressIndicator();
+            // } else {
               return Wrap(
                 children: <Widget>[
                   Container(
@@ -162,6 +169,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                                 if (!m.serviceSelected) {
                                                   goToJobSelectionScreen(ctx);
                                                 } else {
+                                                  if(m.bee.dpUrl!=null)_BEENAME.put("dpUrl", m.bee.dpUrl);
                                                   goToNavigationScreen(ctx);
                                                 }
                                               });
@@ -184,7 +192,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                   )
                 ],
               );
-            }
+           // }
           }),
         ),
       ),
@@ -193,7 +201,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
 
   void goToJobSelectionScreen(BuildContext context) {
     Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => ServiceSelectionScreen()));
+        MaterialPageRoute(builder: (context) => AllServiceSelection()));
   }
 
   void goToRegistrationScreen(BuildContext context) {

@@ -57,6 +57,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
 
     _bloc.fire(WalletEvent.fetchBankAccountsForWithdrawal, onHandled: (e, m) {
+      if(m.bankAccountList.length!=0)
       selectedAccountNumber = m.bankAccountList[0].bankAccountNumber;
 
     });

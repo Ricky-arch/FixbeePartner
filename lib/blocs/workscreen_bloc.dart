@@ -36,6 +36,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     if (event == WorkScreenEvents.updateLiveLocation) {
       return await updateLiveLocation(message);
     }
+    else if(event== WorkScreenEvents.receivePayment){
+      return await receivePayment();
+    }
     return latestViewModel;
   }
 
@@ -175,5 +178,48 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
 }''';
     Map response = await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
+  }
+
+  Future<WorkScreenModel> receivePayment() async{
+    String query='''
+    mutation{
+  receivePayment {
+    column
+    amount
+    currency
+    referenceId
+    faId
+    payment {
+      amount
+      currency
+      status
+      method
+      refund_status
+      amount_refunded
+      captured
+    }
+    payout {
+      amount
+      currency
+      status
+      mode
+      utr
+    }
+    paymentId
+    payoutId
+    createdAt
+  }
+}
+    ''';
+    try{
+      Map response= await CustomGraphQLClient.instance.query(query);
+      return latestViewModel..paymentReceived=true;
+
+    }
+    catch(e){
+      print(e);
+      return latestViewModel..paymentReceived=false;
+    }
+
   }
 }

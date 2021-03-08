@@ -8,6 +8,7 @@ import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/bank_details.dart';
 import 'package:fixbee_partner/ui/screens/customize_service.dart';
 import 'package:fixbee_partner/ui/screens/logout.dart';
+import 'package:fixbee_partner/ui/screens/profile_update.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/transaction_account.dart';
 import 'package:fixbee_partner/ui/screens/update_profile.dart';
@@ -51,21 +52,22 @@ class _CustomProfileState extends State<CustomProfile> {
     _BEENAME = Hive.box<String>("BEE");
   }
 
-
   @override
   void initState() {
     _openHive();
     verifiedBee = _BEENAME.get("myDocumentVerification") == "true";
-    print(_BEENAME.length.toString() + "LLL");
-    print(_BEENAME.get("myName"));
+
     _bloc = CustomProfileBloc(CustomProfileModel());
     _bloc.fire(CustomProfileEvent.downloadDp, onHandled: (e, m) {
+
       _BEENAME.put("dpUrl", m.imageUrl);
+      DataStore.me.dpUrl=m.imageUrl;
     });
-    _bloc.fire(CustomProfileEvent.checkForVerifiedAccount);
+    //_bloc.fire(CustomProfileEvent.checkForVerifiedAccount);
     firstname = DataStore.me.firstName;
     middlename = DataStore.me.middleName ?? "";
     lastname = DataStore.me.lastName ?? "";
+    //print(_BEENAME.get('myName'));
     super.initState();
   }
 
@@ -76,13 +78,16 @@ class _CustomProfileState extends State<CustomProfile> {
     super.dispose();
   }
 
-
   _showLogoutDialogBox() {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: Text("Do you want to log out?"),
+            backgroundColor: PrimaryColors.backgroundColor,
+            content: Text(
+              "Do you want to log out?",
+              style: TextStyle(color: Colors.white),
+            ),
             actions: [
               RaisedButton(
                 color: PrimaryColors.backgroundColor,
@@ -108,8 +113,7 @@ class _CustomProfileState extends State<CustomProfile> {
                     //closeHiveBox();
                     Route route =
                         MaterialPageRoute(builder: (context) => SplashScreen());
-                    //Navigator.push(context, route);
-                     Navigator.pushAndRemoveUntil(context, route, (e) => false);
+                    Navigator.pushAndRemoveUntil(context, route, (e) => false);
                   });
                 },
                 child: Padding(
@@ -233,7 +237,6 @@ class _CustomProfileState extends State<CustomProfile> {
                               : SizedBox(),
                         ],
                       ),
-
                       RichText(
                         text: TextSpan(children: [
                           TextSpan(
@@ -255,14 +258,6 @@ class _CustomProfileState extends State<CustomProfile> {
                           )
                         ]),
                       ),
-//                        Text(
-//                          "Rated 4.5 \u2605",
-//                          style: TextStyle(
-//                            color: Colors.black,
-//                            fontSize: ScreenUtil().setSp(kSpacingUnit.w*1.7),
-//                            fontWeight: FontWeight.w600,
-//                          ),
-//                        ),
                       SizedBox(height: kSpacingUnit.w * 3),
                     ],
                   ),
@@ -279,18 +274,19 @@ class _CustomProfileState extends State<CustomProfile> {
                     task: () async {
                       String updated = await Navigator.push(context,
                           MaterialPageRoute(builder: (ctx) {
-                        return UpdateProfile();
+                        return ProfileUpdate();
                       }));
-                      if (updated ==
-                          "CHANGED TO PERSONAL ADDED SUCCESSFULLY!") {
-                        _onProfileUpdatedDialogBox(updated);
-                        setState(() {
-                          firstname = DataStore.me.firstName;
-                          middlename = DataStore.me.middleName ?? "";
-                          lastname = DataStore.me.lastName ?? "";
-                        });
-                        log(updated, name: "UPDATED");
-                      }
+
+                      // if (updated ==
+                      //     "CHANGED TO PERSONAL ADDED SUCCESSFULLY!") {
+                      //   _onProfileUpdatedDialogBox(updated);
+                      //   setState(() {
+                      //     firstname = DataStore.me.firstName;
+                      //     middlename = DataStore.me.middleName ?? "";
+                      //     lastname = DataStore.me.lastName ?? "";
+                      //   });
+                      //   log(updated, name: "UPDATED");
+                      // }
                     },
                   ),
                   ProfileListItem(
@@ -345,8 +341,11 @@ class _CustomProfileState extends State<CustomProfile> {
   }
 
   onImagePicked(String path) {
-    _bloc.fire(CustomProfileEvent.updateDp,
-        message: {"path": "$path", "file": "partnerDP"}, onHandled: (e, m) {
+    _bloc.fire(CustomProfileEvent.updateDp, message: {
+      "path": "$path",
+      "file": "partnerDP",
+      'tags': [Constants.DISPLAY_PICTURE_TAG]
+    }, onHandled: (e, m) {
       _BEENAME.put("dpUrl", m.imageUrl);
     });
   }

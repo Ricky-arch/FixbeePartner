@@ -2,7 +2,8 @@ import 'package:fixbee_partner/models/view_model.dart';
 
 class FileModel extends ViewModel{
  List <File> files= [];
- List<Map<String, String>> f=[];
+ File file= File();
+ Map<String, String> keys={};
  int numberOfFiles;
   bool aadhaarUploaded=false;
   bool ageProofUploaded=false;
@@ -11,6 +12,14 @@ class FileModel extends ViewModel{
   bool onErrorUpload=false;
   List<String> uploadedDocuments=[];
   bool onFetchUploadedDocumentsList=false;
+ String fileUrl;
+ String fileId;
+ String filePath;
+ String fileName;
+ String mimetype;
+ String tag;
+ String key;
+ String encoding;
 }
 class File extends ViewModel{
   String fileUrl;
@@ -18,5 +27,7 @@ class File extends ViewModel{
   String filePath;
   String fileName;
   String mimetype;
+  List<String> tag=[];
+  String key;
   String encoding;
 }

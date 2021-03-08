@@ -16,9 +16,7 @@ import '../data_store.dart';
 
 class SplashBloc extends Bloc<Event, SplashModel>
     with Trackable<Event, SplashModel> {
-  SplashBloc(ViewModel genesisViewModel) : super(genesisViewModel) {
-    getMessage();
-  }
+  SplashBloc(ViewModel genesisViewModel) : super(genesisViewModel);
 
   @override
   Future<SplashModel> mapEventToViewModel(
@@ -94,7 +92,7 @@ class SplashBloc extends Bloc<Event, SplashModel>
       List services = response['profile']['services'] ?? [];
       String dpUrl = (response['profile']['displayPicture'] == null)
           ? null
-          : EndPoints.DOCUMENT + '?id=' + response['profile']['displayPicture'];
+          : EndPoints.DOCUMENT + response['profile']['displayPicture'];
       bee = Bee()
         ..firstName = name['firstName']
         ..middleName = name['middleName'] ?? ''
@@ -119,40 +117,9 @@ class SplashBloc extends Bloc<Event, SplashModel>
     }
   }
 
-  void getMessage() {
-    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-      },
-      onBackgroundMessage: myBackgroundMessageHandler,
-      onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-      },
-    );
-  }
-
   @override
   SplashModel setTrackingFlag(Event event, bool trackFlag, Map message) {
     if (event == Event(100)) latestViewModel..tryReconnecting = trackFlag;
     return latestViewModel;
   }
-}
-
-Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
-  if (message.containsKey('data')) {
-    // Handle data message
-    final dynamic data = message['data'];
-  }
-
-  if (message.containsKey('notification')) {
-    // Handle notification message
-    final dynamic notification = message['notification'];
-  }
-  log(message.toString(), name: "ON BACKGROUND");
-  // Or do other work.
-  return Future.value(true);
 }

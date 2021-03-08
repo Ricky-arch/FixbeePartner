@@ -131,7 +131,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
         ..walletAmount=00
         ..active=beeProfile['active']
         ..dpUrl =(beeProfile['displayPicture']==null)?null:
-        EndPoints.DOCUMENT + '?id=' + beeProfile['displayPicture']
+        EndPoints.DOCUMENT  + beeProfile['displayPicture']
         ..phoneNumber = beeProfile['phone'];
       DataStore.me = bee;
       DataStore.fcmToken = beeProfile['fcmToken'];

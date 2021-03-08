@@ -34,31 +34,31 @@ class _SplashScreenState extends State<SplashScreen>
 
   Box _BEENAME;
 
-  void _setupFCM() {
-    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        FlutterRingtonePlayer.playNotification();
-        log(message.toString(), name: 'ON_MESSAGE');
-      },
-      onResume: (Map<String, dynamic> message) async {
-        log(message.toString(), name: 'ON_RESUME');
-        FlutterRingtonePlayer.playNotification();
-        Navigator.of(context).pushReplacement(
-            new MaterialPageRoute(builder: (BuildContext context) {
-          return NavigationScreen();
-        }));
-      },
-      onLaunch: (message) async {
-        FlutterRingtonePlayer.playNotification();
-        log(message.toString(), name: 'ON_LAUNCH');
-        Navigator.of(context).pushReplacement(
-            new MaterialPageRoute(builder: (BuildContext context) {
-          return NavigationScreen();
-        }));
-      },
-    );
-  }
+  // void _setupFCM() {
+  //   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  //   _firebaseMessaging.configure(
+  //     onMessage: (Map<String, dynamic> message) async {
+  //       FlutterRingtonePlayer.playNotification();
+  //       log(message.toString(), name: 'ON_MESSAGE');
+  //     },
+  //     onResume: (Map<String, dynamic> message) async {
+  //       log(message.toString(), name: 'ON_RESUME');
+  //       FlutterRingtonePlayer.playNotification();
+  //       Navigator.of(context).pushReplacement(
+  //           new MaterialPageRoute(builder: (BuildContext context) {
+  //         return NavigationScreen();
+  //       }));
+  //     },
+  //     onLaunch: (message) async {
+  //       FlutterRingtonePlayer.playNotification();
+  //       log(message.toString(), name: 'ON_LAUNCH');
+  //       Navigator.of(context).pushReplacement(
+  //           new MaterialPageRoute(builder: (BuildContext context) {
+  //         return NavigationScreen();
+  //       }));
+  //     },
+  //   );
+  // }
 
   String getMyName(String first, middle, last) {
     String name = first;
@@ -74,6 +74,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   void refreshAllData(Bee bee) {
     _BEENAME.put("myPhone", bee.phoneNumber);
+    _BEENAME.put("firstName", bee.firstName);
+    _BEENAME.put("middleName", bee.middleName);
+    _BEENAME.put("lastName", bee.lastName);
     _BEENAME.put(
         ("myName"), getMyName(bee.firstName, bee.middleName, bee.lastName));
     _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");
@@ -85,6 +88,9 @@ class _SplashScreenState extends State<SplashScreen>
 
   void putIntoHive(Bee bee) {
     _BEENAME.put("myPhone", bee.phoneNumber);
+    _BEENAME.put("firstName", bee.firstName);
+    _BEENAME.put("middleName", bee.middleName);
+    _BEENAME.put("lastName", bee.lastName);
     _BEENAME.put(
         ("myName"), getMyName(bee.firstName, bee.middleName, bee.lastName));
     _BEENAME.put("myDocumentVerification", (bee.verified) ? "true" : "false");
@@ -96,13 +102,14 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   void initState() {
-    _setupFCM();
+    //_setupFCM();
     _openHive();
 
     _bloc = SplashBloc(SplashModel());
-    _bloc.fire(Event(100), onHandled: (e, m) {
+    _bloc.fire(Event(100), onHandled: (e, m) async{
       if (m.connection) {
         if (m.tokenFound) {
+
           if (_BEENAME.containsKey('myPhone')) {
             if (m.me.phoneNumber != _BEENAME.get('myPhone'))
               refreshAllData(m.me);

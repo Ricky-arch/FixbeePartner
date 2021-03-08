@@ -39,12 +39,15 @@ class DisplayPicture extends StatelessWidget {
                 padding:
                     EdgeInsets.all(0.010 * MediaQuery.of(context).size.width),
                 child: CircleAvatar(
+                  backgroundColor: PrimaryColors.backgroundcolorlight,
                   radius: 0.13 * MediaQuery.of(context).size.width,
                   backgroundImage: (imageURl == null || imageURl.isEmpty)
                       ? DataStore?.me?.dpUrl == null
                           ? null
-                          : CachedNetworkImageProvider(DataStore.me.dpUrl)
-                      : CachedNetworkImageProvider(imageURl),
+                          : CachedNetworkImageProvider(DataStore.me.dpUrl,
+                              headers: {'authorization': '${DataStore.token}'})
+                      : CachedNetworkImageProvider(imageURl,
+                          headers: {'authorization': '${DataStore.token}'}),
                   child: (DataStore?.me?.dpUrl == null && imageURl == null)
                       ? SvgPicture.asset(
                           "assets/logo/bee_outline.svg",

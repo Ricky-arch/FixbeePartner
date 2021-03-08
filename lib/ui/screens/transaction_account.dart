@@ -173,8 +173,10 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                               }),
                                         ],
                                       )
-                                    : Text('No Bank Accounts Added',
-                                        style: TextStyle(color: Colors.black)),
+                                    : Center(
+                                      child: Text('No Bank Accounts Added',
+                                          style: TextStyle(color: Colors.black)),
+                                    ),
                                 floatingActionButton: FloatingActionButton(
                                   mini: true,
                                   elevation: 0,
@@ -224,8 +226,10 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                               }),
                                         ],
                                       )
-                                    : Text('No Vpa Accounts Added',
-                                        style: TextStyle(color: Colors.black)),
+                                    : Center(
+                                      child: Text('No Vpa Accounts Added',
+                                          style: TextStyle(color: Colors.black)),
+                                    ),
                                 floatingActionButton: FloatingActionButton(
                                   mini: true,
                                   elevation: 0,
@@ -399,6 +403,7 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                         _ifscCode.clear();
                                         _bankAccountNumber.clear();
                                         if (m.updated) {
+                                          _bloc.fire(BankDetailsEvent.fetchAvailableAccounts);
                                           showDialog(
                                               context: context,
                                               builder: (BuildContext context) {

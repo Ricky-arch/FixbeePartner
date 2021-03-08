@@ -13,10 +13,10 @@ import '../../Constants.dart';
 import 'navigation_screen.dart';
 
 class BillingRatingScreen extends StatefulWidget {
-  final String orderID, userID;
+  // final String orderID, userID;
 
-  const BillingRatingScreen({Key key, this.orderID, this.userID})
-      : super(key: key);
+  // const BillingRatingScreen({Key key, this.orderID, this.userID})
+  //     : super(key: key);
 
   @override
   BillingRatingScreenState createState() => BillingRatingScreenState();
@@ -32,8 +32,8 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
   @override
   void initState() {
     _bloc = BillingRatingBloc(BillingRatingModel());
-    _bloc.fire(BillingRatingEvent.fetchOderBillDetails,
-        message: {"orderID": widget.orderID});
+    // _bloc.fire(BillingRatingEvent.fetchOderBillDetails,
+    //     message: {"orderID": widget.orderID});
     super.initState();
   }
 
@@ -92,7 +92,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                               height: 10,
                             ),
                             Text(
-                              "ORDER ID: ${widget.orderID.toUpperCase()}",
+                              "ORDER ID: 1234567890",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,
@@ -133,7 +133,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                   children: [
                                     Banner(
                                       title: 'User',
-                                      value: viewModel.orderModel.userName,
+                                      value: 'Saurav',
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -144,7 +144,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                     ),
                                     Banner(
                                       title: 'Address',
-                                      value: viewModel.orderModel.addressLine,
+                                      value: 'Ram nagar',
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -167,7 +167,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                     Banner(
                                       title: 'Date',
                                       value: dtf.getDate(
-                                          viewModel.orderModel.timeStamp),
+                                          DateTime.now().toString()),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.fromLTRB(
@@ -179,7 +179,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                     Banner(
                                       title: 'Time',
                                       value: dtf.getTime(
-                                          viewModel.orderModel.timeStamp),
+                                          DateTime.now().toString()),
                                     ),
                                   ],
                                 ),
@@ -209,364 +209,364 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                   ),
                                 ),
                               ),
-                              Container(
-                                child: Column(
-                                  children: [
-                                    Banner(
-                                      title: 'Service ',
-                                      value: viewModel.orderModel.serviceName,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Quantity',
-                                      value: (viewModel.orderModel.quantity ==
-                                              null)
-                                          ? "Un-Quantifiable"
-                                          : viewModel.orderModel.quantity
-                                              .toString(),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Base Price',
-                                      value: Constants.rupeeSign +
-                                          " ${(viewModel.orderModel.basePrice * viewModel.orderModel.quantity) / 100}",
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Service Charge',
-                                      value: Constants.rupeeSign +
-                                          " ${(viewModel.orderModel.serviceCharge * viewModel.orderModel.quantity) / 100}",
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Tax Charge',
-                                      value: Constants.rupeeSign +
-                                          " ${(viewModel.orderModel.basePrice + viewModel.orderModel.serviceCharge) * viewModel.orderModel.taxPercent * viewModel.orderModel.quantity / 10000}",
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Amount',
-                                      value: Constants.rupeeSign +
-                                          " ${(viewModel.orderModel.basePrice + viewModel.orderModel.serviceCharge) * viewModel.orderModel.taxPercent * viewModel.orderModel.quantity / 10000 + (viewModel.orderModel.serviceCharge * viewModel.orderModel.quantity) / 100 + (viewModel.orderModel.basePrice * viewModel.orderModel.quantity) / 100}",
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    (viewModel.orderModel.addons.length != 0)
-                                        ? ListView.builder(
-                                            shrinkWrap: true,
-                                            physics:
-                                                NeverScrollableScrollPhysics(),
-                                            itemBuilder: (BuildContext context,
-                                                int index) {
-                                              return Column(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Container(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                              .size
-                                                              .width,
-                                                      decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10)),
-                                                          border: Border.all(
-                                                              color: Colors
-                                                                  .tealAccent)),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
-                                                        child: Text(
-                                                          "ADD-ONS-" +
-                                                              "${index + 1}",
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.orange,
-                                                              fontSize: 13,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Addons(
-                                                    serviceName: viewModel
-                                                        .orderModel
-                                                        .addons[index]
-                                                        .serviceName,
-                                                    taxCharge: viewModel
-                                                        .orderModel
-                                                        .addons[index]
-                                                        .addOnTaxCharge,
-                                                    basePrice: viewModel
-                                                        .orderModel
-                                                        .addons[index]
-                                                        .addOnBasePrice,
-                                                    serviceCharge: viewModel
-                                                        .orderModel
-                                                        .addons[index]
-                                                        .addOnServiceCharge,
-                                                    amount: viewModel.orderModel
-                                                        .addons[index].amount,
-                                                    // cashOnDelivery:
-                                                    //     widget.cashOnDelivery,
-                                                    quantity: viewModel
-                                                        .orderModel
-                                                        .addons[index]
-                                                        .quantity,
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                            itemCount: viewModel
-                                                .orderModel.addons.length,
-                                          )
-                                        : SizedBox(),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                            border: Border.all(
-                                                color: Colors.tealAccent)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            "PAYMENT DETAILS",
-                                            style: TextStyle(
-                                                color: Colors.orange,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Total Base Price',
-                                      value: Constants.rupeeSign +
-                                          " ${viewModel.orderModel.orderBasePrice / 100 + (viewModel.orderModel.totalAddonBasePrice / 100)}",
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Total Service Charge',
-                                      value: Constants.rupeeSign +
-                                          " ${viewModel.orderModel.orderServiceCharge / 100 + (viewModel.orderModel.totalAddonServiceCharge / 100)}",
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Total Tax Charges',
-                                      value: Constants.rupeeSign +
-                                          " ${viewModel.orderModel.orderTaxCharge / 100}",
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Banner(
-                                      title: 'Discount',
-                                      value: "- " +
-                                          Constants.rupeeSign +
-                                          " ${viewModel.orderModel.orderDiscount / 100}",
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                            border: Border.all(
-                                                color: Colors.tealAccent)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                "TOTAL CHARGES",
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                              Spacer(),
-                                              Text(
-                                                Constants.rupeeSign +
-                                                    " ${viewModel.orderModel.orderAmount / 100}",
-                                                style: TextStyle(
-                                                    color: Colors.red,
-                                                    fontSize: 15,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        children: [
-                                          Spacer(),
-                                          (viewModel.orderModel
-                                                      .cashOnDelivery ==
-                                                  true)
-                                              ? Text(
-                                                  "PAY ON DELIVERY",
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.red),
-                                                )
-                                              : Text(
-                                                  "ONLINE PAYMENT",
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.red),
-                                                ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Spacer(),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: InkWell(
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              _showRatingBar();
-                                            },
-                                            child: Container(
-                                              color:
-                                                  Colors.yellow.withOpacity(.5),
-                                              child: Center(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                    "RATE USER",
-                                                    style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: InkWell(
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              Navigator.pushReplacement(context,
-                                                  MaterialPageRoute(
-                                                      builder: (ctx) {
-                                                return NavigationScreen();
-                                              }));
-                                            },
-                                            child: Container(
-                                              width: 70,
-                                              color:
-                                                  Colors.yellow.withOpacity(.5),
-                                              child: Center(
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                    "DONE",
-                                                    style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )
+                              // Container(
+                              //   child: Column(
+                              //     children: [
+                              //       Banner(
+                              //         title: 'Service ',
+                              //         value: viewModel.orderModel.serviceName,
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.fromLTRB(
+                              //             16.0, 4, 16, 0),
+                              //         child: Divider(
+                              //           color: Colors.tealAccent,
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Quantity',
+                              //         value: (viewModel.orderModel.quantity ==
+                              //                 null)
+                              //             ? "Un-Quantifiable"
+                              //             : viewModel.orderModel.quantity
+                              //                 .toString(),
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.fromLTRB(
+                              //             16.0, 4, 16, 0),
+                              //         child: Divider(
+                              //           color: Colors.tealAccent,
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Base Price',
+                              //         value: Constants.rupeeSign +
+                              //             " ${(viewModel.orderModel.basePrice * viewModel.orderModel.quantity) / 100}",
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.fromLTRB(
+                              //             16.0, 4, 16, 0),
+                              //         child: Divider(
+                              //           color: Colors.tealAccent,
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Service Charge',
+                              //         value: Constants.rupeeSign +
+                              //             " ${(viewModel.orderModel.serviceCharge * viewModel.orderModel.quantity) / 100}",
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.fromLTRB(
+                              //             16.0, 4, 16, 0),
+                              //         child: Divider(
+                              //           color: Colors.tealAccent,
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Tax Charge',
+                              //         value: Constants.rupeeSign +
+                              //             " ${(viewModel.orderModel.basePrice + viewModel.orderModel.serviceCharge) * viewModel.orderModel.taxPercent * viewModel.orderModel.quantity / 10000}",
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.fromLTRB(
+                              //             16.0, 4, 16, 0),
+                              //         child: Divider(
+                              //           color: Colors.tealAccent,
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Amount',
+                              //         value: Constants.rupeeSign +
+                              //             " ${(viewModel.orderModel.basePrice + viewModel.orderModel.serviceCharge) * viewModel.orderModel.taxPercent * viewModel.orderModel.quantity / 10000 + (viewModel.orderModel.serviceCharge * viewModel.orderModel.quantity) / 100 + (viewModel.orderModel.basePrice * viewModel.orderModel.quantity) / 100}",
+                              //       ),
+                              //       SizedBox(
+                              //         height: 10,
+                              //       ),
+                              //       (viewModel.orderModel.addons.length != 0)
+                              //           ? ListView.builder(
+                              //               shrinkWrap: true,
+                              //               physics:
+                              //                   NeverScrollableScrollPhysics(),
+                              //               itemBuilder: (BuildContext context,
+                              //                   int index) {
+                              //                 return Column(
+                              //                   children: [
+                              //                     Padding(
+                              //                       padding:
+                              //                           const EdgeInsets.all(
+                              //                               8.0),
+                              //                       child: Container(
+                              //                         width:
+                              //                             MediaQuery.of(context)
+                              //                                 .size
+                              //                                 .width,
+                              //                         decoration: BoxDecoration(
+                              //                             color: Colors.white,
+                              //                             borderRadius:
+                              //                                 BorderRadius.all(
+                              //                                     Radius
+                              //                                         .circular(
+                              //                                             10)),
+                              //                             border: Border.all(
+                              //                                 color: Colors
+                              //                                     .tealAccent)),
+                              //                         child: Padding(
+                              //                           padding:
+                              //                               const EdgeInsets
+                              //                                   .all(8.0),
+                              //                           child: Text(
+                              //                             "ADD-ONS-" +
+                              //                                 "${index + 1}",
+                              //                             style: TextStyle(
+                              //                                 color:
+                              //                                     Colors.orange,
+                              //                                 fontSize: 13,
+                              //                                 fontWeight:
+                              //                                     FontWeight
+                              //                                         .bold),
+                              //                           ),
+                              //                         ),
+                              //                       ),
+                              //                     ),
+                              //                     Addons(
+                              //                       serviceName: viewModel
+                              //                           .orderModel
+                              //                           .addons[index]
+                              //                           .serviceName,
+                              //                       taxCharge: viewModel
+                              //                           .orderModel
+                              //                           .addons[index]
+                              //                           .addOnTaxCharge,
+                              //                       basePrice: viewModel
+                              //                           .orderModel
+                              //                           .addons[index]
+                              //                           .addOnBasePrice,
+                              //                       serviceCharge: viewModel
+                              //                           .orderModel
+                              //                           .addons[index]
+                              //                           .addOnServiceCharge,
+                              //                       amount: viewModel.orderModel
+                              //                           .addons[index].amount,
+                              //                       // cashOnDelivery:
+                              //                       //     widget.cashOnDelivery,
+                              //                       quantity: viewModel
+                              //                           .orderModel
+                              //                           .addons[index]
+                              //                           .quantity,
+                              //                     ),
+                              //                   ],
+                              //                 );
+                              //               },
+                              //               itemCount: viewModel
+                              //                   .orderModel.addons.length,
+                              //             )
+                              //           : SizedBox(),
+                              //       Padding(
+                              //         padding: const EdgeInsets.all(8.0),
+                              //         child: Container(
+                              //           width:
+                              //               MediaQuery.of(context).size.width,
+                              //           decoration: BoxDecoration(
+                              //               color: Colors.white,
+                              //               borderRadius: BorderRadius.all(
+                              //                   Radius.circular(10)),
+                              //               border: Border.all(
+                              //                   color: Colors.tealAccent)),
+                              //           child: Padding(
+                              //             padding: const EdgeInsets.all(8.0),
+                              //             child: Text(
+                              //               "PAYMENT DETAILS",
+                              //               style: TextStyle(
+                              //                   color: Colors.orange,
+                              //                   fontSize: 13,
+                              //                   fontWeight: FontWeight.bold),
+                              //             ),
+                              //           ),
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Total Base Price',
+                              //         value: Constants.rupeeSign +
+                              //             " ${viewModel.orderModel.orderBasePrice / 100 + (viewModel.orderModel.totalAddonBasePrice / 100)}",
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.fromLTRB(
+                              //             16.0, 4, 16, 0),
+                              //         child: Divider(
+                              //           color: Colors.tealAccent,
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Total Service Charge',
+                              //         value: Constants.rupeeSign +
+                              //             " ${viewModel.orderModel.orderServiceCharge / 100 + (viewModel.orderModel.totalAddonServiceCharge / 100)}",
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.fromLTRB(
+                              //             16.0, 4, 16, 0),
+                              //         child: Divider(
+                              //           color: Colors.tealAccent,
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Total Tax Charges',
+                              //         value: Constants.rupeeSign +
+                              //             " ${viewModel.orderModel.orderTaxCharge / 100}",
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.fromLTRB(
+                              //             16.0, 4, 16, 0),
+                              //         child: Divider(
+                              //           color: Colors.tealAccent,
+                              //         ),
+                              //       ),
+                              //       Banner(
+                              //         title: 'Discount',
+                              //         value: "- " +
+                              //             Constants.rupeeSign +
+                              //             " ${viewModel.orderModel.orderDiscount / 100}",
+                              //       ),
+                              //       SizedBox(
+                              //         height: 10,
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.all(8.0),
+                              //         child: Container(
+                              //           width:
+                              //               MediaQuery.of(context).size.width,
+                              //           decoration: BoxDecoration(
+                              //               color: Colors.white,
+                              //               borderRadius: BorderRadius.all(
+                              //                   Radius.circular(10)),
+                              //               border: Border.all(
+                              //                   color: Colors.tealAccent)),
+                              //           child: Padding(
+                              //             padding: const EdgeInsets.all(8.0),
+                              //             child: Row(
+                              //               children: [
+                              //                 Text(
+                              //                   "TOTAL CHARGES",
+                              //                   style: TextStyle(
+                              //                       color: Colors.black,
+                              //                       fontSize: 13,
+                              //                       fontWeight:
+                              //                           FontWeight.bold),
+                              //                 ),
+                              //                 Spacer(),
+                              //                 Text(
+                              //                   Constants.rupeeSign +
+                              //                       " ${viewModel.orderModel.orderAmount / 100}",
+                              //                   style: TextStyle(
+                              //                       color: Colors.red,
+                              //                       fontSize: 15,
+                              //                       fontWeight:
+                              //                           FontWeight.bold),
+                              //                 ),
+                              //               ],
+                              //             ),
+                              //           ),
+                              //         ),
+                              //       ),
+                              //       Padding(
+                              //         padding: const EdgeInsets.all(8.0),
+                              //         child: Row(
+                              //           children: [
+                              //             Spacer(),
+                              //             (viewModel.orderModel
+                              //                         .cashOnDelivery ==
+                              //                     true)
+                              //                 ? Text(
+                              //                     "PAY ON DELIVERY",
+                              //                     style: TextStyle(
+                              //                         fontSize: 14,
+                              //                         fontWeight:
+                              //                             FontWeight.bold,
+                              //                         color: Colors.red),
+                              //                   )
+                              //                 : Text(
+                              //                     "ONLINE PAYMENT",
+                              //                     style: TextStyle(
+                              //                         fontSize: 14,
+                              //                         fontWeight:
+                              //                             FontWeight.bold,
+                              //                         color: Colors.red),
+                              //                   ),
+                              //           ],
+                              //         ),
+                              //       )
+                              //     ],
+                              //   ),
+                              // ),
+                              // Column(
+                              //   children: [
+                              //     Row(
+                              //       children: [
+                              //         Spacer(),
+                              //         Padding(
+                              //           padding: const EdgeInsets.all(8.0),
+                              //           child: InkWell(
+                              //             child: GestureDetector(
+                              //               onTap: () {
+                              //                 _showRatingBar();
+                              //               },
+                              //               child: Container(
+                              //                 color:
+                              //                     Colors.yellow.withOpacity(.5),
+                              //                 child: Center(
+                              //                   child: Padding(
+                              //                     padding:
+                              //                         const EdgeInsets.all(8.0),
+                              //                     child: Text(
+                              //                       "RATE USER",
+                              //                       style: TextStyle(
+                              //                           color: Colors.red,
+                              //                           fontSize: 15,
+                              //                           fontWeight:
+                              //                               FontWeight.bold),
+                              //                     ),
+                              //                   ),
+                              //                 ),
+                              //               ),
+                              //             ),
+                              //           ),
+                              //         ),
+                              //         Padding(
+                              //           padding: const EdgeInsets.all(8.0),
+                              //           child: InkWell(
+                              //             child: GestureDetector(
+                              //               onTap: () {
+                              //                 Navigator.pushReplacement(context,
+                              //                     MaterialPageRoute(
+                              //                         builder: (ctx) {
+                              //                   return NavigationScreen();
+                              //                 }));
+                              //               },
+                              //               child: Container(
+                              //                 width: 70,
+                              //                 color:
+                              //                     Colors.yellow.withOpacity(.5),
+                              //                 child: Center(
+                              //                   child: Padding(
+                              //                     padding:
+                              //                         const EdgeInsets.all(8.0),
+                              //                     child: Text(
+                              //                       "DONE",
+                              //                       style: TextStyle(
+                              //                           color: Colors.red,
+                              //                           fontSize: 15,
+                              //                           fontWeight:
+                              //                               FontWeight.bold),
+                              //                     ),
+                              //                   ),
+                              //                 ),
+                              //               ),
+                              //             ),
+                              //           ),
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   ],
+                              // )
                             ],
                           )
                   ],
@@ -589,10 +589,11 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
             ),
             backgroundColor: Colors.transparent,
             elevation: 0,
-            child: CustomRating(
-              userName: _bloc.latestViewModel.orderModel.userName,
-              userID: widget.userID,
-            ),
+            // child:
+            // CustomRating(
+            //   userName: _bloc.latestViewModel.orderModel.userName,
+            //   userID: widget.userID,
+            // ),
           );
         });
   }

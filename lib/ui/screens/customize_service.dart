@@ -8,6 +8,7 @@ import 'package:fixbee_partner/ui/custom_widget/service_banner.dart';
 import 'package:fixbee_partner/ui/screens/add_services.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import '../../Constants.dart';
 
@@ -60,126 +61,59 @@ class _CustomizeServiceState extends State<CustomizeService> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          mini: false,
-          elevation: 4,
-          backgroundColor: Colors.black,
-          child: Icon(
-            Icons.add,
-            color: Colors.white,
-            size: 30,
-          ),
-          onPressed: () async{
-            await Navigator.push(context,
-                MaterialPageRoute(builder: (ctx) {
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+              icon: Icon(
+                Icons.remove_circle_outline_rounded,
+                size: 50,
+              ),
+              onPressed: () {
+                setState(() {
+                  if (!showDeleteButton)
+                    showDeleteButton = true;
+                  else
+                    showDeleteButton = false;
+                });
+              },
+              padding: EdgeInsets.fromLTRB(0, 0, 8, 0),
+            ),
+            SizedBox(
+              width: 20,
+            ),
+            FloatingActionButton(
+              mini: false,
+              elevation: 4,
+              backgroundColor: Colors.black,
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 30,
+              ),
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (ctx) {
                   return AddServices();
                 }));
-
-          },
+                _bloc.fire(CustomizeServiceEvent.fetchSelectedServices);
+              },
+            ),
+          ],
         ),
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return ListView(
             children: [
               Column(
                 children: [
-                  SizedBox(
-                    height: 5,
-                  ),
+                  (viewModel.fetchingMyServices)
+                      ? LinearProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          backgroundColor: PrimaryColors.backgroundColor,
+                        )
+                      :
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        InkWell(
-                          child: GestureDetector(
-                            onTap: () async {
-                              await Navigator.push(context,
-                                  MaterialPageRoute(builder: (ctx) {
-                                return AddServices();
-                              }));
-
-                              _bloc.fire(
-                                  CustomizeServiceEvent.fetchSelectedServices);
-                              log('returned', name: 'RET');
-                            },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width / 5,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5.0),
-                                color: Colors.orangeAccent.withOpacity(.9),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black,
-                                    blurRadius: 2.0,
-                                    spreadRadius: 0.0,
-                                    offset: Offset(2.0,
-                                        2.0), // shadow direction: bottom right
-                                  )
-                                ],
-                              ),
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Text(
-                                    "ADD",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        InkWell(
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                if (!showDeleteButton)
-                                  showDeleteButton = true;
-                                else
-                                  showDeleteButton = false;
-                              });
-                            },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width / 5,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5.0),
-                                color: Colors.orangeAccent.withOpacity(.9),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black,
-                                    blurRadius: 2.0,
-                                    spreadRadius: 0.0,
-                                    offset: Offset(2.0,
-                                        2.0), // shadow direction: bottom right
-                                  )
-                                ],
-                              ),
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Text(
-                                    (!showDeleteButton) ? "REMOVE" : "CANCEL",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10.0, 2, 10, 10),
+                    padding: const EdgeInsets.fromLTRB(10.0, 12, 10, 10),
                     child: Row(
                       children: [
                         Text(
@@ -187,15 +121,14 @@ class _CustomizeServiceState extends State<CustomizeService> {
                           style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.bold,
-                              fontSize: 14),
+                              fontSize: 16),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              (!viewModel.fetchSelectedServices)
-                  ? ListView.builder(
+              ListView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: viewModel.selectedServiceOptionModel.length,
@@ -218,15 +151,7 @@ class _CustomizeServiceState extends State<CustomizeService> {
                           ],
                         );
                       })
-                  : Center(
-                      child: Wrap(children: [
 
-                        Container(
-                            height: 50,
-                            width: 50,
-                            child: CustomCircularProgressIndicator()),
-                      ]),
-                    )
             ],
           );
         }),

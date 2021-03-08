@@ -17,7 +17,7 @@ class _TransactionDetailedState extends State<TransactionDetailed> {
   DateTimeFormatter dtf = DateTimeFormatter();
   @override
   Widget build(BuildContext context) {
-    print(widget.transaction.fundAccountID);
+
     return Scaffold(
       body: SafeArea(
         child: ListView(

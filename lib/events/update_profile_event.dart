@@ -4,4 +4,5 @@ class UpdateProfileEvent extends Event{
   UpdateProfileEvent(int eventId) : super(eventId);
   static final UpdateProfileEvent fetchProfile= new UpdateProfileEvent(100);
   static final UpdateProfileEvent updateProfile= new UpdateProfileEvent(101);
+  static final UpdateProfileEvent updateEachField= new UpdateProfileEvent(102);
 }
