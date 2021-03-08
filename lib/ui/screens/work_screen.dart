@@ -13,12 +13,15 @@ import 'package:fixbee_partner/ui/custom_widget/info_panel.dart';
 import 'package:fixbee_partner/ui/custom_widget/info_panel2.dart';
 import 'package:fixbee_partner/ui/custom_widget/work_animation.dart';
 import 'package:fixbee_partner/ui/screens/billing_rating_screen.dart';
+import 'package:fixbee_partner/ui/screens/order_chat.dart';
+import 'package:fixbee_partner/ui/screens/order_images.dart';
 import 'package:fixbee_partner/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:http/http.dart' as http;
@@ -41,7 +44,6 @@ class _WorkScreenState extends State<WorkScreen> {
   bool _onNotificationReceivedForCompletionOfPayOnline = false;
   bool _onServiceStarted = false;
   DateTimeFormatter dtf;
-
   String gid, session, fields, key;
   String formattedAddress = "";
   String latitude, longitude;
@@ -91,19 +93,15 @@ class _WorkScreenState extends State<WorkScreen> {
       setState(() => this.barcode = barcode);
       log(barcode, name: "VALUE");
       if (barcode != null) {
-        _bloc.verifyOtpToStartService({'otp':barcode}).then((value) {
-          if(value.otpValid){
+        _bloc.verifyOtpToStartService({'otp': barcode}).then((value) {
+          if (value.otpValid) {
             _showOtpValidityDialog('Otp Validated!');
             setState(() {
               _onServiceStarted = value.onServiceStarted;
             });
-
-          }
-          else
-              _showOtpValidityDialog('Otp Invalid!');
-        }
-        );
-
+          } else
+            _showOtpValidityDialog('Otp Invalid!');
+        });
       }
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
@@ -121,26 +119,26 @@ class _WorkScreenState extends State<WorkScreen> {
     }
   }
 
-  // void _setupFCM() {
-  //   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  //   additionalReview = TextEditingController();
-  //   rating = 5;
-  //   _firebaseMessaging.configure(
-  //     onMessage: (Map<String, dynamic> message) async {
-  //       FlutterRingtonePlayer.playNotification();
-  //       log(message.toString(), name: 'ON_MESSAGE');
-  //       _getMessage(message);
-  //     },
-  //     onResume: (Map<String, dynamic> message) async {
-  //       log(message.toString(), name: 'ON_RESUME');
-  //       _getMessage(message);
-  //     },
-  //     onLaunch: (message) async {
-  //       log(message.toString(), name: 'ON_LAUNCH');
-  //       _getMessage(message);
-  //     },
-  //   );
-  // }
+  void _setupFCM() {
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    additionalReview = TextEditingController();
+    rating = 5;
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        FlutterRingtonePlayer.playNotification();
+        log(message.toString(), name: 'ON_MESSAGE');
+        _getMessage(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        log(message.toString(), name: 'ON_RESUME');
+        _getMessage(message);
+      },
+      onLaunch: (message) async {
+        log(message.toString(), name: 'ON_LAUNCH');
+        _getMessage(message);
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -155,7 +153,7 @@ class _WorkScreenState extends State<WorkScreen> {
     _bloc.startTimer();
 
     log(widget.orderModel.status, name: "STATUS");
-//    _setupFCM();
+    _setupFCM();
     fetchLocationData().then((value) async {
       try {
         mapController.animateCamera(CameraUpdate.newLatLng(value));
@@ -188,6 +186,76 @@ class _WorkScreenState extends State<WorkScreen> {
       },
       child: Scaffold(
         key: _scaffoldKey,
+        floatingActionButton: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                    new MaterialPageRoute(builder: (BuildContext context) {
+                      return OrderImages();
+                    }));
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 30.0, left: 20),
+                child: Container(
+                  decoration:
+                  BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      LineAwesomeIcons.images,
+                      color: PrimaryColors.backgroundColor,
+                      size: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                    new MaterialPageRoute(builder: (BuildContext context) {
+                      return OrderChat();
+                    }));
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 30.0, left: 20),
+                child: Container(
+                  decoration:
+                  BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.chat,
+                      color: PrimaryColors.backgroundColor,
+                      size: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                _goToBillingScreen();
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 30.0, left: 20),
+                child: Container(
+                  decoration:
+                  BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Icon(
+                      LineAwesomeIcons.receipt,
+                      color: PrimaryColors.backgroundColor,
+                      size: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
         backgroundColor: PrimaryColors.backgroundColor,
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return SafeArea(
@@ -354,7 +422,7 @@ class _WorkScreenState extends State<WorkScreen> {
                         decoration:
                             BoxDecoration(color: PrimaryColors.backgroundColor),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             WorkAnimation(),
                             SizedBox(
@@ -369,18 +437,8 @@ class _WorkScreenState extends State<WorkScreen> {
                                     text: "ARE YOU DONE?",
                                   )
                                 : Container(),
-                            (!widget.orderModel.cashOnDelivery)
-                                ? CustomButtonType1(
-                                    onTap: () {
-                                      _showCompleteOrderDialogBoxForPayOnline();
-                                    },
-                                    flexibleSize: 0,
-                                    text: "COMPLETED BY USER",
-                                  )
-                                : SizedBox(),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height / 12,
-                            ),
+
+                            
                           ],
                         ),
                       ),
@@ -407,7 +465,7 @@ class _WorkScreenState extends State<WorkScreen> {
               ),
               FlatButton(
                 onPressed: () {
-                 // _goToBillingScreen();
+                  // _goToBillingScreen();
                 },
                 child: Text("Yes"),
               ),
@@ -470,13 +528,13 @@ class _WorkScreenState extends State<WorkScreen> {
   }
 
   _goToBillingScreen() {
-    _bloc.endTimer();
+    if (!widget.orderModel.cashOnDelivery) _bloc.endTimer();
     Navigator.of(context)
-        .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+        .push(new MaterialPageRoute(builder: (BuildContext context) {
       return BillingRatingScreen(
-          // userID: widget.orderModel.id,
-          // orderID: widget.orderModel.,
-          );
+        orderId: widget.orderModel.id,
+        cashOnDelivery: widget.orderModel.cashOnDelivery,
+      );
     }));
   }
 
@@ -579,7 +637,11 @@ class _WorkScreenState extends State<WorkScreen> {
                         answer: widget.orderModel.user.firstname,
                         maxLines: 1,
                       ),
-                      VerticalDivider(),
+                      InfoPanel(
+                        title: "Order Id:",
+                        answer: widget.orderModel.id,
+                        maxLines: 1,
+                      ),
                       InfoPanel(
                         title: "Phone Number:",
                         answer: widget.orderModel.user.phoneNumber,
@@ -629,8 +691,7 @@ class _WorkScreenState extends State<WorkScreen> {
     print(body + m);
     if (m == 'JOB_PROCESSED')
       _showPaymentReceivedNotification(body);
-    else if (m == 'JOB_UPDATED')
-      _refreshServiceDetails();
+    else if (m == 'JOB_UPDATED') _refreshServiceDetails();
     // else if (body == "You're Done!") {
     //   setState(() {
     //     _onNotificationReceivedForCompletionOfPayOnline = true;
@@ -696,15 +757,14 @@ class _WorkScreenState extends State<WorkScreen> {
                   ? RaisedButton(
                       color: PrimaryColors.backgroundColor,
                       onPressed: () {
-                        _bloc.fire(WorkScreenEvents.receivePayment, onHandled: (e,m){
-                          if(m.paymentReceived)
+                        _bloc.fire(WorkScreenEvents.receivePayment,
+                            onHandled: (e, m) {
+                          if (m.paymentReceived)
                             _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                                content: new Text('Payment Received')
-                            ));
+                                content: new Text('Payment Received')));
                           else
                             _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                                content: new Text('Payment Received error')
-                            ));
+                                content: new Text('Payment Received error')));
                         });
                       },
                       //ADD BILLING SCREEN

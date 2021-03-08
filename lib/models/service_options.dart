@@ -10,6 +10,7 @@ class ServiceOptionModel extends ViewModel {
   bool priceable=false;
   String description;
   String excerpt;
+  int amount;
   List<ServiceOptionModel> subServices = [];
 }
 

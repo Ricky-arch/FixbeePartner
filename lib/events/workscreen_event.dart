@@ -13,5 +13,6 @@ class WorkScreenEvents extends Event{
   static final WorkScreenEvents refreshOrderDetails= WorkScreenEvents(107);
   static final WorkScreenEvents updateLiveLocation=WorkScreenEvents(108);
   static final WorkScreenEvents receivePayment=WorkScreenEvents(109);
+  static final WorkScreenEvents receiptCall= WorkScreenEvents(110);
 
 }

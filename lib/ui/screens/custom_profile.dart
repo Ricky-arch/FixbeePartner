@@ -277,16 +277,7 @@ class _CustomProfileState extends State<CustomProfile> {
                         return ProfileUpdate();
                       }));
 
-                      // if (updated ==
-                      //     "CHANGED TO PERSONAL ADDED SUCCESSFULLY!") {
-                      //   _onProfileUpdatedDialogBox(updated);
-                      //   setState(() {
-                      //     firstname = DataStore.me.firstName;
-                      //     middlename = DataStore.me.middleName ?? "";
-                      //     lastname = DataStore.me.lastName ?? "";
-                      //   });
-                      //   log(updated, name: "UPDATED");
-                      // }
+
                     },
                   ),
                   ProfileListItem(

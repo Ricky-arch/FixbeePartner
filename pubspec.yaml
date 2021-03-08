@@ -48,6 +48,8 @@ dependencies:
   path_provider: ^1.6.24
   hive_flutter: ^0.3.1
 
+  pinch_zoom_image_last: ^0.3.2
+
   flutter_pdfview: ^1.0.4
   flutter:
     sdk: flutter

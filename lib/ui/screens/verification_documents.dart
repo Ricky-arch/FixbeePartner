@@ -163,7 +163,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                             child: Container(
                               height: 2,
                               width: MediaQuery.of(context).size.width,
-                              color: Colors.orange,
+                              color: Colors.transparent,
                             ),
                           ),
                           Padding(
@@ -233,7 +233,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                             child: Container(
                               height: 2,
                               width: MediaQuery.of(context).size.width,
-                              color: Colors.orange,
+                              color: Colors.transparent,
                             ),
                           ),
                           Padding(
@@ -303,7 +303,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                             child: Container(
                               height: 2,
                               width: MediaQuery.of(context).size.width,
-                              color: Colors.orange,
+                              color: Colors.transparent,
                             ),
                           ),
                           Padding(
@@ -373,7 +373,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                             child: Container(
                               height: 2,
                               width: MediaQuery.of(context).size.width,
-                              color: Colors.orange,
+                              color: Colors.transparent,
                             ),
                           ),
                         ],

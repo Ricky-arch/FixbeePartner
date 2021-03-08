@@ -55,8 +55,7 @@ class Payout{
  String currency, status, mode, utr;
 }
 class Payment{
- int amount;
-
- String currency, status, method, refundStatus, amountRefunded;
+ int amount, amountRefunded;
+ String currency, status, method, refundStatus;
  bool captured;
 }

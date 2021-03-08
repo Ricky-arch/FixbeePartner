@@ -20,9 +20,7 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     if (event == WorkScreenEvents.verifyOtpToStartService) {
       return await verifyOtpToStartService(message);
     }
-    if (event == WorkScreenEvents.rateUser) {
-      return await rateUser(message);
-    }
+
     if (event == WorkScreenEvents.onJobCompletion) {
       return await onJobCompletion(message);
     }
@@ -39,6 +37,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     else if(event== WorkScreenEvents.receivePayment){
       return await receivePayment();
     }
+    // else if(event == WorkScreenEvents.receiptCall){
+    //   return await receiptCall(message);
+    // }
     return latestViewModel;
   }
 
@@ -222,4 +223,5 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     }
 
   }
+
 }
