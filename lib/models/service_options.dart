@@ -1,4 +1,5 @@
 import 'package:fixbee_partner/models/view_model.dart';
+import 'package:fixbee_partner/utils/excerpt.dart';
 
 class ServiceOptionModel extends ViewModel {
   String id;
@@ -7,11 +8,18 @@ class ServiceOptionModel extends ViewModel {
   bool availability;
   String imageLink;
   String parentName;
-  bool priceable=false;
+  bool priceable = false;
   String description;
-  String excerpt;
+  String rawExcerpt;
+  Excerpt excerpt;
   int amount;
   List<ServiceOptionModel> subServices = [];
+
+  // Excerpt get excerpt {
+  //   if (rawExcerpt != null) _excerpt = Excerpt(rawExcerpt);
+  //   return _excerpt;
+  // }
+
 }
 
 class ServiceOptionModels extends ViewModel {

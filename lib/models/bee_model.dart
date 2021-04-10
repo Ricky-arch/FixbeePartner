@@ -20,11 +20,12 @@ class Bee {
   String ifscCode;
   String accountHoldersName;
   int walletAmount;
-  String ratings;
+  String myRating;
   int jobsAccepted;
   int jobsDeclined;
   String dpUrl;
   bool active;
+  bool blocked;
 
 
   Map<String, dynamic> toMap() {
@@ -43,7 +44,7 @@ class Bee {
       'bankAccountNumber': bankAccountNumber,
       'ifscCode': ifscCode,
       'accountHoldersName': accountHoldersName,
-      'ratings': ratings,
+      'ratings': myRating,
       'jobsAccepted': jobsAccepted,
       'jobsDeclined': jobsDeclined,
     };

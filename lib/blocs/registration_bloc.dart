@@ -19,7 +19,7 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
   @override
   Future<RegistrationModel> mapEventToViewModel(
       RegistrationEvents event, Map<String, dynamic> message) async {
-    if (event == RegistrationEvents.registrationFieldSet) {
+    if (event == RegistrationEvents.registration) {
       return await registerBee(message);
     } else if (event == RegistrationEvents.requestOtp) {
       return await requestOtp(message);
@@ -80,7 +80,7 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
     }
     catch(e){
       print(e);
-      return latestViewModel..registered = false;
+      return latestViewModel..registered = false..error=e.toString();
     }
 
 

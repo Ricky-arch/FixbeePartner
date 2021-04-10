@@ -2,9 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class Constants {
-
   static const String HOST_IP = "fixbee.in";
-  static const updateLocationTimeOut=30;
+  static const updateLocationTimeOut = 30;
   static const rupeeSign = "₹";
   static const String PROTOCOL = "https";
   static const WS_PROTOCOL = 'ws';
@@ -13,15 +12,18 @@ class Constants {
   static const fields = 'name,formatted_address,geometry';
   static const PING_TIMEOUT = 5;
   static const RAZORPAY_KEY = 'rzp_live_T9wLKrbt1yS0q2';
-  static const double padding =20;
-  static const double avatarRadius =45;
-  static const DISPLAY_PICTURE_TAG='displayPicture';
-  static const IDENTITY_PROOF_TAG='identity';
-  static const AGE_PROOF_TAG='age';
-  static const ADDRESS_PROOF_TAG='address';
-  static const ADDITIONAL_TAG='additional';
-  static const MINIMUM_WALLET_AMOUNT=1;
-  static const MAP_STYLES='''[
+  static const double padding = 20;
+  static const double avatarRadius = 45;
+  static const FIXBEE_ADDRESS='Shib Nagar, College Road, Agartala, West Tripura-799001';
+  static const DISPLAY_PICTURE_TAG = 'displayPicture';
+  static const DOCUMENTS_TAG='document';
+  static const IDENTITY_PROOF_TAG = 'identity';
+  static const AGE_PROOF_TAG = 'age';
+  static const ADDRESS_PROOF_TAG = 'address';
+  static const ADDITIONAL_TAG = 'additional';
+  static const MINIMUM_WALLET_AMOUNT = 1;
+  static const PLAYSTORE_APP_LINK='https://play.google.com/store/apps/details?id=in.fixbee.fixbee_partner';
+  static const MAP_STYLES = '''[
   {
     "elementType": "geometry",
     "stylers": [
@@ -215,7 +217,8 @@ class EndPoints {
       "${Constants.PROTOCOL}://${Constants.HOST_IP}/bee/request";
   static const REGISTER =
       "${Constants.PROTOCOL}://${Constants.HOST_IP}/bee/register";
-  static const GRAPHQL = "${Constants.PROTOCOL}://${Constants.HOST_IP}/graphql/b";
+  static const GRAPHQL =
+      "${Constants.PROTOCOL}://${Constants.HOST_IP}/graphql/b";
   static const GRAPHQL_WS =
       "${Constants.WS_PROTOCOL}://${Constants.HOST_IP}/graphql";
   static const DOCUMENT =
@@ -229,15 +232,15 @@ class EndPoints {
 class SharedPrefKeys {
   static const TOKEN = 'token@bee';
   static const ORDER = 'ORDER';
-  static const ORDER_PREF='ORDER_PREF';
+  static const ORDER_PREF = 'ORDER_PREF';
+  static const METADATA='metadata';
 }
 
 class PrimaryColors {
   //static Color backgroundColor = Color.fromRGBO(0, 7, 17, 9);
-  static Color backgroundColor= Color(0xff121212);
-  static Color yellowColor = Color.fromRGBO(255, 255, 0, 1);
+  static Color backgroundColor = Color(0xff121212);
+  static Color yellowColor = Colors.amber;
   static Color whiteColor = Colors.white;
   static Color backgroundcolorlight = Color(0xfff5f5f5);
 }
-// RAZORPAY_KEY_ID=rzp_live_T9wLKrbt1yS0q2
-// RAZORPAY_KEY_SECRET=hvqdBB0YDVddsZ1EjKvfRw7f
+

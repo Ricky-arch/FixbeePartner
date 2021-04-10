@@ -2,12 +2,15 @@ import 'dart:developer';
 import 'package:fixbee_partner/blocs/history_bloc.dart';
 import 'package:fixbee_partner/events/history_event.dart';
 import 'package:fixbee_partner/models/history_model.dart';
+import 'package:fixbee_partner/models/orders_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/active_order_history.dart';
 import 'package:fixbee_partner/ui/custom_widget/credit.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_date_picker.dart';
 import 'package:fixbee_partner/ui/custom_widget/debit.dart';
+import 'package:fixbee_partner/ui/custom_widget/paginated_list.dart';
 import 'package:fixbee_partner/ui/custom_widget/past_order.dart';
+import 'package:fixbee_partner/ui/custom_widget/past_order_screen.dart';
 import 'package:fixbee_partner/ui/custom_widget/transaction_card.dart';
 import 'package:fixbee_partner/ui/custom_widget/transaction_detailed.dart';
 import 'package:fixbee_partner/ui/custom_widget/transaction_type.dart';
@@ -27,36 +30,31 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   HistoryBloc _bloc;
-  String start, end;
+  final int limit = 5;
+  var start, end;
   String transactionType = 'Credit';
   List<Transactions> transactions = [];
   final DateFormat formatter = DateFormat('MM-dd-yyyy');
   DateTime now = DateTime.now();
   bool transactionCall = false;
-
-  // Future getTransactions() async {
-  //   _bloc.fire(HistoryEvent.getTransactions,
-  //       message: {'start': start, 'end': end, 'type': transactionType},
-  //       onHandled: (e, m) {
-  //     transactions = [];
-  //     setState(() {
-  //       transactions = m.transactions;
-  //     });
-  //   });
-  //   return transactions;
-  // }
+  ScrollController _scrollController = ScrollController();
+  PaginatedListViewController<Orders> _controller;
 
   @override
   void initState() {
     _bloc = HistoryBloc(HistoryModel());
     start = formatter.format(now);
     end = formatter.format(now);
+    _controller = PaginatedListViewController<Orders>(
+        _bloc.fetchBasicPastOrderDetails, limit);
     super.initState();
   }
 
   @override
   void dispose() {
     _bloc.extinguish();
+    _scrollController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -72,22 +70,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
             slivers: <Widget>[
               SliverAppBar(
                 automaticallyImplyLeading: false,
-//               pinned: true,
-//                floating: false,
+                backgroundColor: Theme.of(context).canvasColor,
                 titleSpacing: 0,
-                backgroundColor: PrimaryColors.backgroundColor,
                 elevation: 3,
                 title: Container(
-                  height: 32,
-                  color: Colors.transparent,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(10.0, 12, 12, 0),
-                    child: Text(
-                      "HISTORY",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold),
+                    child: RichText(
+                      textAlign: TextAlign.start,
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: "Your  ",
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor),
+                          ),
+                          TextSpan(
+                            text: "History",
+                            style: TextStyle(
+                                fontSize: 28,
+                                color: Theme.of(context).accentColor,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -110,8 +118,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Text(
                               'TRANSACTIONS',
                               style: TextStyle(
-                                  color: Colors.amber,
-                                  fontSize: 13,
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -119,8 +127,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Text(
                               'PAST',
                               style: TextStyle(
-                                  color: Colors.amber,
-                                  fontSize: 13,
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -128,8 +136,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Text(
                               'IN-PROGRESS',
                               style: TextStyle(
-                                  color: Colors.amber,
-                                  fontSize: 13,
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -142,25 +150,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 children: <Widget>[
                   Tab(
                       child: Scaffold(
-                    floatingActionButton: FloatingActionButton(
-                      mini: false,
-                      elevation: 5,
-                      backgroundColor: Colors.black,
-                      child: Icon(
-                        Icons.search_sharp,
-                        color: Colors.white,
-                        size: 30,
+                    floatingActionButton: Container(
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              width: 1, color: Theme.of(context).accentColor)),
+                      child: FloatingActionButton(
+                        mini: true,
+                        elevation: 5,
+                        backgroundColor: Colors.transparent,
+                        child: Icon(
+                          Icons.search_sharp,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            transactionCall = true;
+                          });
+                        },
                       ),
-                      onPressed: () {
-                        setState(() {
-                          transactionCall = true;
-                        });
-                      },
                     ),
                     body: Column(
                       children: [
                         Container(
-                          color: PrimaryColors.backgroundColor,
+                          padding: const EdgeInsets.all(4.0),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).canvasColor,
+                            borderRadius: BorderRadius.all(Radius.circular(25)),
+                          ),
                           child: Column(
                             children: [
                               SizedBox(
@@ -212,47 +230,47 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   'type': transactionType
                                 }),
                                 builder: (ctx, snapshot) {
-                                  if (!snapshot.hasData)
-                                    return Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              4,
+                                  if (snapshot.hasError) {
+                                    return Expanded(
+                                      child: Center(
+                                        child: Text(
+                                          snapshot.error.toString(),
+                                          style: TextStyle(
+                                              color:
+                                                  Theme.of(context).hintColor,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
                                         ),
-                                        CustomCircularProgressIndicator()
-                                      ],
+                                      ),
+                                    );
+                                  }
+                                  if (!snapshot.hasData)
+                                    return Expanded(
+                                      child: Center(
+                                          child:
+                                              CustomCircularProgressIndicator()),
                                     );
                                   else {
                                     if (snapshot.data.transactions.length == 0)
-                                      return Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height /
-                                                4,
-                                          ),
-                                          Text(
-                                            'No such transactions available as per filter...',
+                                      return Expanded(
+                                        child: Center(
+                                          child: Text(
+                                            'No transactions available!',
                                             style: TextStyle(
-                                                color: PrimaryColors
-                                                    .backgroundColor,
+                                                color:
+                                                    Theme.of(context).hintColor,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 16),
                                           ),
-                                        ],
+                                        ),
                                       );
                                     return Expanded(
                                       child: ListView(
                                         children: [
                                           ListView.builder(
                                               shrinkWrap: true,
+                                              padding:
+                                                  EdgeInsets.only(bottom: 60),
                                               physics:
                                                   NeverScrollableScrollPhysics(),
                                               itemCount: snapshot
@@ -279,173 +297,90 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     );
                                   }
                                 })
-                            : Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    height:
-                                        MediaQuery.of(context).size.height / 4,
-                                  ),
-                                  Text(
-                                    'Enter appropriate filter...',
+                            : Expanded(
+                                child: Center(
+                                  child: Text(
+                                    'Enter appropriate filter!',
                                     style: TextStyle(
-                                        color: PrimaryColors.backgroundColor,
+                                        color: Theme.of(context).hintColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16),
                                   ),
-                                ],
+                                ),
                               )
                       ],
                     ),
                   )),
                   Tab(
-                    child: (true)
-                        ? Container()
-                        : FutureBuilder<HistoryModel>(
-                            future: _bloc.fetchBasicPastOrderDetails(),
-                            builder: (ctx, snapshot) {
-                              if (!snapshot.hasData) {
-                                return CustomCircularProgressIndicator();
-                              } else {
-                                log(snapshot.data.pastOrderPresent.toString(),
-                                    name: "PastOrder");
-                                return (snapshot.data.pastOrderPresent)
-                                    ? ListView(
-                                        children: [
-                                          ListView.builder(
-                                              itemCount: snapshot
-                                                  .data.pastOrderList.length,
-                                              shrinkWrap: true,
-                                              physics:
-                                                  NeverScrollableScrollPhysics(),
-                                              scrollDirection: Axis.vertical,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int i) {
-                                                int index = snapshot.data
-                                                        .pastOrderList.length -
-                                                    i -
-                                                    1;
-                                                return PastOrder(
-                                                  backGroundColor: Colors.white,
-                                                  amount: snapshot
-                                                      .data
-                                                      .pastOrderList[index]
-                                                      .totalAmount,
-                                                  loading: snapshot.data
-                                                          .loadingDetails &&
-                                                      snapshot
-                                                              .data
-                                                              .pastOrderList[
-                                                                  index]
-                                                              .orderId ==
-                                                          snapshot.data
-                                                              .selectedOrderID,
-                                                  serviceName: snapshot
-                                                      .data
-                                                      .pastOrderList[index]
-                                                      .serviceName,
-                                                  status: snapshot
-                                                      .data
-                                                      .pastOrderList[index]
-                                                      .status,
-                                                  timeStamp: snapshot
-                                                      .data
-                                                      .pastOrderList[index]
-                                                      .timeStamp,
-                                                  seeMore: () {
-                                                    String orderID = snapshot
-                                                        .data
-                                                        .pastOrderList[index]
-                                                        .orderId;
-                                                    _bloc.fire(
-                                                        HistoryEvent
-                                                            .fetchCompletePastOrderInfo,
-                                                        message: {
-                                                          'orderID': orderID
-                                                        }, onHandled: (e, m) {
-                                                      Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (BuildContext context) => PastOrderBillingScreen(
-                                                                  quantity: m
-                                                                      .jobModel
-                                                                      .quantity,
-                                                                  orderAmount: m
-                                                                      .jobModel
-                                                                      .orderAmount,
-                                                                  orderDiscount: m
-                                                                      .jobModel
-                                                                      .orderDiscount,
-                                                                  orderBasePrice: m
-                                                                      .jobModel
-                                                                      .orderBasePrice,
-                                                                  orderServiceCharge: m
-                                                                      .jobModel
-                                                                      .orderServiceCharge,
-                                                                  orderTaxCharge: m
-                                                                      .jobModel
-                                                                      .orderTaxCharge,
-                                                                  addOns: m
-                                                                      .jobModel
-                                                                      .addons,
-                                                                  serviceName: m
-                                                                      .jobModel
-                                                                      .serviceName,
-                                                                  totalAddonBasePrice: m
-                                                                      .jobModel
-                                                                      .totalAddonServiceCharge,
-                                                                  totalAddonServiceCharge: m.jobModel.totalAddonBasePrice,
-                                                                  amount: m.jobModel.totalAmount,
-                                                                  status: m.jobModel.status,
-                                                                  orderId: m.jobModel.orderId,
-                                                                  cashOnDelivery: m.jobModel.cashOnDelivery,
-                                                                  address: m.jobModel.addressLine,
-                                                                  userName: m.jobModel.userName,
-                                                                  serviceCharge: m.jobModel.serviceCharge,
-                                                                  basePrice: m.jobModel.basePrice,
-                                                                  taxPercent: m.jobModel.taxPercent,
-                                                                  timeStamp: snapshot.data.pastOrderList[index].timeStamp)));
-                                                    });
-                                                  },
-                                                );
-                                              })
-                                        ],
-                                      )
-                                    : Text('No Past Orders',
-                                        style: TextStyle(color: Colors.black));
-                              }
-                            },
-                          ),
-                  ),
+                      //child: SizedBox(),
+                      child: PastOrderScreen(
+                    listOfOrders: _bloc.fetchBasicPastOrderDetails,
+                  )),
                   Tab(
                       child: FutureBuilder<HistoryModel>(
                           future: _bloc.fetchActiveOrder(),
                           builder: (ctx, snapshot) {
                             if (!snapshot.hasData)
-                              return CustomCircularProgressIndicator();
+                              return Container(
+                                  height: MediaQuery.of(context).size.height,
+                                  width: MediaQuery.of(context).size.height,
+                                  color: Theme.of(context).canvasColor,
+                                  child: Center(
+                                      child:
+                                          CustomCircularProgressIndicator()));
                             else {
-                              return (snapshot.data.isOrderActive)
-                                  ? ActiveOrderHistory(
-                                      serviceName:
-                                          snapshot.data.orders.serviceName,
-                                      seeMore: () {
-                                        Route route = MaterialPageRoute(
-                                            builder: (context) => WorkScreen(
-                                                  orderModel:
-                                                      snapshot.data.orders,
-                                                ));
-                                        Navigator.push(
-                                            context, route);
-                                      },
-                                      userName:
-                                          snapshot.data.orders.user.firstname,
-                                      status: snapshot.data.orders.status,
-                                      timeStamp:
-                                          DateTime.now().toLocal().toString(),
+                              return (snapshot.hasError)
+                                  ? Container(
+                                      color: Theme.of(context).canvasColor,
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      width: MediaQuery.of(context).size.height,
+                                      child: Center(
+                                        child: Text(snapshot.error,
+                                            style:
+                                                TextStyle(color: Colors.black)),
+                                      ),
                                     )
-                                  : Text('No orders in progress',
-                                      style: TextStyle(color: Colors.black));
+                                  : (snapshot.data.isOrderActive)
+                                      ? Container(
+                                          color: Theme.of(context).canvasColor,
+                                          child: ActiveOrderHistory(
+                                            serviceName: snapshot
+                                                .data.orders.serviceName,
+                                            seeMore: () {
+                                              if (!snapshot.hasError) {
+                                                Route route = MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        WorkScreen(
+                                                          orderModel: snapshot
+                                                              .data.orders,
+                                                        ));
+                                                Navigator.push(context, route);
+                                              }
+                                            },
+                                            userName: snapshot
+                                                .data.orders.user.firstname,
+                                            status: snapshot.data.orders.status,
+                                            timeStamp: DateTime.now()
+                                                .toLocal()
+                                                .toString(),
+                                          ),
+                                        )
+                                      : Container(
+                                          height: MediaQuery.of(context)
+                                              .size
+                                              .height,
+                                          width: MediaQuery.of(context)
+                                              .size
+                                              .height,
+                                          color: Theme.of(context).canvasColor,
+                                          child: Center(
+                                            child: Text('No orders in progress',
+                                                style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .accentColor)),
+                                          ),
+                                        );
                             }
                           })),
                 ],
@@ -455,25 +390,5 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
       );
     }));
-  }
-
-  _showDebitDialogBox(DebitTransactions debit) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            insetPadding: EdgeInsets.symmetric(horizontal: 12),
-            child: DebitInfo(
-              timeStamp: debit.timeStamp,
-              amount: debit.amount,
-              accountId: debit.accountID,
-              debitOnOrder: debit.debitOnOrder,
-              withDrawlAccountHolderName: debit.withDrawlAccountHolderName,
-              withDrawlAccountNumber: debit.withDrawlAccountNumber,
-              withDrawlTransactionId: debit.withDrawlTransactionId,
-              orderId: debit.orderId,
-            ),
-          );
-        });
   }
 }

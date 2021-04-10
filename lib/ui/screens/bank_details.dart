@@ -390,7 +390,7 @@ class _BankDetailsState extends State<BankDetails> {
                                         'accountNumber': _bankAccountNumber.text
                                       },
                                       onHandled: (e, m) {
-                                        if (m.updated) {
+                                        if (m.bankAccountAdded) {
                                           _accountHoldersName.clear();
                                           _ifscCode.clear();
                                           _bankAccountNumber.clear();

@@ -5,6 +5,9 @@ import 'package:fixbee_partner/models/add_new_service_model.dart';
 import 'package:fixbee_partner/models/service_options.dart';
 import "package:collection/collection.dart";
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'package:fixbee_partner/utils/excerpt.dart';
+
+import '../Constants.dart';
 
 class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel>
     with Trackable<AddNewServiceEvent, AddNewServiceModel> {
@@ -27,6 +30,8 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel>
   availableServices{
     name
     id
+    image
+    excerpt
     priceable
     parent{
       name
@@ -37,7 +42,6 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel>
     Map response = await CustomGraphQLClient.instance.query(query);
     var serviceMap =
         groupBy(response['availableServices'], (obj) => obj['parent']['name']);
-    print(serviceMap);
     List<ServiceOptionModel> servicesList = [];
     serviceMap.forEach((key, value) {
       ServiceOptionModel parentService = ServiceOptionModel();
@@ -48,6 +52,10 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel>
         childService.serviceName = value['name'];
         childService.id = value['id'];
         childService.priceable = value['priceable'];
+        childService.rawExcerpt = value['excerpt'];
+        childService.excerpt = Excerpt(value['excerpt']);
+        if (value['image'] != null)
+          childService.imageLink = "${EndPoints.DOCUMENT}${value['image']}";
         childServiceList.add(childService);
       });
       parentService.subServices = childServiceList;
@@ -72,7 +80,6 @@ class AddNewServiceBloc extends Bloc<AddNewServiceEvent, AddNewServiceModel>
 }
     ''';
 
-    print(query);
     await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }

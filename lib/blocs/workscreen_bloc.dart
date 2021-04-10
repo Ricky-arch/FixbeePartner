@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/workscreen_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/workscreen_model.dart';
@@ -11,15 +12,13 @@ import 'package:geolocator/geolocator.dart';
 import '../Constants.dart';
 import '../bloc.dart';
 
-class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
+class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> with Trackable<WorkScreenEvents, WorkScreenModel> {
   WorkScreenBloc(WorkScreenModel genesisViewModel) : super(genesisViewModel);
 
   @override
   Future<WorkScreenModel> mapEventToViewModel(
       WorkScreenEvents event, Map<String, dynamic> message) async {
-    if (event == WorkScreenEvents.verifyOtpToStartService) {
-      return await verifyOtpToStartService(message);
-    }
+
 
     if (event == WorkScreenEvents.onJobCompletion) {
       return await onJobCompletion(message);
@@ -33,8 +32,7 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
 
     if (event == WorkScreenEvents.updateLiveLocation) {
       return await updateLiveLocation(message);
-    }
-    else if(event== WorkScreenEvents.receivePayment){
+    } else if (event == WorkScreenEvents.receivePayment) {
       return await receivePayment();
     }
     // else if(event == WorkScreenEvents.receiptCall){
@@ -43,10 +41,7 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     return latestViewModel;
   }
 
-  Future<WorkScreenModel> verifyOtpToStartService(
-      Map<String, dynamic> message) async {
-    String otp = message['otp'];
-
+  Future<bool> verifyOtpToStartService(String otp) async {
     String query = '''mutation{
   verifyOrder(input:{otp:"$otp"}){
     status
@@ -55,11 +50,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     Map response;
     try {
       response = await CustomGraphQLClient.instance.mutate(query);
-      return latestViewModel
-        ..otpValid = true
-        ..onServiceStarted = response['verifyOrder']['status'];
+      return true;
     } catch (e) {
-      return latestViewModel..otpValid = false;
+      return false;
     }
   }
 
@@ -181,8 +174,8 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
     return latestViewModel;
   }
 
-  Future<WorkScreenModel> receivePayment() async{
-    String query='''
+  Future<WorkScreenModel> receivePayment() async {
+    String query = '''
     mutation{
   receivePayment {
     column
@@ -212,16 +205,21 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> {
   }
 }
     ''';
-    try{
-      Map response= await CustomGraphQLClient.instance.query(query);
-      return latestViewModel..paymentReceived=true;
-
-    }
-    catch(e){
+    try {
+      Map response = await CustomGraphQLClient.instance.query(query);
+      return latestViewModel..paymentReceived = true;
+    } catch (e) {
       print(e);
-      return latestViewModel..paymentReceived=false;
-    }
 
+      return latestViewModel..paymentReceived = false..receivePaymentError=e.toString();
+    }
   }
 
+  @override
+  WorkScreenModel setTrackingFlag(WorkScreenEvents event, bool trackFlag, Map message) {
+    if(event== WorkScreenEvents.receivePayment){
+      return latestViewModel..receivingPayment=trackFlag;
+    }
+    return latestViewModel;
+  }
 }

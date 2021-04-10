@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:background_location/background_location.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
@@ -155,7 +154,7 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationModel>
         ..status = response['acceptOrder']['status']
         ..otp = response['acceptOrder']['otp']
         ..cashOnDelivery =
-            response['acceptOrder']['mode'] == 'COD' ? true : false
+            response['acceptOrder']['mode'] == 'cod' ? true : false
         ..user.phoneNumber = response['acceptOrder']['user']['phone']
         ..user.firstname = response['acceptOrder']['user']['fullName']
         ..user.profilePicId = response['acceptOrder']['user']['displayPicture']

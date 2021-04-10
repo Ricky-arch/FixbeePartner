@@ -38,77 +38,93 @@ class _OrderImagesState extends State<OrderImages> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: PrimaryColors.backgroundColor,
-          automaticallyImplyLeading: false,
-          title: Stack(
-            children: <Widget>[
-              Container(
-                  decoration:
-                      BoxDecoration(color: PrimaryColors.backgroundColor),
-                  child: RichText(
-                    text: TextSpan(
-                      children: <TextSpan>[
-                        TextSpan(
-                            text: 'RECEIVED IMAGES',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 15)),
-                      ],
-                    ),
-                  ))
-            ],
-          ),
-        ),
         body: SingleChildScrollView(
-            child: FutureBuilder(
-          future: _bloc.getImageIds(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData)
-              return LinearProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                backgroundColor: PrimaryColors.backgroundColor,
-              );
-            else
-              return SingleChildScrollView(
-                child: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                        child:
-                        PinchZoomImage(
-                          image: CachedNetworkImage(
-                            imageUrl: urlConstructor(snapshot.data[index]),
-                            placeholder: (context, url) {
-                              return Center(
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 12),
-                                  height: 65,
-                                  width: 50,
-                                  child: CustomCircularProgressIndicator(),
-                                ),
-                              );
-                            },
-                            httpHeaders: {
-                              'authorization': '${DataStore.token}'
-                            },
-                          ),
-                          zoomedBackgroundColor:
-                              Color.fromRGBO(240, 240, 240, 1.0),
-                          hideStatusBarWhileZooming: false,
-
-
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12,20,12,0),
+              child: RichText(
+                textAlign: TextAlign.start,
+                text: TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: "Order  ",
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor),
+                    ),
+                    TextSpan(
+                      text: "Gallery",
+                      style: TextStyle(
+                          fontSize: 26,
+                          color: Theme.of(context).accentColor,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            FutureBuilder(
+              future: _bloc.getImageIds(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData)
+                  return LinearProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    backgroundColor: PrimaryColors.backgroundColor,
+                  );
+                else {
+                  if (snapshot.data.length == 0)
+                    return Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      child: Center(
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'NO IMAGE HAS BEEN UPLOADED IMAGE',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-
-                      );
-                    }),
-              );
-          },
+                      )),
+                    );
+                }
+                return SingleChildScrollView(
+                  child: ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                          child: PinchZoomImage(
+                            image: CachedNetworkImage(
+                              imageUrl: urlConstructor(snapshot.data[index]),
+                              placeholder: (context, url) {
+                                return Center(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 12),
+                                    height: 65,
+                                    width: 50,
+                                    child: CustomCircularProgressIndicator(),
+                                  ),
+                                );
+                              },
+                              httpHeaders: {
+                                'authorization': '${DataStore.token}'
+                              },
+                            ),
+                            zoomedBackgroundColor:
+                                Color.fromRGBO(240, 240, 240, 1.0),
+                            hideStatusBarWhileZooming: false,
+                          ),
+                        );
+                      }),
+                );
+              },
+            ),
+          ],
         )),
       ),
     );

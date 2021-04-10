@@ -4,6 +4,8 @@ import 'package:fixbee_partner/events/billing_rating_event.dart';
 import 'package:fixbee_partner/models/billing_rating_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/addon.dart';
 import 'package:fixbee_partner/ui/custom_widget/smiley_controller.dart';
+import 'package:fixbee_partner/ui/screens/splash_screen.dart';
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:fixbee_partner/utils/date_time_formatter.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
@@ -49,63 +51,34 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
       return WillPopScope(
         onWillPop: () async => !widget.cashOnDelivery,
         child: Scaffold(
-          floatingActionButton: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: RaisedButton(
-              elevation: 4,
-              color: PrimaryColors.backgroundColor,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15),
-                child: Text(
-                  'Rate user!',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14),
-                ),
-              ),
-              onPressed: () {
-                _showRatingBar();
-              },
-            ),
-          ),
           body: SafeArea(
             child: ListView(
               children: [
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      color: PrimaryColors.backgroundColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "ORDER RECEIPT",
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 20, horizontal: 12),
+                      child: Theme(
+                          child: SelectableText.rich(TextSpan(children: [
+                            TextSpan(
+                              text: "Order Receipt\n\n",
                               style: TextStyle(
-                                  color: Colors.orangeAccent,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).primaryColor),
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            SelectableText(
-                              "ORDER ID: ${widget.orderId}",
+                            TextSpan(
+                              text: "Order Id: ${widget.orderId}",
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold),
+                                  fontSize: 18, fontWeight: FontWeight.w500),
                             ),
-                          ],
-                        ),
-                      ),
+                          ])),
+                          data: Theme.of(context).copyWith(
+                            textSelectionColor: FixbeeColors.kCardColorLighter,
+                          )),
                     ),
                     (viewModel.whileFetchingBillDetails)
                         ? LinearProgressIndicator(
@@ -115,28 +88,7 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                           )
                         : Column(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(10)),
-                                      border:
-                                          Border.all(color: Colors.tealAccent)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "ORDER DETAILS",
-                                      style: TextStyle(
-                                          color: Colors.orange,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              subTitle('ORDER DETAILS'),
                               Container(
                                 child: Column(
                                   children: [
@@ -144,47 +96,11 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                       title: 'User',
                                       value: viewModel.receipt.userName,
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
                                     Banner(
                                       title: 'Reference Id',
                                       value: viewModel.receipt.referenceId,
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 4, 16, 0),
-                                      child: Divider(
-                                        color: Colors.tealAccent,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                            border: Border.all(
-                                                color: Colors.tealAccent)),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Text(
-                                            "SERVICE DETAILS",
-                                            style: TextStyle(
-                                                color: Colors.orange,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                    subTitle('SERVICE DETAILS'),
                                     ListView.builder(
                                         shrinkWrap: true,
                                         physics: NeverScrollableScrollPhysics(),
@@ -200,175 +116,45 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                                     .services[index]
                                                     .serviceName,
                                               ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        16.0, 4, 16, 0),
-                                                child: Divider(
-                                                  color: Colors.tealAccent,
-                                                ),
-                                              ),
                                               Banner(
                                                 title: 'Price',
                                                 value: Constants.rupeeSign +
                                                     ' ' +
-                                                    viewModel.receipt
-                                                        .services[index].amount
-                                                        .toString(),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        16.0, 4, 16, 0),
-                                                child: Divider(
-                                                  color: (viewModel.receipt
-                                                              .services.length >
-                                                          1)
-                                                      ? Colors.black
-                                                      : Colors.tealAccent,
-                                                ),
+                                                    (viewModel
+                                                                .receipt
+                                                                .services[index]
+                                                                .amount /
+                                                            100)
+                                                        .toStringAsFixed(2),
                                               ),
                                             ],
                                           );
                                         }),
                                     (viewModel.receipt.payment == null)
                                         ? (widget.cashOnDelivery)
-                                            ? Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10)),
-                                                      border: Border.all(
-                                                          color: Colors
-                                                              .tealAccent)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      "PAY ON WORK DONE",
-                                                      style: TextStyle(
-                                                          color: Colors.red,
-                                                          fontSize: 13,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
-                                            : Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10)),
-                                                      border: Border.all(
-                                                          color: Colors
-                                                              .tealAccent)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      "PAYMENT YET TO BE DONE",
-                                                      style: TextStyle(
-                                                          color: Colors.red,
-                                                          fontSize: 13,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                  ),
-                                                ),
-                                              )
+                                            ? subTitle('PAY ON WORK DONE')
+                                            : subTitle('PAYMENT YET TO BE DONE')
                                         : Column(
                                             children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                  width: MediaQuery.of(context)
-                                                      .size
-                                                      .width,
-                                                  decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10)),
-                                                      border: Border.all(
-                                                          color: Colors
-                                                              .tealAccent)),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      "PAYMENT DETAILS",
-                                                      style: TextStyle(
-                                                          color: Colors.orange,
-                                                          fontSize: 13,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
+                                              subTitle('PAYMENT DETAILS'),
                                               Banner(
                                                 title: 'Amount',
                                                 value: Constants.rupeeSign +
                                                     ' ' +
-                                                    viewModel
-                                                        .receipt.payment.amount
-                                                        .toString(),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        16.0, 4, 16, 0),
-                                                child: Divider(
-                                                  color: Colors.tealAccent,
-                                                ),
+                                                    (viewModel.receipt.payment
+                                                                .amount /
+                                                            100)
+                                                        .toStringAsFixed(2),
                                               ),
                                               Banner(
                                                 title: 'Status',
                                                 value: viewModel
                                                     .receipt.payment.status,
                                               ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        16.0, 4, 16, 0),
-                                                child: Divider(
-                                                  color: Colors.tealAccent,
-                                                ),
-                                              ),
                                               Banner(
                                                 title: 'Method',
                                                 value: viewModel
                                                     .receipt.payment.method,
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        16.0, 4, 16, 0),
-                                                child: Divider(
-                                                  color: Colors.tealAccent,
-                                                ),
                                               ),
                                               Banner(
                                                 title: 'Captured',
@@ -376,14 +162,6 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                                     .receipt.payment.captured
                                                     .toString()
                                                     .toUpperCase(),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        16.0, 4, 16, 0),
-                                                child: Divider(
-                                                  color: Colors.tealAccent,
-                                                ),
                                               ),
                                               (viewModel.receipt.payment
                                                           .refundStatus !=
@@ -398,19 +176,6 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                                               .payment
                                                               .refundStatus,
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .fromLTRB(
-                                                                  16.0,
-                                                                  4,
-                                                                  16,
-                                                                  0),
-                                                          child: Divider(
-                                                            color: Colors
-                                                                .tealAccent,
-                                                          ),
-                                                        ),
                                                         Banner(
                                                           title:
                                                               'Refund Amount',
@@ -423,74 +188,67 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                                                                   .amountRefunded
                                                                   .toString(),
                                                         ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .fromLTRB(
-                                                                  16.0,
-                                                                  4,
-                                                                  16,
-                                                                  0),
-                                                          child: Divider(
-                                                            color: Colors
-                                                                .tealAccent,
-                                                          ),
-                                                        ),
                                                       ],
                                                     )
                                                   : SizedBox(),
                                             ],
                                           ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10)),
-                                            border: Border.all(
-                                                color: Colors.tealAccent)),
-                                        child: Row(
-                                          children: [
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                "TOTAL PRICE",
-                                                style: TextStyle(
-                                                    color: Colors.orange,
-                                                    fontSize: 13,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                            Spacer(),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                Constants.rupeeSign +
-                                                    ' ' +
-                                                    viewModel.receipt.amount
-                                                        .toString(),
-                                                style: TextStyle(
-                                                    color: Colors.red,
-                                                    fontSize: 17,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                    subTitleWithValue("TOTAL PRICE",
+                                        viewModel.receipt.amount),
+                                    subTitleWithValue('YOUR SERVICE CHARGE',
+                                        viewModel.receipt.serviceCharge)
                                   ],
                                 ),
                               ),
                             ],
-                          )
+                          ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    applicationIcon(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        RaisedButton(
+                          onPressed: () {
+                            _showRatingBar();
+                          },
+                          color: Theme.of(context).primaryColor,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                          child: Text(
+                            "Rate User",
+                            style:
+                                TextStyle(color: Theme.of(context).canvasColor),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        FloatingActionButton(
+                          mini: true,
+                          elevation: 0,
+                          backgroundColor: Theme.of(context).primaryColor,
+                          child: Icon(
+                            Icons.keyboard_arrow_right,
+                            color: Theme.of(context).canvasColor,
+                            size: 30,
+                          ),
+                          onPressed: () {
+                            Route route = MaterialPageRoute(
+                                builder: (context) => NavigationScreen());
+                            Navigator.pushAndRemoveUntil(
+                                context, route, (e) => false);
+                          },
+                        ),
+                        SizedBox(
+                          width: 30,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ],
@@ -513,10 +271,90 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
             elevation: 0,
             child: CustomRating(
               userName: _bloc.latestViewModel.receipt.userName,
-              // userID: widget.userID,
+              orderId: widget.orderId,
+              ratings: (value) {
+                _bloc.fire(BillingRatingEvent.addRatingEvent,
+                    message: {
+                      "id": widget.orderId,
+                      "Score": value['Score'],
+                      "Review": value['Review']
+                    },
+                    onHandled: (e, m) {});
+              },
             ),
           );
         });
+  }
+
+  Widget subTitle(title) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                title,
+                style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          Spacer()
+        ],
+      ),
+    );
+  }
+
+  Widget subTitleWithValue(title, value) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                Constants.rupeeSign + ' ' + (value / 100).toStringAsFixed(2),
+                style: TextStyle(
+                    color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget applicationIcon() {
+    return Center(
+        child: Image.asset(
+      "assets/logo/splash_logo.png",
+      width: MediaQuery.of(context).size.width / 5,
+    ));
   }
 }
 
@@ -527,26 +365,32 @@ class Banner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16.0, 16, 16, 10),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            width: MediaQuery.of(context).size.width / 2 - 50,
-            child: Text(
-              title,
-              style: TextStyle(fontWeight: FontWeight.w500),
+          Expanded(
+            child: Container(
+              child: Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
             ),
           ),
-          Container(
-            width: MediaQuery.of(context).size.width / 2,
-            child: SelectableText(
-              value,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
+          Expanded(
+            child: Container(
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  textSelectionColor: FixbeeColors.kCardColorLighter,
+                ),
+                child: SelectableText(
+                  value,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.end,
+                  maxLines: null,
+                ),
               ),
-              textAlign: TextAlign.end,
-              maxLines: null,
             ),
           ),
         ],
@@ -556,11 +400,13 @@ class Banner extends StatelessWidget {
 }
 
 class CustomRating extends StatefulWidget {
+  final Function(Map<String, dynamic>) ratings;
   final String userName;
 
-  final String userID;
+  final String orderId;
 
-  const CustomRating({Key key, this.userName, this.userID}) : super(key: key);
+  const CustomRating({Key key, this.userName, this.orderId, this.ratings})
+      : super(key: key);
 
   @override
   _CustomRatingState createState() => _CustomRatingState();
@@ -603,9 +449,10 @@ class _CustomRatingState extends State<CustomRating> {
           Container(
             padding: EdgeInsets.only(
                 left: Constants.padding,
-                top: Constants.avatarRadius + Constants.padding,
+                top: Constants.avatarRadius +
+                    MediaQuery.of(context).size.width / 30,
                 right: Constants.padding,
-                bottom: Constants.padding),
+                bottom: MediaQuery.of(context).size.width / 30),
             margin: EdgeInsets.only(top: Constants.avatarRadius),
             decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
@@ -641,15 +488,15 @@ class _CustomRatingState extends State<CustomRating> {
                         text: '$_rating',
                         style: TextStyle(
                             color: Colors.deepOrange,
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold)),
                     TextSpan(
                         text: "\u2605",
-                        style: TextStyle(color: Colors.amber, fontSize: 22))
+                        style: TextStyle(color: Colors.amber, fontSize: 18))
                   ]),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     "Add an short review?",
                     style: TextStyle(
@@ -659,7 +506,7 @@ class _CustomRatingState extends State<CustomRating> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
+                  padding: const EdgeInsets.fromLTRB(4.0, 0, 4, 0),
                   child: TextFormField(
                     cursorColor: PrimaryColors.backgroundColor,
                     controller: shortReview,
@@ -669,33 +516,33 @@ class _CustomRatingState extends State<CustomRating> {
                         fillColor: PrimaryColors.backgroundcolorlight),
                     maxLines: null,
                     textAlign: TextAlign.left,
+                    style: TextStyle(color: Theme.of(context).canvasColor),
                     keyboardType: TextInputType.text,
                     inputFormatters: [LengthLimitingTextInputFormatter(60)],
                   ),
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: FlatButton(
-                      color: PrimaryColors.yellowColor.withOpacity(.5),
-                      onPressed: () {
-                        _bloc.fire(BillingRatingEvent.addRatingEvent, message: {
-                          "accountID": widget.userID,
-                          "Score": _rating.toInt(),
-                          "Review": shortReview.text.toString()
-                        }, onHandled: (e, m) {
-                          Navigator.of(context).pop();
-                        });
-                      },
-                      child: Text(
-                        "CONFIRM",
-                        style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepOrange),
-                      )),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FlatButton(
+                        height: MediaQuery.of(context).size.height / 20,
+                        color: PrimaryColors.yellowColor.withOpacity(.5),
+                        onPressed: () {
+                          widget.ratings({
+                            'id': widget.orderId,
+                            'Score': _rating.toInt(),
+                            'Review': shortReview.text.toString()
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          "CONFIRM",
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange),
+                        )),
+                  ],
                 ),
               ],
             ),
@@ -704,8 +551,8 @@ class _CustomRatingState extends State<CustomRating> {
             left: Constants.padding,
             right: Constants.padding,
             child: Container(
-              height: MediaQuery.of(context).size.width / 3.2,
-              width: MediaQuery.of(context).size.width / 3.2,
+              height: MediaQuery.of(context).size.width / 3,
+              width: MediaQuery.of(context).size.width / 3,
               child: FlareActor(
                 "assets/animations/happiness_emoji.flr",
                 alignment: Alignment.center,

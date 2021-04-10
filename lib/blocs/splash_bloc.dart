@@ -46,22 +46,36 @@ class SplashBloc extends Bloc<Event, SplashModel>
     else
       latestViewModel.connection = true;
 
+    MetaData metadata = await getMetaData();
+    latestViewModel..metadata = metadata;
+    DataStore.metaData = metadata;
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.containsKey(SharedPrefKeys.TOKEN)) {
       String token = pref.getString(SharedPrefKeys.TOKEN);
       DataStore.token = token;
-      log(DataStore.token, name: 'TOKEN');
       CustomGraphQLClient.instance.reinstantiate(token);
-      Bee bee = await _checkToken(token);
-
-      return latestViewModel
-        ..me = bee
-        ..tokenFound = true;
+      Map dynamicData = await queryBee(token);
+      if (dynamicData['hasError'])
+        return latestViewModel
+          ..errorMessage = dynamicData['errorMessage']
+          ..metadata = metadata
+          ..hasError = true;
+      else
+        return latestViewModel
+          ..me = dynamicData['bee']
+          ..tokenFound = true
+          ..metadata = metadata;
     }
-    return latestViewModel..tokenFound = false;
+    return latestViewModel
+      ..tokenFound = false
+      ..metadata = metadata;
   }
 
-  Future<Bee> _checkToken(String token) async {
+  bool hasErrorOnFetchProfile = false;
+  String errorMessage;
+
+  Future<Map<String, dynamic>> queryBee(String token) async {
+    Map<String, dynamic> dynamicData = {};
     String query = '''
     {
   profile{
@@ -69,7 +83,8 @@ class SplashBloc extends Bloc<Event, SplashModel>
       firstName
       middleName
       lastName
-    }
+    } 
+    
     documentsVerified
     displayPicture
     email
@@ -82,6 +97,12 @@ class SplashBloc extends Bloc<Event, SplashModel>
       name
     }
   }
+  rating{
+    avg
+  }
+  wallet{
+      amount
+    }
 }
     ''';
 
@@ -102,6 +123,8 @@ class SplashBloc extends Bloc<Event, SplashModel>
         ..dpUrl = dpUrl
         ..active =
             response['profile']['active'].toString().toLowerCase() == 'true'
+        ..myRating = response['rating']['avg'].toString()
+        ..walletAmount = response['wallet']['amount']
         ..services = services.map((service) {
           if (service != null)
             return ServiceOptionModel()
@@ -110,10 +133,13 @@ class SplashBloc extends Bloc<Event, SplashModel>
         }).toList();
       log(bee.active.toString(), name: "ACTIVE");
       DataStore.me = bee;
-      return bee;
+      dynamicData['bee'] = bee;
+      dynamicData['hasError'] = false;
+      return dynamicData;
     } catch (e) {
-      print(e);
-      return Bee();
+      dynamicData['hasError'] = true;
+      dynamicData['errorMessage'] = e.toString();
+      return dynamicData;
     }
   }
 
@@ -121,5 +147,54 @@ class SplashBloc extends Bloc<Event, SplashModel>
   SplashModel setTrackingFlag(Event event, bool trackFlag, Map message) {
     if (event == Event(100)) latestViewModel..tryReconnecting = trackFlag;
     return latestViewModel;
+  }
+
+  getWallet() async {
+    String query = '''
+    {
+  wallet{
+    amount
+  }
+}
+    ''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    var walletAmount = response['wallet']['amount'];
+    return walletAmount;
+  }
+
+  getMetaData() async {
+    String query = '''
+    {
+  metadata {
+    helpline
+    email
+    officeTimings
+    available
+    appBuildNumber
+    criticalUpdate
+    minWalletAmount
+    minWalletDeposit
+  }
+}
+    ''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    response = response['metadata'];
+
+    MetaData metaData = MetaData();
+    metaData.buildNumber = response['appBuildNumber'];
+    metaData.helpline = response['helpline'];
+    metaData.email = response['email'];
+    metaData.available=response['available'];
+    metaData.criticalUpdate = response['criticalUpdate'];
+    metaData.minimumWalletAmount = response['minWalletAmount'];
+    metaData.minimumWalletDeposit = response['minWalletDeposit'];
+    List<String> officeTimings = [];
+    List oT = response['officeTimings'];
+    oT.forEach((ot) {
+      String timing = ot.toString();
+      officeTimings.add(timing);
+    });
+    metaData.officeTimings = officeTimings;
+    return metaData;
   }
 }

@@ -3,7 +3,7 @@ import 'package:fixbee_partner/models/view_model.dart';
 class BankDetailsModel extends ViewModel{
   int numberOfAccounts;
   List<BankModel> bankAccountList=[];
-  bool updated=false;
+  bool bankAccountAdded=false;
   bool deleted=false;
   bool addingAccount=false;
   bool fetchingBankAccounts=false;

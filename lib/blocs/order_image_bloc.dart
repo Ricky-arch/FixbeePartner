@@ -22,7 +22,9 @@ class OrderImageBloc extends Bloc<OrderImageEvent, OrderImagesModel>
     {
   activeOrder{
     hasUploads
-    uploads
+    uploads{
+      key
+    }
   }
 }
     ''';
@@ -32,9 +34,10 @@ class OrderImageBloc extends Bloc<OrderImageEvent, OrderImagesModel>
       List ids = response['activeOrder']['uploads'];
       List<String> imageIds = [];
       ids.forEach((id) {
-        String i = id.toString();
+        String i = id['key'].toString();
         imageIds.add(i);
       });
+
       return imageIds;
     }
     return [];

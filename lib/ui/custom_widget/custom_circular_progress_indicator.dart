@@ -6,9 +6,9 @@ class CustomCircularProgressIndicator extends StatelessWidget {
     return CircularProgressIndicator(
       valueColor:
       AlwaysStoppedAnimation<Color>(
-          Colors.white),
+          Theme.of(context).accentColor),
       backgroundColor:
-      PrimaryColors.backgroundColor,
+      Theme.of(context).canvasColor,
     );
   }
 }

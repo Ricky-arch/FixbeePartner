@@ -4,6 +4,7 @@ import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/wallet_event.dart';
 import 'package:fixbee_partner/models/wallet_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/available_accounts.dart';
+import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,12 +32,15 @@ class _WalletScreenState extends State<WalletScreen> {
   bool checkBoxValue = false;
   static String selectedAccountID = "NOT_SELECTED";
   static String selectedAccountNumber;
+  static String selectedVPA;
+  static String selectedVpaId;
   bool isButtonEnabled = false;
   WalletBloc _bloc;
   final String wallet = "400.00";
-  double walletAmount=00 ;
+  double walletAmount = 00;
+  bool _showLoader = false;
 
-  int walletAmountInpaise=00;
+  int walletAmountInpaise = 00;
   Razorpay _razorpay = Razorpay();
   String email =
       (DataStore?.me?.emailAddress == null) ? '' : DataStore.me.emailAddress;
@@ -54,30 +58,23 @@ class _WalletScreenState extends State<WalletScreen> {
     _openHive();
     _bloc = WalletBloc(WalletModel());
 
-
-
     _bloc.fire(WalletEvent.fetchBankAccountsForWithdrawal, onHandled: (e, m) {
-      if(m.bankAccountList.length!=0)
-      selectedAccountNumber = m.bankAccountList[0].bankAccountNumber;
-
+      if (m.bankAccountList.length != 0)
+        selectedAccountNumber = m.bankAccountList[0].bankAccountNumber;
     });
 
-    if(_BEENAME.get('myWallet')==null){
-       print(_BEENAME.containsKey('myWallet'));
-      _bloc.fire(WalletEvent.fetchWalletAmount, onHandled: (e,m){
+    if (_BEENAME.get('myWallet') == null) {
+      _bloc.fire(WalletEvent.fetchWalletAmount, onHandled: (e, m) {
         walletAmountInpaise = m.amount;
         if (walletAmountInpaise != null) {
           walletAmount = (walletAmountInpaise / 100).toDouble();
-          _BEENAME.put('myWallet',walletAmountInpaise.toString());
+          _BEENAME.put('myWallet', walletAmountInpaise.toString());
         }
       });
+    } else {
+      walletAmountInpaise = int.parse(_BEENAME.get('myWallet'));
+      walletAmount = (walletAmountInpaise / 100).toDouble();
     }
-    else{
-       print(_BEENAME.containsKey('myWallet'));
-        // walletAmountInpaise=int.parse(_BEENAME.get('myWallet'));
-        // walletAmount = (walletAmountInpaise / 100).toDouble();
-    }
-
 
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -129,11 +126,8 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-      return GestureDetector(
-        onDoubleTap: () {
-          fetchWalletAmountOnError();
-        },
-        child: SafeArea(
+      return SafeArea(
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -141,65 +135,98 @@ class _WalletScreenState extends State<WalletScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    Container(
-                      height: 60,
-                      color: PrimaryColors.backgroundColor,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          children: <Widget>[
-                            Text(
-                              "\u20B9 WALLET",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 20),
+                      child: Row(
+                        children: [
+                          RichText(
+                            textAlign: TextAlign.start,
+                            text: TextSpan(
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: "Your  ",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).primaryColor),
+                                ),
+                                TextSpan(
+                                  text: "Wallet \u20B9",
+                                  style: TextStyle(
+                                      fontSize: 28,
+                                      color: Theme.of(context).accentColor,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
                             ),
-                            Spacer(),
-                            (viewModel.whileFetchingWalletAmount)
-                                ? SizedBox(
-                                    height: 30,
-                                    width: 30,
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                      backgroundColor:
-                                          PrimaryColors.backgroundColor,
-                                    ),
-                                  )
-                                : SizedBox()
-                          ],
-                        ),
+                          ),
+                          Spacer(),
+                          (viewModel.whileFetchingWalletAmount)
+                              ? SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: CustomCircularProgressIndicator())
+                              : GestureDetector(
+                                  onTap: () {
+                                    fetchWalletAmountOnError();
+                                  },
+                                  child: Icon(
+                                    Icons.refresh,
+                                    color: Theme.of(context).accentColor,
+                                    size: 30,
+                                  ),
+                                )
+                        ],
                       ),
                     ),
+                    (viewModel.isProcessed)
+                        ? LinearProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            backgroundColor: PrimaryColors.backgroundColor,
+                          )
+                        : SizedBox(),
+                    (viewModel.validatingAvailability)
+                        ? LinearProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            backgroundColor: PrimaryColors.backgroundColor,
+                          )
+                        : SizedBox(),
+                    (viewModel.whileWithDrawingAmount)
+                        ? LinearProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            backgroundColor: PrimaryColors.backgroundColor,
+                          )
+                        : SizedBox(),
                     (viewModel.whileFetchingWalletAmount)
                         ? Container()
                         : Column(
                             children: [
-                              SizedBox(height: 10),
+                              SizedBox(height: 6),
                               Container(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(
+                                      12.0, 12, 8, 12),
                                   child: Row(
                                     children: <Widget>[
                                       Text(
                                         "Current Balance :",
                                         style: TextStyle(
                                             color:
-                                                PrimaryColors.backgroundColor,
-                                            fontSize: 17,
+                                                Theme.of(context).accentColor,
+                                            fontSize: 20,
                                             fontWeight: FontWeight.w500),
                                       ),
                                       Spacer(),
                                       IconButton(
                                         icon: Icon(
                                           Icons.more_horiz,
-                                          color: PrimaryColors.backgroundColor,
+                                          color: Theme.of(context).accentColor,
                                         ),
-                                        onPressed: () {
-                                          print(walletAmount.toString());
-                                        },
+                                        onPressed: () {},
                                       )
                                     ],
                                   ),
@@ -214,7 +241,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                     child: Container(
                                       height: 140,
                                       decoration: BoxDecoration(
-                                          color: PrimaryColors.backgroundColor,
+                                          color: Theme.of(context).cardColor,
                                           borderRadius: BorderRadius.only(
                                               topLeft: Radius.circular(40),
                                               bottomLeft: Radius.circular(40))),
@@ -224,49 +251,53 @@ class _WalletScreenState extends State<WalletScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: <Widget>[
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                8.0, 38, 8, 8),
-                                            child: Image(
-                                              image: AssetImage(
-                                                  "assets/images/rupee.png"),
-                                              height: 35,
-                                              width: 25,
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      8.0, 30, 8, 8),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                            .fromLTRB(
+                                                        8.0, 38, 8, 8),
+                                                    child: Image(
+                                                      image: AssetImage(
+                                                          "assets/images/rupee.png"),
+                                                      height: 35,
+                                                      width: 25,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    (walletAmount == null)
+                                                        ? "0.0"
+                                                        : "$walletAmount",
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .accentColor,
+                                                        fontWeight:
+                                                            FontWeight.w300,
+                                                        fontSize: double.parse((walletAmount
+                                                                    .toString()
+                                                                    .length *
+                                                                (MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width /
+                                                                    (walletAmount
+                                                                            .toString()
+                                                                            .length *
+                                                                        7)))
+                                                            .toString())),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                8.0, 30, 8, 8),
-                                            child: Text(
-                                              (walletAmount == null)
-                                                  ? "0.0"
-                                                  : "$walletAmount",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w300,
-                                                  fontSize: double.parse((walletAmount
-                                                              .toString()
-                                                              .length *
-                                                          (MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width /
-                                                              (walletAmount
-                                                                      .toString()
-                                                                      .length *
-                                                                  6)))
-                                                      .toString())),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0.0, 60, 8, 8),
-                                            child: Text(
-                                              "INR",
-                                              style: TextStyle(
-                                                  color: Colors.yellow),
-                                            ),
-                                          )
                                         ],
                                       ),
                                     ),
@@ -277,10 +308,10 @@ class _WalletScreenState extends State<WalletScreen> {
                                   left: 270,
                                   child: FloatingActionButton(
                                     backgroundColor:
-                                        PrimaryColors.backgroundColor,
+                                        Theme.of(context).canvasColor,
                                     child: Icon(
                                       Icons.add_circle,
-                                      color: Colors.yellow,
+                                      color: Theme.of(context).primaryColor,
                                       size: 60,
                                     ),
                                     onPressed: () {
@@ -291,32 +322,54 @@ class _WalletScreenState extends State<WalletScreen> {
                               ]),
                               SizedBox(height: 30),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
                                 children: <Widget>[
                                   Spacer(),
                                   RaisedButton(
-                                    color: PrimaryColors.backgroundColor,
+                                    color: Theme.of(context).primaryColor,
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.all(
-                                            Radius.circular(5))),
+                                            Radius.circular(25))),
                                     elevation: 6,
                                     child: Container(
-                                      height: 50,
+                                      height: 35,
                                       width: 100,
                                       child: Center(
                                           child: Text(
                                         "WITHDRAWAL",
-                                        style: TextStyle(color: Colors.white),
+                                        style: TextStyle(
+                                            color:
+                                                Theme.of(context).canvasColor,
+                                            fontWeight: FontWeight.bold),
                                       )),
                                     ),
                                     onPressed: () {
-                                      setState(() {
-                                        if (!showPaymentButtons)
-                                          showPaymentButtons = true;
-                                        else
-                                          showPaymentButtons = false;
+                                      _bloc.fire(WalletEvent.fetchWalletAmount,
+                                          onHandled: (e, m) {
+                                        _bloc
+                                            .fire(WalletEvent.checkAvailability,
+                                                onHandled: (e, m) {
+                                          showPaymentButtons =
+                                              m.availableForWithdrawal;
+                                          if (!showPaymentButtons)
+                                            Scaffold.of(context).showSnackBar(
+                                                SnackBar(
+                                                    backgroundColor:
+                                                        Theme.of(context)
+                                                            .accentColor,
+                                                    content: Text(
+                                                      'Can not withdraw if you are in an active Order',
+                                                      style: TextStyle(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .canvasColor),
+                                                    )));
+                                        });
                                       });
+
+                                      if (showPaymentButtons == true)
+                                        setState(() {
+                                          showPaymentButtons = false;
+                                        });
                                     },
                                   ),
                                   SizedBox(
@@ -327,15 +380,13 @@ class _WalletScreenState extends State<WalletScreen> {
                               SizedBox(height: 15),
                               (showPaymentButtons)
                                   ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
                                       children: <Widget>[
                                         Spacer(),
                                         OutlineButton(
                                           borderSide: BorderSide(
                                               width: 2,
-                                              color: PrimaryColors
-                                                  .backgroundColor),
+                                              color: Theme.of(context)
+                                                  .accentColor),
                                           color: PrimaryColors
                                               .backgroundcolorlight,
                                           shape: RoundedRectangleBorder(
@@ -346,14 +397,14 @@ class _WalletScreenState extends State<WalletScreen> {
                                                 child: Text(
                                               "VPA/UPI",
                                               style: TextStyle(
-                                                  color: PrimaryColors
-                                                      .backgroundColor),
+                                                  color: Theme.of(context)
+                                                      .primaryColor),
                                             )),
                                           ),
                                           onPressed: () {
                                             int selectedRadio = 0;
                                             if (viewModel.vpaList.length != 0) {
-                                              selectedAccountNumber =
+                                              selectedVPA =
                                                   viewModel.vpaList[0].address;
                                               selectedAccountID =
                                                   viewModel.vpaList[0].id;
@@ -363,6 +414,9 @@ class _WalletScreenState extends State<WalletScreen> {
                                                 builder:
                                                     (BuildContext context) {
                                                   return Dialog(
+                                                    backgroundColor:
+                                                        Theme.of(context)
+                                                            .canvasColor,
                                                     insetPadding:
                                                         EdgeInsets.all(10),
                                                     child:
@@ -383,8 +437,9 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                       Text(
                                                                         "Oops! No VPA/UPI Added",
                                                                         style: TextStyle(
-                                                                            fontSize:
-                                                                                16),
+                                                                            color:
+                                                                                Theme.of(context).accentColor,
+                                                                            fontSize: 16),
                                                                       ),
                                                                       SizedBox(
                                                                         width:
@@ -393,8 +448,8 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                       Icon(
                                                                         Icons
                                                                             .sentiment_very_dissatisfied,
-                                                                        color: Colors
-                                                                            .black,
+                                                                        color: Theme.of(context)
+                                                                            .accentColor,
                                                                       ),
                                                                     ],
                                                                   ),
@@ -418,20 +473,18 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                           Container(
                                                                             decoration:
                                                                                 BoxDecoration(
-                                                                              color: PrimaryColors.backgroundColor,
+                                                                              color: Theme.of(context).cardColor,
                                                                               borderRadius: BorderRadius.all(Radius.circular(15.0)),
                                                                             ),
                                                                             child:
                                                                                 Padding(
                                                                               padding: const EdgeInsets.all(8.0),
-                                                                              child: (viewModel.vpaList.length == 0)
-                                                                                  ? Text("Oops! No VPA/UPI Added", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white))
-                                                                                  : (viewModel.vpaList.length == 1)
-                                                                                      ? Text("Confirm VPA/UPI", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white))
-                                                                                      : Text(
-                                                                                          "Choose VPA/UPI",
-                                                                                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                                                                                        ),
+                                                                              child: (viewModel.vpaList.length == 1)
+                                                                                  ? Text("Confirm VPA/UPI", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).hintColor))
+                                                                                  : Text(
+                                                                                      "Choose VPA/UPI",
+                                                                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).hintColor),
+                                                                                    ),
                                                                             ),
                                                                           ),
                                                                           SizedBox(
@@ -452,24 +505,23 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                                           padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
                                                                                           child: Text(
                                                                                             "Select VPA/UPI:",
-                                                                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                                                                            style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).accentColor),
                                                                                           ),
                                                                                         ),
                                                                                         Spacer(),
                                                                                         Radio(
                                                                                           value: index,
-                                                                                          activeColor: PrimaryColors.backgroundColor,
+                                                                                          activeColor: Theme.of(context).accentColor,
                                                                                           groupValue: selectedRadio,
                                                                                           onChanged: (val) {
-                                                                                            selectedAccountID = viewModel.vpaList[index].id;
                                                                                             setState(() => selectedRadio = val);
-                                                                                            print(selectedRadio);
+                                                                                            selectedVpaId = viewModel.vpaList[index].id;
                                                                                             if (viewModel.vpaList.length == 1) {
-                                                                                              selectedAccountNumber = viewModel.vpaList[0].address;
-                                                                                              selectedAccountID = viewModel.vpaList[0].id.toString();
+                                                                                              selectedVPA = viewModel.vpaList[0].address;
+                                                                                              selectedVpaId = viewModel.vpaList[0].id.toString();
                                                                                             } else {
-                                                                                              selectedAccountNumber = viewModel.vpaList[selectedRadio].address;
-                                                                                              selectedAccountID = viewModel.vpaList[selectedRadio].id.toString();
+                                                                                              selectedVPA = viewModel.vpaList[selectedRadio].address;
+                                                                                              selectedVpaId = viewModel.vpaList[selectedRadio].id.toString();
                                                                                             }
                                                                                           },
                                                                                         ),
@@ -493,37 +545,41 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                             children: [
                                                                               RaisedButton(
                                                                                 elevation: 4,
-                                                                                color: PrimaryColors.backgroundColor,
+                                                                                shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+                                                                                color: Theme.of(context).primaryColor,
                                                                                 child: Padding(
                                                                                   padding: const EdgeInsets.all(8.0),
                                                                                   child: Text(
                                                                                     "Next",
-                                                                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                                                    style: TextStyle(color: Theme.of(context).canvasColor, fontWeight: FontWeight.bold),
                                                                                   ),
                                                                                 ),
-                                                                                onPressed: (viewModel.bankAccountList.length != 0)
+                                                                                onPressed: (viewModel.vpaList.length != 0)
                                                                                     ? () {
-                                                                                        print(selectedAccountNumber);
+                                                                                        if (viewModel.vpaList.length == 1) {
+                                                                                          selectedVPA = viewModel.vpaList[0].address;
+                                                                                          selectedVpaId = viewModel.vpaList[0].id;
+                                                                                        }
+
                                                                                         Navigator.pop(context);
-                                                                                        _showPaymentWithdrawalModalSheet(
-                                                                                          context,
-                                                                                        );
+                                                                                        _showPaymentWithdrawalModalSheet(selectedVPA, selectedVpaId);
                                                                                       }
                                                                                     : null,
                                                                               ),
                                                                               Container(
-                                                                                color: PrimaryColors.backgroundColor,
+                                                                                color: Theme.of(context).accentColor,
                                                                                 height: 20,
                                                                                 width: 2,
                                                                               ),
                                                                               RaisedButton(
                                                                                 elevation: 4,
-                                                                                color: Colors.white,
+                                                                                color: Theme.of(context).primaryColor,
+                                                                                shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
                                                                                 child: Padding(
                                                                                   padding: const EdgeInsets.all(8.0),
                                                                                   child: Text(
                                                                                     "Cancel",
-                                                                                    style: TextStyle(color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
+                                                                                    style: TextStyle(color: Theme.of(context).canvasColor, fontWeight: FontWeight.bold),
                                                                                   ),
                                                                                 ),
                                                                                 onPressed: () {
@@ -555,17 +611,14 @@ class _WalletScreenState extends State<WalletScreen> {
                               SizedBox(height: 15),
                               (showPaymentButtons)
                                   ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
                                       children: <Widget>[
                                         Spacer(),
                                         OutlineButton(
                                           borderSide: BorderSide(
                                               width: 2,
-                                              color: PrimaryColors
-                                                  .backgroundColor),
-                                          color: PrimaryColors
-                                              .backgroundcolorlight,
+                                              color: Theme.of(context)
+                                                  .accentColor),
+                                          color: Theme.of(context).canvasColor,
                                           shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(50))),
@@ -574,8 +627,8 @@ class _WalletScreenState extends State<WalletScreen> {
                                                 child: Text(
                                               "Bank-transfer",
                                               style: TextStyle(
-                                                  color: PrimaryColors
-                                                      .backgroundColor,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
                                                   fontWeight: FontWeight.bold),
                                             )),
                                           ),
@@ -588,14 +641,15 @@ class _WalletScreenState extends State<WalletScreen> {
                                                   .bankAccountNumber;
                                               selectedAccountID = viewModel
                                                   .bankAccountList[0].accountID;
-                                              print(selectedAccountID +
-                                                  selectedAccountID);
                                             }
                                             showDialog(
                                                 context: context,
                                                 builder:
                                                     (BuildContext context) {
                                                   return Dialog(
+                                                    backgroundColor:
+                                                        Theme.of(context)
+                                                            .canvasColor,
                                                     insetPadding:
                                                         EdgeInsets.all(10),
                                                     child: (viewModel
@@ -614,6 +668,8 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                   Text(
                                                                     "Oops! No Accounts Linked",
                                                                     style: TextStyle(
+                                                                        color: Theme.of(context)
+                                                                            .accentColor,
                                                                         fontSize:
                                                                             16),
                                                                   ),
@@ -623,8 +679,9 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                   Icon(
                                                                     Icons
                                                                         .sentiment_very_dissatisfied,
-                                                                    color: Colors
-                                                                        .black,
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .canvasColor,
                                                                   ),
                                                                 ],
                                                               ),
@@ -648,7 +705,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                         decoration:
                                                                             BoxDecoration(
                                                                           color:
-                                                                              PrimaryColors.backgroundColor,
+                                                                              Theme.of(context).cardColor,
                                                                           borderRadius:
                                                                               BorderRadius.all(Radius.circular(15.0)),
                                                                         ),
@@ -656,14 +713,12 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                             Padding(
                                                                           padding:
                                                                               const EdgeInsets.all(8.0),
-                                                                          child: (viewModel.bankAccountList.length == 0)
-                                                                              ? Text("No Bank Accounts Linked", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white))
-                                                                              : (viewModel.bankAccountList.length == 1)
-                                                                                  ? Text("Confirm this account", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white))
-                                                                                  : Text(
-                                                                                      "Choose an account for withdrawal",
-                                                                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                                                                                    ),
+                                                                          child: (viewModel.bankAccountList.length == 1)
+                                                                              ? Text("Confirm this account", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).accentColor))
+                                                                              : Text(
+                                                                                  "Choose an account for withdrawal",
+                                                                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).accentColor),
+                                                                                ),
                                                                         ),
                                                                       ),
                                                                       SizedBox(
@@ -690,17 +745,18 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                                     Spacer(),
                                                                                     Radio(
                                                                                       value: index,
-                                                                                      activeColor: PrimaryColors.backgroundColor,
+                                                                                      activeColor: Theme.of(context).accentColor,
                                                                                       groupValue: selectedRadio,
                                                                                       onChanged: (val) {
-                                                                                        selectedAccountID = viewModel.bankAccountList[index].accountID;
                                                                                         setState(() => selectedRadio = val);
-                                                                                        if (viewModel.vpaList.length == 1) {
-                                                                                          selectedAccountNumber = viewModel.vpaList[0].address;
-                                                                                          selectedAccountID = viewModel.vpaList[0].id.toString();
+                                                                                        selectedAccountID = viewModel.bankAccountList[index].accountID;
+
+                                                                                        if (viewModel.bankAccountList.length == 1) {
+                                                                                          selectedAccountNumber = viewModel.bankAccountList[0].bankAccountNumber;
+                                                                                          selectedAccountID = viewModel.bankAccountList[0].accountID.toString();
                                                                                         } else {
-                                                                                          selectedAccountNumber = viewModel.vpaList[selectedRadio].address;
-                                                                                          selectedAccountID = viewModel.vpaList[selectedRadio].id.toString();
+                                                                                          selectedAccountNumber = viewModel.bankAccountList[selectedRadio].bankAccountNumber;
+                                                                                          selectedAccountID = viewModel.bankAccountList[selectedRadio].accountID.toString();
                                                                                         }
                                                                                       },
                                                                                     ),
@@ -725,28 +781,31 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                             elevation:
                                                                                 4,
                                                                             color:
-                                                                                PrimaryColors.backgroundColor,
+                                                                                Theme.of(context).primaryColor,
+                                                                            shape:
+                                                                                new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
                                                                             child:
                                                                                 Padding(
                                                                               padding: const EdgeInsets.all(8.0),
                                                                               child: Text(
                                                                                 "Next",
-                                                                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                                                                style: TextStyle(color: Theme.of(context).canvasColor, fontWeight: FontWeight.bold),
                                                                               ),
                                                                             ),
                                                                             onPressed: (viewModel.bankAccountList.length != 0)
                                                                                 ? () {
-                                                                                    print(selectedAccountNumber);
+                                                                                    if (viewModel.bankAccountList.length == 1) {
+                                                                                      selectedAccountNumber = viewModel.bankAccountList[0].bankAccountNumber;
+                                                                                      selectedAccountID = viewModel.bankAccountList[0].accountID.toString();
+                                                                                    }
                                                                                     Navigator.pop(context);
-                                                                                    _showPaymentWithdrawalModalSheet(
-                                                                                      context,
-                                                                                    );
+                                                                                    _showPaymentWithdrawalModalSheet(selectedAccountNumber, selectedAccountID);
                                                                                   }
                                                                                 : null,
                                                                           ),
                                                                           Container(
                                                                             color:
-                                                                                PrimaryColors.backgroundColor,
+                                                                                Theme.of(context).accentColor,
                                                                             height:
                                                                                 20,
                                                                             width:
@@ -755,14 +814,16 @@ class _WalletScreenState extends State<WalletScreen> {
                                                                           RaisedButton(
                                                                             elevation:
                                                                                 4,
+                                                                            shape:
+                                                                                new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
                                                                             color:
-                                                                                Colors.white,
+                                                                                Theme.of(context).primaryColor,
                                                                             child:
                                                                                 Padding(
                                                                               padding: const EdgeInsets.all(8.0),
                                                                               child: Text(
                                                                                 "Cancel",
-                                                                                style: TextStyle(color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
+                                                                                style: TextStyle(color: Theme.of(context).canvasColor, fontWeight: FontWeight.bold),
                                                                               ),
                                                                             ),
                                                                             onPressed:
@@ -808,7 +869,6 @@ class _WalletScreenState extends State<WalletScreen> {
 
   _showAddToWalletModalBottomSheet(context) {
     showModalBottomSheet(
-        backgroundColor: PrimaryColors.backgroundcolorlight,
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
@@ -821,14 +881,23 @@ class _WalletScreenState extends State<WalletScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Container(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(12.0, 8, 8, 8),
-                          child: Text(
-                            "ENTER DEPOSIT AMOUNT",
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(25)),
+                              color: Theme.of(context).cardColor),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(12.0, 8, 12, 8),
+                            child: Text(
+                              "ENTER DEPOSIT AMOUNT",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).hintColor),
+                            ),
                           ),
                         ),
                       ),
@@ -852,10 +921,15 @@ class _WalletScreenState extends State<WalletScreen> {
                                 child: Form(
                                   key: _addAmountFormKey,
                                   child: TextFormField(
+                                    cursorColor: Theme.of(context).accentColor,
                                     validator: (value) {
                                       if (value.trim().isNotEmpty) {
                                         if (!isNumeric(value))
                                           return 'Enter a valid amount!';
+                                        if (int.parse(value) <
+                                            DataStore
+                                                .metaData.minimumWalletDeposit)
+                                          return 'Minimum deposit amount is ${DataStore.metaData.minimumWalletDeposit}';
                                       }
                                       if (value.isEmpty) {
                                         return 'Enter any amount';
@@ -863,21 +937,19 @@ class _WalletScreenState extends State<WalletScreen> {
                                       return null;
                                     },
                                     style: TextStyle(
-                                        color: PrimaryColors.backgroundColor,
+                                        color: Theme.of(context).accentColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
                                     decoration: InputDecoration(
-                                        hintText: "Eg: " +
-                                            Constants.rupeeSign +
-                                            "500",
-                                        fillColor: Colors.white,
-                                        filled: true,
-                                        errorStyle: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold),
-                                        border: new UnderlineInputBorder(
-                                            borderSide: new BorderSide(
-                                                color: Colors.green))),
+                                      border: UnderlineInputBorder(
+                                          borderSide: BorderSide.none),
+                                      hintText:
+                                          "Eg: " + Constants.rupeeSign + "500",
+                                      fillColor: Theme.of(context).cardColor,
+                                      filled: true,
+                                      errorStyle: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                     controller: walletDepositAmountController,
                                     keyboardType: TextInputType.number,
                                   ),
@@ -894,7 +966,9 @@ class _WalletScreenState extends State<WalletScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           RaisedButton(
-                            color: PrimaryColors.backgroundColor,
+                            color: Theme.of(context).primaryColor,
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
                             textColor: Colors.white,
                             onPressed: () {
                               if (_addAmountFormKey.currentState.validate()) {
@@ -913,12 +987,12 @@ class _WalletScreenState extends State<WalletScreen> {
                                       'contact':
                                           '${DataStore.me.phoneNumber}' ??
                                               '1234567890',
-                                      'email': "$email"
+                                      // 'email':
+                                      //     '${DataStore.me.emailAddress}' ?? ''
                                     }
                                   };
                                   _razorpay.open(depositOptions);
                                 });
-                                print(depositAmount * 100);
 
                                 walletDepositAmountController.clear();
                               }
@@ -926,25 +1000,30 @@ class _WalletScreenState extends State<WalletScreen> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
-                                "ADD",
+                                "Add",
                                 style: TextStyle(
+                                  color: Theme.of(context).canvasColor,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
                           ),
                           OutlineButton(
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
                             borderSide: BorderSide(
-                                width: 2, color: PrimaryColors.backgroundColor),
+                                width: 2, color: Theme.of(context).accentColor),
                             textColor: PrimaryColors.backgroundColor,
                             onPressed: () {
+                              walletDepositAmountController.clear();
                               Navigator.pop(context);
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
-                                "CANCEL",
+                                "Cancel",
                                 style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -974,9 +1053,8 @@ class _WalletScreenState extends State<WalletScreen> {
     });
   }
 
-  _showPaymentWithdrawalModalSheet(context) {
+  _showPaymentWithdrawalModalSheet(address, id) {
     showModalBottomSheet(
-        backgroundColor: PrimaryColors.backgroundcolorlight,
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
@@ -987,21 +1065,15 @@ class _WalletScreenState extends State<WalletScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      (_bloc.latestViewModel.whileWithDrawingAmount)
-                          ? LinearProgressIndicator(
-                              minHeight: 4,
-                              backgroundColor: PrimaryColors.backgroundColor,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            )
-                          : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Row(
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                color: PrimaryColors.backgroundColor,
+                                color: Theme.of(context).cardColor,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25)),
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
@@ -1010,16 +1082,16 @@ class _WalletScreenState extends State<WalletScreen> {
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white),
+                                      color: Theme.of(context).hintColor),
                                 ),
                               ),
                             ),
                             Padding(
                               padding: EdgeInsets.all(8),
                               child: Text(
-                                selectedAccountNumber,
+                                address,
                                 style: TextStyle(
-                                    color: PrimaryColors.backgroundColor,
+                                    color: Theme.of(context).primaryColor,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15),
                               ),
@@ -1030,11 +1102,6 @@ class _WalletScreenState extends State<WalletScreen> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Container(
-                          decoration: BoxDecoration(
-                            color: PrimaryColors.backgroundColor,
-                            // borderRadius:
-                            //     BorderRadius.all(Radius.circular(15.0)),
-                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
@@ -1042,7 +1109,7 @@ class _WalletScreenState extends State<WalletScreen> {
                               style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white),
+                                  color: Theme.of(context).hintColor),
                             ),
                           ),
                         ),
@@ -1067,10 +1134,18 @@ class _WalletScreenState extends State<WalletScreen> {
                                 child: Form(
                                   key: _withdrawAmountFormKey,
                                   child: TextFormField(
+                                    cursorColor: Theme.of(context).accentColor,
                                     validator: (value) {
                                       if (value.trim().isNotEmpty) {
                                         if (!isNumeric(value))
                                           return 'Enter a valid amount!';
+                                        if (int.parse(value) * 100 >
+                                            int.parse(
+                                                    _BEENAME.get('myWallet')) -
+                                                DataStore.metaData
+                                                        .minimumWalletAmount *
+                                                    100)
+                                          return 'Minimum wallet amount is ${DataStore.metaData.minimumWalletAmount}';
                                       }
                                       if (value.isEmpty) {
                                         return 'Enter any amount';
@@ -1078,21 +1153,19 @@ class _WalletScreenState extends State<WalletScreen> {
                                       return null;
                                     },
                                     style: TextStyle(
-                                        color: PrimaryColors.backgroundColor,
+                                        color: Theme.of(context).accentColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
                                     decoration: InputDecoration(
-                                        hintText: "Eg: " +
-                                            Constants.rupeeSign +
-                                            "500",
-                                        fillColor: Colors.white,
-                                        filled: true,
-                                        errorStyle: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold),
-                                        border: new UnderlineInputBorder(
-                                            borderSide: new BorderSide(
-                                                color: Colors.green))),
+                                      hintText:
+                                          "Eg: " + Constants.rupeeSign + "500",
+                                      fillColor: Theme.of(context).cardColor,
+                                      filled: true,
+                                      errorStyle: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                      border: UnderlineInputBorder(
+                                          borderSide: BorderSide.none),
+                                    ),
                                     controller: walletWithdrawAmountController,
                                     keyboardType: TextInputType.number,
                                   ),
@@ -1106,11 +1179,15 @@ class _WalletScreenState extends State<WalletScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           RaisedButton(
-                            color: PrimaryColors.backgroundColor,
-                            textColor: Colors.white,
+                            color: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25))),
+                            textColor: Theme.of(context).canvasColor,
                             onPressed: () {
                               if (_withdrawAmountFormKey.currentState
                                   .validate()) {
+                                Navigator.pop(context);
                                 String withdrawAmount =
                                     walletWithdrawAmountController.text
                                         .toString();
@@ -1118,11 +1195,8 @@ class _WalletScreenState extends State<WalletScreen> {
                                 _bloc.fire(WalletEvent.withdrawAmount,
                                     message: {
                                       'amount': amount,
-                                      'accountId': selectedAccountID
+                                      'accountId': id
                                     }, onHandled: (e, m) {
-                                  log("Requested for Withdrawal $amount  from $selectedAccountID",
-                                      name: "WITHDRAW");
-                                  Navigator.pop(context);
                                   _bloc.fire(
                                       WalletEvent
                                           .fetchWalletAmountAfterTransaction,
@@ -1144,7 +1218,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
-                                "WITHDRAW",
+                                "Withdraw",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -1152,9 +1226,12 @@ class _WalletScreenState extends State<WalletScreen> {
                             ),
                           ),
                           OutlineButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25))),
                             borderSide: BorderSide(
-                                width: 2, color: PrimaryColors.backgroundColor),
-                            textColor: PrimaryColors.backgroundColor,
+                                width: 2, color: Theme.of(context).accentColor),
+                            textColor: Theme.of(context).primaryColor,
                             onPressed: () {
                               walletWithdrawAmountController.clear();
                               Navigator.pop(context);
@@ -1162,7 +1239,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Text(
-                                "CANCEL",
+                                "Cancel",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -1184,6 +1261,7 @@ class _WalletScreenState extends State<WalletScreen> {
   _showPaymentSuccessDialog() {
     showDialog(
         context: context,
+        barrierDismissible: true,
         builder: (BuildContext context) {
           FlutterRingtonePlayer.playNotification();
           return AlertDialog(
@@ -1202,6 +1280,8 @@ class _WalletScreenState extends State<WalletScreen> {
           );
         });
   }
+
+
 
   _showPaymentFailureDialog(message) {
     showDialog(

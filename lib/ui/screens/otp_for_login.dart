@@ -2,6 +2,7 @@ import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/otp_login_bloc.dart';
 import 'package:fixbee_partner/events/otp_events.dart';
 import 'package:fixbee_partner/models/otp_model.dart';
+import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_field.dart';
 import 'package:fixbee_partner/ui/custom_widget/otp_insert.dart';
 import 'package:fixbee_partner/ui/screens/all_service_selection_screen.dart';
@@ -48,9 +49,6 @@ class _OtpForLoginState extends State<OtpForLogin> {
       child: Scaffold(
         body: Center(
           child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-            // if (viewModel.verifying) {
-            //   return CircularProgressIndicator();
-            // } else {
               return Wrap(
                 children: <Widget>[
                   Container(
@@ -76,7 +74,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                 ),
                                 TextSpan(
                                   text: (widget.phoneNumber == null)
-                                      ? "+91-8787300192"
+                                      ? "+91-1234567890"
                                       : "+91-${widget.phoneNumber}",
                                   style: TextStyle(
                                       fontSize: 18,
@@ -144,8 +142,8 @@ class _OtpForLoginState extends State<OtpForLogin> {
                         SizedBox(
                           height: 30,
                         ),
-                        (viewModel.verifying)
-                            ? CircularProgressIndicator()
+                        (viewModel.verifying || viewModel.fetchingAllBeeConfiguration)
+                            ? CustomCircularProgressIndicator()
                             : RaisedButton(
                                 elevation: 3,
                                 disabledColor: Colors.grey,
@@ -170,6 +168,9 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                                   goToJobSelectionScreen(ctx);
                                                 } else {
                                                   if(m.bee.dpUrl!=null)_BEENAME.put("dpUrl", m.bee.dpUrl);
+                                                  print(m.bee.myRating.toString()+'UI OTP');
+                                                  _BEENAME.put('myRating', m.bee.myRating.toString());
+                                                  _BEENAME.put('myWallet', m.bee.walletAmount.toString());
                                                   goToNavigationScreen(ctx);
                                                 }
                                               });
@@ -177,7 +178,7 @@ class _OtpForLoginState extends State<OtpForLogin> {
                                               _otpInsertController.clear();
                                               _showOnOtpInvalid();
                                             }
-                                            //  }
+                                            //  }F
                                           },
                                         );
                                       }

@@ -62,215 +62,215 @@ class _OTPState extends State<OTP> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(child: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-        if (viewModel.verifying)
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Spacer(),
-                  CustomCircularProgressIndicator(),
-                  Spacer(),
-                ],
-              ),
-            ],
-          );
-        else
-          return Column(
-            //crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 7,
-              ),
-              Expanded(
-                child: Container(
-                  color: Colors.white,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        child: RichText(
-                          textAlign: TextAlign.start,
-                          text: TextSpan(
-                            children: <TextSpan>[
-                              TextSpan(
-                                text:
-                                    "Enter 6- digit OTP sent to the number:\n",
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: PrimaryColors.backgroundColor),
-                              ),
-                              TextSpan(
-                                text: widget.phoneNumber,
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.deepPurple,
-                                    fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            buildCodeNumberBox(
-                                code.length > 0 ? code.substring(0, 1) : ""),
-                            buildCodeNumberBox(
-                                code.length > 1 ? code.substring(1, 2) : ""),
-                            buildCodeNumberBox(
-                                code.length > 2 ? code.substring(2, 3) : ""),
-                            buildCodeNumberBox(
-                                code.length > 3 ? code.substring(3, 4) : ""),
-                            buildCodeNumberBox(
-                                code.length > 4 ? code.substring(4, 5) : ""),
-                            buildCodeNumberBox(
-                                code.length > 5 ? code.substring(5, 6) : ""),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            "Didn't receive code? ",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: PrimaryColors.backgroundColor,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          (_showRequestAgainButton)
-                              ? (viewModel.resendingOtp)
-                                  ? Container(
-                                      child: CustomCircularProgressIndicator(),
-                                      height: 30,
-                                      width: 30,
-                                    )
-                                  : GestureDetector(
-                                      onTap: () {
-                                        _bloc.fire(
-                                          OtpEvents.resendOtp,
-                                          message: {
-                                            'phone': widget.phoneNumber
-                                          },
-                                        );
-                                        setState(() {
-                                          code = "";
-                                          _isButtonEnabled = false;
-                                        });
-                                      },
-                                      child: Text(
-                                        "Request again",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: Colors.blue,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    )
-                              : SizedBox(),
-                        ],
-                      ),
-                    ],
-                  ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              height: 30,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+              child: RichText(
+                textAlign: TextAlign.start,
+                text: TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: "Enter OTP\n\n",
+                      style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor),
+                    ),
+                    TextSpan(
+                      text: "sent to ${widget.phoneNumber}",
+                      style: TextStyle(
+                          fontSize: 18,
+                          color: Theme.of(context).accentColor,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 12,
+            ),
+            Expanded(
+              child: Container(
+                color: Theme.of(context).canvasColor,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          buildCodeNumberBox(
+                              code.length > 0 ? code.substring(0, 1) : ""),
+                          buildCodeNumberBox(
+                              code.length > 1 ? code.substring(1, 2) : ""),
+                          buildCodeNumberBox(
+                              code.length > 2 ? code.substring(2, 3) : ""),
+                          buildCodeNumberBox(
+                              code.length > 3 ? code.substring(3, 4) : ""),
+                          buildCodeNumberBox(
+                              code.length > 4 ? code.substring(4, 5) : ""),
+                          buildCodeNumberBox(
+                              code.length > 5 ? code.substring(5, 6) : ""),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "Didn't receive code? ",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context).accentColor,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        (_showRequestAgainButton)
+                            ? (viewModel.resendingOtp)
+                                ? Container(
+                                    child: CustomCircularProgressIndicator(),
+                                    height: 30,
+                                    width: 30,
+                                  )
+                                : GestureDetector(
+                                    onTap: () {
+                                      _bloc.fire(
+                                        OtpEvents.resendOtp,
+                                        message: {'phone': widget.phoneNumber},
+                                      );
+                                      setState(() {
+                                        code = "";
+                                        _isButtonEnabled = false;
+                                      });
+                                    },
+                                    child: Text(
+                                      "Request again",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  )
+                            : SizedBox(),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                children: [
-                  (viewModel.verifying)
-                      ? Row(
-                          children: [
-                            Spacer(),
-                            CustomCircularProgressIndicator(),
-                            Spacer(),
-                          ],
-                        )
-                      : Container(
-                          height: 50,
-                          width: 180,
-                          child: RaisedButton(
-                            elevation: 3,
-                            disabledTextColor: Colors.white,
-                            disabledColor: Colors.grey,
-                            color: Colors.yellow,
-                            child: Text(
-                              "VERIFY AND PROCEED",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 14),
-                            ),
-                            onPressed: _isButtonEnabled
-                                ? () {
-                                    _bloc.fire(
-                                      OtpEvents.onOtpVerify,
-                                      message: {
-                                        'phone': widget.phoneNumber,
-                                        'otp': code
-                                      },
-                                      onHandled: (e, m) {
-                                        if (m.valid) {
-                                          FocusScope.of(context)
-                                              .requestFocus(FocusNode());
-                                          Scaffold.of(ctx).showSnackBar(SnackBar(
-                                            content: Text('Otp registered'),
-                                          ));
-                                          _bloc.fire(
-                                              OtpEvents.fetchSaveBeeDetails,
-                                              onHandled: (e, m) async{
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height / 10,
+            ),
+            Column(
+              children: [
+                (viewModel.verifying || viewModel.fetchingAllBeeConfiguration)
+                    ? Row(
+                        children: [
+                          Spacer(),
+                          CustomCircularProgressIndicator(),
+                          Spacer(),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Spacer(),
+                          Container(
+                            height: 35,
+                            width: 150,
+                            child: RaisedButton(
+                              shape: new RoundedRectangleBorder(
+                                  borderRadius:
+                                      new BorderRadius.circular(30.0)),
+                              elevation: 3,
+                              disabledTextColor: Theme.of(context).accentColor,
+                              disabledColor: Theme.of(context).hintColor,
+                              color: Theme.of(context).primaryColor,
+                              child: Text(
+                                "VERIFY",
+                                style: TextStyle(
+                                    color: Theme.of(context).canvasColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14),
+                              ),
+                              onPressed: _isButtonEnabled
+                                  ? () {
+                                      _bloc.fire(
+                                        OtpEvents.onOtpVerify,
+                                        message: {
+                                          'phone': widget.phoneNumber,
+                                          'otp': code
+                                        },
+                                        onHandled: (e, m) {
+                                          if (m.valid) {
+                                            FocusScope.of(context)
+                                                .requestFocus(FocusNode());
+                                            Scaffold.of(ctx)
+                                                .showSnackBar(SnackBar(
+                                              content: Text('Otp registered'),
+                                            ));
+                                            _bloc.fire(
+                                                OtpEvents.fetchSaveBeeDetails,
+                                                onHandled: (e, m) async {
+                                              if (m.walletError) {
+                                                _showMessageDialog(
+                                                    m.walletError);
+                                              } else {
                                                 await refreshAllData(m.bee);
                                                 if (!m.serviceSelected) {
                                                   goToJobSelectionScreen(ctx);
                                                 } else {
                                                   goToNavigationScreen(ctx);
                                                 }
-                                          });
-                                        } else {
-                                          _showOnOtpInvalid();
-                                        }
-                                        //  }
-                                      },
-                                    );
-                                  }
-                                : null,
+                                              }
+                                            });
+                                          } else {
+                                            _showOnOtpInvalid();
+                                          }
+                                          //  }
+                                        },
+                                      );
+                                    }
+                                  : null,
+                            ),
                           ),
-                        ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              NumericPad(
-                checkValidOtpLength: () {
-                  setState(() {
-                    if (code.length < 6)
-                      _isButtonEnabled = false;
-                    else if (code.length == 6) _isButtonEnabled = true;
-                  });
-                },
-                onNumberSelected: (value) {
-                  print(value);
-                  setState(() {
-                    if (value != -1) {
-                      if (code.length < 6) {
-                        code = code + value.toString();
-                      }
-                    } else if (code.length != 0) {
-                      code = code.substring(0, code.length - 1);
+                          Spacer()
+                        ],
+                      ),
+              ],
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            NumericPad(
+              checkValidOtpLength: () {
+                setState(() {
+                  if (code.length < 6)
+                    _isButtonEnabled = false;
+                  else if (code.length == 6) _isButtonEnabled = true;
+                });
+              },
+              onNumberSelected: (value) {
+                print(value);
+                setState(() {
+                  if (value != -1) {
+                    if (code.length < 6) {
+                      code = code + value.toString();
                     }
-                    print(code);
-                  });
-                },
-              ),
-            ],
-          );
+                  } else if (code.length != 0) {
+                    code = code.substring(0, code.length - 1);
+                  }
+                  print(code);
+                });
+              },
+            ),
+          ],
+        );
       })),
     );
   }
@@ -283,14 +283,14 @@ class _OTPState extends State<OTP> {
         height: MediaQuery.of(context).size.width / 8,
         child: Container(
           decoration: BoxDecoration(
-            color: Color(0xFFF6F5FA),
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.all(
               Radius.circular(10),
             ),
             boxShadow: <BoxShadow>[
               BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 25.0,
+                  color: Theme.of(context).hintColor.withOpacity(.5),
+                  blurRadius: 10.0,
                   spreadRadius: 1,
                   offset: Offset(0.0, 0.75))
             ],
@@ -299,10 +299,9 @@ class _OTPState extends State<OTP> {
             child: Text(
               codeNumber,
               style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F1F1F),
-              ),
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).accentColor),
             ),
           ),
         ),
@@ -311,18 +310,21 @@ class _OTPState extends State<OTP> {
   }
 
   void goToJobSelectionScreen(BuildContext context) {
-    Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => AllServiceSelection()));
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => AllServiceSelection()),
+        (Route<dynamic> route) => false);
   }
 
   void goToRegistrationScreen(BuildContext context) {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => Registration()));
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => Registration()),
+        (Route<dynamic> route) => false);
   }
 
   void goToNavigationScreen(BuildContext context) {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => NavigationScreen()));
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => NavigationScreen()),
+        (Route<dynamic> route) => false);
   }
 
   _showOnOtpInvalid() {
@@ -330,10 +332,13 @@ class _OTPState extends State<OTP> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: Text("OTP invalid or expired!"),
+            content: Text(
+              "OTP invalid or expired!",
+              style: TextStyle(color: Theme.of(context).accentColor),
+            ),
             actions: [
               RaisedButton(
-                color: PrimaryColors.backgroundColor,
+                color: Theme.of(context).cardColor,
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -341,11 +346,30 @@ class _OTPState extends State<OTP> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     "Close",
-                    style: TextStyle(color: Colors.yellow),
+                    style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 ),
               ),
             ],
+          );
+        });
+  }
+
+  _showMessageDialog(message) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            elevation: 4,
+            backgroundColor: PrimaryColors.backgroundColor,
+            content: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor),
+            ),
           );
         });
   }
@@ -359,5 +383,6 @@ class _OTPState extends State<OTP> {
     _BEENAME.put("dpUrl", bee.dpUrl);
     _BEENAME.put("myActiveStatus", (bee.active) ? "true" : "false");
     _BEENAME.put("myWallet", bee.walletAmount.toString());
+    _BEENAME.put("myRating", bee.myRating.toString());
   }
 }

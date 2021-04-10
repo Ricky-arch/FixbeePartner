@@ -8,5 +8,9 @@ class CustomizeServiceModel extends ViewModel{
  bool deletingSelectedService=false;
  List<ServiceOptionModel> unselectedServiceOptionModel=[];
  int numberOfUnselectedServices=0;
+ bool availableForRemoval=true;
+ bool checkingAvailabilityForRemoval=false;
+ bool isDeletedSuccessfully=false;
+ String errorMessage;
 }
 

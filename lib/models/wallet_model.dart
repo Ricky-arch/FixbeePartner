@@ -14,6 +14,9 @@ class WalletModel extends ViewModel{
   String paymentID;
   String signature;
   bool isProcessed=false;
+  bool whileWithdrawing=false;
+  bool validatingAvailability=false;
+  bool availableForWithdrawal=false;
   List<BankModel> bankAccountList=[];
   String referenceId;
   List<VpaModel> vpaList=[];

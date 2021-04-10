@@ -35,10 +35,10 @@ class _OrderWidgetState extends State<OrderWidget> {
     return Padding(
       padding: EdgeInsets.all(8),
       child: Container(
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: PrimaryColors.backgroundColor,
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          border: Border.all(color: PrimaryColors.whiteColor),
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.all(Radius.circular(25)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -74,7 +74,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
-                              color: PrimaryColors.whiteColor),
+                              color: Theme.of(context).accentColor),
                         ),
                       ),
                     ],
@@ -84,7 +84,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 17,
-                        color: Colors.red),
+                        color: Theme.of(context).errorColor),
                   )
                 ],
               ),
@@ -105,7 +105,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
-                      color: PrimaryColors.whiteColor),
+                      color: Theme.of(context).accentColor),
                 )
               ])),
               Divider(
@@ -153,30 +153,30 @@ class _OrderWidgetState extends State<OrderWidget> {
                                 fontWeight: FontWeight.bold),
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 8),
-                                child: Text(
+                        child: Container(
+                           width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration( color: Theme.of(context).primaryColor),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
                                   'SWIPE RIGHT TO ACCEPT',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                      color: PrimaryColors.yellowColor,
+                                      color: Theme.of(context).canvasColor,
                                       fontWeight: FontWeight.bold),
-                                )),
-                            Icon(
-                              Icons.arrow_right_alt_rounded,
-                              color: Colors.green,
-                            )
-                          ],
-                        )),
+                                ),
+                                Icon(
+                                  Icons.arrow_right_alt_rounded,
+                                  color: Theme.of(context).canvasColor,
+                                )
+                              ],
+                            ))),
                   ),
                 ],
               ),
-
-
             ],
           ),
         ),

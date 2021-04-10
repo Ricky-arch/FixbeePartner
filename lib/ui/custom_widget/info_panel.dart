@@ -11,26 +11,29 @@ class InfoPanel extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
           children: <Widget>[
-            Container(
-              width: MediaQuery.of(context).size.width / 2 - 100,
-              child: Text(
-                title,
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                    color: Colors.deepOrange,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500),
+            Expanded(
+              child: Container(
+
+                child: Text(
+                  title,
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                      color: Colors.deepOrange,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                ),
               ),
             ),
-            Container(
-              width: MediaQuery.of(context).size.width / 2,
-              child: Text(
-                answer,
-                textAlign: TextAlign.end,
-                maxLines: null,
-                style: TextStyle(color: Colors.white, fontSize: 14),
+            Expanded(
+              child: Container(
+                child: Text(
+                  answer,
+                  textAlign: TextAlign.end,
+                  maxLines: null,
+                  style: TextStyle(color: Theme.of(context).accentColor, fontSize: 14),
+                ),
               ),
             )
           ],

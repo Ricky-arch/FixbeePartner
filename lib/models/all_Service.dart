@@ -6,10 +6,11 @@ class AllService extends ViewModel {
   List<ServiceOptionModel> selectedServices=[];
   List<ServiceOptionModel> parentServices=[];
   List<ServiceOptionModel> childServices=[];
+
   bool fetching=false;
   bool fetchingParent=false;
   bool fetchingChild=false;
-  bool saving=true;
+  bool saving=false;
   bool selected=false;
   String selectedServiceID;
   String selectedParentId;

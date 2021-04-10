@@ -28,8 +28,8 @@ class _CustomButtonType1State extends State<CustomButtonType1> {
           child: Container(
             width: MediaQuery.of(context).size.width / 2 - widget.flexibleSize,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5.0),
-              color: Colors.orangeAccent.withOpacity(.9),
+              borderRadius: BorderRadius.circular(50.0),
+              color: Theme.of(context).primaryColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black,
@@ -44,7 +44,7 @@ class _CustomButtonType1State extends State<CustomButtonType1> {
               child: Text(
                 widget.text,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Theme.of(context).canvasColor),
               ),
             ),
           ),

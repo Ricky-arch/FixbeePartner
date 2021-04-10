@@ -71,47 +71,53 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
     return SafeArea(
       child: Scaffold(
           key: _scaffoldKey,
-          backgroundColor: PrimaryColors.backgroundColor,
-          appBar: AppBar(
-            backgroundColor: PrimaryColors.backgroundColor,
-            automaticallyImplyLeading: false,
-            title: Stack(
-              children: <Widget>[
-                Container(
-                    decoration:
-                        BoxDecoration(color: PrimaryColors.backgroundColor),
+          body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10.0, 12, 12, 0),
                     child: RichText(
+                      textAlign: TextAlign.start,
                       text: TextSpan(
                         children: <TextSpan>[
                           TextSpan(
-                              text: 'ADD CHANGES TO YOUR PERSONAL',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 15)),
+                            text: "Add changes to your  ",
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor),
+                          ),
+                          TextSpan(
+                            text:
+                            "Profile",
+                            style: TextStyle(
+                                fontSize: 28,
+                                color: Theme.of(context).accentColor,
+                                fontWeight: FontWeight.w500),
+                          ),
                         ],
                       ),
-                    ))
-              ],
-            ),
-          ),
-          body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-            return (viewModel.loading)
-                ? LinearProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    backgroundColor: PrimaryColors.backgroundColor,
-                  )
-                : SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ProfileTextFieldF(
-                          controller: _firstNameController,
-                          textInputType: TextInputType.text,
-                          labelText: "First Name",
-                          editable: true,
-                          upDate: (value) {
-                            String query = '''
+                    ),
+                  ),
+                  SizedBox(height: 10,),
+                  (viewModel.loading)
+                      ? LinearProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                          backgroundColor: PrimaryColors.backgroundColor,
+                        )
+                      : Column(
+                          children: [
+                            ProfileTextFieldF(
+                              controller: _firstNameController,
+                              textInputType: TextInputType.text,
+                              labelText: "First Name",
+                              editable: true,
+                              upDate: (value) {
+                                String query = '''
                             mutation{
                                 update(input:{
                                   name:{
@@ -126,31 +132,32 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                                 }
                               }
                             ''';
-                            _bloc.fire(UpdateProfileEvent.updateEachField,
-                                message: {'query': query}, onHandled: (e, m) {
-                              if (m.updated) {
-                                showInSnackBar(
-                                    'First Name Updated Successfully');
-                                _BEENAME.put('firstName', value);
-                                _BEENAME.put(
-                                    'myName',
-                                    getMyName(
-                                        value,
-                                        _BEENAME.get('middleName') ?? '',
-                                        _BEENAME.get('lastName') ?? ''));
-                              } else {
-                                showInSnackBar('Error Updating First Name');
-                              }
-                            });
-                          },
-                        ),
-                        ProfileTextFieldF(
-                          controller: _middleNameController,
-                          textInputType: TextInputType.text,
-                          labelText: "Middle Name",
-                          editable: true,
-                          upDate: (value) {
-                            String query = '''
+                                _bloc.fire(UpdateProfileEvent.updateEachField,
+                                    message: {'query': query},
+                                    onHandled: (e, m) {
+                                  if (m.updated) {
+                                    showInSnackBar(
+                                        'First Name Updated Successfully');
+                                    _BEENAME.put('firstName', value);
+                                    _BEENAME.put(
+                                        'myName',
+                                        getMyName(
+                                            value,
+                                            _BEENAME.get('middleName') ?? '',
+                                            _BEENAME.get('lastName') ?? ''));
+                                  } else {
+                                    showInSnackBar('Error Updating First Name');
+                                  }
+                                });
+                              },
+                            ),
+                            ProfileTextFieldF(
+                              controller: _middleNameController,
+                              textInputType: TextInputType.text,
+                              labelText: "Middle Name",
+                              editable: true,
+                              upDate: (value) {
+                                String query = '''
                             mutation{
                                 update(input:{
                                   name:{
@@ -165,31 +172,33 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                                 }
                               }
                             ''';
-                            _bloc.fire(UpdateProfileEvent.updateEachField,
-                                message: {'query': query}, onHandled: (e, m) {
-                              if (m.updated) {
-                                showInSnackBar(
-                                    'Middle Name Updated Successfully');
-                                _BEENAME.put('middleName', value);
-                                _BEENAME.put(
-                                    'myName',
-                                    getMyName(
-                                        _BEENAME.get('firstName'),
-                                        value ?? '',
-                                        _BEENAME.get('lastName') ?? ''));
-                              } else {
-                                showInSnackBar('Error Updating Middle Name');
-                              }
-                            });
-                          },
-                        ),
-                        ProfileTextFieldF(
-                          controller: _lastNameController,
-                          textInputType: TextInputType.text,
-                          labelText: "Last Name",
-                          editable: true,
-                          upDate: (value) {
-                            String query = '''
+                                _bloc.fire(UpdateProfileEvent.updateEachField,
+                                    message: {'query': query},
+                                    onHandled: (e, m) {
+                                  if (m.updated) {
+                                    showInSnackBar(
+                                        'Middle Name Updated Successfully');
+                                    _BEENAME.put('middleName', value);
+                                    _BEENAME.put(
+                                        'myName',
+                                        getMyName(
+                                            _BEENAME.get('firstName'),
+                                            value ?? '',
+                                            _BEENAME.get('lastName') ?? ''));
+                                  } else {
+                                    showInSnackBar(
+                                        'Error Updating Middle Name');
+                                  }
+                                });
+                              },
+                            ),
+                            ProfileTextFieldF(
+                              controller: _lastNameController,
+                              textInputType: TextInputType.text,
+                              labelText: "Last Name",
+                              editable: true,
+                              upDate: (value) {
+                                String query = '''
                             mutation{
                                 update(input:{
                                   name:{
@@ -204,54 +213,55 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                                 }
                               }
                             ''';
-                            _bloc.fire(UpdateProfileEvent.updateEachField,
-                                message: {'query': query}, onHandled: (e, m) {
-                              if (m.updated) {
-                                showInSnackBar(
-                                    'Last Name Updated Successfully');
-                                _BEENAME.put('lastName', value);
-                                _BEENAME.put(
-                                    'myName',
-                                    getMyName(
-                                        _BEENAME.get('firstName'),
-                                        _BEENAME.get('middleName') ?? '',
-                                        value ?? ''));
-                              } else {
-                                showInSnackBar('Error Updating Last Name');
-                              }
-                            });
-                          },
-                        ),
-                        ProfileTextFieldF(
-                          controller: _email,
-                          textInputType: TextInputType.emailAddress,
-                          labelText: "Email",
-                          editable: (_email.text.toString().isNotEmpty)
-                              ? false
-                              : true,
-                          upDate: (value) {},
-                        ),
-                        ProfileTextFieldF(
-                          controller: _phoneNumber,
-                          textInputType:
-                              TextInputType.numberWithOptions(decimal: false),
-                          lft: LengthLimitingTextInputFormatter(10),
-                          labelText: "Phone Number",
-                          editable: false,
-                        ),
-                        ProfileTextFieldF(
-                          controller: _altPhoneNumber,
-                          textInputType:
-                              TextInputType.numberWithOptions(decimal: false),
-                          lft: LengthLimitingTextInputFormatter(10),
-                          labelText: 'Alt Phone Number',
-                          editable: true,
-                          upDate: (value) {
-                            if (value.length < 10 || !isNumeric(value)) {
-                              log('invalid', name: 'alternatePhoneNumber');
-                              showInSnackBar('Invalid Phone Number');
-                            } else {
-                              String query = '''
+                                _bloc.fire(UpdateProfileEvent.updateEachField,
+                                    message: {'query': query},
+                                    onHandled: (e, m) {
+                                  if (m.updated) {
+                                    showInSnackBar(
+                                        'Last Name Updated Successfully');
+                                    _BEENAME.put('lastName', value);
+                                    _BEENAME.put(
+                                        'myName',
+                                        getMyName(
+                                            _BEENAME.get('firstName'),
+                                            _BEENAME.get('middleName') ?? '',
+                                            value ?? ''));
+                                  } else {
+                                    showInSnackBar('Error Updating Last Name');
+                                  }
+                                });
+                              },
+                            ),
+                            ProfileTextFieldF(
+                              controller: _email,
+                              textInputType: TextInputType.emailAddress,
+                              labelText: "Email",
+                              editable: (_email.text.toString().isNotEmpty)
+                                  ? false
+                                  : true,
+                              upDate: (value) {},
+                            ),
+                            ProfileTextFieldF(
+                              controller: _phoneNumber,
+                              textInputType: TextInputType.numberWithOptions(
+                                  decimal: false),
+                              lft: LengthLimitingTextInputFormatter(10),
+                              labelText: "Phone Number",
+                              editable: false,
+                            ),
+                            ProfileTextFieldF(
+                              controller: _altPhoneNumber,
+                              textInputType: TextInputType.numberWithOptions(
+                                  decimal: false),
+                              lft: LengthLimitingTextInputFormatter(10),
+                              labelText: 'Alt Phone Number',
+                              editable: true,
+                              upDate: (value) {
+                                if (value.length < 10 || !isNumeric(value)) {
+                                  log('invalid', name: 'alternatePhoneNumber');
+                                  showInSnackBar('Invalid Phone Number');
+                                } else {
+                                  String query = '''
                               mutation{
                                   update(input:{
                                     altPhone:"$value"
@@ -260,32 +270,35 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                                   }
                                 }
                               ''';
-                              _bloc.fire(UpdateProfileEvent.updateEachField,
-                                  message: {'query': query}, onHandled: (e, m) {
-                                if (m.updated) {
-                                  showInSnackBar(
-                                      'Alternate Phone Number Updated');
-                                } else {
-                                  showInSnackBar(
-                                      'Error Updating Alternate Phone Number');
+                                  _bloc.fire(UpdateProfileEvent.updateEachField,
+                                      message: {'query': query},
+                                      onHandled: (e, m) {
+                                    if (m.updated) {
+                                      showInSnackBar(
+                                          'Alternate Phone Number Updated');
+                                    } else {
+                                      showInSnackBar(
+                                          'Error Updating Alternate Phone Number');
+                                    }
+                                  });
                                 }
-                              });
-                            }
-                          },
+                              },
+                            ),
+                            ProfileTextFieldF(
+                              controller: _gender,
+                              labelText: "Gender",
+                              editable: false,
+                            ),
+                            ProfileTextFieldF(
+                              controller: _dateOfBirth,
+                              labelText: "Date of Birth",
+                              editable: false,
+                            ),
+                          ],
                         ),
-                        ProfileTextFieldF(
-                          controller: _gender,
-                          labelText: "Gender",
-                          editable: false,
-                        ),
-                        ProfileTextFieldF(
-                          controller: _dateOfBirth,
-                          labelText: "Date of Birth",
-                          editable: false,
-                        ),
-                      ],
-                    ),
-                  );
+                ],
+              ),
+            );
           })),
     );
   }

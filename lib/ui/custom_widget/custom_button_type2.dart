@@ -22,8 +22,8 @@ class _CustomButtonType2State extends State<CustomButtonType2> {
         child: Container(
 
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5.0),
-            color: Colors.blue,
+            borderRadius: BorderRadius.circular(50.0),
+            color: Theme.of(context).primaryColor,
             boxShadow: [
               BoxShadow(
                 color: Colors.black,
@@ -44,7 +44,7 @@ class _CustomButtonType2State extends State<CustomButtonType2> {
                   ),
                   Text(
                     widget.text,
-                    style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+                    style: TextStyle(fontWeight: FontWeight.bold,color: Theme.of(context).canvasColor, fontSize: 12),
                   ),
                 ],
               )),

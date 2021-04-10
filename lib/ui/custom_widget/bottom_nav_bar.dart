@@ -1,6 +1,7 @@
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/models/navigation_item.dart';
 import 'package:flutter/material.dart';
+import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 
 class BottomNavBar extends StatefulWidget {
   final Function(int) onPageSelected;
@@ -24,13 +25,13 @@ class _BottomNavBarState extends State<BottomNavBar>
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         )),
     BottomNavigationItem(
-        Icon(Icons.access_alarm),
+        Icon(LineAwesomeIcons.history),
         Text(
           "Log",
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         )),
     BottomNavigationItem(
-        Icon(Icons.monetization_on),
+        Icon(LineAwesomeIcons.indian_rupee_sign),
         Text(
           "Wallet",
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),

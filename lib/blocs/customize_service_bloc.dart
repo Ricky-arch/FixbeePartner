@@ -6,6 +6,9 @@ import 'package:fixbee_partner/events/customize_service_event.dart';
 import 'package:fixbee_partner/models/customize_service_model.dart';
 import 'package:fixbee_partner/models/service_options.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'package:fixbee_partner/utils/excerpt.dart';
+
+import '../Constants.dart';
 
 class CustomizeServiceBloc
     extends Bloc<CustomizeServiceEvent, CustomizeServiceModel>
@@ -22,6 +25,8 @@ class CustomizeServiceBloc
       return await deleteSelectedService(message);
     if (event == CustomizeServiceEvent.fetchAvailableServices)
       return await fetchAvailableServices();
+    if (event == CustomizeServiceEvent.checkAvailability)
+      return await checkAvailability();
     return latestViewModel;
   }
 
@@ -31,6 +36,8 @@ class CustomizeServiceBloc
         services{
           id
     	    name
+    	    image
+    	    excerpt
         }
       }
     }''';
@@ -44,7 +51,12 @@ class CustomizeServiceBloc
         ServiceOptionModel eachService = ServiceOptionModel();
         eachService.serviceName = service['name'];
         eachService.id = service['id'];
-        selectedService.add(eachService);
+        eachService.rawExcerpt = service['excerpt'];
+        eachService.excerpt = Excerpt(service['excerpt']);
+        if (service['image'] != null)
+          eachService.imageLink = "${EndPoints.DOCUMENT}${service['image']}";
+        if (eachService.id != null || eachService.serviceName != null)
+          selectedService.add(eachService);
       }
     });
 
@@ -58,7 +70,10 @@ class CustomizeServiceBloc
       CustomizeServiceEvent event, bool trackFlag, Map message) {
     if (event == CustomizeServiceEvent.fetchSelectedServices)
       latestViewModel..fetchingMyServices = trackFlag;
-
+    else if (event == CustomizeServiceEvent.deleteSelectedService)
+      return latestViewModel..deletingSelectedService = trackFlag;
+    else if (event == CustomizeServiceEvent.checkAvailability)
+      return latestViewModel..checkingAvailabilityForRemoval = trackFlag;
     return latestViewModel;
   }
 
@@ -84,6 +99,8 @@ class CustomizeServiceBloc
           services{
               id
     	        name
+    	        image
+    	        excerpt
             } 
           }
        }''';
@@ -95,19 +112,37 @@ class CustomizeServiceBloc
         if (service != null) {
           eachService.serviceName = service['name'];
           eachService.id = service['id'];
+          eachService.rawExcerpt = service['excerpt'];
+          eachService.excerpt = Excerpt(service['excerpt']);
+          if (service['image'] != null)
+            eachService.imageLink = "${EndPoints.DOCUMENT}${service['image']}";
           selectedService.add(eachService);
         }
       });
       return latestViewModel
         ..selectedServiceOptionModel = selectedService
-        ..numberOfSelectedServices = services.length;
+        ..numberOfSelectedServices = services.length
+        ..isDeletedSuccessfully = true;
     } catch (e) {
-      print(e);
+      return latestViewModel
+        ..isDeletedSuccessfully = false
+        ..errorMessage = e.toString();
     }
     return latestViewModel;
   }
 
   Future<CustomizeServiceModel> fetchAvailableServices() async {
     return latestViewModel;
+  }
+
+  Future<CustomizeServiceModel> checkAvailability() async {
+    String query = '''{
+  profile{
+   available
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    return latestViewModel
+      ..availableForRemoval = response['profile']['available'];
   }
 }

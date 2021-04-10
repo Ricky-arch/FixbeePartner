@@ -9,8 +9,10 @@ import 'package:fixbee_partner/ui/screens/add_services.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../Constants.dart';
+import 'all_service_selection_screen.dart';
 
 class CustomizeService extends StatefulWidget {
   @override
@@ -20,11 +22,17 @@ class CustomizeService extends StatefulWidget {
 class _CustomizeServiceState extends State<CustomizeService> {
   CustomizeServiceBloc _bloc;
   bool showDeleteButton = false;
+  List<String> mySelectedOrderId = [];
 
   @override
   void initState() {
     _bloc = CustomizeServiceBloc(CustomizeServiceModel());
-    _bloc.fire(CustomizeServiceEvent.fetchSelectedServices);
+
+    _bloc.fire(CustomizeServiceEvent.fetchSelectedServices, onHandled: (e, m) {
+      for (var i in m.selectedServiceOptionModel) {
+        mySelectedOrderId.add(i.id);
+      }
+    });
     super.initState();
   }
 
@@ -38,120 +46,152 @@ class _CustomizeServiceState extends State<CustomizeService> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: PrimaryColors.backgroundColor,
-          automaticallyImplyLeading: false,
-          title: Stack(
-            children: <Widget>[
-              Container(
-                  decoration:
-                      BoxDecoration(color: PrimaryColors.backgroundColor),
-                  child: RichText(
-                    text: TextSpan(
-                      children: <TextSpan>[
-                        TextSpan(
-                            text: 'CUSTOMIZE SERVICE',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 15)),
-                      ],
-                    ),
-                  ))
-            ],
-          ),
-        ),
-        floatingActionButton: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.remove_circle_outline_rounded,
-                size: 50,
-              ),
-              onPressed: () {
-                setState(() {
-                  if (!showDeleteButton)
-                    showDeleteButton = true;
-                  else
-                    showDeleteButton = false;
-                });
-              },
-              padding: EdgeInsets.fromLTRB(0, 0, 8, 0),
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            FloatingActionButton(
-              mini: false,
-              elevation: 4,
-              backgroundColor: Colors.black,
-              child: Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 30,
-              ),
-              onPressed: () async {
-                await Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                  return AddServices();
-                }));
-                _bloc.fire(CustomizeServiceEvent.fetchSelectedServices);
-              },
-            ),
-          ],
-        ),
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
-          return ListView(
+          return Column(
             children: [
-              Column(
-                children: [
-                  (viewModel.fetchingMyServices)
-                      ? LinearProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                          backgroundColor: PrimaryColors.backgroundColor,
-                        )
-                      :
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10.0, 12, 10, 10),
-                    child: Row(
-                      children: [
-                        Text(
-                          "SERVICES:",
-                          style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
-                      ],
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20),
+                child: Row(
+                  children: [
+                    Text(
+                      "Your ",
+                      style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).accentColor),
                     ),
-                  ),
-                ],
+                    SvgPicture.asset(
+                      'assets/custom_icons/bucket.svg',
+                      color: Theme.of(context).primaryColor,
+                      height: 30,
+                      width: 30,
+                    ),
+                  ],
+                ),
               ),
-              ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: viewModel.selectedServiceOptionModel.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Column(
-                          children: [
-                            ServiceBanner(
-                              serviceName: viewModel
-                                  .selectedServiceOptionModel[index]
-                                  .serviceName,
-                              showDeleteIcon: showDeleteButton,
-                              deleteService: () {
-                                _showJobDeletionDialog(
-                                    viewModel.selectedServiceOptionModel[index]
-                                        .serviceName,
-                                    viewModel
-                                        .selectedServiceOptionModel[index].id);
-                              },
-                            ),
-                          ],
-                        );
-                      })
-
+              (viewModel.fetchingMyServices)
+                  ? LinearProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      backgroundColor: PrimaryColors.backgroundColor,
+                    )
+                  : SizedBox(),
+              (viewModel.deletingSelectedService)
+                  ? LinearProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      backgroundColor: PrimaryColors.backgroundColor,
+                    )
+                  : SizedBox(),
+              (viewModel.checkingAvailabilityForRemoval)
+                  ? LinearProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      backgroundColor: PrimaryColors.backgroundColor,
+                    )
+                  : SizedBox(),
+              Expanded(
+                child: Stack(
+                  children: [
+                    ListView.builder(
+                        padding: EdgeInsets.only(bottom: 60),
+                        itemCount: viewModel.selectedServiceOptionModel.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ServiceBanner(
+                            serviceName: viewModel
+                                .selectedServiceOptionModel[index].serviceName,
+                            showDeleteIcon: showDeleteButton,
+                            image: viewModel
+                                .selectedServiceOptionModel[index].imageLink,
+                            excerpt: viewModel
+                                .selectedServiceOptionModel[index].excerpt,
+                            deleteService: () async {
+                              var value = await _showConfirmDialog(
+                                  viewModel.selectedServiceOptionModel[index]
+                                      .serviceName,
+                                  viewModel
+                                      .selectedServiceOptionModel[index].id);
+                              if(value){
+                                _bloc.fire(
+                                    CustomizeServiceEvent.deleteSelectedService,
+                                    message: {
+                                      'serviceId':
+                                      '${viewModel.selectedServiceOptionModel[index].id}'
+                                    }, onHandled: (e, m) {
+                                  if (m.isDeletedSuccessfully)
+                                    _showMessageDialog('Deleted Successfully');
+                                  else
+                                    _showMessageDialog(m.errorMessage);
+                                });
+                              }
+                            },
+                          );
+                        }),
+                    Positioned(
+                      bottom: 16,
+                      right: 16,
+                      child: (viewModel.selectedServiceOptionModel.length != 0)
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                RaisedButton(
+                                  onPressed: () {
+                                    _bloc.fire(
+                                        CustomizeServiceEvent.checkAvailability,
+                                        onHandled: (e, m) {
+                                      if (m.availableForRemoval) {
+                                        setState(() {
+                                          if (!showDeleteButton)
+                                            showDeleteButton = true;
+                                          else
+                                            showDeleteButton = false;
+                                        });
+                                      } else {
+                                        _showMessageDialog(
+                                            'You cannot remove services if you have an active order!');
+                                      }
+                                    });
+                                  },
+                                  color: Theme.of(context).primaryColor,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(50)),
+                                  child: Text(
+                                    "Remove",
+                                    style: TextStyle(
+                                        color: Theme.of(context).canvasColor),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                FloatingActionButton(
+                                  mini: true,
+                                  elevation: 4,
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                  child: Icon(
+                                    Icons.add,
+                                    color: Theme.of(context).canvasColor,
+                                    size: 30,
+                                  ),
+                                  onPressed: () async {
+                                    bool addedNewService =
+                                        await Navigator.push(context,
+                                            MaterialPageRoute(builder: (ctx) {
+                                      return AllServiceSelection(
+                                        mySelectOrderId: mySelectedOrderId,
+                                      );
+                                    }));
+                                    if (addedNewService ?? false)
+                                      _bloc.fire(CustomizeServiceEvent
+                                          .fetchSelectedServices);
+                                  },
+                                ),
+                              ],
+                            )
+                          : SizedBox(),
+                    )
+                  ],
+                ),
+              ),
             ],
           );
         }),
@@ -159,54 +199,104 @@ class _CustomizeServiceState extends State<CustomizeService> {
     );
   }
 
-  _showJobDeletionDialog(String serviceName, String serviceId) {
+  _showMessageDialog(message) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            elevation: 4,
+            backgroundColor: Theme.of(context).cardColor,
             content: Text(
-              "Are you sure you want to remove service $serviceName?",
-              maxLines: null,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).accentColor),
             ),
-            actions: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: RaisedButton(
-                  color: PrimaryColors.backgroundColor,
-                  onPressed: () {
-                    _bloc.fire(CustomizeServiceEvent.deleteSelectedService,
-                        message: {'serviceId': '$serviceId'},
-                        onHandled: (e, m) {
-                      Navigator.pop(context);
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "YES",
-                      style: TextStyle(color: Colors.orangeAccent),
-                    ),
+          );
+        });
+  }
+
+  _showConfirmDialog(String serviceName, String serviceId) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: PrimaryColors.backgroundColor,
+            elevation: 2,
+            insetPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Wrap(
+              children: [
+                Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Text(
+                          "Are you sure you want to remove service $serviceName?",
+                          style: TextStyle(
+                              color: PrimaryColors.whiteColor, fontSize: 16),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Spacer(),
+                          RaisedButton(
+                            color: PrimaryColors.backgroundColor,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "Cancel",
+                                style:
+                                    TextStyle(color: PrimaryColors.yellowColor),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context, false);
+                            },
+                          ),
+                          SizedBox(
+                            height: 15,
+                            child: Container(
+                              color: PrimaryColors.yellowColor,
+                            ),
+                            width: 3,
+                          ),
+                          RaisedButton(
+                            color: PrimaryColors.backgroundColor,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "Confirm",
+                                style:
+                                    TextStyle(color: PrimaryColors.yellowColor),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context, true);
+                            },
+                          ),
+                          SizedBox(
+                            width: 20,
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      )
+                    ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: RaisedButton(
-                  color: PrimaryColors.backgroundColor,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "NO",
-                      style: TextStyle(color: Colors.orangeAccent),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           );
         });
   }

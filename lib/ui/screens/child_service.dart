@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbee_partner/models/all_Service.dart';
+import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
+import 'package:fixbee_partner/utils/excerpt.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
+import '../../data_store.dart';
 
 class ChildService extends StatefulWidget {
   final Future<AllService> childServices;
@@ -20,161 +23,260 @@ class _ChildServiceState extends State<ChildService> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: PrimaryColors.backgroundcolorlight,
-        appBar: AppBar(
-          backgroundColor: PrimaryColors.backgroundColor,
-          automaticallyImplyLeading: false,
-          title: Stack(
-            children: <Widget>[
-              Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration:
-                      BoxDecoration(color: PrimaryColors.backgroundColor),
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 45,
-                        width: 50,
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: (widget.imageUrl == null)
-                            ? Image.asset("assets/logo/new_launcher_icon.png")
-                            : CachedNetworkImage(
-                                fit: BoxFit.cover,
-                                imageUrl: widget.imageUrl,
-                              ),
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: widget.title,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 15)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )),
-            ],
-          ),
-        ),
         body: FutureBuilder<AllService>(
             future: widget.childServices,
             builder: (context, snapshot) {
               return (!snapshot.hasData)
-                  ? Center(child: CircularProgressIndicator())
-                  : Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      child: Column(
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: snapshot.data.childServices.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              bool checkBoxValue =
-                                  snapshot.data.childServices[index].selected;
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 8.0),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(10)),
-                                          border: Border.all(
-                                              color: Colors.tealAccent)),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0, vertical: 12),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              height: 60,
-                                              width: 75,
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 8),
-                                              child: (snapshot
-                                                          .data
-                                                          .childServices[index]
-                                                          .imageLink ==
-                                                      null)
-                                                  ? Image.asset(
-                                                      "assets/logo/new_launcher_icon.png")
-                                                  : CachedNetworkImage(
-                                                      fit: BoxFit.cover,
-                                                      imageUrl: snapshot
-                                                          .data
-                                                          .childServices[index]
-                                                          .imageLink,
-                                                    ),
-                                            ),
-                                            SizedBox(
-                                              width: 20,
-                                            ),
-                                            Container(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2,
-                                              child: Text(
-                                                snapshot
-                                                    .data
-                                                    .childServices[index]
-                                                    .serviceName,
-                                                style: TextStyle(
-                                                    color: PrimaryColors
-                                                        .backgroundColor,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14),
+                  ? Center(child: CustomCircularProgressIndicator())
+                  : Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0, vertical: 30),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 45,
+                                width: 50,
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: (widget.imageUrl == null)
+                                    ? Image.asset(
+                                        "assets/logo/new_launcher_icon.png")
+                                    : CachedNetworkImage(
+                                        fit: BoxFit.cover,
+                                        imageUrl: widget.imageUrl,
+                                        httpHeaders: {
+                                          'authorization': DataStore.token
+                                        },
+                                      ),
+                              ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Expanded(
+                                child: RichText(
+                                  textAlign: TextAlign.start,
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: "Skills related to: ",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w500,
+                                            color:
+                                                Theme.of(context).accentColor),
+                                      ),
+                                      TextSpan(
+                                        text: "${widget.title}",
+                                        style: TextStyle(
+                                            fontSize: 25,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        (snapshot.data.childServices.length == 0)
+                            ? Center(
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "No items available!  ",
+                                        style: TextStyle(
+                                            color:
+                                                Theme.of(context).accentColor,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Icon(
+                                        Icons.sentiment_dissatisfied_rounded,
+                                        color: Theme.of(context).errorColor,
+                                        size: 30,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : Expanded(
+                                child: ListView.builder(
+                                  itemCount: snapshot.data.childServices.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    var excerpt = snapshot
+                                        .data.childServices[index].excerpt;
+                                    bool checkBoxValue = snapshot
+                                        .data.childServices[index].selected;
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0, vertical: 8),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context).cardColor),
+                                        child: Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 12),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                height: 60,
+                                                width: 75,
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                          .symmetric(
+                                                      horizontal: 0,
+                                                      vertical: 8),
+                                                  child: (snapshot
+                                                              .data
+                                                              .childServices[
+                                                                  index]
+                                                              .imageLink ==
+                                                          null)
+                                                      ? Image.asset(
+                                                          "assets/logo/new_launcher_icon.png")
+                                                      : CachedNetworkImage(
+                                                          fit: BoxFit.cover,
+                                                          imageUrl: snapshot
+                                                              .data
+                                                              .childServices[
+                                                                  index]
+                                                              .imageLink,
+                                                          httpHeaders: {
+                                                            'authorization':
+                                                                DataStore.token
+                                                          },
+                                                        ),
+                                                ),
                                               ),
-                                            ),
-                                            Spacer(),
-                                            Checkbox(
-                                              value: checkBoxValue,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  if (value)
+                                              SizedBox(
+                                                width: 20,
+                                              ),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      child: Text(
+                                                          snapshot
+                                                              .data
+                                                              .childServices[
+                                                                  index]
+                                                              .serviceName
+                                                              .toUpperCase(),
+                                                          style: TextStyle(
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .accentColor,
+                                                              fontSize: 14,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    _footer(excerpt)
+                                                  ],
+                                                ),
+                                              ),
+                                              // SizedBox(width:50),
+
+                                              Checkbox(
+                                                checkColor: Theme.of(context)
+                                                    .accentColor,
+                                                activeColor:
+                                                    Theme.of(context).cardColor,
+                                                value: checkBoxValue,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    if (value)
+                                                      snapshot
+                                                          .data.selectedServices
+                                                          .add(snapshot.data
+                                                                  .childServices[
+                                                              index]);
+                                                    else
+                                                      snapshot
+                                                          .data.selectedServices
+                                                          .remove(snapshot.data
+                                                                  .childServices[
+                                                              index]);
                                                     snapshot
-                                                        .data.selectedServices
-                                                        .add(snapshot.data
-                                                                .childServices[
-                                                            index]);
-                                                  else
-                                                    snapshot
-                                                        .data.selectedServices
-                                                        .remove(snapshot.data
-                                                                .childServices[
-                                                            index]);
-                                                  snapshot
-                                                      .data
-                                                      .childServices[index]
-                                                      .selected = value;
-                                                  checkBoxValue = value;
-                                                });
-                                              },
-                                            ),
-                                          ],
+                                                        .data
+                                                        .childServices[index]
+                                                        .selected = value;
+                                                    checkBoxValue = value;
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          )
-                        ],
-                      ),
+                              ),
+                      ],
                     );
             }),
       ),
     );
+  }
+
+  Widget excerptField(String excerpt) {
+    return Row(
+      children: [
+        Icon(
+          Icons.circle,
+          color: Theme.of(context).hintColor,
+          size: 5,
+        ),
+        SizedBox(
+          width: 5,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2.0),
+            child: Text(
+              excerpt ?? "",
+              style: TextStyle(
+                  color: Theme.of(context).hintColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500),
+              textAlign: TextAlign.justify,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _footer(Excerpt excerpt) {
+    if (excerpt.bulletPoints != null && excerpt.bulletPoints.isNotEmpty)
+      return Column(
+        children: excerpt.bulletPoints.map((e) {
+          return excerptField(e);
+        }).toList(),
+      );
+    else if (excerpt.text != null && excerpt.text.isNotEmpty)
+      return excerptField(excerpt.text);
+    else if (excerpt.rawString != null && excerpt.rawString.isNotEmpty)
+      return excerptField(excerpt.rawString);
+    else
+      return SizedBox();
   }
 }

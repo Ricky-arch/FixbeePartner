@@ -29,11 +29,12 @@ class _DocumentViewerPageState extends State<DocumentViewerPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: PrimaryColors.backgroundColor,
+          backgroundColor: Theme.of(context).canvasColor,
           title: Text(
             widget.documentName.toString().toUpperCase(),
             style: TextStyle(
-                fontWeight: FontWeight.bold, color: PrimaryColors.whiteColor),
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor),
           ),
           automaticallyImplyLeading: false,
         ),
@@ -42,7 +43,11 @@ class _DocumentViewerPageState extends State<DocumentViewerPage> {
           child: Center(
               child: CachedNetworkImage(
             placeholder: (context, url) {
-              return CircularProgressIndicator();
+              return CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).accentColor),
+                backgroundColor: Theme.of(context).canvasColor,
+              );
             },
             imageUrl: urlConstructor(),
             httpHeaders: {'authorization': '${DataStore.token}'},

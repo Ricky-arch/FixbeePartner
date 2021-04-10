@@ -21,7 +21,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget> {
       children: [
         Center(
             child: Image.asset(
-          "assets/logo/dead_bee.png",
+          "assets/logo/partner_logo.png",
           height: 100,
           width: 100,
         )),

@@ -52,15 +52,7 @@ class _AvailableAccountsState extends State<AvailableAccounts> {
                               fontSize: 14, fontWeight: FontWeight.w300),
                         ),
                       ),
-                      widget.verified
-                          ? Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 8, 8, 8),
-                              child: Icon(
-                                Icons.check_box,
-                                color: Colors.blue,
-                              ),
-                            )
-                          : SizedBox(),
+
                     ],
                   ),
                   Flexible(
@@ -70,7 +62,6 @@ class _AvailableAccountsState extends State<AvailableAccounts> {
                         child: Text(
                           widget.accountHoldersName,
                           overflow: TextOverflow.ellipsis,
-                          //textAlign: TextAlign.justify,
                           style: TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w600),
                         ),
@@ -97,7 +88,6 @@ class _AvailableAccountsState extends State<AvailableAccounts> {
                             child: Text(
                               widget.accountNumber,
                               maxLines: null,
-                              //textAlign: TextAlign.justify,
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.w600),
                             ),

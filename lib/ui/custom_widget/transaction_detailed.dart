@@ -1,7 +1,9 @@
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/models/history_model.dart';
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:fixbee_partner/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'custom_panel.dart';
 
@@ -32,190 +34,123 @@ class _TransactionDetailedState extends State<TransactionDetailed> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "TRANSACTION RECEIPT",
-                          style: TextStyle(
-                              color: Colors.orangeAccent,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Theme(
+                                  child:
+                                      SelectableText.rich(TextSpan(children: [
+                                    TextSpan(
+                                      text: "Transaction Receipt\n\n",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          "Reference Id: ${widget.transaction.referenceId}",
+                                      style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ])),
+                                  data: Theme.of(context).copyWith(
+                                    textSelectionColor:
+                                        FixbeeColors.kCardColorLighter,
+                                  )),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 25.0),
+                              child: GestureDetector(
+                                  onTap: () async {
+                                    await Clipboard.setData(new ClipboardData(
+                                        text: widget.transaction.referenceId));
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                        content: Text(
+                                            'Reference id copied to clipboard!')));
+                                  },
+                                  child: Icon(
+                                    Icons.copy,
+                                    size: 20,
+                                    color: Theme.of(context).hintColor,
+                                  )),
+                            )
+                          ],
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "REFERENCE ID: ${widget.transaction.referenceId}",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold),
-                        )
                       ],
                     ),
                   ),
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    border: Border.all(color: Colors.tealAccent)),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    widget.transaction.column.toUpperCase(),
-                    style: TextStyle(
-                        color: Colors.orange,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
+            subTitle(widget.transaction.column.toUpperCase()),
             Container(
               child: Column(
+
                 children: [
+
                   CustomPanel(
                     title: 'Amount:',
                     value: Constants.rupeeSign +
                         " " +
                         (widget.transaction.amount / 100).toStringAsFixed(2),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                    child: Divider(
-                      color: Colors.tealAccent,
-                    ),
-                  ),
+
                   (widget.transaction.fundAccountID != null)
-                      ? Column(
-                          children: [
-                            CustomPanel(
-                              title: 'Funds Account Id:',
-                              value: widget.transaction.fundAccountID,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                              child: Divider(
-                                color: Colors.tealAccent,
-                              ),
-                            ),
-                          ],
-                        )
+                      ? CustomPanel(
+                        title: 'Funds Account Id:',
+                        value: widget.transaction.fundAccountID,
+                      )
                       : SizedBox(),
                   (widget.transaction.payoutId != null)
                       ? Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                    border:
-                                        Border.all(color: Colors.tealAccent)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "PAYOUT",
-                                    style: TextStyle(
-                                        color: Colors.orange,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            subTitle('PAYOUT'),
                             CustomPanel(
                               title: 'Payout Id:',
                               value: widget.transaction.payoutId,
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                              child: Divider(
-                                color: Colors.tealAccent,
-                              ),
-                            ),
+
                             CustomPanel(
                               title: 'Status:',
                               value: widget.transaction.payout.status
                                   .toUpperCase(),
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                              child: Divider(
-                                color: Colors.tealAccent,
-                              ),
-                            ),
+
                             CustomPanel(
                               title: 'Mode:',
                               value: widget.transaction.payout.mode,
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                              child: Divider(
-                                color: Colors.tealAccent,
-                              ),
-                            ),
-                            CustomPanel(
-                              title: 'Utr:',
-                              value: widget.transaction.payout.utr,
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                              child: Divider(
-                                color: Colors.tealAccent,
-                              ),
-                            ),
+
+                            (widget.transaction.payout.utr != null)
+                                ? CustomPanel(
+                                    title: 'Utr:',
+                                    value: widget.transaction.payout.utr,
+                                  )
+                                : SizedBox(),
+                            // (widget.transaction.payout.utr != null)
+                            //     ? Padding(
+                            //         padding: const EdgeInsets.fromLTRB(
+                            //             16.0, 4, 16, 0),
+                            //         child: Divider(
+                            //           color: Colors.tealAccent,
+                            //         ),
+                            //       )
+                            //     : SizedBox(),
                           ],
                         )
                       : SizedBox(),
                   (widget.transaction.paymentId != null)
                       ? Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(10)),
-                                    border:
-                                        Border.all(color: Colors.tealAccent)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "PAYMENT",
-                                    style: TextStyle(
-                                        color: Colors.orange,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            subTitle('PAYMENT'),
                             CustomPanel(
                               title: 'Payment Id:',
                               value: widget.transaction.paymentId,
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                              child: Divider(
-                                color: Colors.tealAccent,
-                              ),
-                            ),
+
                           ],
                         )
                       : SizedBox(),
@@ -227,25 +162,12 @@ class _TransactionDetailedState extends State<TransactionDetailed> {
                               value: widget.transaction.payment.status
                                   .toUpperCase(),
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                              child: Divider(
-                                color: Colors.tealAccent,
-                              ),
-                            ),
                             CustomPanel(
                               title: 'Method:',
                               value: widget.transaction.payment.method
                                   .toUpperCase(),
                             ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                              child: Divider(
-                                color: Colors.tealAccent,
-                              ),
-                            ),
+
                             (widget.transaction.payment.refundStatus != null)
                                 ? Column(
                                     children: [
@@ -254,13 +176,7 @@ class _TransactionDetailedState extends State<TransactionDetailed> {
                                         value: widget
                                             .transaction.payment.refundStatus,
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 4, 16, 0),
-                                        child: Divider(
-                                          color: Colors.tealAccent,
-                                        ),
-                                      ),
+
                                       CustomPanel(
                                         title: 'Amount Refunded:',
                                         value: Constants.rupeeSign +
@@ -269,88 +185,81 @@ class _TransactionDetailedState extends State<TransactionDetailed> {
                                                 .amountRefunded
                                                 .toString(),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 4, 16, 0),
-                                        child: Divider(
-                                          color: Colors.tealAccent,
-                                        ),
-                                      ),
                                     ],
                                   )
                                 : SizedBox(),
                             (widget.transaction.payment.captured != null)
-                                ? Column(
-                                    children: [
-                                      CustomPanel(
-                                        title: 'Captured:',
-                                        value: widget
-                                            .transaction.payment.captured
-                                            .toString()
-                                            .toUpperCase(),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 4, 16, 0),
-                                        child: Divider(
-                                          color: Colors.tealAccent,
-                                        ),
-                                      ),
-                                    ],
-                                  )
+                                ? CustomPanel(
+                                  title: 'Captured:',
+                                  value: widget
+                                      .transaction.payment.captured
+                                      .toString()
+                                      .toUpperCase(),
+                                )
                                 : SizedBox()
                           ],
                         )
                       : SizedBox(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          border: Border.all(color: Colors.tealAccent)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "CREATED AT",
-                          style: TextStyle(
-                              color: Colors.orange,
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ),
+                  subTitle('CREATED AT'),
                   CustomPanel(
                     title: 'Date:',
                     value: dtf.getDate(widget.transaction.createdAt),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                    child: Divider(
-                      color: Colors.tealAccent,
-                    ),
-                  ),
+
                   CustomPanel(
                     title: 'Time:',
                     value: dtf.getTime(widget.transaction.createdAt),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16.0, 4, 16, 0),
-                    child: Divider(
-                      color: Colors.tealAccent,
-                    ),
-                  ),
+
                 ],
               ),
             ),
             SizedBox(
               height: 10,
-            )
+            ),
+            applicationIcon(),
+            SizedBox(height: 30,),
+            // Image.asset();
           ],
         ),
       ),
+    );
+  }
+  Widget subTitle(title){
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          Container(
+
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                title,
+                style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          Spacer()
+        ],
+      ),
+    );
+  }
+  Widget applicationIcon(){
+    return Center(
+        child:  Image.asset(
+          "assets/logo/splash_logo.png",
+          width: MediaQuery.of(context).size.width / 5,
+          //height: MediaQuery.of(context).size.height / 2,
+        )
+
     );
   }
 }

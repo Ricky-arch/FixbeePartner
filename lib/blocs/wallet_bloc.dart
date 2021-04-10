@@ -33,6 +33,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     if (event == WalletEvent.fetchWalletAmountAfterTransaction) {
       return await fetchWalletAmountAfterTransaction();
     }
+    if (event == WalletEvent.checkAvailability) {
+      return await checkAvailability();
+    }
     return latestViewModel;
   }
 
@@ -56,8 +59,8 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     Map response = await CustomGraphQLClient.instance.query(query);
 
     DataStore.me.walletAmount = response['wallet']['amount'];
-    latestViewModel.walletAmount=response['wallet']['amount'];
-    print(latestViewModel.walletAmount.toString()+'FROM BLOC');
+    latestViewModel.walletAmount = response['wallet']['amount'];
+
     return latestViewModel..amount = response['wallet']['amount'];
   }
 
@@ -112,6 +115,10 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
       latestViewModel..whileFetchingWalletAmount = trackFlag;
     if (event == WalletEvent.withdrawAmount)
       return latestViewModel..whileWithDrawingAmount = trackFlag;
+    if (event == WalletEvent.createWalletDeposit)
+      return latestViewModel..isProcessed = trackFlag;
+    if(event== WalletEvent.checkAvailability)
+      return latestViewModel..validatingAvailability=trackFlag;
     return latestViewModel;
   }
 
@@ -146,14 +153,12 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
   } 
 }
 ''';
-    try{
-      Map response=await CustomGraphQLClient.instance.mutate(query);
+    try {
+      Map response = await CustomGraphQLClient.instance.mutate(query);
+      return latestViewModel;
+    } catch (e) {
       return latestViewModel;
     }
-    catch(e){
-      return latestViewModel;
-    }
-
   }
 
   Future<WalletModel> createWalletDeposit(Map<String, dynamic> message) async {
@@ -192,5 +197,16 @@ class WalletBloc extends Bloc<WalletEvent, WalletModel>
     Map response = await CustomGraphQLClient.instance.mutate(query);
     log(response['isProcessed'].toString(), name: "isProcessed");
     return latestViewModel..isProcessed = response['isProcessed'];
+  }
+
+  Future<WalletModel> checkAvailability() async {
+    String query = '''{
+  profile{
+   available
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    return latestViewModel
+      ..availableForWithdrawal = response['profile']['available'];
   }
 }

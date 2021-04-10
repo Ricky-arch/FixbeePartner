@@ -1,3 +1,4 @@
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:fixbee_partner/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
 
@@ -31,9 +32,9 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
             padding: const EdgeInsets.all(8.0),
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  border: Border.all(color: Colors.tealAccent)),
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -45,7 +46,7 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                         child: Text(
                           "User : " + widget.userName.toUpperCase(),
                           style: TextStyle(
-                              color: Colors.black,
+                              color: Theme.of(context).accentColor,
                               fontSize: 16,
                               fontWeight: FontWeight.bold),
                         ),
@@ -54,36 +55,43 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                     Container(
                       padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                         children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width / 1.7,
-                            child: Text(
-                              "Service : "+widget.serviceName,
-                              maxLines: null,
-                              style: TextStyle(
-                                  color: PrimaryColors.backgroundColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(color: Colors.tealAccent),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                          Expanded(
+                            child: Container(
+
                               child: Text(
-                                widget.status.toUpperCase(),
+                                "Service : " + widget.serviceName,
+                                maxLines: null,
                                 style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 10,
+                                    color: Colors.tealAccent,
                                     fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 4),
+                            decoration: BoxDecoration(
+                                color: FixbeeColors.kCardColorLighter,
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(20))),
+                            child: Text(
+                              widget.status.toUpperCase(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: (widget.status.toUpperCase() ==
+                                          'ASSIGNED')
+                                      ? Theme.of(context).errorColor
+                                      : Theme.of(context).accentColor,
+                                  fontSize: 15),
+                            ),
+                          )
                         ],
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
+                      padding: const EdgeInsets.fromLTRB(8.0, 8, 8, 8),
                       child: Divider(
                         color: Colors.tealAccent,
                         thickness: 1,
@@ -98,8 +106,8 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                               onTap: widget.seeMore,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                  color: Colors.orangeAccent.withOpacity(.9),
+                                  borderRadius: BorderRadius.circular(50.0),
+                                  color: Theme.of(context).primaryColor,
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black,
@@ -111,11 +119,13 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                                   ],
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12.0, vertical: 4),
                                   child: Text(
-                                    "LAUNCH",
+                                    "Launch",
                                     style: TextStyle(
-                                        fontSize: 10,
+                                        color: Theme.of(context).canvasColor,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.bold),
                                   ),
                                 ),
@@ -125,14 +135,28 @@ class _ActiveOrderHistoryState extends State<ActiveOrderHistory> {
                           Spacer(),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(dtf.getDate(widget.timeStamp)),
+                            child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 4),
+                                decoration: BoxDecoration(
+                                    color: FixbeeColors.kCardColorLighter,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Text(dtf.getDate(widget.timeStamp))),
                           ),
                           SizedBox(
                             width: 10,
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(dtf.getTime(widget.timeStamp)),
+                            child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 4),
+                                decoration: BoxDecoration(
+                                    color: FixbeeColors.kCardColorLighter,
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                child: Text(dtf.getTime(widget.timeStamp))),
                           ),
                         ],
                       ),

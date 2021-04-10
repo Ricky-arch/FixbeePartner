@@ -2,14 +2,21 @@ import 'dart:developer';
 
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/history_event.dart';
+import 'package:fixbee_partner/models/billing_rating_model.dart';
 import 'package:fixbee_partner/models/history_model.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/order_model.dart';
 import 'package:fixbee_partner/models/orders_model.dart';
+import 'package:fixbee_partner/models/service_options.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
+import 'package:flutter/material.dart';
 
 import '../Constants.dart';
 import '../bloc.dart';
+
+
+
+
 
 class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     with Trackable<HistoryEvent, HistoryModel> {
@@ -23,8 +30,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     if (event == HistoryEvent.fetchDebitTransactions)
       return await fetchDebitTransactions();
     if (event == HistoryEvent.fetchActiveOrder) return await fetchActiveOrder();
-    if (event == HistoryEvent.fetchBasicPastOrderDetails)
-      return await fetchBasicPastOrderDetails();
+
     if (event == HistoryEvent.fetchCompletePastOrderInfo)
       return await fetchCompletePastOrderInfo(message);
     if (event == HistoryEvent.getTransactions)
@@ -185,7 +191,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
       Orders order = Orders();
       Map activeOrder = response['activeOrder'];
       latestViewModel.isOrderActive = true;
-      order.id=activeOrder['id'];
+      order.id = activeOrder['id'];
       order.quantity = activeOrder['service']['quantity'];
       order.placeId = activeOrder['location']['placeId'];
       order.serviceName = activeOrder['service']['name'];
@@ -194,8 +200,8 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
       order.user.profilePicId = activeOrder['user']['displayPicture'];
       order.status = activeOrder['status'];
       order.address = activeOrder['location']['fullAddress'];
-      order.otp=activeOrder['otp'];
-      order.cashOnDelivery = activeOrder['mode'] == "COD" ? true : false;
+      order.otp = activeOrder['otp'];
+      order.cashOnDelivery = activeOrder['mode'] == "cod" ? true : false;
       List<Service> addOns = [];
       if (activeOrder['addons'].length != 0) {
         for (Map addon in activeOrder['addons']) {
@@ -213,148 +219,127 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
     }
   }
 
-  Future<HistoryModel> fetchBasicPastOrderDetails() async {
-    String query = '''{Me{
-  ...on Bee{
-    Orders{
-      ID
-      Amount
-      Service{
-        Name
-      }
-      Status
-      Timestamp
-    }
-  }
-}}''';
-    Map response = await CustomGraphQLClient.instance.query(query);
-    List orders = response['Me']['Orders'];
-    if (orders.isEmpty || orders.length == 0) {
-      if (orders == null) return latestViewModel..pastOrderPresent = false;
-    }
-    List<OrderModel> pastOrders = [];
-    orders.forEach((order) {
-      if (order != null && order['Service'] != null) {
-        OrderModel pastOrder = OrderModel();
-        pastOrder.orderId = order['ID'];
-        pastOrder.serviceName = order['Service']['Name'];
-        pastOrder.status = order['Status'];
-        pastOrder.totalAmount = order['Amount'];
-        pastOrder.timeStamp = order['Timestamp'];
-        pastOrders.add(pastOrder);
-      }
-    });
-    return latestViewModel
-      ..pastOrderList = pastOrders
-      ..pastOrderPresent = true;
-  }
+  Future<List<Orders>> fetchBasicPastOrderDetails(int skip) async {
 
-  Future<HistoryModel> fetchCompletePastOrderInfo(
-      Map<String, dynamic> message) async {
-    String orderID = message['orderID'];
+
+
     String query = '''{
-  Order(_id: "$orderID") {
-    Quantity
-    
-    ID
-    User{
-      Name{
-        Firstname
-        Middlename
-        Lastname
+  orders (skip:$skip, limit:10){
+   
+    id
+    user {
+      fullName
+    }
+    status
+    createdAt
+    service {
+      name
+      quantity
+      pricing {
+        basePrice
+        serviceCharge
+        taxPercent
       }
     }
-    Location{
-      Address{
-        Line1
+    mode
+    addons {      
+      name
+      quantity
+      priceable
+      pricing {
+        basePrice
+        serviceCharge
+        taxPercent
+        quantifiable
+
       }
     }
-    Amount
-    BasePrice
-    ServiceCharge
-    TaxCharge
-    Discount
-    Status
-    Quantity
-    Addons {
-      Quantity
-      BasePrice
-      ServiceCharge
-      TaxCharge
-      Service {
-        Name
-        Pricing {
-          BasePrice
-          ServiceCharge
-          TaxPercent
-        }
-      }
-      Amount
-    }
-    Service {
-      Name
-      Pricing {
-        BasePrice
-        ServiceCharge
-        TaxPercent
-      }
-    }
-    Timestamp
-    Location {
-      Address {
-        Line1
-      }
-    }
-    CashOnDelivery
   }
 }
 ''';
     Map response = await CustomGraphQLClient.instance.query(query);
-    OrderModel order = OrderModel();
-    order.orderId = response['Order']['ID'];
-    order.totalAmount = response['Order']['Amount'];
-    order.status = response['Order']['Status'];
-    order.serviceName = response['Order']['Service']['Name'];
-    order.orderAmount = response['Order']['Amount'];
-    order.orderBasePrice = response['Order']['BasePrice'];
-    order.orderServiceCharge = response['Order']['ServiceCharge'];
-    order.orderDiscount = response['Order']['Discount'];
-    order.orderTaxCharge = response['Order']['TaxCharge'];
-    order.basePrice = response['Order']['Service']['Pricing']['BasePrice'];
-    order.serviceCharge =
-        response['Order']['Service']['Pricing']['ServiceCharge'];
-    order.taxPercent = response['Order']['Service']['Pricing']['TaxPercent'];
-    order.timeStamp = response['Order']['TimeStamp'];
-    order.cashOnDelivery = response['Order']['CashOnDelivery'];
-    order.addressLine = response['Order']['Location']['Address']['Line1'];
-    order.quantity = response['Order']['Quantity'];
-    order.userName = getUserName(
-        response['Order']['User']['Name']['Firstname'],
-        response['Order']['User']['Name']['Middlename'],
-        response['Order']['User']['Name']['Lastname']);
-    order.addons = [];
-    int b = 0, s = 0;
-    List addons = response['Order']['Addons'];
-    for (Map addon in addons) {
-      Service service = Service()
-        ..serviceName = addon['Service']['Name']
-        ..basePrice = addon['Service']['Pricing']['BasePrice']
-        ..serviceCharge = addon['Service']['Pricing']['ServiceCharge']
-        ..taxPercent = addon['Service']['Pricing']['TaxPercent']
-        ..addOnBasePrice = addon['BasePrice']
-        ..addOnServiceCharge = addon['ServiceCharge']
-        ..addOnTaxCharge = addon['TaxCharge']
-        ..quantity = addon['Quantity']
-        ..amount = addon['Amount'];
-      b = b + addon['BasePrice'];
-      s = s + addon['ServiceCharge'];
-      order.addons.add(service);
+
+    List orders = response['orders'];
+
+    List<Orders> pastOrders = [];
+    orders.forEach((order) {
+      if (order != null && order['service'] != null) {
+        Orders pastOrder = Orders();
+        pastOrder.id = order['id'];
+        pastOrder.serviceName = order['service']['name'];
+        pastOrder.status = order['status'];
+        pastOrder.amount = 00;
+        pastOrder.cashOnDelivery = order['mode'] == 'COD' ? true : false;
+        pastOrder.timeStamp = order['createdAt'];
+        pastOrders.add(pastOrder);
+      }
+    });
+    return pastOrders;
+  }
+
+  Future<HistoryModel> fetchCompletePastOrderInfo(
+      Map<String, dynamic> message) async {
+    String orderID = message['id'];
+    String query = '''{
+  receipt(id:"$orderID") {
+    referenceId
+    amount
+    serviceCharge
+    tax
+    currency
+    payment {
+      amount
+      currency
+      status
+      method
+      refund_status
+      amount_refunded
+      captured
     }
-    log(order.userName, name: "NAME");
-    return latestViewModel
-      ..jobModel = order
-      ..jobModel.totalAddonBasePrice = b
-      ..jobModel.totalAddonServiceCharge = s;
+    client {
+      name
+      phone
+    }
+    services {
+      description
+      amount
+      tax
+    }
+  }
+}
+''';
+    try {
+      Map response = await CustomGraphQLClient.instance.query(query);
+      Map receiptMap = response['receipt'];
+      Receipt receipt = Receipt();
+      receipt.referenceId = receiptMap['referenceId'];
+      receipt.userName = receiptMap['client']['name'];
+      receipt.serviceCharge = receiptMap['serviceCharge'];
+      receipt.amount = receiptMap['amount'];
+      if (receiptMap['payment'] != null) {
+        receipt.payment.amount = receiptMap['payment']['amount'];
+        receipt.payment.status = receiptMap['payment']['status'];
+        receipt.payment.amountRefunded =
+            receiptMap['payment']['amount_refunded'];
+        receipt.payment.refundStatus = receiptMap['payment']['refund_status'];
+        receipt.payment.method = receiptMap['payment']['method'];
+        receipt.payment.captured = receiptMap['payment']['captured'];
+      } else
+        receipt.payment = null;
+      List services = receiptMap['services'];
+      List<ServiceOptionModel> serviceList = [];
+      services.forEach((service) {
+        ServiceOptionModel s = ServiceOptionModel();
+        s.serviceName = service['description'];
+        s.amount = service['amount'];
+        serviceList.add(s);
+      });
+      receipt.services = serviceList;
+      return latestViewModel..receipt = receipt;
+    } catch (e) {
+      print(e);
+    }
+    return latestViewModel;
   }
 
   String getUserName(String first, middle, last) {
@@ -402,44 +387,44 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryModel>
   } 
 }
 ''';
-    try {
-      latestViewModel.transactions = [];
-      Map response = await CustomGraphQLClient.instance.query(query);
-      List listOfTransaction = response['transactions'];
-      List<Transactions> list = [];
-      listOfTransaction.forEach((transaction) {
-        Transactions t = Transactions();
-        t.column = transaction['column'];
-        t.amount = transaction['amount'];
-        t.currency = transaction['currency'];
-        t.referenceId = transaction['referenceId'];
-        t.paymentId = transaction['paymentId'];
-        t.payoutId = transaction['payoutId'];
-        t.createdAt = transaction['createdAt'];
-        t.fundAccountID = transaction['faId'];
-        if (transaction['payout'] != null) {
-          t.payout.amount = transaction['payout']['amount'];
-          t.payout.currency = transaction['payout']['currency'];
-          t.payout.status = transaction['payout']['status'];
-          t.payout.mode = transaction['payout']['mode'];
-          t.payout.utr = transaction['payout']['utr'];
-        }
-        if (transaction['payment'] != null) {
-          t.payment.amount = transaction['payment']['amount'];
-          t.payment.currency = transaction['payment']['currency'];
-          t.payment.status = transaction['payment']['status'];
-          t.payment.method = transaction['payment']['method'];
-          t.payment.refundStatus = transaction['payment']['refund_status'];
-          t.payment.amountRefunded = transaction['payment']['amount_refunded'];
-          t.payment.captured = transaction['payment']['captured'];
-        }
-        list.add(t);
-      });
-      print(list.length.toString() + 'LIST');
-      return latestViewModel..transactions = list;
-    } catch (e) {
-      print(e);
-    }
-    return latestViewModel;
+
+    latestViewModel.transactions = [];
+    Map response = await CustomGraphQLClient.instance.query(query);
+    List listOfTransaction = response['transactions'];
+    List<Transactions> list = [];
+    listOfTransaction.forEach((transaction) {
+      Transactions t = Transactions();
+      t.column = transaction['column'];
+      t.amount = transaction['amount'];
+      t.currency = transaction['currency'];
+      t.referenceId = transaction['referenceId'];
+      t.paymentId = transaction['paymentId'];
+      t.payoutId = transaction['payoutId'];
+      t.createdAt = transaction['createdAt'];
+      t.fundAccountID = transaction['faId'];
+      print(t.toString() + 'CHECK 1');
+      if (transaction['payout'] != null) {
+        t.payout.amount = transaction['payout']['amount'];
+        t.payout.currency = transaction['payout']['currency'];
+        t.payout.status = transaction['payout']['status'];
+        t.payout.mode = transaction['payout']['mode'];
+        t.payout.utr = transaction['payout']['utr'];
+      }
+      if (transaction['payment'] != null) {
+        t.payment.amount = transaction['payment']['amount'];
+        t.payment.currency = transaction['payment']['currency'];
+        t.payment.status = transaction['payment']['status'];
+        t.payment.method = transaction['payment']['method'];
+        t.payment.refundStatus = transaction['payment']['refund_status'];
+        t.payment.amountRefunded = transaction['payment']['amount_refunded'];
+        t.payment.captured = transaction['payment']['captured'];
+      }
+      list.add(t);
+    });
+    return latestViewModel..transactions = list;
+    // } catch (e) {
+    //   print(e+'ERROR AT CREDIT');
+    // }
+    // return latestViewModel;
   }
 }

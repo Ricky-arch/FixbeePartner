@@ -41,8 +41,8 @@ class _ProfileTextFieldFState extends State<ProfileTextFieldF> {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
-            color: PrimaryColors.backgroundColor,
-            border: Border.all(color: Colors.orange)),
+            color: Theme.of(context).cardColor
+           ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -102,12 +102,12 @@ class _ProfileTextFieldFState extends State<ProfileTextFieldF> {
                         padding: const EdgeInsets.fromLTRB(0.0, 0, 8, 0),
                         child: Container(
                           decoration: BoxDecoration(
-                              border: Border.all(color: Colors.blue, width: 2)),
+                              border: Border.all(color: Theme.of(context).hintColor, width: 2)),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
                               buttonTitle,
-                              style: TextStyle(color: Colors.orange),
+                              style: TextStyle(color: Theme.of(context).primaryColor),
                             ),
                           ),
                         ),

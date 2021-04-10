@@ -4,6 +4,7 @@ import 'package:fixbee_partner/events/bank_details_event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/available_accounts.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
+import 'package:fixbee_partner/ui/custom_widget/vpa_withdrawal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
@@ -47,22 +48,33 @@ class _TransactionAccountState extends State<TransactionAccount> {
               slivers: [
                 SliverAppBar(
                   automaticallyImplyLeading: false,
-//               pinned: true,
-//                floating: false,
+                  backgroundColor: Theme.of(context).cardColor,
                   titleSpacing: 0,
-                  backgroundColor: PrimaryColors.backgroundColor,
                   elevation: 3,
                   title: Container(
-                    height: 32,
-                    color: Colors.transparent,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(10.0, 12, 12, 0),
-                      child: Text(
-                        "Your Transaction Accounts",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold),
+                      child: RichText(
+                        textAlign: TextAlign.start,
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: "Your  ",
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).primaryColor),
+                            ),
+                            TextSpan(
+                              text:
+                              "Transaction Account",
+                              style: TextStyle(
+                                  fontSize: 28,
+                                  color: Theme.of(context).accentColor,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -83,7 +95,7 @@ class _TransactionAccountState extends State<TransactionAccount> {
                           tabs: [
                             Tab(
                               child: Text(
-                                'BANK-ACCOUNTS',
+                                'TRANSACTIONS',
                                 style: TextStyle(
                                     color: Colors.amber,
                                     fontSize: 13,
@@ -92,7 +104,16 @@ class _TransactionAccountState extends State<TransactionAccount> {
                             ),
                             Tab(
                               child: Text(
-                                'VPA',
+                                'PAST',
+                                style: TextStyle(
+                                    color: Colors.amber,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Tab(
+                              child: Text(
+                                'IN-PROGRESS',
                                 style: TextStyle(
                                     color: Colors.amber,
                                     fontSize: 13,
@@ -104,7 +125,8 @@ class _TransactionAccountState extends State<TransactionAccount> {
                   ),
                 ),
                 SliverFillRemaining(
-                  child: FutureBuilder<BankDetailsModel>(
+                  child:
+                  FutureBuilder<BankDetailsModel>(
                     future: _bloc.fetchAllAccounts(),
                     builder: (ctx, snapshot) {
                       if (!snapshot.hasData)
@@ -123,7 +145,8 @@ class _TransactionAccountState extends State<TransactionAccount> {
                           children: [
                             Tab(
                               child: Scaffold(
-                                body: (snapshot.data.bankAccountList.length != 0)
+                                body: (snapshot.data.bankAccountList.length !=
+                                        0)
                                     ? ListView(
                                         children: [
                                           ListView.builder(
@@ -174,9 +197,10 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                         ],
                                       )
                                     : Center(
-                                      child: Text('No Bank Accounts Added',
-                                          style: TextStyle(color: Colors.black)),
-                                    ),
+                                        child: Text('No Bank Accounts Added',
+                                            style:
+                                                TextStyle(color: Colors.black)),
+                                      ),
                                 floatingActionButton: FloatingActionButton(
                                   mini: true,
                                   elevation: 0,
@@ -227,9 +251,10 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                         ],
                                       )
                                     : Center(
-                                      child: Text('No Vpa Accounts Added',
-                                          style: TextStyle(color: Colors.black)),
-                                    ),
+                                        child: Text('No Vpa Accounts Added',
+                                            style:
+                                                TextStyle(color: Colors.black)),
+                                      ),
                                 floatingActionButton: FloatingActionButton(
                                   mini: true,
                                   elevation: 0,
@@ -240,7 +265,11 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                     size: 30,
                                   ),
                                   onPressed: () {
+                                   // await Navigator.push(context, MaterialPageRoute(builder: (context){
+                                   //   return VpaWithdrawal();
+                                   // }));
                                     _newVpaAddressForm(context);
+                                    // _bloc.fetchAllAccounts();
                                   },
                                 ),
                               ),
@@ -402,8 +431,9 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                         _accountHoldersName.clear();
                                         _ifscCode.clear();
                                         _bankAccountNumber.clear();
-                                        if (m.updated) {
-                                          _bloc.fire(BankDetailsEvent.fetchAvailableAccounts);
+                                        if (m.bankAccountAdded) {
+                                          _bloc.fire(BankDetailsEvent
+                                              .fetchAvailableAccounts);
                                           showDialog(
                                               context: context,
                                               builder: (BuildContext context) {
@@ -487,8 +517,9 @@ class _TransactionAccountState extends State<TransactionAccount> {
         });
   }
 
-  _newVpaAddressForm(context) {
-    showModalBottomSheet(
+  _newVpaAddressForm(context) async {
+    AvailableAccounts newAccount = await showModalBottomSheet<
+            AvailableAccounts>(
         backgroundColor: PrimaryColors.backgroundcolorlight,
         isScrollControlled: true,
         isDismissible: false,
@@ -571,8 +602,14 @@ class _TransactionAccountState extends State<TransactionAccount> {
                                               .toString()
                                               .trim()
                                         }, onHandled: (e, m) {
-                                      Navigator.pop(context);
                                       if (m.vpaAdded) {
+                                        AvailableAccounts account =
+                                            AvailableAccounts(
+                                          isBankAccount: false,
+                                          accountHoldersName:
+                                              _vpaController.text,
+                                        );
+                                        Navigator.pop(context, account);
                                         showDialog(
                                             context: context,
                                             builder: (BuildContext context) {
@@ -655,5 +692,6 @@ class _TransactionAccountState extends State<TransactionAccount> {
             ),
           );
         });
+
   }
 }

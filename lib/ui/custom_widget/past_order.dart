@@ -1,4 +1,5 @@
 import 'package:fixbee_partner/models/navigation_model.dart';
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:fixbee_partner/utils/date_time_formatter.dart';
 import 'package:flutter/material.dart';
 
@@ -6,31 +7,41 @@ import '../../Constants.dart';
 
 class PastOrder extends StatefulWidget {
   final String userName, serviceName, status;
+  final String orderId;
   final int amount;
+  final bool cashOnDelivery;
   final String timeStamp;
-  final Function seeMore;
+  final Function(String, bool) seeMore;
   final List<Service> addOns;
   final Color backGroundColor;
   final bool loading;
 
-  const PastOrder(
-      {Key key,
-      this.userName,
-      this.serviceName,
-      this.amount,
-      this.status,
-      this.timeStamp,
-      this.seeMore,
-      this.addOns,
-      this.backGroundColor,
-      this.loading})
-      : super(key: key);
+  const PastOrder({
+    Key key,
+    this.userName,
+    this.serviceName,
+    this.amount,
+    this.status,
+    this.timeStamp,
+    this.seeMore,
+    this.addOns,
+    this.backGroundColor,
+    this.loading,
+    this.orderId,
+    this.cashOnDelivery,
+  }) : super(key: key);
   @override
   _PastOrderState createState() => _PastOrderState();
 }
 
 class _PastOrderState extends State<PastOrder> {
-  DateTimeFormatter dtf = DateTimeFormatter();
+  DateTimeFormatter dtf;
+  @override
+  void initState() {
+    dtf = DateTimeFormatter.parse(widget.timeStamp);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -39,11 +50,11 @@ class _PastOrderState extends State<PastOrder> {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             decoration: BoxDecoration(
-                color: (widget.status.toString() != 'CANCELLED')
-                    ? widget.backGroundColor
-                    : Colors.grey,
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                border: Border.all(color: Colors.tealAccent)),
+              color: (widget.status.toString() != 'cancelled')
+                  ? widget.backGroundColor
+                  : Colors.grey,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -52,50 +63,45 @@ class _PastOrderState extends State<PastOrder> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          width: MediaQuery.of(context).size.width / 1.7,
-                          child: Text(
-                            widget.serviceName +
-                                " \u20B9 ${widget.amount / 100}",
-                            maxLines: null,
-                            style: TextStyle(
-                                color: PrimaryColors.backgroundColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(color: Colors.tealAccent),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                          child: Expanded(
                             child: Text(
-                              widget.status,
+                              widget.serviceName,
+                              maxLines: null,
                               style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 12,
+                                  color: Colors.tealAccent,
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          decoration: BoxDecoration(
+                              color: FixbeeColors.kCardColorLighter,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(20))),
+                          child: Text(
+                            widget.status.toUpperCase(),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    (widget.status.toUpperCase() == 'ASSIGNED')
+                                        ? Theme.of(context).errorColor
+                                        : Theme.of(context).accentColor,
+                                fontSize: 15),
+                          ),
+                        )
                       ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(8.0, 0, 8, 0),
-                    child: (widget.loading)
-                        ? Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: LinearProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                              backgroundColor: PrimaryColors.backgroundColor,
-                            ),
-                          )
-                        : Divider(
-                            color: Colors.tealAccent,
-                            thickness: 1,
-                          ),
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                    child: Divider(
+                      color: Theme.of(context).hintColor,
+                      thickness: .5,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
@@ -103,13 +109,15 @@ class _PastOrderState extends State<PastOrder> {
                       children: [
                         InkWell(
                           child: GestureDetector(
-                            onTap: widget.seeMore,
+                            onTap: () {
+                              widget.seeMore(
+                                  widget.orderId, widget.cashOnDelivery);
+                            },
                             child: Container(
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5.0),
-                                color: (widget.status.toString() != 'CANCELLED')
-                                    ? Colors.orangeAccent.withOpacity(.9)
-                                    : Colors.grey.withOpacity(.9),
+                                borderRadius: BorderRadius.circular(50.0),
+                                color: Theme.of(context).primaryColor,
+
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black,
@@ -126,6 +134,7 @@ class _PastOrderState extends State<PastOrder> {
                                   "SEE MORE",
                                   style: TextStyle(
                                       fontSize: 10,
+                                      color: Theme.of(context).canvasColor,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -135,14 +144,28 @@ class _PastOrderState extends State<PastOrder> {
                         Spacer(),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(dtf.getDate(widget.timeStamp)),
+                          child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 4),
+                              decoration: BoxDecoration(
+                                  color: FixbeeColors.kCardColorLighter,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
+                              child: Text(dtf.formattedDate)),
                         ),
                         SizedBox(
                           width: 10,
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(dtf.getTime(widget.timeStamp)),
+                          child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 4),
+                              decoration: BoxDecoration(
+                                  color: FixbeeColors.kCardColorLighter,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
+                              child: Text(dtf.formattedTime)),
                         ),
                       ],
                     ),

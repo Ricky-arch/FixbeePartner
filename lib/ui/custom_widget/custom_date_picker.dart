@@ -1,3 +1,5 @@
+import 'package:fixbee_partner/utils/colors.dart';
+import 'package:fixbee_partner/utils/themes.dart';
 import 'package:flutter/material.dart';
 
 import '../../Constants.dart';
@@ -22,7 +24,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
           return Theme(
             data: ThemeData.light().copyWith(
               colorScheme:
-                  ColorScheme.light(primary: PrimaryColors.backgroundColor),
+              ColorScheme.light(primary: PrimaryColors.backgroundColor),
               focusColor: Colors.yellow,
               backgroundColor: Colors.yellow,
               buttonTheme: ButtonThemeData(buttonColor: Colors.black),
@@ -51,7 +53,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: PrimaryColors.backgroundColor,
+            color: Theme.of(context).canvasColor,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +65,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
-                      color: Colors.yellow),
+                      color: Theme.of(context).primaryColor),
                 ),
               ),
               SizedBox(
@@ -71,8 +73,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
               ),
               Container(
                 decoration: BoxDecoration(
-                    color: PrimaryColors.whiteColor,
-                    border: Border.all(color: PrimaryColors.backgroundColor)),
+                    color: Theme.of(context).cardColor,
+                    borderRadius: BorderRadius.all(Radius.circular(20))
+                ),
                 child: GestureDetector(
                   onTap: () {
                     _selectDate(context);
@@ -90,7 +93,7 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0, left: 4),
                         child: Text(
-                          "${selectedDate.toLocal()}".split(' ')[0],
+                          "${selectedDate.toString()}".split(' ')[0],
                           style: TextStyle(
                               fontSize: 12, fontWeight: FontWeight.bold),
                         ),

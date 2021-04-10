@@ -5,4 +5,5 @@ class RegistrationModel extends ViewModel{
   bool registered=false;
   bool sent=false;
   bool loading=false;
+  String error;
 }

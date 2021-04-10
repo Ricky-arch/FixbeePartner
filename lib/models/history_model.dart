@@ -1,13 +1,14 @@
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/view_model.dart';
 
+import 'billing_rating_model.dart';
 import 'order_model.dart';
 import 'orders_model.dart';
 
 class HistoryModel extends ViewModel {
  List<Transactions> transactions=[];
  Orders orders=Orders();
- List<OrderModel> pastOrderList= [];
+ List<Orders> pastOrderList= [];
  List<CreditTransactions> credits=[];
  List <DebitTransactions> debits=[];
  List<CreditTransactions> creditTransactions= [];
@@ -22,7 +23,7 @@ class HistoryModel extends ViewModel {
  bool loadingDetails=false;
  bool isCreditPresent=false;
  bool isDebitPresent=false;
-
+ Receipt receipt= Receipt();
  String checkActiveOrderStatus;
  String selectedOrderID;
 }
@@ -55,7 +56,7 @@ class Payout{
  String currency, status, mode, utr;
 }
 class Payment{
- int amount, amountRefunded;
- String currency, status, method, refundStatus;
+ int amount;
+ String currency, status, method, refundStatus, amountRefunded;
  bool captured;
 }

@@ -27,17 +27,17 @@ class _DatePickerState extends State<DatePicker> {
         return null;
       },
       style: TextStyle(
-          color: PrimaryColors.backgroundColor, fontWeight: FontWeight.bold),
+          color: Theme.of(context).accentColor, fontWeight: FontWeight.bold),
       decoration: InputDecoration(
+        border: UnderlineInputBorder(borderSide: BorderSide.none),
         errorStyle: TextStyle(
-            color: PrimaryColors.whiteColor,
-            fontWeight: FontWeight.bold),
+            color: Theme.of(context).errorColor, fontWeight: FontWeight.bold),
         errorText: "Your age must be above 18 years",
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).cardColor,
         filled: true,
         labelText: "Date of Birth*",
-        labelStyle:
-            TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),
+        labelStyle: TextStyle(
+            color: Theme.of(context).hintColor, fontWeight: FontWeight.bold),
       ),
       format: format,
       onShowPicker: (context, currentValue) {
@@ -45,8 +45,8 @@ class _DatePickerState extends State<DatePicker> {
             builder: (BuildContext context, Widget child) {
               return Theme(
                 data: ThemeData.light().copyWith(
-                  colorScheme: ColorScheme.light(
-                      primary: PrimaryColors.backgroundColor),
+                  colorScheme:
+                      ColorScheme.light(primary: PrimaryColors.backgroundColor),
                   focusColor: Colors.yellow,
                   backgroundColor: Colors.yellow,
                   buttonTheme: ButtonThemeData(buttonColor: Colors.black),
@@ -56,32 +56,10 @@ class _DatePickerState extends State<DatePicker> {
             },
             context: context,
             firstDate: DateTime(1950),
-            initialDate: currentValue ??
-                _currentDate.subtract(Duration(days: 365 * 18)),
+            initialDate:
+                currentValue ?? _currentDate.subtract(Duration(days: 365 * 18)),
             lastDate: _currentDate.subtract(Duration(days: 365 * 18)));
       },
     );
   }
-}
-
-class CustomTheme extends Theme {
-  static int _fullAlpha = 255;
-  static Color blueDark = new Color.fromARGB(_fullAlpha, 51, 92, 129);
-  static Color blueLight = new Color.fromARGB(_fullAlpha, 116, 179, 206);
-  static Color yellow = new Color.fromARGB(_fullAlpha, 252, 163, 17);
-  static Color red = new Color.fromARGB(_fullAlpha, 255, 85, 84);
-  static Color green = new Color.fromARGB(_fullAlpha, 59, 178, 115);
-
-  static Color activeIconColor = yellow;
-
-  CustomTheme(Widget child)
-      : super(
-            child: child,
-            data: new ThemeData(
-                primaryColor: blueDark,
-                accentColor: yellow,
-                cardColor: blueLight,
-                backgroundColor: blueDark,
-                highlightColor: red,
-                splashColor: green));
 }

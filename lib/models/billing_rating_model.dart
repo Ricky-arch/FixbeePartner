@@ -12,7 +12,7 @@ class BillingRatingModel extends ViewModel{
 }
 class Receipt{
   String referenceId;
-  int amount;
+  int amount, serviceCharge;
   Payment payment=Payment();
   String userName;
   List<ServiceOptionModel> services= [];

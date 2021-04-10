@@ -14,6 +14,7 @@ class UpdateProfileModel extends ViewModel {
   String alternatePhoneNumber;
   String emailAddress;
   String address1;
+  String fullAddress;
   String address2;
   String pinCode;
   String dob;
@@ -27,6 +28,7 @@ class UpdateProfileModel extends ViewModel {
   bool updatingAlternatePhoneNumber = false;
   bool updatingAddress = false;
   bool updatingPinCode = false;
+  bool updating=false;
 }
 
 class Address {

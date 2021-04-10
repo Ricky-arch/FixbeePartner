@@ -7,18 +7,29 @@ import 'package:hive/hive.dart';
 
 import 'package:image_picker/image_picker.dart';
 
-class DisplayPicture extends StatelessWidget {
+class DisplayPicture extends StatefulWidget {
   final Function(String path) onImagePicked;
   final String imageURl;
   final bool loading;
-  final ImagePicker _imagePicker = ImagePicker();
+  final bool verified;
+  final Function(bool) onVerifiedBee;
+
 
   DisplayPicture({
     Key key,
     @required this.onImagePicked,
     @required this.imageURl,
     this.loading = true,
+    this.verified, this.onVerifiedBee,
   }) : super(key: key);
+
+  @override
+  _DisplayPictureState createState() => _DisplayPictureState();
+}
+
+class _DisplayPictureState extends State<DisplayPicture> {
+  final ImagePicker _imagePicker = ImagePicker();
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -26,7 +37,7 @@ class DisplayPicture extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white,
+            color:Theme.of(context).accentColor,
           ),
           child: Padding(
             padding: EdgeInsets.all(0.010 * MediaQuery.of(context).size.width),
@@ -41,26 +52,28 @@ class DisplayPicture extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: PrimaryColors.backgroundcolorlight,
                   radius: 0.13 * MediaQuery.of(context).size.width,
-                  backgroundImage: (imageURl == null || imageURl.isEmpty)
+                  backgroundImage: (widget.imageURl == null ||
+                          widget.imageURl.isEmpty)
                       ? DataStore?.me?.dpUrl == null
                           ? null
                           : CachedNetworkImageProvider(DataStore.me.dpUrl,
                               headers: {'authorization': '${DataStore.token}'})
-                      : CachedNetworkImageProvider(imageURl,
+                      : CachedNetworkImageProvider(widget.imageURl,
                           headers: {'authorization': '${DataStore.token}'}),
-                  child: (DataStore?.me?.dpUrl == null && imageURl == null)
-                      ? SvgPicture.asset(
-                          "assets/logo/bee_outline.svg",
-                          width: 0.4 * MediaQuery.of(context).size.width,
-                          height: 0.4 * MediaQuery.of(context).size.width,
-                        )
-                      : SizedBox(),
+                  child:
+                      (DataStore?.me?.dpUrl == null && widget.imageURl == null)
+                          ? SvgPicture.asset(
+                              "assets/logo/bee_outline.svg",
+                              width: 0.4 * MediaQuery.of(context).size.width,
+                              height: 0.4 * MediaQuery.of(context).size.width,
+                            )
+                          : SizedBox(),
                 ),
               ),
             ),
           ),
         ),
-        loading
+        widget.loading
             ? Positioned(
                 child: Container(
                   child: CircularProgressIndicator(
@@ -77,9 +90,13 @@ class DisplayPicture extends StatelessWidget {
           right: 0.004 * MediaQuery.of(context).size.height,
           child: InkWell(
             onTap: () async {
-              PickedFile image =
-                  await _imagePicker.getImage(source: ImageSource.gallery);
-              if (image != null) onImagePicked(image.path);
+              if (!widget.verified) {
+                PickedFile image =
+                    await _imagePicker.getImage(source: ImageSource.gallery);
+                if (image != null) widget.onImagePicked(image.path);
+              }
+              else
+                widget.onVerifiedBee(widget.verified);
             },
             child: Container(
               decoration: BoxDecoration(

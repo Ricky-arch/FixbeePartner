@@ -80,6 +80,7 @@ class HomeBloc extends Bloc<HomeEvents, HomeModel>
     String query = '''{
   profile{
     active
+    documentsVerified
   }
 }''';
     Map response;

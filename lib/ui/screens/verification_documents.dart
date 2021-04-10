@@ -57,26 +57,37 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                             BoxDecoration(color: PrimaryColors.backgroundColor),
                         child: Row(
                           children: <Widget>[
-                            SizedBox(
-                              width: 5,
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                      text: 'ADD DOCUMENTS FOR VERIFICATION',
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 20),
+                              child: RichText(
+                                textAlign: TextAlign.start,
+                                text: TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: "Upload Documents!\n\n",
                                       style: TextStyle(
+                                          fontSize: 28,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 15)),
-                                ],
+                                          color:
+                                              Theme.of(context).primaryColor),
+                                    ),
+                                    TextSpan(
+                                      text: "To be a verified Bee",
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Theme.of(context).accentColor,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             Spacer(),
                             IconButton(
                               icon: Icon(
                                 Icons.info_outline,
-                                color: Colors.white,
+                                color: Theme.of(context).accentColor,
                                 size: 20,
                               ),
                               onPressed: () {},
@@ -88,8 +99,9 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               ),
               (viewModel.onFetchUploadedDocumentsList)
                   ? LinearProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      backgroundColor: PrimaryColors.backgroundColor,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).accentColor),
+                      backgroundColor: Theme.of(context).canvasColor,
                     )
                   : SingleChildScrollView(
                       child: Column(
@@ -126,7 +138,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                       path,
                                       "Identity_proof",
                                       _controllerID.onUpload,
-                                      [Constants.IDENTITY_PROOF_TAG]);
+                                      Constants.IDENTITY_PROOF_TAG);
                                 },
                                 loading: false,
                                 text: Text(viewModel.files == null
@@ -139,7 +151,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                         icon: Icon(
                                           Icons.remove_red_eye,
                                           size: 25,
-                                          color: Colors.white,
+                                          color: Theme.of(context).accentColor,
                                         ),
                                         onPressed: () {
                                           Navigator.push(context,
@@ -158,13 +170,8 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            child: Container(
-                              height: 2,
-                              width: MediaQuery.of(context).size.width,
-                              color: Colors.transparent,
-                            ),
+                          SizedBox(
+                            height: 12,
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(12, 8, 8, 0),
@@ -195,7 +202,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                       path,
                                       "Age_proof",
                                       _controllerAge.onUpload,
-                                      [Constants.AGE_PROOF_TAG]);
+                                      Constants.AGE_PROOF_TAG);
                                 },
                                 //imageURl: viewModel.fileUrl,
                                 loading: false,
@@ -209,7 +216,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                         icon: Icon(
                                           Icons.remove_red_eye,
                                           size: 25,
-                                          color: Colors.white,
+                                          color: Theme.of(context).accentColor,
                                         ),
                                         onPressed: () {
                                           Navigator.push(context,
@@ -228,13 +235,8 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            child: Container(
-                              height: 2,
-                              width: MediaQuery.of(context).size.width,
-                              color: Colors.transparent,
-                            ),
+                          SizedBox(
+                            height: 12,
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(12, 8, 8, 0),
@@ -265,7 +267,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                       path,
                                       "Address",
                                       _controllerAddress.onUpload,
-                                      ["${Constants.ADDRESS_PROOF_TAG}"]);
+                                      "${Constants.ADDRESS_PROOF_TAG}");
                                 },
                                 //imageURl: viewModel.fileUrl,
                                 loading: false,
@@ -279,7 +281,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                         icon: Icon(
                                           Icons.remove_red_eye,
                                           size: 25,
-                                          color: Colors.white,
+                                          color: Theme.of(context).accentColor,
                                         ),
                                         onPressed: () {
                                           Navigator.push(context,
@@ -298,13 +300,8 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(12, 8, 12, 8),
-                            child: Container(
-                              height: 2,
-                              width: MediaQuery.of(context).size.width,
-                              color: Colors.transparent,
-                            ),
+                          SizedBox(
+                            height: 12,
                           ),
                           Padding(
                             padding: EdgeInsets.fromLTRB(12, 8, 8, 0),
@@ -335,9 +332,8 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                       path,
                                       "Additional",
                                       _controllerAdditional.onUpload,
-                                      [Constants.ADDITIONAL_TAG]);
+                                      Constants.ADDITIONAL_TAG);
                                 },
-                                //imageURl: viewModel.fileUrl,
                                 loading: false,
                                 text: Text(viewModel.files == null
                                     ? "Document"
@@ -349,7 +345,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                         icon: Icon(
                                           Icons.remove_red_eye,
                                           size: 25,
-                                          color: Colors.white,
+                                          color: Theme.of(context).accentColor,
                                         ),
                                         onPressed: () {
                                           Navigator.push(context,
@@ -386,8 +382,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
     );
   }
 
-  onImagePicked(
-      String path, String fileName, Function onUpload, List<String> tags) {
+  onImagePicked(String path, String fileName, Function onUpload, String tags) {
     _bloc.fire(FileUploadEvent.uploadFile, message: {
       "path": "$path",
       "file": fileName,
@@ -396,7 +391,7 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
     }, onHandled: (e, m) {
       if (m.onErrorUpload)
         _showUploadStatusDialogBox(
-            "Error uploading file!\nFile must meet the requirements as per Fixbee, tap info for further details...");
+            "Error uploading file!\n\nTry uploading pictures less than 500-KB (jpeg/png recommended)");
       else
         _showUploadStatusDialogBox(fileName + " uploaded successfully!");
     });
@@ -404,14 +399,13 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
 
   _showUploadStatusDialogBox(message) {
     showDialog(
-
         context: context,
         builder: (context) {
           return AlertDialog(
-            backgroundColor: PrimaryColors.backgroundColor,
+            backgroundColor: Theme.of(context).canvasColor,
             title: Text(
               message,
-              style: TextStyle(color: PrimaryColors.whiteColor),
+              style: TextStyle(color: Theme.of(context).accentColor),
             ),
           );
         });

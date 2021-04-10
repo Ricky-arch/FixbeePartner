@@ -11,70 +11,72 @@ class NumericPad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: PrimaryColors.backgroundcolorlight,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
+      child: Padding(
+        padding: const EdgeInsets.only(top:12.0, bottom: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
 
-          Container(
-            height: MediaQuery.of(context).size.height * 0.10,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                buildNumber(1),
-                buildNumber(2),
-                buildNumber(3),
-              ],
+            Container(
+              height: MediaQuery.of(context).size.height * 0.09,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  buildNumber(1,context),
+                  buildNumber(2, context),
+                  buildNumber(3,context),
+                ],
+              ),
             ),
-          ),
 
-          Container(
-            height: MediaQuery.of(context).size.height * 0.10,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                buildNumber(4),
-                buildNumber(5),
-                buildNumber(6),
-              ],
+            Container(
+              height: MediaQuery.of(context).size.height * 0.09,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  buildNumber(4, context),
+                  buildNumber(5, context),
+                  buildNumber(6, context),
+                ],
+              ),
             ),
-          ),
 
-          Container(
-            height: MediaQuery.of(context).size.height * 0.10,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                buildNumber(7),
-                buildNumber(8),
-                buildNumber(9),
-              ],
+            Container(
+              height: MediaQuery.of(context).size.height * 0.09,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  buildNumber(7, context),
+                  buildNumber(8, context),
+                  buildNumber(9, context),
+                ],
+              ),
             ),
-          ),
 
-          Container(
-            height: MediaQuery.of(context).size.height * 0.10,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                buildEmptySpace(),
-                buildNumber(0),
-                buildBackspace(),
-              ],
+            Container(
+              height: MediaQuery.of(context).size.height * 0.09,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  buildEmptySpace(),
+                  buildNumber(0, context),
+                  buildBackspace(context),
+                ],
+              ),
             ),
-          ),
 
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget buildNumber(int number) {
+  Widget buildNumber(int number, context) {
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -85,7 +87,7 @@ class NumericPad extends StatelessWidget {
           padding: EdgeInsets.all(10),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.all(
                 Radius.circular(15),
               ),
@@ -96,7 +98,7 @@ class NumericPad extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F1F1F),
+                  color: Theme.of(context).primaryColor,
                 ),
               ),
             ),
@@ -106,7 +108,7 @@ class NumericPad extends StatelessWidget {
     );
   }
 
-  Widget buildBackspace() {
+  Widget buildBackspace(context) {
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -118,7 +120,7 @@ class NumericPad extends StatelessWidget {
           child: Container(
 
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.all(
                 Radius.circular(15),
               ),
@@ -127,7 +129,7 @@ class NumericPad extends StatelessWidget {
               child: Icon(
                 Icons.backspace,
                 size: 28,
-                color: Color(0xFF1F1F1F),
+                color: Theme.of(context).primaryColor,
               ),
             ),
           ),

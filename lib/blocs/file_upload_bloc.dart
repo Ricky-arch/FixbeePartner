@@ -1,15 +1,12 @@
-import 'dart:developer';
-
+import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/file_upload_event.dart';
 import 'package:fixbee_partner/models/fileModel.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 
-import '../Constants.dart';
 
 class FileUploadBloc extends Bloc<FileUploadEvent, FileModel>
     with Trackable<FileUploadEvent, FileModel> {
@@ -27,11 +24,7 @@ class FileUploadBloc extends Bloc<FileUploadEvent, FileModel>
   }
 
   Future<FileModel> uploadFile(
-      String path, String fileName, Function callback, List<String> t) async {
-    List tags = t.map((e) {
-      return '"$e"';
-    }).toList();
-    print(tags.toString());
+      String path, String fileName, Function callback, String t) async {
     MultipartFile multipartFile = await MultipartFile.fromPath(
       'image',
       path,
@@ -51,7 +44,7 @@ mutation($file: Upload!, $tags: [String]) {
     try {
       Map response = await CustomGraphQLClient.instance.mutate(
         query,
-        variables: {'file': multipartFile, 'tags': tags.toString()},
+        variables: {'file': multipartFile, 'tags': ["$t", Constants.DOCUMENTS_TAG]},
       );
       callback();
       return latestViewModel..onErrorUpload = false;
@@ -76,14 +69,8 @@ mutation($file: Upload!, $tags: [String]) {
       List medias = response['medias'];
       medias.forEach((media) {
         List tags = media['tags'];
-        if (tags[0][0].toString() != '[') {
-          allTags.add(tags[0]);
-          keys[tags[0]] = media['key'];
-        } else {
-          String tag = tags[0].substring(2, tags[0].length - 2);
-          keys[tag] = media['key'];
-          allTags.add(tag);
-        }
+        allTags.add(tags[0]);
+        keys[tags[0]]=media['key'];
       });
 
       return latestViewModel..uploadedDocuments = allTags..keys=keys;
@@ -92,29 +79,6 @@ mutation($file: Upload!, $tags: [String]) {
       return latestViewModel;
     }
 
-    // List<String> uploadedDocuments = [];
-    // List<File> files = [];
-    // List<Map<String, String>> test = [];
-    // Map response = await CustomGraphQLClient.instance.query(query);
-    // List documents = response['Me']['Documents'];
-    // if (documents.isNotEmpty) {
-    //   documents.forEach((document) {
-    //     if (document != null) {
-    //       Map<String, String> f = {};
-    //       f[document['filename']] = document['id'];
-    //       File file = File();
-    //       file.fileName = document['filename'];
-    //       file.fileId = document['id'];
-    //       files.add(file);
-    //       test.add(f);
-    //       uploadedDocuments.add(document['filename'].toString());
-    //     }
-    //   });
-    // }
-    // return latestViewModel
-    //   ..uploadedDocuments = uploadedDocuments
-    //   ..files = files
-    //   ..f = test;
   }
 
   @override

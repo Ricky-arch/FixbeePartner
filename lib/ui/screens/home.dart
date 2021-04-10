@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
   final Function(bool state) onSwitchChangedState;
@@ -29,8 +30,9 @@ class _HomeState extends State<Home> {
   _openHive() {
     _BEENAME = Hive.box<String>("BEE");
   }
-  _updateHive(bool status){
-    _BEENAME.put("myDocumentVerification",status.toString());
+
+  _updateHive(bool status) {
+    _BEENAME.put("myDocumentVerification", status.toString());
   }
 
   Future<bool> askForLocationPermissionIfDisabled() async {
@@ -39,6 +41,8 @@ class _HomeState extends State<Home> {
     return true;
   }
 
+  bool dialog = false;
+
   @override
   void initState() {
     _openHive();
@@ -46,10 +50,9 @@ class _HomeState extends State<Home> {
     askForLocationPermissionIfDisabled();
     _bloc = HomeBloc(HomeModel());
     _bloc.onSwitchChange = widget.onSwitchChangedState;
-    _bloc.fire(HomeEvents.getDocumentVerificationStatus, onHandled: (e,m){
+    _bloc.fire(HomeEvents.getDocumentVerificationStatus, onHandled: (e, m) {
       _updateHive(m.verifiedBee);
     });
-
     var marker = Marker(
         markerId: MarkerId("Center"),
         position: LatLng(23.829321, 91.277847),
@@ -78,7 +81,6 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: _bloc.widget(
           onViewModelUpdated: (ctx, viewModel) {
@@ -87,29 +89,36 @@ class _HomeState extends State<Home> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Container(
-                  height: 60,
                   decoration: BoxDecoration(
                       color: PrimaryColors.backgroundColor,
                       boxShadow: [BoxShadow(color: Colors.brown)]),
                   child: Row(
                     children: <Widget>[
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text("YOUR ACTIVITY STATUS",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                      Spacer(),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.lightbulb, color: Colors.green
-                        )
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10.0, 12, 12, 12),
+                          child: RichText(
+                            textAlign: TextAlign.start,
+                            text: TextSpan(
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: "Your  ",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).primaryColor),
+                                ),
+                                TextSpan(
+                                  text: "Activity Status",
+                                  style: TextStyle(
+                                      fontSize: 28,
+                                      color: Theme.of(context).accentColor,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -132,8 +141,13 @@ class _HomeState extends State<Home> {
                                         askForLocationPermissionIfDisabled();
                                       if (value == false)
                                         print(DataStore.token);
-                                      _bloc.fire(HomeEvents
-                                          .getDocumentVerificationStatus);
+                                      _bloc.fire(
+                                          HomeEvents
+                                              .getDocumentVerificationStatus,
+                                          onHandled: (e, m) {
+                                        _BEENAME.put('myDocumentVerification',
+                                            m.verifiedBee.toString());
+                                      });
                                       _bloc.fire(HomeEvents.activityStatusSet,
                                           message: {'status': value},
                                           onHandled: (e, m) {
@@ -184,15 +198,15 @@ class _HomeState extends State<Home> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
-                                    Text("You are not an active Bee! ",
+                                    Text("You are not an active Bee!  ",
                                         style: TextStyle(
-                                            fontSize: 18,
+                                            fontSize: 20,
                                             color:
-                                                PrimaryColors.backgroundColor,
-                                            fontWeight: FontWeight.w500)),
+                                                Theme.of(context).accentColor,
+                                            fontWeight: FontWeight.normal)),
                                     Icon(
-                                      Icons.sentiment_dissatisfied,
-                                      color: Colors.deepPurple,
+                                      Icons.sentiment_dissatisfied_outlined,
+                                      color: Theme.of(context).primaryColor,
                                     ),
                                   ],
                                 ),
@@ -201,8 +215,9 @@ class _HomeState extends State<Home> {
                                 ),
                                 Text("Switch on the button above for a fly.",
                                     style: TextStyle(
-                                        color: PrimaryColors.backgroundColor,
-                                        fontWeight: FontWeight.w500)),
+                                        fontSize: 20,
+                                        color: Theme.of(context).accentColor,
+                                        fontWeight: FontWeight.normal)),
                               ],
                             ),
                           ),
@@ -224,10 +239,10 @@ class _HomeState extends State<Home> {
                                   children: <Widget>[
                                     Text("It seems you are active but...",
                                         style: TextStyle(
-                                            fontSize: 18,
+                                            fontSize: 20,
                                             color:
-                                                PrimaryColors.backgroundColor,
-                                            fontWeight: FontWeight.w500)),
+                                                Theme.of(context).accentColor,
+                                            fontWeight: FontWeight.normal)),
                                     Icon(
                                       Icons.sentiment_neutral,
                                       color: Colors.deepPurple,
@@ -242,8 +257,9 @@ class _HomeState extends State<Home> {
                                     textAlign: TextAlign.center,
                                     maxLines: 2,
                                     style: TextStyle(
-                                        color: PrimaryColors.backgroundColor,
-                                        fontWeight: FontWeight.w500)),
+                                        color: Theme.of(context).accentColor,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.normal)),
                               ],
                             ),
                           ),
@@ -251,7 +267,10 @@ class _HomeState extends State<Home> {
                             height: 20,
                           ),
                           RaisedButton(
-                            color: Colors.yellow,
+                            color: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(50))),
                             onPressed: () {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (ctx) {
@@ -262,7 +281,7 @@ class _HomeState extends State<Home> {
                             child: Text(
                               "Tap Here",
                               style: TextStyle(
-                                  color: PrimaryColors.backgroundColor),
+                                  color: Theme.of(context).canvasColor),
                             ),
                           ),
                         ],

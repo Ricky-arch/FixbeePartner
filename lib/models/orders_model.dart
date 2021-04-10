@@ -4,7 +4,8 @@ import 'package:fixbee_partner/ui/custom_widget/addon.dart';
 import 'package:fixbee_partner/ui/custom_widget/services.dart';
 
 class Orders extends ViewModel {
-  String serviceName, quantity;
+  String serviceName;
+  int quantity;
   List<Service> addOns = [];
   bool cashOnDelivery;
   String id;
@@ -14,4 +15,5 @@ class Orders extends ViewModel {
   String address;
   String timeStamp;
   String placeId;
+  int amount;
 }

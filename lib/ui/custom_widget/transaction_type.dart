@@ -12,7 +12,7 @@ class TransactionType extends StatefulWidget {
 }
 
 class _TransactionTypeState extends State<TransactionType> {
-  List<String> types = ['Credit', 'Debit', 'Transfer', 'All'];
+  List<String> types = ['Credit', 'Debit', 'Transfer', 'Salary', 'All'];
   String type = 'Credit';
   int _value = 1;
   @override
@@ -25,28 +25,32 @@ class _TransactionTypeState extends State<TransactionType> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: PrimaryColors.backgroundColor,
+            color: Theme.of(context).canvasColor,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
+                padding:
+                    const EdgeInsets.only(top: 4, left: 4),
                 child: Text(
                   'TYPE',
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
-                      color: Colors.yellow),
+                      color: Theme.of(context).primaryColor),
                 ),
               ),
               SizedBox(
                 height: 10,
               ),
               Container(
+                padding: EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                    color: PrimaryColors.whiteColor,
-                    border: Border.all(color: PrimaryColors.backgroundColor)),
+                    color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.all(Radius.circular(20))
+                    ),
                 child: GestureDetector(
                   onTap: () {
                     widget.setTransactionType(type);
@@ -90,17 +94,25 @@ class _TransactionTypeState extends State<TransactionType> {
                                       value: 3),
                                   DropdownMenuItem(
                                       child: Text(
+                                        "Salary",
+                                        style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      value: 4),
+                                  DropdownMenuItem(
+                                      child: Text(
                                         'All',
                                         style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      value: 4)
+                                      value: 5)
                                 ],
                                 onChanged: (value) {
                                   setState(() {
                                     _value = value;
-                                    type = types[value-1];
+                                    type = types[value - 1];
                                   });
                                   widget.setTransactionType(type);
                                 }),

@@ -1,28 +1,27 @@
-import 'dart:developer';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/custom_profile_bloc.dart';
 import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/custom_profile_event.dart';
 import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
-import 'package:fixbee_partner/ui/screens/bank_details.dart';
+import 'package:fixbee_partner/ui/screens/account_transaction.dart';
 import 'package:fixbee_partner/ui/screens/customize_service.dart';
-import 'package:fixbee_partner/ui/screens/logout.dart';
+import 'package:fixbee_partner/ui/screens/registration.dart';
+import 'package:fixbee_partner/ui/screens/support.dart';
 import 'package:fixbee_partner/ui/screens/profile_update.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
 import 'package:fixbee_partner/ui/screens/transaction_account.dart';
-import 'package:fixbee_partner/ui/screens/update_profile.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive/hive.dart';
-
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'all_service_selection_screen.dart';
+import 'login.dart';
 
 const kSpacingUnit = 10;
 const kDarkPrimaryColor = Color(0xFF212121);
@@ -30,7 +29,6 @@ const kDarkSecondaryColor = Color(0xFF373737);
 const kLightSecondaryColor = Color(0xFFF3F7FB);
 const kAccentColor = Color(0xFFFFC107);
 final kTitleTextStyle = TextStyle(
-  color: Colors.yellow,
   fontSize: ScreenUtil().setSp(kSpacingUnit.w * 1.5),
   fontWeight: FontWeight.w600,
 );
@@ -44,6 +42,7 @@ class _CustomProfileState extends State<CustomProfile> {
   String firstname;
   String middlename;
   String lastname, n = "";
+  var myRating;
   CustomProfileBloc _bloc;
   bool verifiedBee;
 
@@ -59,16 +58,27 @@ class _CustomProfileState extends State<CustomProfile> {
 
     _bloc = CustomProfileBloc(CustomProfileModel());
     _bloc.fire(CustomProfileEvent.downloadDp, onHandled: (e, m) {
-
       _BEENAME.put("dpUrl", m.imageUrl);
-      DataStore.me.dpUrl=m.imageUrl;
+      DataStore.me.dpUrl = m.imageUrl;
     });
     //_bloc.fire(CustomProfileEvent.checkForVerifiedAccount);
     firstname = DataStore.me.firstName;
     middlename = DataStore.me.middleName ?? "";
     lastname = DataStore.me.lastName ?? "";
-    //print(_BEENAME.get('myName'));
+
+    _getRating();
     super.initState();
+  }
+
+  _getRating() async {
+    myRating = _BEENAME.get('myRating');
+    if (myRating == null) {
+      myRating = await _bloc.getRating();
+      _BEENAME.put("myRating", myRating.toString());
+    }
+    _BEENAME.put("myRating", myRating.toString());
+
+    return myRating;
   }
 
   @override
@@ -83,14 +93,14 @@ class _CustomProfileState extends State<CustomProfile> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: PrimaryColors.backgroundColor,
+            backgroundColor: Theme.of(context).canvasColor,
             content: Text(
               "Do you want to log out?",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).accentColor),
             ),
             actions: [
               RaisedButton(
-                color: PrimaryColors.backgroundColor,
+                color: Theme.of(context).canvasColor,
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -98,12 +108,12 @@ class _CustomProfileState extends State<CustomProfile> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     "NO",
-                    style: TextStyle(color: Colors.orangeAccent),
+                    style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 ),
               ),
               RaisedButton(
-                color: PrimaryColors.backgroundColor,
+                color: Theme.of(context).canvasColor,
                 onPressed: () async {
                   _bloc.fire(CustomProfileEvent.deactivateBee,
                       onHandled: (e, m) {
@@ -120,7 +130,7 @@ class _CustomProfileState extends State<CustomProfile> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     "YES",
-                    style: TextStyle(color: Colors.orangeAccent),
+                    style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 ),
               )
@@ -135,7 +145,6 @@ class _CustomProfileState extends State<CustomProfile> {
   }
 
   closeHiveBox() async {
-    //await Hive.close();
     await Hive.deleteBoxFromDisk("BEE");
   }
 
@@ -143,34 +152,37 @@ class _CustomProfileState extends State<CustomProfile> {
   Widget build(BuildContext context) {
     ScreenUtil.init(context,
         designSize: Size(414, 896), allowFontScaling: false);
-
     return Scaffold(
-      backgroundColor: PrimaryColors.backgroundcolorlight,
-      appBar: AppBar(
-        backgroundColor: PrimaryColors.backgroundColor,
-        automaticallyImplyLeading: false,
-        title: Stack(
-          children: <Widget>[
-            Container(
-                decoration: BoxDecoration(color: PrimaryColors.backgroundColor),
-                child: RichText(
-                  text: TextSpan(
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: 'PROFILE',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 15)),
-                    ],
-                  ),
-                ))
-          ],
-        ),
-      ),
       body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
         return Column(
           children: <Widget>[
+            Row(
+              children: [
+                Spacer(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 12),
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).accentColor,
+                          shape: BoxShape.circle),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (ctx) {
+                            return Support();
+                          }));
+                        },
+                        icon: Icon(
+                          Icons.widgets_rounded,
+                          color: Theme.of(context).canvasColor,
+                          size: 20,
+                        ),
+                      )),
+                ),
+              ],
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,19 +202,19 @@ class _CustomProfileState extends State<CustomProfile> {
                                 shape: BoxShape.circle,
                                 color: Colors.white,
                                 border: Border.all(
-                                    color: PrimaryColors.backgroundColor,
-                                    width: 1)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(1.0),
-                              child: Stack(
-                                children: <Widget>[
-                                  DisplayPicture(
-                                    onImagePicked: onImagePicked,
-                                    imageURl: _BEENAME.get("dpUrl"),
-                                    loading: false,
-                                  ),
-                                ],
-                              ),
+                                    color: PrimaryColors.whiteColor, width: 1)),
+                            child: Stack(
+                              children: <Widget>[
+                                DisplayPicture(
+                                  onImagePicked: onImagePicked,
+                                  imageURl: _BEENAME.get("dpUrl"),
+                                  loading: false,
+                                  verified: verifiedBee,
+                                  onVerifiedBee: (value) {
+                                    if (value) _showSnackBar();
+                                  },
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -217,7 +229,7 @@ class _CustomProfileState extends State<CustomProfile> {
                               return Text(
                                 _BEENAME.get("myName"),
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Theme.of(context).primaryColor,
                                   fontSize:
                                       ScreenUtil().setSp(kSpacingUnit.w * 2),
                                   fontWeight: FontWeight.w600,
@@ -240,9 +252,11 @@ class _CustomProfileState extends State<CustomProfile> {
                       RichText(
                         text: TextSpan(children: [
                           TextSpan(
-                            text: "Rated 4.5 ",
+                            text: (myRating.toString() == null)
+                                ? 'Rating: 0'
+                                : 'Rating: ' + myRating.toString(),
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Theme.of(context).accentColor,
                               fontSize:
                                   ScreenUtil().setSp(kSpacingUnit.w * 1.7),
                               fontWeight: FontWeight.w600,
@@ -269,24 +283,37 @@ class _CustomProfileState extends State<CustomProfile> {
               child: ListView(
                 children: <Widget>[
                   ProfileListItem(
-                    icon: LineAwesomeIcons.user_shield,
+                    icon: (verifiedBee)
+                        ? LineAwesomeIcons.lock
+                        : LineAwesomeIcons.user_shield,
                     text: 'Update Personal',
                     task: () async {
-                      String updated = await Navigator.push(context,
-                          MaterialPageRoute(builder: (ctx) {
-                        return ProfileUpdate();
-                      }));
-
-
+                      if (!verifiedBee)
+                        String updated = await Navigator.push(context,
+                            MaterialPageRoute(builder: (ctx) {
+                          return ProfileUpdate();
+                        }));
+                      else
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                'Cannot update if you are a verified bee! Visit branch!')));
                     },
                   ),
                   ProfileListItem(
-                    icon: LineAwesomeIcons.folder,
+                    icon: (verifiedBee)
+                        ? LineAwesomeIcons.lock
+                        : LineAwesomeIcons.folder,
                     text: 'Upload Verification Documents',
                     task: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                        return VerificationDocuments();
-                      }));
+                      if (!verifiedBee)
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (ctx) {
+                          return VerificationDocuments();
+                        }));
+                      else
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                            content: Text(
+                                'Cannot update if you are a verified bee! Visit branch!')));
                     },
                   ),
                   ProfileListItem(
@@ -294,7 +321,7 @@ class _CustomProfileState extends State<CustomProfile> {
                     text: 'Add Transaction Account',
                     task: () {
                       Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                        return TransactionAccount();
+                        return AccountTransaction();
                       }));
                     },
                   ),
@@ -318,16 +345,6 @@ class _CustomProfileState extends State<CustomProfile> {
           ],
         );
       }),
-      //   floatingActionButton: FloatingActionButton(
-      //     child: Text("Tap"),
-      //     onPressed: (){
-      //       Navigator.push(context,
-      //           MaterialPageRoute(builder: (ctx) {
-      //             return ServiceSelectionScreen();
-      //           }));
-      //
-      //     },
-      //   ),
     );
   }
 
@@ -335,9 +352,13 @@ class _CustomProfileState extends State<CustomProfile> {
     _bloc.fire(CustomProfileEvent.updateDp, message: {
       "path": "$path",
       "file": "partnerDP",
-      'tags': [Constants.DISPLAY_PICTURE_TAG]
+      'tags': Constants.DISPLAY_PICTURE_TAG
     }, onHandled: (e, m) {
-      _BEENAME.put("dpUrl", m.imageUrl);
+      if (m.dpUploaded)
+        _BEENAME.put("dpUrl", m.imageUrl);
+      else
+        _showMessageDialog(
+            'Unable to upload display picture try reducing image size below 1-MB!');
     });
   }
 
@@ -348,33 +369,27 @@ class _CustomProfileState extends State<CustomProfile> {
     return name;
   }
 
-  _onProfileUpdatedDialogBox(String message) {
+  _showMessageDialog(message) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            elevation: 4,
+            backgroundColor: PrimaryColors.backgroundColor,
             content: Text(
               message,
-              maxLines: null,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
             ),
-            actions: <Widget>[
-              RaisedButton(
-                color: PrimaryColors.backgroundColor,
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "OK",
-                    style: TextStyle(color: Colors.orangeAccent),
-                  ),
-                ),
-              )
-            ],
           );
         });
+  }
+
+  _showSnackBar() {
+    Scaffold.of(context).showSnackBar(SnackBar(
+        content:
+            Text('Cannot update if you are a verified bee! Visit branch!')));
   }
 }
 
@@ -404,19 +419,20 @@ class ProfileListItem extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(kSpacingUnit.w * 3),
-          color: PrimaryColors.backgroundColor,
+          color: Theme.of(context).cardColor,
         ),
         child: Row(
           children: <Widget>[
             Icon(
               this.icon,
               size: kSpacingUnit.w * 2.5,
-              color: Colors.yellow,
+              color: Theme.of(context).accentColor,
             ),
             SizedBox(width: kSpacingUnit.w * 1.5),
             Text(
               this.text,
               style: kTitleTextStyle.copyWith(
+                color: Theme.of(context).accentColor,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -425,7 +441,7 @@ class ProfileListItem extends StatelessWidget {
                 ? Icon(
                     LineAwesomeIcons.angle_right,
                     size: kSpacingUnit.w * 2.5,
-                    color: Colors.yellow,
+                    color: Theme.of(context).accentColor,
                   )
                 : SizedBox()
           ],

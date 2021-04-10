@@ -47,8 +47,7 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
       vm.address = vpa;
       vm.id = response['addFundsAccount']['id'];
       return latestViewModel
-        ..vpaAdded = true
-        ..vpaList.add(vm);
+        ..vpaAdded = true;
     } catch (e) {
       print(e);
       return latestViewModel..vpaAdded = false;
@@ -73,7 +72,7 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
 
     Map response = await CustomGraphQLClient.instance.query(query);
     List accounts = response['accounts'];
-    latestViewModel..numberOfAccounts = accounts.length;
+
     accounts.forEach((account) {
       if (account['account_type'] == 'bank_account') {
         BankModel bm = BankModel();
@@ -89,7 +88,6 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
         vPas.add(vm);
       }
     });
-    print(bankAccounts.length.toString());
     return latestViewModel
       ..bankAccountList = bankAccounts
       ..vpaList = vPas;
@@ -141,10 +139,10 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
       // bm.bankAccountNumber = accountNumber;
       return latestViewModel
         // ..bankAccountList.add(bm)
-        ..updated = true;
+        ..bankAccountAdded = true;
     } catch (e) {
       log(e.toString(), name: "Account Error");
-      return latestViewModel..updated = false
+      return latestViewModel..bankAccountAdded = false
           // ..bankAccountList = models
           ;
     }
@@ -160,6 +158,9 @@ class BankDetailsBloc extends Bloc<BankDetailsEvent, BankDetailsModel>
     }
     else if(event== BankDetailsEvent.addVpaAddress){
       latestViewModel..addingVpaAccount=trackFlag;
+    }
+    else if(event== BankDetailsEvent.fetchAvailableAccounts){
+      latestViewModel..fetchingBankAccounts=trackFlag;
     }
    
     

@@ -25,20 +25,6 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel>
     return latestViewModel;
   }
 
-//   {
-//   profile{
-//   name{
-//   firstName
-//   middleName
-//   lastName
-// }
-// email
-// personalDetails{
-// dateOfBirth
-// gender
-// }
-// }
-// }
 
   Future<UpdateProfileModel> fetchBeeDetails() async {
     String query = '''
@@ -56,6 +42,7 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel>
     personalDetails{
       dateOfBirth
       gender
+      fullAddress
     }
   }
 }''';
@@ -69,7 +56,10 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel>
         ..phoneNumber = response['profile']['phone']
         ..alternatePhoneNumber = response['profile']['altPhone']
         ..dob = response['profile']['personalDetails']['dateOfBirth'] ?? ""
-        ..gender = response['profile']['personalDetails']['gender'] ?? "";
+        ..gender = response['profile']['personalDetails']['gender'] ?? ""
+        ..fullAddress=response['profile']['personalDetails']['fullAddress']??""
+      ;
+
     } catch (e) {
       print(e);
     }
@@ -118,6 +108,8 @@ class UpdateProfileBloc extends Bloc<UpdateProfileEvent, UpdateProfileModel>
       UpdateProfileEvent event, bool trackFlag, Map message) {
     if (event == UpdateProfileEvent.fetchProfile)
       latestViewModel..loading = trackFlag;
+    if(event==UpdateProfileEvent.updateEachField)
+      latestViewModel..updating=trackFlag;
     return latestViewModel;
   }
 

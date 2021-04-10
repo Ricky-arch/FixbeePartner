@@ -90,7 +90,7 @@ class _RegistrationState extends State<Registration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       body: SafeArea(child: _bloc.widget(
         onViewModelUpdated: (ctx, viewModel) {
           return SingleChildScrollView(
@@ -100,14 +100,14 @@ class _RegistrationState extends State<Registration> {
                   clipper: OvalBottomBorderClipper(),
                   child: Container(
                     width: double.infinity,
-                    color: PrimaryColors.backgroundColor,
+                    color: Theme.of(context).canvasColor,
                     child: Form(
                         key: _formKey,
                         autovalidate: _validate,
                         child: Column(
                           children: <Widget>[
                             SizedBox(
-                              height:20,
+                              height: 20,
                             ),
                             Row(
                               children: [
@@ -117,7 +117,7 @@ class _RegistrationState extends State<Registration> {
                                       height: 50,
                                       width: 50,
                                       decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: Theme.of(context).primaryColor,
                                           shape: BoxShape.circle),
                                       child: Padding(
                                           padding: const EdgeInsets.all(8),
@@ -125,15 +125,29 @@ class _RegistrationState extends State<Registration> {
                                             "assets/logo/bee_outline.svg",
                                           ))),
                                 ),
-                                Container(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      "Oh! A new Bee?\nFill in to continue...",
-                                      style: TextStyle(
-                                          color: PrimaryColors.yellowColor,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: RichText(
+                                    textAlign: TextAlign.start,
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: "Oh! A new Bee?\n",
+                                          style: TextStyle(
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context)
+                                                  .accentColor),
+                                        ),
+                                        TextSpan(
+                                          text: "Fill in to continue...",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -142,22 +156,10 @@ class _RegistrationState extends State<Registration> {
                             SizedBox(
                               height: MediaQuery.of(context).size.height / 80,
                             ),
-                            (viewModel.loading)
-                                ? Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 20.0, right: 20),
-                                    child: LinearProgressIndicator(
-                                      minHeight: 3,
-                                      backgroundColor:
-                                          PrimaryColors.backgroundColor,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                    ),
-                                  )
-                                : SizedBox(),
                             Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: TextFormField(
+                                cursorColor: Theme.of(context).accentColor,
                                 controller: firstName,
                                 validator: (value) {
                                   if (value.trim().isEmpty) {
@@ -166,18 +168,20 @@ class _RegistrationState extends State<Registration> {
                                   return null;
                                 },
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Theme.of(context).accentColor,
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
-                                  fillColor: Colors.white,
+                                  fillColor: Theme.of(context).cardColor,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide.none),
                                   filled: true,
                                   errorStyle: TextStyle(
-                                      color: PrimaryColors.whiteColor,
+                                      color: Theme.of(context).errorColor,
                                       fontWeight: FontWeight.bold),
                                   labelText: "First Name*",
                                   labelStyle: TextStyle(
-                                      color: Colors.black54,
+                                      color: Theme.of(context).hintColor,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -186,6 +190,7 @@ class _RegistrationState extends State<Registration> {
                               padding: const EdgeInsets.all(10.0),
                               child: TextFormField(
                                 controller: middleName,
+                                cursorColor: Theme.of(context).accentColor,
                                 validator: (value) {
                                   if (value.trim().isNotEmpty) {
                                     if (!isAlpha(value))
@@ -194,18 +199,20 @@ class _RegistrationState extends State<Registration> {
                                   return null;
                                 },
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Theme.of(context).accentColor,
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
-                                  fillColor: Colors.white,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide.none),
+                                  fillColor: Theme.of(context).cardColor,
                                   filled: true,
                                   errorStyle: TextStyle(
-                                      color: PrimaryColors.whiteColor,
+                                      color: Theme.of(context).errorColor,
                                       fontWeight: FontWeight.bold),
                                   labelText: "Middle Name",
                                   labelStyle: TextStyle(
-                                      color: Colors.black54,
+                                      color: Theme.of(context).hintColor,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -213,6 +220,7 @@ class _RegistrationState extends State<Registration> {
                             Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: TextFormField(
+                                cursorColor: Theme.of(context).accentColor,
                                 controller: lastName,
                                 validator: (value) {
                                   if (value.trim().isNotEmpty) {
@@ -222,18 +230,20 @@ class _RegistrationState extends State<Registration> {
                                   return null;
                                 },
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Theme.of(context).accentColor,
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
-                                  fillColor: Colors.white,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide.none),
+                                  fillColor: Theme.of(context).cardColor,
                                   filled: true,
                                   errorStyle: TextStyle(
-                                      color: PrimaryColors.whiteColor,
+                                      color: Theme.of(context).errorColor,
                                       fontWeight: FontWeight.bold),
                                   labelText: "Last Name",
                                   labelStyle: TextStyle(
-                                      color: Colors.black54,
+                                      color: Theme.of(context).hintColor,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -241,6 +251,7 @@ class _RegistrationState extends State<Registration> {
                             Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: TextFormField(
+                                cursorColor: Theme.of(context).accentColor,
                                 controller: emailController,
                                 validator: (value) {
                                   if (value
@@ -250,18 +261,20 @@ class _RegistrationState extends State<Registration> {
                                   return null;
                                 },
                                 style: TextStyle(
-                                    color: PrimaryColors.backgroundColor,
+                                    color: Theme.of(context).accentColor,
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
-                                  fillColor: Colors.white,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide.none),
+                                  fillColor: Theme.of(context).cardColor,
                                   filled: true,
                                   errorStyle: TextStyle(
-                                      color: PrimaryColors.whiteColor,
+                                      color: Theme.of(context).errorColor,
                                       fontWeight: FontWeight.bold),
                                   labelText: "Email Address",
                                   labelStyle: TextStyle(
-                                      color: Colors.black54,
+                                      color: Theme.of(context).hintColor,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -269,6 +282,7 @@ class _RegistrationState extends State<Registration> {
                             Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: TextFormField(
+                                cursorColor: Theme.of(context).accentColor,
                                 enabled: false,
                                 controller: _phoneNumberController,
                                 validator: (value) {
@@ -278,21 +292,23 @@ class _RegistrationState extends State<Registration> {
                                   return null;
                                 },
                                 style: TextStyle(
-                                    color: PrimaryColors.backgroundColor,
+                                    color: Theme.of(context).accentColor,
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.phone,
                                 inputFormatters: [
                                   LengthLimitingTextInputFormatter(10)
                                 ],
                                 decoration: InputDecoration(
-                                  fillColor: Colors.white,
+                                  fillColor: Theme.of(context).cardColor,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide.none),
                                   filled: true,
                                   errorStyle: TextStyle(
-                                      color: PrimaryColors.whiteColor,
+                                      color: Theme.of(context).errorColor,
                                       fontWeight: FontWeight.bold),
                                   labelText: "Phone Number*",
                                   labelStyle: TextStyle(
-                                      color: Colors.black54,
+                                      color: Theme.of(context).hintColor,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -300,6 +316,7 @@ class _RegistrationState extends State<Registration> {
                             Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: TextFormField(
+                                cursorColor: Theme.of(context).accentColor,
                                 controller: passwordController,
                                 obscureText: _obscureText,
                                 obscuringCharacter: "●",
@@ -310,25 +327,30 @@ class _RegistrationState extends State<Registration> {
                                   return null;
                                 },
                                 style: TextStyle(
-                                    color: PrimaryColors.backgroundColor,
+                                    color: Theme.of(context).accentColor,
                                     fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
-                                  fillColor: Colors.white,
-
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide.none),
+                                  fillColor: Theme.of(context).cardColor,
                                   filled: true,
                                   errorStyle: TextStyle(
-                                      color: PrimaryColors.whiteColor,
+                                      color: Theme.of(context).errorColor,
                                       fontWeight: FontWeight.bold),
                                   labelText:
                                       "Password (must be atleast 6 characters)*",
-                                  suffixIcon:  Padding(
-                                      padding:  EdgeInsets.only(top: 15.0),
-                                      child:  IconButton(icon: Icon(Icons.remove_red_eye_outlined), color: _obscureText?Colors.grey:Colors.red, onPressed: (){
-                                        _toggle();
-                                      },)),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(Icons.remove_red_eye_outlined),
+                                    color: _obscureText
+                                        ? Theme.of(context).hintColor
+                                        : Colors.red,
+                                    onPressed: () {
+                                      _toggle();
+                                    },
+                                  ),
                                   labelStyle: TextStyle(
-                                      color: Colors.black54,
+                                      color: Theme.of(context).hintColor,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -337,18 +359,20 @@ class _RegistrationState extends State<Registration> {
                               padding: const EdgeInsets.all(10),
                               child: DropdownButtonFormField<String>(
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Theme.of(context).accentColor,
                                     fontWeight: FontWeight.bold),
                                 itemHeight: 50,
                                 decoration: InputDecoration(
-                                  fillColor: Colors.white,
+                                  border: UnderlineInputBorder(
+                                      borderSide: BorderSide.none),
+                                  fillColor: Theme.of(context).cardColor,
                                   filled: true,
                                   errorStyle: TextStyle(
-                                      color: PrimaryColors.whiteColor,
+                                      color: Theme.of(context).errorColor,
                                       fontWeight: FontWeight.bold),
                                   labelText: "Gender*",
                                   labelStyle: TextStyle(
-                                      color: Colors.black54,
+                                      color: Theme.of(context).hintColor,
                                       fontWeight: FontWeight.bold),
                                 ),
                                 items: gender.map((String gender) {
@@ -357,7 +381,7 @@ class _RegistrationState extends State<Registration> {
                                     child: Text(
                                       gender,
                                       style: TextStyle(
-                                          color: Colors.black,
+                                          color: Theme.of(context).accentColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16),
                                     ),
@@ -390,125 +414,138 @@ class _RegistrationState extends State<Registration> {
                 ),
                 Column(
                   children: [
-                    Container(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  WidgetSpan(
-                                      child: Container(
-                                    padding: EdgeInsets.fromLTRB(0.0, 8, 8, 8),
-                                    child: Text(
-                                      "By tapping next I agree to Fixbee: ",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: PrimaryColors.backgroundColor),
-                                    ),
-                                  )),
-                                  TextSpan(
-                                      text: "\n· ",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.red)),
-                                  TextSpan(
-                                      text: "Terms and Conditions ",
-                                      style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.red),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          _launched =
-                                              _launchInWebViewWithJavaScript(
-                                                  "${EndPoints.TNC}");
-                                        }),
-                                  TextSpan(
-                                      text: "\n· ",
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.red)),
-                                  TextSpan(
-                                      text: "Privacy Policy",
-                                      style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.red),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () {
-                                          _launched =
-                                              _launchInWebViewWithJavaScript(
-                                                  "${EndPoints.PRIVACY_POLICY}");
-                                        }),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "By tapping next I agree to Fixbee: \n".toUpperCase(),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).accentColor),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                          top: 10, bottom: 10, left: 60, right: 60),
-                      child: new Container(
-                        height: 45.0,
-                        width: 150,
-                        child: RaisedButton(
-                            elevation: 3,
-                            disabledColor: Colors.teal[100],
-                            disabledTextColor: Colors.white,
-                            onPressed: () {
-                              if (_formKey.currentState.validate()) {
-                                print("Valid");
-                                _bloc.fire(
-                                  RegistrationEvents.registrationFieldSet,
-                                  message: {
-                                    'firstName': firstName.text,
-                                    'middleName': middleName.text,
-                                    'lastName': lastName.text,
-                                    'phone': _phoneNumberController.text,
-                                    'dateOfBirth': dateOfBirth.text,
-                                    'email':emailController.text,
-                                    'password':passwordController.text,
-                                    'gender': gender[_selectedGender],
-                                  },
-                                  onHandled: (e, m) {
-                                    if (m.registered) {
-                                      _bloc.fire(RegistrationEvents.requestOtp,
-                                          message: {
-                                            'phonenumber':
-                                                _phoneNumberController.text
-                                          }, onHandled: (e, m) {
-                                        if (m.sent) {
-                                          goToOtpLoginScreen(ctx);
-                                        } else {
-                                          Scaffold.of(ctx).showSnackBar(SnackBar(
-                                            content: Text('Registration failed'),
-                                          ));
-                                        }
-                                      });
-                                    } else {
-                                      Scaffold.of(ctx).showSnackBar(SnackBar(
-                                        content: Text('Registration failed'),
-                                      ));
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            _launched = _launchInWebViewWithJavaScript(
+                                "${EndPoints.TNC}");
+                          },
+                          child: Text(
+                            'Terms and Conditions \u2197   ',
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).errorColor),
+                          ),
+                        ),
+                        Text(
+                          '&   ',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).errorColor),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            _launched = _launchInWebViewWithJavaScript(
+                                "${EndPoints.PRIVACY_POLICY}");
+                          },
+                          child: Text(
+                            'Privacy Policy \u2197   ',
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).errorColor),
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    (viewModel.loading)
+                        ? Padding(
+                            padding: const EdgeInsets.only(
+                                left: 20.0, right: 20, top: 10, bottom: 10),
+                            child: CircularProgressIndicator(
+                              backgroundColor: Theme.of(context).canvasColor,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).accentColor),
+                            ),
+                          )
+                        : Padding(
+                            padding: EdgeInsets.only(
+                                top: 10, bottom: 10, left: 60, right: 60),
+                            child: new Container(
+                              height: 35.0,
+                              width: 110,
+                              child: RaisedButton(
+                                  elevation: 3,
+                                  disabledColor: Theme.of(context).hintColor,
+                                  disabledTextColor: Theme.of(context).accentColor,
+                                  onPressed: () {
+                                    if (_formKey.currentState.validate()) {
+                                      print("Valid");
+                                      _bloc.fire(
+                                        RegistrationEvents.registration,
+                                        message: {
+                                          'firstName': firstName.text,
+                                          'middleName': middleName.text,
+                                          'lastName': lastName.text,
+                                          'phone': _phoneNumberController.text,
+                                          'dateOfBirth': dateOfBirth.text,
+                                          'email': emailController.text,
+                                          'password': passwordController.text,
+                                          'gender': gender[_selectedGender],
+                                        },
+                                        onHandled: (e, m) {
+                                          if (m.registered) {
+                                            _bloc.fire(
+                                                RegistrationEvents.requestOtp,
+                                                message: {
+                                                  'phonenumber':
+                                                      _phoneNumberController
+                                                          .text
+                                                }, onHandled: (e, m) {
+                                              if (m.sent) {
+                                                goToOtpLoginScreen(ctx);
+                                              } else {
+                                                Scaffold.of(ctx)
+                                                    .showSnackBar(SnackBar(
+                                                  content: Text(m.error
+                                                      .substring(
+                                                          15,
+                                                          m.error
+                                                              .toString()
+                                                              .length)
+                                                      .toUpperCase()),
+                                                ));
+                                              }
+                                            });
+                                          } else {
+                                            Scaffold.of(ctx)
+                                                .showSnackBar(SnackBar(
+                                              content: Text(m.error
+                                                  .substring(15,
+                                                      m.error.toString().length)
+                                                  .toUpperCase()),
+                                            ));
+                                          }
+                                        },
+                                      );
                                     }
                                   },
-                                );
-                              }
-                            },
-                            child: Text("NEXT"),
-                            textColor: Colors.yellow,
-                            color: PrimaryColors.backgroundColor,
-                            shape: new RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(30.0))),
-                      ),
-                    ),
+                                  child: Text("Next"),
+                                  textColor:Theme.of(context).canvasColor,
+                                  color: Theme.of(context).primaryColor,
+                                  shape: new RoundedRectangleBorder(
+                                      borderRadius:
+                                          new BorderRadius.circular(30.0))),
+                            ),
+                          ),
+                    SizedBox(height: 20,),
                   ],
                 ),
               ],

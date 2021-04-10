@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:barcode_scan_fix/barcode_scan.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/blocs/workscreen_bloc.dart';
+import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/workscreen_event.dart';
 import 'package:fixbee_partner/models/orders_model.dart';
 import 'package:fixbee_partner/models/workscreen_model.dart';
@@ -16,15 +16,20 @@ import 'package:fixbee_partner/ui/screens/billing_rating_screen.dart';
 import 'package:fixbee_partner/ui/screens/order_chat.dart';
 import 'package:fixbee_partner/ui/screens/order_images.dart';
 import 'package:fixbee_partner/utils/date_time_formatter.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:majascan/majascan.dart';
+import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:http/http.dart' as http;
+
+import 'navigation_screen.dart';
 
 class WorkScreen extends StatefulWidget {
   final Orders orderModel;
@@ -41,15 +46,17 @@ class _WorkScreenState extends State<WorkScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   WorkScreenBloc _bloc;
-  bool _onNotificationReceivedForCompletionOfPayOnline = false;
+  final GlobalKey<FormState> _formOTP = GlobalKey<FormState>();
   bool _onServiceStarted = false;
   DateTimeFormatter dtf;
   String gid, session, fields, key;
   String formattedAddress = "";
   String latitude, longitude;
   String barcode = "";
+  bool showNotification=true;
 
   String _scanBarcode = 'Unknown';
+  String result = "Hey there !";
   int rating;
   TextEditingController otpController;
   TextEditingController additionalReview;
@@ -79,43 +86,52 @@ class _WorkScreenState extends State<WorkScreen> {
       longitude =
           locationData['result']['geometry']['location']['lng'].toString();
     }
-    print("xxx" +
-        locationData['result']['geometry']['location']['lng'].toString());
+
     lat = double.parse(latitude);
     lng = double.parse(longitude);
     LatLng ltng = LatLng(lat, lng);
     return ltng;
   }
 
-  Future scan() async {
+  Future _scanQR() async {
     try {
-      String barcode = await BarcodeScanner.scan();
-      setState(() => this.barcode = barcode);
-      log(barcode, name: "VALUE");
-      if (barcode != null) {
-        _bloc.verifyOtpToStartService({'otp': barcode}).then((value) {
-          if (value.otpValid) {
-            _showOtpValidityDialog('Otp Validated!');
-            setState(() {
-              _onServiceStarted = value.onServiceStarted;
-            });
-          } else
-            _showOtpValidityDialog('Otp Invalid!');
-        });
+      String qrResult = await MajaScan.startScan(
+          scanAreaScale: .7,
+          title: "Order OTP Scanner",
+          titleColor: PrimaryColors.yellowColor,
+          qRCornerColor: Colors.orange,
+          qRScannerColor: Colors.orange);
+      setState(() {
+        result = qrResult;
+      });
+      if (result != null || result.isNotEmpty) {
+        bool valid = await _bloc.verifyOtpToStartService(result);
+        if (valid) {
+          _showMessageDialog('Otp Valid!');
+          setState(() {
+            _bloc.latestViewModel.activeOrderStatus = 'in progress';
+          });
+        } else
+          _showMessageDialog('Otp Invalid!');
       }
-    } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.CameraAccessDenied) {
+    } on PlatformException catch (ex) {
+      if (ex.code == MajaScan.CameraAccessDenied) {
         setState(() {
-          this.barcode = 'The user did not grant the camera permission!';
+          result = "Camera permission was denied";
         });
       } else {
-        setState(() => this.barcode = 'Unknown error: $e');
+        setState(() {
+          result = "Unknown Error $ex";
+        });
       }
     } on FormatException {
-      setState(() => this.barcode =
-          'null (User returned using the "back"-button before scanning anything. Result)');
-    } catch (e) {
-      setState(() => this.barcode = 'Unknown error: $e');
+      setState(() {
+        result = "You pressed the back button before scanning anything";
+      });
+    } catch (ex) {
+      setState(() {
+        result = "Unknown Error $ex";
+      });
     }
   }
 
@@ -144,15 +160,11 @@ class _WorkScreenState extends State<WorkScreen> {
   void initState() {
     super.initState();
     dtf = DateTimeFormatter();
-    // _onServiceStarted = widget.onServiceStarted;
     String orderId = widget.orderModel.id;
     _bloc = WorkScreenBloc(WorkScreenModel());
-
     _bloc.fire(WorkScreenEvents.checkActiveOrderStatus);
-
     _bloc.startTimer();
 
-    log(widget.orderModel.status, name: "STATUS");
     _setupFCM();
     fetchLocationData().then((value) async {
       try {
@@ -166,7 +178,6 @@ class _WorkScreenState extends State<WorkScreen> {
     });
     _refreshServiceDetails();
     otpController = TextEditingController();
-    print(widget.orderModel.otp + "OTP");
   }
 
   @override
@@ -192,19 +203,20 @@ class _WorkScreenState extends State<WorkScreen> {
               onTap: () {
                 Navigator.of(context).push(
                     new MaterialPageRoute(builder: (BuildContext context) {
-                      return OrderImages();
-                    }));
+                  return OrderImages();
+                }));
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 30.0, left: 20),
                 child: Container(
-                  decoration:
-                  BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).cardColor),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Icon(
                       LineAwesomeIcons.images,
-                      color: PrimaryColors.backgroundColor,
+                      color: Theme.of(context).primaryColor,
                       size: 30,
                     ),
                   ),
@@ -215,19 +227,20 @@ class _WorkScreenState extends State<WorkScreen> {
               onTap: () {
                 Navigator.of(context).push(
                     new MaterialPageRoute(builder: (BuildContext context) {
-                      return OrderChat();
-                    }));
+                  return OrderChat();
+                }));
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 30.0, left: 20),
                 child: Container(
-                  decoration:
-                  BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).cardColor),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Icon(
                       Icons.chat,
-                      color: PrimaryColors.backgroundColor,
+                      color: Theme.of(context).primaryColor,
                       size: 30,
                     ),
                   ),
@@ -235,19 +248,45 @@ class _WorkScreenState extends State<WorkScreen> {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                _goToBillingScreen();
+              onTap: () async {
+                if (widget.orderModel.cashOnDelivery) {
+                  if (_bloc.latestViewModel.activeOrderStatus ==
+                      'in progress') {
+                    var confirm = await _dialogForPayOnWorkDone();
+                    if (confirm) {
+                      setState(() {
+                        showNotification=false;
+                      });
+                      _bloc.fire(WorkScreenEvents.receivePayment,
+                          onHandled: (e, m) {
+
+                        if (m.paymentReceived) {
+                          _goToBillingScreenCOD();
+                        } else {
+                          _showMessageDialog(
+                              m?.receivePaymentError?.toString() ?? 'Error');
+                        }
+                      });
+                    }
+                  } else {
+                    _showMessageDialog(
+                        'Order cannot be completed until resolved for Pay On Work Done!');
+                  }
+                } else {
+                  _goToBillingScreen();
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 30.0, left: 20),
                 child: Container(
-                  decoration:
-                  BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).cardColor),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Icon(
                       LineAwesomeIcons.receipt,
-                      color: PrimaryColors.backgroundColor,
+                      color: Theme.of(context).primaryColor,
                       size: 30,
                     ),
                   ),
@@ -256,73 +295,103 @@ class _WorkScreenState extends State<WorkScreen> {
             ),
           ],
         ),
-        backgroundColor: PrimaryColors.backgroundColor,
         body: _bloc.widget(onViewModelUpdated: (ctx, viewModel) {
           return SafeArea(
               child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: RichText(
+                  textAlign: TextAlign.start,
+                  text: TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: "Active  ",
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor),
+                      ),
+                      TextSpan(
+                        text: "Order",
+                        style: TextStyle(
+                            fontSize: 26,
+                            color: Theme.of(context).accentColor,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                 child: Row(
                   children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          border: Border.all(
-                              color: PrimaryColors.backgroundColor, width: 2)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(3.0),
-                        child: CircleAvatar(
-                          radius: 25,
-                          backgroundImage:
-                              (widget.orderModel.user.profilePicId != null)
-                                  ? NetworkImage(
-                                      widget.orderModel.user.profilePicId,
-                                    )
-                                  : AssetImage("assets/custom_icons/user.png"),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Container(
-                      width: MediaQuery.of(context).size.width / 1.4,
+                    Expanded(
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
+                        children: [
                           Container(
-                            child: Text(
-                              widget.orderModel.user.firstname.toUpperCase(),
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 8, top: 8, bottom: 8),
-                            child: Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(25),
-                                  color: Colors.green),
-                              child: GestureDetector(
-                                child: Icon(
-                                  Icons.phone,
-                                  color: PrimaryColors.whiteColor,
-                                ),
-                                onTap: () => launch(
-                                    "tel://${widget.orderModel.user.phoneNumber}"),
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                border: Border.all(
+                                    color: Theme.of(context).accentColor,
+                                    width: 1)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: CircleAvatar(
+                                backgroundColor: Theme.of(context).accentColor,
+                                radius: 25,
+                                backgroundImage: (widget
+                                            .orderModel.user.profilePicId !=
+                                        null)
+                                    ? NetworkImage(
+                                        EndPoints.DOCUMENT +
+                                            widget.orderModel.user.profilePicId,
+                                        headers: {
+                                            'authorization':
+                                                '${DataStore.token}'
+                                          })
+                                    : AssetImage(
+                                        "assets/custom_icons/user.png"),
                               ),
                             ),
                           ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Container(
+                            child: Text(
+                              widget.orderModel.user.firstname,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
                         ],
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(left: 8, top: 8, bottom: 8),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            color: Colors.green),
+                        child: GestureDetector(
+                          child: Icon(
+                            Icons.phone,
+                            color: PrimaryColors.whiteColor,
+                          ),
+                          onTap: () => launch(
+                              "tel://${widget.orderModel.user.phoneNumber}"),
+                        ),
                       ),
                     ),
                   ],
@@ -335,21 +404,25 @@ class _WorkScreenState extends State<WorkScreen> {
 
               Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    border: Border.all(color: Colors.tealAccent)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(
-                      height: 8,
-                    ),
-                    InfoPanel2(
-                      title: "ADDRESS:",
-                      value: formattedAddress,
-                    ),
-                    InfoPanel2(title: "SERVICES:", value: allCsvServices()),
-                  ],
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 8,
+                      ),
+                      InfoPanel2(
+                        title: "ADDRESS:",
+                        value: formattedAddress,
+                      ),
+                      InfoPanel2(title: "SERVICES:", value: allCsvServices()),
+                    ],
+                  ),
                 ),
               ),
               SizedBox(
@@ -359,7 +432,7 @@ class _WorkScreenState extends State<WorkScreen> {
                 padding:
                     const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     CustomButtonType2(
                         text: "BASIC INFO",
@@ -369,24 +442,38 @@ class _WorkScreenState extends State<WorkScreen> {
                         icon: Icon(
                           Icons.info,
                           size: 18,
-                          color: Colors.white,
+                          color: Theme.of(context).canvasColor,
                         )),
                     SizedBox(width: 10),
                     CustomButtonType2(
                       onTap: (viewModel.activeOrderStatus != "in progress")
-                          ? () {
-                              scan();
+                          ? () async {
+                              var otp = await _verifyOtpSheet(context);
+                              if (otp != null && otp.isNotEmpty) {
+                                bool valid = await _bloc
+                                    .verifyOtpToStartService(otp.toString());
+                                if (valid) {
+                                  _showMessageDialog('Otp Valid!');
+                                  setState(() {
+                                    _bloc.latestViewModel.activeOrderStatus =
+                                        'in progress';
+                                  });
+                                } else
+                                  _showMessageDialog('Otp Invalid!');
+                              }
                             }
                           : null,
                       text: (viewModel.activeOrderStatus != "in progress")
-                          ? "SCAN"
-                          : "SCANNED",
+                          ? "VERIFY"
+                          : "VERIFIED",
                       icon: Icon(
                         (viewModel.activeOrderStatus != "in progress")
-                            ? Icons.camera_alt
+                            ? Icons.info
                             : Icons.check_circle,
                         size: 18,
-                        color: Colors.white,
+                        color: (viewModel.activeOrderStatus != "in progress")
+                            ? Theme.of(context).errorColor
+                            : Theme.of(context).canvasColor,
                       ),
                     ),
                     SizedBox(width: 10),
@@ -398,7 +485,7 @@ class _WorkScreenState extends State<WorkScreen> {
                         icon: Icon(
                           Icons.info,
                           size: 18,
-                          color: Colors.white,
+                          color: Theme.of(context).canvasColor,
                         )),
                   ],
                 ),
@@ -406,6 +493,13 @@ class _WorkScreenState extends State<WorkScreen> {
               SizedBox(
                 height: 12,
               ),
+              (viewModel.receivingPayment)
+                  ? LinearProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).accentColor),
+                      backgroundColor: Theme.of(context).canvasColor,
+                    )
+                  : SizedBox(),
               (viewModel.activeOrderStatus != "in progress")
                   ? Expanded(
                       child: mapWidget = GoogleMap(
@@ -418,29 +512,11 @@ class _WorkScreenState extends State<WorkScreen> {
                           target: LatLng(38.8977, 77.0365), zoom: 16),
                     ))
                   : Expanded(
-                      child: Container(
-                        decoration:
-                            BoxDecoration(color: PrimaryColors.backgroundColor),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            WorkAnimation(),
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height / 5,
-                            ),
-                            (widget.orderModel.cashOnDelivery)
-                                ? CustomButtonType1(
-                                    onTap: () {
-                                      _showCompleteOrderDialogBoxForPayOnDelivery();
-                                    },
-                                    flexibleSize: 0,
-                                    text: "ARE YOU DONE?",
-                                  )
-                                : Container(),
-
-                            
-                          ],
-                        ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          WorkAnimation(),
+                        ],
                       ),
                     ),
             ],
@@ -450,78 +526,44 @@ class _WorkScreenState extends State<WorkScreen> {
     );
   }
 
-  _showCompleteOrderDialogBoxForPayOnline() {
+  _dialogForPayOnWorkDone() {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: Text("Are you sure?"),
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("No"),
-              ),
-              FlatButton(
-                onPressed: () {
-                  // _goToBillingScreen();
-                },
-                child: Text("Yes"),
-              ),
-            ],
-          );
-        });
-  }
-
-  _showCompleteOrderDialogBoxForPayOnDelivery() {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
+            backgroundColor: Theme.of(context).canvasColor,
             content: Text(
-              "Are you sure?",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              "Are you done?\n\n*Pay on work done cannot be reverted after bill is fetched..",
+              style:
+                  TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
             ),
             actions: <Widget>[
               RaisedButton(
-                color: PrimaryColors.backgroundColor,
-                onPressed: () {
-                  Navigator.pop(context);
+                color: Theme.of(context).canvasColor,
+                onPressed: () async {
+                  Navigator.pop(context, false);
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     "NO",
-                    style: TextStyle(color: Colors.orangeAccent),
+                    style: TextStyle(color: Theme.of(context).primaryColor),
                   ),
                 ),
               ),
-              (widget.orderModel.cashOnDelivery)
-                  ? RaisedButton(
-                      color: PrimaryColors.backgroundColor,
-                      onPressed: () {
-                        // _bloc.fire(WorkScreenEvents.onJobCompletion,
-                        //     message: {'orderID': widget.orderModel.id},
-                        //     onHandled: (e, m) {
-                        //   print("Trying to complete");
-                        //   if (m.onJobCompleted) {
-                        //     _goToBillingScreen();
-                        //   } else
-                        //     Scaffold.of(context).showSnackBar(new SnackBar(
-                        //         content:
-                        //             new Text('Unable to complete order!')));
-                        // });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "YES",
-                          style: TextStyle(color: Colors.orangeAccent),
-                        ),
-                      ),
-                    )
-                  : Container(),
+              RaisedButton(
+                color: Theme.of(context).canvasColor,
+                onPressed: () async {
+                  Navigator.pop(context, true);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "YES",
+                    style: TextStyle(color: Colors.orange),
+                  ),
+                ),
+              )
             ],
           );
         });
@@ -538,14 +580,167 @@ class _WorkScreenState extends State<WorkScreen> {
     }));
   }
 
+  _goToBillingScreenCOD() {
+    if (!widget.orderModel.cashOnDelivery) _bloc.endTimer();
+    Navigator.of(context)
+        .pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+      return BillingRatingScreen(
+        orderId: widget.orderModel.id,
+        cashOnDelivery: widget.orderModel.cashOnDelivery,
+      );
+    }));
+  }
+
+  _verifyOtpSheet(context) {
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: Wrap(
+              children: <Widget>[
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(25)),
+                              color: Theme.of(context).cardColor),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(12.0, 8, 12, 8),
+                            child: Text(
+                              "VERIFY ORDER",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).primaryColor),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                child: Form(
+                                  key: _formOTP,
+                                  child: TextFormField(
+                                    cursorColor: Theme.of(context).accentColor,
+                                    validator: (value) {
+                                      if (value.trim().isNotEmpty) {
+                                        if (!isNumeric(value))
+                                          return 'Only digits accepted!';
+                                      }
+                                      if (value.isEmpty || value.length < 6) {
+                                        return 'Otp cannot be less than 6 digits';
+                                      }
+                                      return null;
+                                    },
+                                    style: TextStyle(
+                                        color: Theme.of(context).accentColor,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
+                                    inputFormatters: [
+                                      LengthLimitingTextInputFormatter(6),
+                                    ],
+                                    decoration: InputDecoration(
+                                      border: UnderlineInputBorder(
+                                          borderSide: BorderSide.none),
+                                      hintText: "Enter 6 digit OTP",
+                                      fillColor: Theme.of(context).cardColor,
+                                      filled: true,
+                                      errorStyle: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    controller: otpController,
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            decimal: false),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          RaisedButton(
+                            color: Theme.of(context).primaryColor,
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            textColor: Colors.white,
+                            onPressed: () {
+                              if (_formOTP.currentState.validate()) {
+                                Navigator.pop(context, otpController.text??null);
+                                otpController.clear();
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                "Verify",
+                                style: TextStyle(
+                                  color: Theme.of(context).canvasColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          OutlineButton(
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            borderSide: BorderSide(
+                                width: 2, color: Theme.of(context).accentColor),
+                            textColor: PrimaryColors.backgroundColor,
+                            onPressed: () {
+                              otpController.clear();
+                              Navigator.pop(context, null);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Text(
+                                "Cancel",
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        });
+  }
+
   _showAddOnInfoDialogBox() {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
-          log(_bloc.latestViewModel.ordersModel.addOns.length.toString(),
-              name: "SIZE");
           return Dialog(
-            backgroundColor: PrimaryColors.backgroundColor,
+            backgroundColor: Theme.of(context).canvasColor,
             child: Wrap(
               children: [
                 Container(
@@ -570,8 +765,8 @@ class _WorkScreenState extends State<WorkScreen> {
                                   child: Text(
                                 "User did not request for any add-on!",
                                 style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).accentColor,
+                                  fontWeight: FontWeight.w500,
                                 ),
                                 textAlign: TextAlign.center,
                               )),
@@ -609,11 +804,10 @@ class _WorkScreenState extends State<WorkScreen> {
 
   _showJobInfoDialogBox(String formattedAddress) {
     return showDialog(
-        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: PrimaryColors.backgroundColor,
+            backgroundColor: Theme.of(context).canvasColor,
             insetPadding: EdgeInsets.symmetric(horizontal: 10),
             content: Wrap(
               children: <Widget>[
@@ -635,11 +829,6 @@ class _WorkScreenState extends State<WorkScreen> {
                       InfoPanel(
                         title: "User:",
                         answer: widget.orderModel.user.firstname,
-                        maxLines: 1,
-                      ),
-                      InfoPanel(
-                        title: "Order Id:",
-                        answer: widget.orderModel.id,
                         maxLines: 1,
                       ),
                       InfoPanel(
@@ -685,98 +874,61 @@ class _WorkScreenState extends State<WorkScreen> {
   _getMessage(Map<String, dynamic> message) {
     Map notification = message['notification'];
     Map map = message['data'];
-    String body = notification['body'];
-    String m = map['redirect'];
-
-    print(body + m);
-    if (m == 'JOB_PROCESSED')
-      _showPaymentReceivedNotification(body);
-    else if (m == 'JOB_UPDATED') _refreshServiceDetails();
-    // else if (body == "You're Done!") {
-    //   setState(() {
-    //     _onNotificationReceivedForCompletionOfPayOnline = true;
-    //   });
-    // } else
-    //   _showJobCompletionNotificationForOnlinePayment(body);
+    if (notification['body'] != null) {
+      String body = notification['body'];
+      String m = map['redirect'];
+      if (m == 'JOB_UPDATE' && showNotification) {
+        _refreshServiceDetails();
+        _showMessageDialog(body);
+      }
+      if (m == 'JOB_CANCEL') _showCancelDialog(body);
+    }
   }
 
-  _showPaymentReceivedNotification(String message) {
+  _showMessageDialog(message) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            elevation: 4,
+            backgroundColor: Theme.of(context).canvasColor,
             content: Text(
               message,
-              maxLines: null,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            actions: <Widget>[
-              RaisedButton(
-                color: PrimaryColors.backgroundColor,
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    "OK",
-                    style: TextStyle(color: Colors.orangeAccent),
-                  ),
-                ),
-              )
-            ],
-          );
-        });
-  }
-
-  _showOtpValidityDialog(message) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Text(
-              message,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor),
             ),
           );
         });
   }
 
-  _showJobCompletionNotificationForOnlinePayment(String message) {
+  _showCancelDialog(message) {
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            elevation: 4,
+            backgroundColor: Theme.of(context).canvasColor,
             content: Text(
-              message,
-              maxLines: null,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              'Order has been cancelled!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).errorColor),
             ),
             actions: [
-              (widget.orderModel.cashOnDelivery)
-                  ? RaisedButton(
-                      color: PrimaryColors.backgroundColor,
-                      onPressed: () {
-                        _bloc.fire(WorkScreenEvents.receivePayment,
-                            onHandled: (e, m) {
-                          if (m.paymentReceived)
-                            _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                                content: new Text('Payment Received')));
-                          else
-                            _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                                content: new Text('Payment Received error')));
-                        });
-                      },
-                      //ADD BILLING SCREEN
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "OK",
-                          style: TextStyle(color: Colors.orangeAccent),
-                        ),
-                      ),
-                    )
-                  : SizedBox(),
+              RaisedButton(
+                onPressed: () {
+                  Route route = MaterialPageRoute(
+                      builder: (context) => NavigationScreen());
+                  Navigator.pushAndRemoveUntil(context, route, (e) => false);
+                },
+                color: Theme.of(context).canvasColor,
+                child: Text('OK'),
+                textColor: Theme.of(context).primaryColor,
+              )
             ],
           );
         });

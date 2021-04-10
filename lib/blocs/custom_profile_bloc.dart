@@ -26,32 +26,45 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
     return latestViewModel;
   }
 
+  Future<double> getRating() async {
+    String query = '''{
+  rating{
+    avg
+  }
+}''';
+    Map response = await CustomGraphQLClient.instance.query(query);
+    print(response['rating']['avg'].toString()+'HHH');
+    return response['rating']['avg'];
+  }
+
   Future<CustomProfileModel> updateDP(
-      String path, String filename, List<String> t) async {
-    List tags = t.map((e) {
-      return '"$e"';
-    }).toList();
+      String path, String filename, String t) async {
+    // List tags = t.map((e) {
+    //   return '"$e"';
+    // }).toList();
     MultipartFile multipartFile = await MultipartFile.fromPath(
       'image',
       path,
       filename: '$filename.jpg',
       contentType: MediaType("image", "jpg"),
     );
+    bool private=false;
 
     String query = r'''
-mutation($file: Upload!, $tags: [String]) {
-  createMedia(input: { file: $file, tags: $tags }) {
+mutation($file: Upload!, $tags: [String], $private: Boolean) {
+  createMedia(input: { file: $file, tags: $tags, private: $private }) {
     key
-    filename
+    filename                                               
     tags
   }
 }
+  
   ''';
 
     try {
       Map response = await CustomGraphQLClient.instance.mutate(
         query,
-        variables: {'file': multipartFile, 'tags': tags.toString()},
+        variables: {'file': multipartFile, 'tags': ["$t"], 'private': private},
       );
       String key = response['createMedia']['key'];
       String mutate = '''mutation{
@@ -63,13 +76,13 @@ mutation($file: Upload!, $tags: [String]) {
         Map responseOfMutation =
             await CustomGraphQLClient.instance.mutate(mutate);
 
-        return latestViewModel..imageUrl = '${EndPoints.DOCUMENT}$key';
+        return latestViewModel..imageUrl = '${EndPoints.DOCUMENT}$key'..dpUploaded=true;
       } catch (e) {}
       print(e);
-      return latestViewModel;
+      return latestViewModel..dpUploaded=false;
     } catch (e) {
       print(e);
-      return latestViewModel;
+      return latestViewModel..dpUploaded=false;
     }
   }
 

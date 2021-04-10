@@ -16,6 +16,7 @@ class NavigationModel extends ViewModel {
   bool loading=false;
   bool orderExpired=false;
   Orders ordersModel = Orders();
+  List<OrderNotificationModel> orderNotifications=[];
 }
 
 

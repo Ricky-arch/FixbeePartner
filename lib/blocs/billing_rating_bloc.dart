@@ -26,17 +26,18 @@ class BillingRatingBloc extends Bloc<BillingRatingEvent, BillingRatingModel>
   }
 
   Future<BillingRatingModel> addRating(Map<String, dynamic> message) async {
-    String accountID = message['accountID'];
+    String id = message['id'];
     int score = message['Score'];
     String review = message['Review'];
 
     String query = '''
     mutation{
-  AddRating(input:{AccountId:"$accountID", Score:$score, Remark:"$review"}){
-    Score
+  rateOrder(id:"$id", input:{score:$score, review:"$review"}){
+    id
   }
 }
     ''';
+
     Map response = await CustomGraphQLClient.instance.mutate(query);
     return latestViewModel;
   }
@@ -76,14 +77,17 @@ class BillingRatingBloc extends Bloc<BillingRatingEvent, BillingRatingModel>
       Map response = await CustomGraphQLClient.instance.query(query);
       Map receiptMap = response['receipt'];
       Receipt receipt = Receipt();
+
       receipt.referenceId = receiptMap['referenceId'];
       receipt.userName=receiptMap['client']['name'];
+      receipt.serviceCharge =receiptMap['serviceCharge'];
       receipt.amount = receiptMap['amount'];
+      print(response['receipt']['referenceId']+'IDDD');
       if (receiptMap['payment'] != null) {
         receipt.payment.amount = receiptMap['payment']['amount'];
         receipt.payment.status = receiptMap['payment']['status'];
         receipt.payment.amountRefunded =
-            receiptMap['payment']['amount_refunded'];
+            receiptMap['payment']['amount_refunded'].toString();
         receipt.payment.refundStatus = receiptMap['payment']['refund_status'];
         receipt.payment.method=receiptMap['payment']['method'];
         receipt.payment.captured = receiptMap['payment']['captured'];
@@ -101,109 +105,7 @@ class BillingRatingBloc extends Bloc<BillingRatingEvent, BillingRatingModel>
       return latestViewModel..receipt=receipt;
     } catch (e) {}
     return latestViewModel;
-//     String orderID = message['orderID'];
-//     String query = '''{
-//   Order(_id: "$orderID") {
-//     Quantity
-//
-//     ID
-//     User{
-//       Name{
-//         Firstname
-//         Middlename
-//         Lastname
-//       }
-//     }
-//     Location{
-//       Address{
-//         Line1
-//       }
-//     }
-//     Amount
-//     BasePrice
-//     ServiceCharge
-//     TaxCharge
-//     Discount
-//     Status
-//     Quantity
-//     Addons {
-//       Quantity
-//       BasePrice
-//       ServiceCharge
-//       TaxCharge
-//       Service {
-//         Name
-//         Pricing {
-//           BasePrice
-//           ServiceCharge
-//           TaxPercent
-//         }
-//       }
-//       Amount
-//     }
-//     Service {
-//       Name
-//       Pricing {
-//         BasePrice
-//         ServiceCharge
-//         TaxPercent
-//       }
-//     }
-//     Timestamp
-//     Location {
-//       Address {
-//         Line1
-//       }
-//     }
-//     CashOnDelivery
-//   }
-// }
-// ''';
-//     Map response = await CustomGraphQLClient.instance.query(query);
-//     OrderModel order = OrderModel();
-//     order.orderId = response['Order']['ID'];
-//     order.totalAmount = response['Order']['Amount'];
-//     order.status = response['Order']['Status'];
-//     order.serviceName = response['Order']['Service']['Name'];
-//     order.orderAmount = response['Order']['Amount'];
-//     order.orderBasePrice = response['Order']['BasePrice'];
-//     order.orderServiceCharge = response['Order']['ServiceCharge'];
-//     order.orderDiscount = response['Order']['Discount'];
-//     order.orderTaxCharge = response['Order']['TaxCharge'];
-//
-//     order.basePrice = response['Order']['Service']['Pricing']['BasePrice'];
-//     order.serviceCharge =
-//         response['Order']['Service']['Pricing']['ServiceCharge'];
-//     order.taxPercent = response['Order']['Service']['Pricing']['TaxPercent'];
-//     order.timeStamp = response['Order']['Timestamp'];
-//     order.cashOnDelivery = response['Order']['CashOnDelivery'];
-//     order.addressLine = response['Order']['Location']['Address']['Line1'];
-//     order.quantity = response['Order']['Quantity'];
-//     order.userName = getUserName(
-//         response['Order']['User']['Name']['Firstname'],
-//         response['Order']['User']['Name']['Middlename'],
-//         response['Order']['User']['Name']['Lastname']);
-//     order.addons = [];
-//     List addons = response['Order']['Addons'];
-//     int b=0,s=0;
-//     for (Map addon in addons) {
-//
-//       Service service = Service()
-//         ..serviceName = addon['Service']['Name']
-//         ..basePrice = addon['Service']['Pricing']['BasePrice']
-//         ..serviceCharge = addon['Service']['Pricing']['ServiceCharge']
-//         ..taxPercent = addon['Service']['Pricing']['TaxPercent']
-//         ..addOnBasePrice = addon['BasePrice']
-//         ..addOnServiceCharge = addon['ServiceCharge']
-//         ..addOnTaxCharge = addon['TaxCharge']
-//         ..quantity = addon['Quantity']
-//         ..amount = addon['Amount'];
-//       b=b+addon['BasePrice'];
-//       s=s+addon['ServiceCharge'];
-//       order.addons.add(service);
-//     }
-//     log(order.userName, name: "NAME");
-//     return latestViewModel..orderModel = order..orderModel.totalAddonBasePrice=b..orderModel.totalAddonServiceCharge=s;
+
   }
 
   String getUserName(String first, middle, last) {

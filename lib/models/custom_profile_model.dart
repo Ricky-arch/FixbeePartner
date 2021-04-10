@@ -7,4 +7,5 @@ class CustomProfileModel extends ViewModel {
   String mimetype;
   String encoding;
   bool verifiedAccount=false;
+  bool dpUploaded=false;
 }

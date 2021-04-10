@@ -1,31 +1,29 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fixbee_partner/blocs/navigation_bloc.dart';
-import 'package:fixbee_partner/events/navigation_event.dart';
 import 'package:fixbee_partner/models/navigation_model.dart';
 import 'package:fixbee_partner/models/orders_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/bottom_nav_bar.dart';
-import 'package:fixbee_partner/ui/custom_widget/new_service_notification.dart';
-import 'package:fixbee_partner/ui/custom_widget/order_notifcation.dart';
 import 'package:fixbee_partner/ui/custom_widget/order_widget.dart';
-import 'package:fixbee_partner/ui/custom_widget/profile_notification.dart';
 import 'package:fixbee_partner/ui/screens/home.dart';
 import 'package:fixbee_partner/ui/screens/wallet_screen.dart';
 import 'package:fixbee_partner/ui/screens/work_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vibration/vibration.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../Constants.dart';
+import '../../data_store.dart';
 import 'custom_profile.dart';
 import 'history_screen.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class NavigationScreen extends StatefulWidget {
   final bool gotJob;
-  const NavigationScreen({Key key, this.gotJob = false}) : super(key: key);
+  final int currentAppBuildNumber;
+  const NavigationScreen(
+      {Key key, this.gotJob = false, this.currentAppBuildNumber})
+      : super(key: key);
   @override
   _NavigationScreenState createState() => _NavigationScreenState();
 }
@@ -86,11 +84,13 @@ class _NavigationScreenState extends State<NavigationScreen> {
     _pageController = PageController();
     _bloc = NavigationBloc(NavigationModel());
     if (_BEENAME.get("myActiveStatus") == "true") _bloc.startTimer();
-
     _setupFCM();
-
     _visible = widget.gotJob;
-    // _bloc.fire(NavigationEvent.updateFcmTest);
+    Future.delayed(Duration(seconds: 3), () {
+      if (widget.currentAppBuildNumber != null) if (widget
+              .currentAppBuildNumber <
+          DataStore.metaData.buildNumber) _showUpdateDialog();
+    });
     super.initState();
   }
 
@@ -113,6 +113,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
           FlutterRingtonePlayer.playNotification();
           log(message.toString(), name: 'ON_RESUME');
           print('FCM_RESUME:  ' + fcmTest);
+
           _getJobDetails(message);
         },
         onLaunch: (message) async {
@@ -126,15 +127,14 @@ class _NavigationScreenState extends State<NavigationScreen> {
 
   static Future<dynamic> myBackgroundMessageHandler(
       Map<String, dynamic> message) async {
-    //print('FCM_BACKGROUND_MESSAGE  :  ' + message.toString());
     return true;
   }
 
   _getJobDetails(Map<String, dynamic> message) {
-    //print(message);
+
+
     if (message.containsKey('data')) {
       Map data = message['data'];
-
       redirect = data['redirect'];
       if (redirect == 'JOB_REQUEST') {
         orderId = data['id'];
@@ -144,26 +144,45 @@ class _NavigationScreenState extends State<NavigationScreen> {
         _orderNotificationModel
           ..orderId = orderId
           ..orderAddress = address
-          ..serviceName = 'Tell Sagnik'
+          ..serviceName = data['service']
           ..userName = userName
-          ..cashOnDelivery = paymentMode == 'COD' ? true : false;
+          ..cashOnDelivery = paymentMode == 'cod' ? true : false;
 
-        if (!orderIdReceivedFromNotification.contains(orderId)) {
-          setState(() {
-            orderIdReceivedFromNotification.add(orderId);
-            _onNotificationOrderList.add(_orderNotificationModel);
-          });
-        }
+        setState(() {
+          _onNotificationOrderList.add(_orderNotificationModel);
+        });
+      } else {
+        Map notification = message['notification'];
+        if (notification['body'] != null && redirect == 'JOB_UPDATE')
+          _showMessageDialog(notification['body']);
+        if (notification['body'] != null && redirect == 'JOB_CANCEL')
+          _showCancelDialog(notification['body']);
       }
     }
+  }
 
-    // _showNotificationDialog();
+  _showMessageDialog(message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            elevation: 4,
+            backgroundColor: Theme.of(context).canvasColor,
+            content: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor),
+            ),
+          );
+        });
   }
 
   _orderSheet() {
     showModalBottomSheet(
         isScrollControlled: true,
-        backgroundColor: PrimaryColors.backgroundColor,
+        backgroundColor: Theme.of(context).canvasColor,
         context: context,
         builder: (builder) {
           return Container(
@@ -177,7 +196,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                         child: Text(
                           "NO WORRIES YOU WILL SOON RECEIVE  ORDER!",
                           style: TextStyle(
-                              color: PrimaryColors.yellowColor,
+                              color: Theme.of(context).primaryColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 15),
                         ),
@@ -192,7 +211,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                           child: Text(
                             "YOUR ORDERS",
                             style: TextStyle(
-                                color: PrimaryColors.yellowColor,
+                                color: Theme.of(context).primaryColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 17),
                           ),
@@ -213,32 +232,26 @@ class _NavigationScreenState extends State<NavigationScreen> {
                                 confirm: (value) async {
                                   setState(() {
                                     _onNotificationOrderList.clear();
-                                    orderIdReceivedFromNotification.clear();
+                                    // orderIdReceivedFromNotification.clear();
                                   });
                                   Navigator.pop(context);
-                                  Orders order= await _bloc.onConfirmDeclineJob(value);
-                                  if(order==null){
-                                    // Navigator.pop(context);
+                                  Orders order =
+                                      await _bloc.onConfirmDeclineJob(value);
+                                  if (order == null) {
                                     _showOrderExpiredDialog(
                                         "Order request invalid or expired");
-                                  }
-                                  else{
-                                    // Navigator.pop(context);
+                                  } else {
                                     Route route = MaterialPageRoute(
                                         builder: (context) => WorkScreen(
-                                          orderModel: order,
-                                        ));
+                                              orderModel: order,
+                                            ));
                                     Navigator.push(context, route);
                                   }
                                 },
                                 decline: (value) async {
                                   setState(() {
                                     _onNotificationOrderList.removeAt(value);
-                                    orderIdReceivedFromNotification.removeAt(value);
-                                    if(_onNotificationOrderList.length==0)
-                                      orderIdReceivedFromNotification.clear();
                                   });
-
 
                                   //Navigator.pop(context);
                                 },
@@ -257,15 +270,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
         });
   }
 
-  _profileSheet() {
-    showModalBottomSheet(
-        backgroundColor: PrimaryColors.backgroundColor,
-        context: context,
-        builder: (builder) {
-          return ProfileNotification();
-        });
-  }
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -277,65 +281,61 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: (_currentIndex == 0 && _currentIndex != 3)
+      floatingActionButton: (_currentIndex != 3 && _currentIndex != 1)
           ? Row(
               children: [
-                Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(25.0, 0, 0, 30),
-                      child: FloatingActionButton(
-                        mini: false,
-                        elevation: 0,
-                        backgroundColor: Colors.amber,
-                        child: Icon(
-                          Icons.add_alert,
-                          color: PrimaryColors.backgroundColor,
-                          size: 25,
-                        ),
-                        onPressed: () {
-                          _orderSheet();
-                        },
-                      ),
-                    ),
-                    Positioned(
-                        top: 1.0,
-                        right: 2.0,
+                GestureDetector(
+                  onTap: () {
+                    _orderSheet();
+                  },
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(25.0, 0, 0, 30),
                         child: Container(
+                          padding: EdgeInsets.all(3),
                           decoration: BoxDecoration(
-                              color: Colors.black, shape: BoxShape.circle),
-                          child: Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: Center(
-                              child: Text(
-                                _onNotificationOrderList.length.toString(),
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12.0,
-                                    fontWeight: FontWeight.w500),
-                              ),
+                              color: Theme.of(context).hintColor,
+                              shape: BoxShape.circle),
+                          child: Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context).cardColor),
+                            child: Icon(
+                              Icons.notification_important,
+                              size: 20,
+                              color: Theme.of(context).primaryColor,
                             ),
                           ),
-                        )),
-                  ],
+                        ),
+                      ),
+                      Positioned(
+                          right: 8,
+                          top: -3,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: PrimaryColors.whiteColor,
+                                shape: BoxShape.circle),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Center(
+                                child: Text(
+                                  _onNotificationOrderList.length.toString(),
+                                  style: TextStyle(
+                                      color: PrimaryColors.backgroundColor,
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ),
+                          )),
+                    ],
+                  ),
                 ),
               ],
             )
-          : (_currentIndex == 3)
-              ? FloatingActionButton(
-                  mini: false,
-                  elevation: 0,
-                  backgroundColor: Colors.amber,
-                  child: Icon(
-                    Icons.add_alert,
-                    color: PrimaryColors.backgroundColor,
-                    size: 25,
-                  ),
-                  onPressed: () {
-                    _profileSheet();
-                  },
-                )
-              : SizedBox(),
+          : SizedBox(),
       backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavBar(
         onPageSelected: (index) {
@@ -353,38 +353,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
     );
   }
 
-  _showCancelBox() {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Text("Are you sure about declining?"),
-            actions: [
-              FlatButton(
-                onPressed: () {
-                  setState(() {
-                    _visible = false;
-                  });
-                  Navigator.pop(context);
-                },
-                child: Text("Yes"),
-              ),
-              FlatButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("No"),
-              ),
-            ],
-          );
-        });
-  }
-
   _showOrderExpiredDialog(String message) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: Theme.of(context).canvasColor,
             content: Text(
               message,
               maxLines: null,
@@ -392,7 +366,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             ),
             actions: <Widget>[
               RaisedButton(
-                color: PrimaryColors.backgroundColor,
+                color: Theme.of(context).canvasColor,
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -400,12 +374,86 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     "OK",
-                    style: TextStyle(color: Colors.orangeAccent),
+                    style: TextStyle(color: Theme.of(context).canvasColor),
                   ),
                 ),
               )
             ],
           );
         });
+  }
+
+  _showUpdateDialog() {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            elevation: 4,
+            backgroundColor: PrimaryColors.backgroundColor,
+            content: Text(
+              'Update Available!',
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              RaisedButton(
+                elevation: 4,
+                color: Colors.orange,
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                onPressed: () {
+                  _launchURL(Constants.PLAYSTORE_APP_LINK);
+                },
+                child: Text('Update'),
+              ),
+              RaisedButton(
+                elevation: 4,
+                color: Colors.orange,
+                padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Skip'),
+              )
+            ],
+          );
+        });
+  }
+
+  _showCancelDialog(message) {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            elevation: 4,
+            backgroundColor: Theme.of(context).canvasColor,
+            content: Text(
+              'Order has been cancelled!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).errorColor),
+            ),
+            actions: [
+              RaisedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                color: Theme.of(context).canvasColor,
+                child: Text('OK'),
+                textColor: Theme.of(context).primaryColor,
+              )
+            ],
+          );
+        });
+  }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }
