@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:fixbee_partner/utils/excerpt.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +21,7 @@ class ServiceBanner extends StatefulWidget {
       this.image,
       this.excerpt})
       : super(key: key);
+
   @override
   _ServiceBannerState createState() => _ServiceBannerState();
 }
@@ -42,14 +44,36 @@ class _ServiceBannerState extends State<ServiceBanner> {
                 child: Row(
                   children: [
                     Container(
-                      height: 60,
-                      width: 75,
-                      padding: EdgeInsets.symmetric(vertical: 8),
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                          color: FixbeeColors.kImageBackGroundColor,
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      padding: EdgeInsets.all(8),
                       child: (widget.image == null)
-                          ? Image.asset("assets/logo/new_launcher_icon.png")
+                          ? Container(
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage(
+                                      "assets/custom_icons/ic_launcher.png",
+                                    )),
+                              ),
+                            )
                           : CachedNetworkImage(
                               fit: BoxFit.cover,
                               imageUrl: widget.image,
+                              imageBuilder: (context, imageProvider) =>
+                                  Container(
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  image: DecorationImage(
+                                      image: imageProvider, fit: BoxFit.cover),
+                                ),
+                              ),
                               httpHeaders: {'authorization': DataStore.token},
                             ),
                     ),

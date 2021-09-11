@@ -1,13 +1,11 @@
 import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:fixbee_partner/Constants.dart';
 import 'package:fixbee_partner/bloc.dart';
 import 'package:fixbee_partner/events/registration_events.dart';
 import 'package:fixbee_partner/models/bee_model.dart';
 import 'package:fixbee_partner/models/registration_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
-import 'package:fixbee_partner/utils/request_maker.dart';
 import '../data_store.dart';
 import 'flavours.dart';
 
@@ -37,8 +35,27 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
     final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     String fcmToken = await _firebaseMessaging.getToken();
     DataStore.fcmToken = fcmToken;
-    log(fcmToken, name: 'FCM TOKEN');
-    String query='''
+    String query1 = '''
+    mutation{
+      register(input:{
+        name: {
+        firstName: "${message['firstName']}",
+        middleName: "${message['middleName']}",
+        lastName: "${message['lastName']}"
+      },
+      fcmToken: "$fcmToken",
+      phone: "${message['phone']}",
+      password:"${message['password']}",
+      personalDetails: {
+        dateOfBirth: "${message['dateOfBirth']}",
+        gender: "${message['gender']}"
+      }
+      }){
+      token
+      }
+    }
+    ''';
+    String query2 = '''
     mutation{
       register(input:{
         name: {
@@ -60,9 +77,11 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
     }
     ''';
     Map response;
-    try{
-      response= await CustomGraphQLClient.instance.mutate(query);
-      print(response);
+    try {
+      if (message['email'] == null || message['email'].isEmpty)
+        response= await CustomGraphQLClient.instance.mutate(query1);
+      else
+        response = await CustomGraphQLClient.instance.mutate(query2);
 
       Bee bee = Bee()
         ..firstName = message['firstname']
@@ -76,41 +95,17 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
         ..dpUrl = null;
 
       DataStore.me = bee;
-       return latestViewModel..registered=true;
-    }
-    catch(e){
+      return latestViewModel..registered = true;
+    } catch (e) {
       print(e);
-      return latestViewModel..registered = false..error=e.toString();
+      return latestViewModel
+        ..registered = false
+        ..error = e.toString();
     }
-
-
-    // Map response = await RequestMaker(endpoint: EndPoints.REGISTER, body: {
-    //   'name': {
-    //     'firstName': message['firstname'],
-    //     'middleName': message['middlename'],
-    //     'lastName': message['lastname']
-    //   },
-    //   'email': message['email'],
-    //   'fcmToken': fcmToken,
-    //   'phone': message['phonenumber'],
-    //   'personalDetails': {
-    //     'dateOfBirth': message['dateOfBirth'],
-    //     'gender': message['gender']
-    //   }
-    // }).makeRequest();
-
-    // print(response.containsValue('created'));
-    // print('Null : ${latestViewModel == null}');
-    //
-    // if (response.containsKey('created')) {
-    //   return (latestViewModel..registered = true);
-    // } else
-    //   return (latestViewModel..registered = false);
   }
 
   Future<RegistrationModel> requestOtp(Map<String, dynamic> message) async {
-
-    String query='''
+    String query = '''
       mutation{
         sendOtp(input:{phone:"${message['phonenumber']}"}){
           phone
@@ -119,17 +114,15 @@ class RegistrationBloc extends Bloc<RegistrationEvents, RegistrationModel>
        }
      ''';
     Map response;
-    try{
-      response= await CustomGraphQLClient.instance.mutate(query);
+    try {
+      response = await CustomGraphQLClient.instance.mutate(query);
       print(response['sendOtp']['otpGenerated'].toString());
-      if(response['sendOtp']['otpGenerated'])
-        return latestViewModel..sent=true;
-    }
-    catch(e){
+      if (response['sendOtp']['otpGenerated'])
+        return latestViewModel..sent = true;
+    } catch (e) {
       print(e);
-      return latestViewModel..sent=false;
+      return latestViewModel..sent = false;
     }
     return latestViewModel;
-
   }
 }

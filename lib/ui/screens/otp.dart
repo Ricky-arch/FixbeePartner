@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
 import '../../Constants.dart';
+import 'login.dart';
 import 'navigation_screen.dart';
 
 class OTP extends StatefulWidget {
@@ -219,7 +220,7 @@ class _OTPState extends State<OTP> {
                                                 onHandled: (e, m) async {
                                               if (m.walletError) {
                                                 _showMessageDialog(
-                                                    m.walletError);
+                                                    m.errorMessage);
                                               } else {
                                                 await refreshAllData(m.bee);
                                                 if (!m.serviceSelected) {
@@ -357,20 +358,55 @@ class _OTPState extends State<OTP> {
 
   _showMessageDialog(message) {
     showDialog(
-        context: context,
         barrierDismissible: false,
+        context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            elevation: 4,
-            backgroundColor: PrimaryColors.backgroundColor,
-            content: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor),
-            ),
-          );
+              elevation: 4,
+              backgroundColor: PrimaryColors.backgroundColor,
+              content: Wrap(
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.orange),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          RaisedButton(
+                            onPressed: () {
+                              Route route = MaterialPageRoute(
+                                  builder: (context) => Login());
+                              Navigator.pushAndRemoveUntil(
+                                  context, route, (e) => false);
+                            },
+                            elevation: 4,
+                            color: Theme.of(context).primaryColor,
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "Log into different account?",
+                                style: TextStyle(
+                                    color: Theme.of(context).canvasColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ],
+              ));
         });
   }
 

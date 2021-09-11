@@ -37,7 +37,7 @@ class _WorkAnimationState extends State<WorkAnimation>
         height: 70,
         child: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: SvgPicture.asset("assets/logo/bee_outline.svg",height: 50,width: 50,color: PrimaryColors.whiteColor,),
+          child: SvgPicture.asset("assets/logo/fixbee_yellow.svg",height: 50,width: 50,color: PrimaryColors.whiteColor,),
         ),
         decoration: BoxDecoration(
             shape: BoxShape.circle,

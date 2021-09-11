@@ -152,7 +152,7 @@ class _SplashScreenState extends State<SplashScreen>
           m.metadata.buildNumber > int.parse(_packageInfo.buildNumber)) {
         _showUpdateDialog();
       } else {
-        if (m.tokenFound) {
+        if (m.tokenFound || m.hasError) {
           if (m.hasError) {
             _showMessageDialog(m.errorMessage);
           } else {
@@ -195,15 +195,51 @@ class _SplashScreenState extends State<SplashScreen>
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            elevation: 4,
-            backgroundColor: PrimaryColors.backgroundColor,
-            content: Text(
-              message,
-              textAlign: TextAlign.center,
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, color: Colors.orange),
-            ),
-          );
+              elevation: 4,
+              backgroundColor: PrimaryColors.backgroundColor,
+              content: Wrap(
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.orange),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          RaisedButton(
+                            onPressed: () {
+                              Route route = MaterialPageRoute(
+                                  builder: (context) => Login());
+                              Navigator.pushAndRemoveUntil(
+                                  context, route, (e) => false);
+                            },
+                            elevation: 4,
+                            color: Theme.of(context).primaryColor,
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "Log into different account?",
+                                style: TextStyle(
+                                    color: Theme.of(context).canvasColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ],
+              ));
         });
   }
 

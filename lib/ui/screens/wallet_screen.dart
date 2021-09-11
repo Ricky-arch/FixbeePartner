@@ -72,7 +72,7 @@ class _WalletScreenState extends State<WalletScreen> {
         }
       });
     } else {
-      walletAmountInpaise = int.parse(_BEENAME.get('myWallet'));
+      walletAmountInpaise = int.parse(_BEENAME.get('myWallet'))??0;
       walletAmount = (walletAmountInpaise / 100).toDouble();
     }
 
@@ -322,25 +322,20 @@ class _WalletScreenState extends State<WalletScreen> {
                               ]),
                               SizedBox(height: 30),
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: <Widget>[
-                                  Spacer(),
                                   RaisedButton(
                                     color: Theme.of(context).primaryColor,
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(25))),
                                     elevation: 6,
-                                    child: Container(
-                                      height: 35,
-                                      width: 100,
-                                      child: Center(
-                                          child: Text(
-                                        "WITHDRAWAL",
-                                        style: TextStyle(
-                                            color:
-                                                Theme.of(context).canvasColor,
-                                            fontWeight: FontWeight.bold),
-                                      )),
+                                    child: Text(
+                                      "WITHDRAWAL",
+                                      style: TextStyle(
+                                      color:
+                                          Theme.of(context).canvasColor,
+                                      fontWeight: FontWeight.bold),
                                     ),
                                     onPressed: () {
                                       _bloc.fire(WalletEvent.fetchWalletAmount,
@@ -1280,8 +1275,6 @@ class _WalletScreenState extends State<WalletScreen> {
           );
         });
   }
-
-
 
   _showPaymentFailureDialog(message) {
     showDialog(

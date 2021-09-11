@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:fixbee_partner/events/file_upload_event.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:fixbee_partner/ui/custom_widget/document_view_widget.dart';
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +32,9 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
     _controllerAge = FileUploadController();
     _controllerAddress = FileUploadController();
     _controllerAdditional = FileUploadController();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _showRuleList();
+    });
     super.initState();
   }
 
@@ -90,7 +94,9 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
                                 color: Theme.of(context).accentColor,
                                 size: 20,
                               ),
-                              onPressed: () {},
+                              onPressed: () {
+                                _showRuleList();
+                              },
                             )
                           ],
                         ))
@@ -407,6 +413,86 @@ class _VerificationDocumentsState extends State<VerificationDocuments> {
               message,
               style: TextStyle(color: Theme.of(context).accentColor),
             ),
+          );
+        });
+  }
+
+  _showRuleList() {
+    int c = 0;
+    showModalBottomSheet(
+        backgroundColor: FixbeeColors.kImageBackGroundColor,
+        isDismissible: false,
+        context: context,
+        builder: (context) {
+          return Wrap(
+            children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12.0, horizontal: 12),
+                      child: Text("DO KEEP IN MIND THE FOLLOWING!",
+                          style: TextStyle(
+                              color: Theme.of(context).errorColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18)),
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    for (var i in Rules.DOCUMENT_RULES)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4),
+                        child: RichText(
+                            text: TextSpan(children: [
+                          TextSpan(
+                              text: (Rules.DOCUMENT_RULES.indexOf(i) + 1)
+                                      .toString() +
+                                  ".\t",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 15)),
+                          TextSpan(
+                              text: i.toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 15))
+                        ])),
+                      ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 12, 12),
+                          child: RaisedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            elevation: 4,
+                            color: Theme.of(context).primaryColor,
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "Confirm",
+                                style: TextStyle(
+                                    color: Theme.of(context).canvasColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
           );
         });
   }

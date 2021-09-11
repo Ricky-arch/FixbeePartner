@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fixbee_partner/models/all_Service.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:fixbee_partner/utils/excerpt.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class ChildService extends StatefulWidget {
 
   const ChildService({Key key, this.childServices, this.title, this.imageUrl})
       : super(key: key);
+
   @override
   _ChildServiceState createState() => _ChildServiceState();
 }
@@ -36,8 +38,8 @@ class _ChildServiceState extends State<ChildService> {
                           child: Row(
                             children: [
                               Container(
-                                height: 45,
-                                width: 50,
+                                height: 60,
+                                width: 60,
                                 padding: EdgeInsets.symmetric(vertical: 8),
                                 child: (widget.imageUrl == null)
                                     ? Image.asset(
@@ -131,12 +133,19 @@ class _ChildServiceState extends State<ChildService> {
                                                 MainAxisAlignment.start,
                                             children: [
                                               Container(
-                                                height: 60,
-                                                width: 75,
+                                                height: 85,
+                                                width: 85,
+                                                decoration: BoxDecoration(
+                                                    color: FixbeeColors
+                                                        .kImageBackGroundColor,
+                                                    borderRadius:
+                                                        BorderRadius.all(
+                                                            Radius.circular(
+                                                                10))),
                                                 child: Padding(
                                                   padding: const EdgeInsets
                                                           .symmetric(
-                                                      horizontal: 0,
+                                                      horizontal: 8,
                                                       vertical: 8),
                                                   child: (snapshot
                                                               .data
@@ -144,8 +153,24 @@ class _ChildServiceState extends State<ChildService> {
                                                                   index]
                                                               .imageLink ==
                                                           null)
-                                                      ? Image.asset(
-                                                          "assets/logo/new_launcher_icon.png")
+                                                      ? Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            10)),
+                                                            image:
+                                                                DecorationImage(
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    image:
+                                                                        AssetImage(
+                                                                      "assets/logo/new_launcher_icon.png",
+                                                                    )),
+                                                          ),
+                                                        )
                                                       : CachedNetworkImage(
                                                           fit: BoxFit.cover,
                                                           imageUrl: snapshot
@@ -153,6 +178,22 @@ class _ChildServiceState extends State<ChildService> {
                                                               .childServices[
                                                                   index]
                                                               .imageLink,
+                                                          imageBuilder: (context,
+                                                                  imageProvider) =>
+                                                              Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              borderRadius: BorderRadius
+                                                                  .all(Radius
+                                                                      .circular(
+                                                                          10)),
+                                                              image: DecorationImage(
+                                                                  image:
+                                                                      imageProvider,
+                                                                  fit: BoxFit
+                                                                      .cover),
+                                                            ),
+                                                          ),
                                                           httpHeaders: {
                                                             'authorization':
                                                                 DataStore.token

@@ -6,11 +6,10 @@ import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/ui/custom_widget/display_picture.dart';
 import 'package:fixbee_partner/ui/screens/account_transaction.dart';
 import 'package:fixbee_partner/ui/screens/customize_service.dart';
-import 'package:fixbee_partner/ui/screens/registration.dart';
 import 'package:fixbee_partner/ui/screens/support.dart';
 import 'package:fixbee_partner/ui/screens/profile_update.dart';
 import 'package:fixbee_partner/ui/screens/splash_screen.dart';
-import 'package:fixbee_partner/ui/screens/transaction_account.dart';
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,9 +18,6 @@ import 'package:hive/hive.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:fixbee_partner/ui/screens/verification_documents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'all_service_selection_screen.dart';
-import 'login.dart';
 
 const kSpacingUnit = 10;
 const kDarkPrimaryColor = Color(0xFF212121);
@@ -42,11 +38,12 @@ class _CustomProfileState extends State<CustomProfile> {
   String firstname;
   String middlename;
   String lastname, n = "";
-  var myRating;
+  double myRating;
   CustomProfileBloc _bloc;
   bool verifiedBee;
 
   Box<String> _BEENAME;
+
   _openHive() async {
     _BEENAME = Hive.box<String>("BEE");
   }
@@ -61,7 +58,7 @@ class _CustomProfileState extends State<CustomProfile> {
       _BEENAME.put("dpUrl", m.imageUrl);
       DataStore.me.dpUrl = m.imageUrl;
     });
-    //_bloc.fire(CustomProfileEvent.checkForVerifiedAccount);
+
     firstname = DataStore.me.firstName;
     middlename = DataStore.me.middleName ?? "";
     lastname = DataStore.me.lastName ?? "";
@@ -71,7 +68,7 @@ class _CustomProfileState extends State<CustomProfile> {
   }
 
   _getRating() async {
-    myRating = _BEENAME.get('myRating');
+    myRating = double.parse(_BEENAME.get('myRating'));
     if (myRating == null) {
       myRating = await _bloc.getRating();
       _BEENAME.put("myRating", myRating.toString());
@@ -197,7 +194,7 @@ class _CustomProfileState extends State<CustomProfile> {
                           return Container(
                             height: kSpacingUnit.w * 10,
                             width: kSpacingUnit.w * 10,
-                            margin: EdgeInsets.only(top: kSpacingUnit.w * 3),
+                            margin: EdgeInsets.only(top: kSpacingUnit.w * 2),
                             decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Colors.white,
@@ -208,8 +205,9 @@ class _CustomProfileState extends State<CustomProfile> {
                                 DisplayPicture(
                                   onImagePicked: onImagePicked,
                                   imageURl: _BEENAME.get("dpUrl"),
-                                  loading: false,
+                                  loading: viewModel.whileUploadingDp,
                                   verified: verifiedBee,
+                                  showRuleSheet: _showRuleList,
                                   onVerifiedBee: (value) {
                                     if (value) _showSnackBar();
                                   },
@@ -254,7 +252,7 @@ class _CustomProfileState extends State<CustomProfile> {
                           TextSpan(
                             text: (myRating.toString() == null)
                                 ? 'Rating: 0'
-                                : 'Rating: ' + myRating.toString(),
+                                : 'Rating: ' + myRating.toStringAsFixed(2),
                             style: TextStyle(
                               color: Theme.of(context).accentColor,
                               fontSize:
@@ -329,9 +327,16 @@ class _CustomProfileState extends State<CustomProfile> {
                     icon: LineAwesomeIcons.user_plus,
                     text: 'Customize Selected Services',
                     task: () {
+                      // if (!verifiedBee)
                       Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-                        return CustomizeService();
+                        return CustomizeService(
+                          verified: verifiedBee,
+                        );
                       }));
+                      // else
+                      //   Scaffold.of(context).showSnackBar(SnackBar(
+                      //       content: Text(
+                      //           'Cannot update if you are a verified bee! Visit branch!')));
                     },
                   ),
                   ProfileListItem(
@@ -360,6 +365,85 @@ class _CustomProfileState extends State<CustomProfile> {
         _showMessageDialog(
             'Unable to upload display picture try reducing image size below 1-MB!');
     });
+  }
+
+  _showRuleList() {
+    showModalBottomSheet(
+        backgroundColor: Theme.of(context).canvasColor,
+        isDismissible: true,
+        context: context,
+        builder: (context) {
+          return Wrap(
+            children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12.0, horizontal: 12),
+                      child: Text("DO KEEP IN MIND THE FOLLOWING!",
+                          style: TextStyle(
+                              color: Theme.of(context).errorColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18)),
+                    ),
+                    SizedBox(
+                      height: 4,
+                    ),
+                    for (var i in Rules.DISPLAY_PICTURE_RULES)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4),
+                        child: RichText(
+                            text: TextSpan(children: [
+                          TextSpan(
+                              text: (Rules.DISPLAY_PICTURE_RULES.indexOf(i) + 1)
+                                      .toString() +
+                                  ".\t",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 15)),
+                          TextSpan(
+                              text: i.toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500, fontSize: 15))
+                        ])),
+                      ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 12, 12),
+                          child: RaisedButton(
+                            onPressed: () async{
+                               Navigator.pop(context, true);
+                            },
+                            elevation: 4,
+                            color: Theme.of(context).primaryColor,
+                            shape: new RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(30.0)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                "Confirm",
+                                style: TextStyle(
+                                    color: Theme.of(context).canvasColor,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              )
+            ],
+          );
+        });
   }
 
   String getMyName(String first, middle, last) {

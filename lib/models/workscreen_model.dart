@@ -20,4 +20,6 @@ class WorkScreenModel extends ViewModel {
   bool paymentReceived=false;
   String receivePaymentError;
   bool receivingPayment=false;
+  int payment;
+  bool fetchingPaymentAmount=false;
 }

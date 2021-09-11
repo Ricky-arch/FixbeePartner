@@ -14,15 +14,16 @@ class Constants {
   static const RAZORPAY_KEY = 'rzp_live_T9wLKrbt1yS0q2';
   static const double padding = 20;
   static const double avatarRadius = 45;
-  static const FIXBEE_ADDRESS='Shib Nagar, College Road, Agartala, West Tripura-799001';
+  static const FIXBEE_ADDRESS =
+      'Shib Nagar, College Road, Agartala, West Tripura-799001';
   static const DISPLAY_PICTURE_TAG = 'displayPicture';
-  static const DOCUMENTS_TAG='document';
+  static const DOCUMENTS_TAG = 'document';
   static const IDENTITY_PROOF_TAG = 'identity';
   static const AGE_PROOF_TAG = 'age';
   static const ADDRESS_PROOF_TAG = 'address';
   static const ADDITIONAL_TAG = 'additional';
-  static const MINIMUM_WALLET_AMOUNT = 1;
-  static const PLAYSTORE_APP_LINK='https://play.google.com/store/apps/details?id=in.fixbee.fixbee_partner';
+  static const PLAYSTORE_APP_LINK =
+      'https://play.google.com/store/apps/details?id=in.fixbee.fixbee_partner';
   static const MAP_STYLES = '''[
   {
     "elementType": "geometry",
@@ -233,14 +234,30 @@ class SharedPrefKeys {
   static const TOKEN = 'token@bee';
   static const ORDER = 'ORDER';
   static const ORDER_PREF = 'ORDER_PREF';
-  static const METADATA='metadata';
+  static const METADATA = 'metadata';
 }
 
 class PrimaryColors {
   //static Color backgroundColor = Color.fromRGBO(0, 7, 17, 9);
   static Color backgroundColor = Color(0xff121212);
+  static Color imageBackground = Color(0xff2f2f2f).withOpacity(0.5);
   static Color yellowColor = Colors.amber;
   static Color whiteColor = Colors.white;
   static Color backgroundcolorlight = Color(0xfff5f5f5);
 }
 
+class Rules {
+  static const DOCUMENT_RULES = [
+    "Uploaded the mentioned documents only.",
+    "Document should be .jpg or .png format.",
+    "Each Document should be below 100kb.",
+    "Document should be readable.",
+    "Once verified, documents can not  be re-uploaded."
+  ];
+  static const DISPLAY_PICTURE_RULES = [
+    "Photo Upload is mandatory for verification ( Solid Clothing ).",
+    "Picture should be latest.",
+    "Photo should be .jpg or .png format.",
+    "Photo should be below 200kb."
+  ];
+}

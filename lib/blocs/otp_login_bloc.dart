@@ -128,6 +128,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
     try {
       walletAmount = await getWallet();
     } catch (e) {
+
       return latestViewModel
         ..walletError = true
         ..errorMessage = e.toString();
@@ -199,6 +200,7 @@ class OtpLoginBloc extends Bloc<OtpEvents, OtpModel>
   }
 }
     ''';
+
     Map response = await CustomGraphQLClient.instance.query(query);
     var walletAmount = response['wallet']['amount'];
     return walletAmount;

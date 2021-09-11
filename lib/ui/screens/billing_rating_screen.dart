@@ -209,45 +209,46 @@ class BillingRatingScreenState extends State<BillingRatingScreen> {
                     SizedBox(
                       height: 20,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        RaisedButton(
-                          onPressed: () {
-                            _showRatingBar();
-                          },
-                          color: Theme.of(context).primaryColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50)),
-                          child: Text(
-                            "Rate User",
-                            style:
-                                TextStyle(color: Theme.of(context).canvasColor),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        FloatingActionButton(
-                          mini: true,
-                          elevation: 0,
-                          backgroundColor: Theme.of(context).primaryColor,
-                          child: Icon(
-                            Icons.keyboard_arrow_right,
-                            color: Theme.of(context).canvasColor,
-                            size: 30,
-                          ),
-                          onPressed: () {
-                            Route route = MaterialPageRoute(
-                                builder: (context) => NavigationScreen());
-                            Navigator.pushAndRemoveUntil(
-                                context, route, (e) => false);
-                          },
-                        ),
-                        SizedBox(
-                          width: 30,
-                        ),
-                      ],
+
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    RaisedButton(
+                      onPressed: () {
+                        _showRatingBar();
+                      },
+                      color: Theme.of(context).primaryColor,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      child: Text(
+                        "Rate User",
+                        style:
+                        TextStyle(color: Theme.of(context).canvasColor),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    FloatingActionButton(
+                      mini: true,
+                      elevation: 0,
+                      backgroundColor: Theme.of(context).primaryColor,
+                      child: Icon(
+                        Icons.keyboard_arrow_right,
+                        color: Theme.of(context).canvasColor,
+                        size: 30,
+                      ),
+                      onPressed: () {
+                        Route route = MaterialPageRoute(
+                            builder: (context) => NavigationScreen());
+                        Navigator.pushAndRemoveUntil(
+                            context, route, (e) => false);
+                      },
+                    ),
+                    SizedBox(
+                      width: 30,
                     ),
                   ],
                 ),

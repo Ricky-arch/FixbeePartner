@@ -1,5 +1,5 @@
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../Constants.dart';
 
@@ -21,7 +21,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget> {
       children: [
         Center(
             child: Image.asset(
-          "assets/logo/partner_logo.png",
+          "assets/custom_icons/bee.png",
           height: 100,
           width: 100,
         )),
@@ -60,7 +60,7 @@ class _NoInternetWidgetState extends State<NoInternetWidget> {
                     width: MediaQuery.of(context).size.width / 3 - 45,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5.0),
-                      color: Colors.orangeAccent.withOpacity(.9),
+                      color: FixbeeColors.kImageBackGroundColor,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black,

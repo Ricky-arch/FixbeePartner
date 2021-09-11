@@ -21,9 +21,11 @@ import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 class NavigationScreen extends StatefulWidget {
   final bool gotJob;
   final int currentAppBuildNumber;
+
   const NavigationScreen(
       {Key key, this.gotJob = false, this.currentAppBuildNumber})
       : super(key: key);
+
   @override
   _NavigationScreenState createState() => _NavigationScreenState();
 }
@@ -68,7 +70,6 @@ class _NavigationScreenState extends State<NavigationScreen> {
     pages = [
       Home(
         onSwitchChangedState: (active) {
-          print('SWITCH');
           if (active) {
             _bloc.startTimer();
           } else {
@@ -88,39 +89,63 @@ class _NavigationScreenState extends State<NavigationScreen> {
     _visible = widget.gotJob;
     Future.delayed(Duration(seconds: 3), () {
       if (widget.currentAppBuildNumber != null) if (widget
-              .currentAppBuildNumber <
+          .currentAppBuildNumber <
           DataStore.metaData.buildNumber) _showUpdateDialog();
     });
     super.initState();
   }
 
   void _setupFCM() {
+    List<String> redirectList = [
+      'LOW_WALLET_BALANCE',
+      'JOB_CANCEL',
+      'JOB_UPDATE',
+      'PHOTO_REMOVED',
+      'PHOTO_UPLOAD',
+      'ADDONS_ADDED',
+      'JOB_UPDATE',
+      'ORDER_COMPLETE'
+    ];
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     _firebaseMessaging.requestNotificationPermissions();
     _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
-          FlutterRingtonePlayer.playNotification();
           log(message.toString(), name: 'ON_MESSAGE');
-          print('reached');
-          if ((DateTime.now().microsecondsSinceEpoch - _lastNotification) >
+          FlutterRingtonePlayer.playNotification();
+          if ((DateTime
+              .now()
+              .microsecondsSinceEpoch - _lastNotification) >
               1000000) {
-            _lastNotification = DateTime.now().microsecondsSinceEpoch;
-            print('reached1');
-            _getJobDetails(message);
+            _lastNotification = DateTime
+                .now()
+                .microsecondsSinceEpoch;
+            if (message['data']['redirect'] == 'JOB_ASSIGNMENT')
+              _showAssignmentNotification(message['data']);
+            else if (message['data']['redirect'] == 'JOB_REQUEST')
+              _getJobDetails(message);
+            else if (redirectList.contains(message['data']['redirect'].toString()))
+              _showMessageDialog(message['notification']['body']);
           }
         },
         onResume: (Map<String, dynamic> message) async {
           FlutterRingtonePlayer.playNotification();
           log(message.toString(), name: 'ON_RESUME');
-          print('FCM_RESUME:  ' + fcmTest);
-
-          _getJobDetails(message);
+          if (message['data']['redirect'] == 'JOB_ASSIGNMENT')
+            _showAssignmentNotification(message['data']);
+          else if (message['data']['redirect'] == 'JOB_REQUEST')
+            _getJobDetails(message);
+          else if (redirectList.contains(message['data']['redirect'].toString()))
+            _showMessageDialog(message['notification']['body']);
         },
         onLaunch: (message) async {
           FlutterRingtonePlayer.playNotification();
           log(message.toString(), name: 'ON_LAUNCH');
-          print('FCM_LAUNCH:  ' + fcmTest);
-          _getJobDetails(message);
+          if (message['data']['redirect'] == 'JOB_ASSIGNMENT')
+            _showAssignmentNotification(message['data']);
+          else if (message['data']['redirect'] == 'JOB_REQUEST')
+            _getJobDetails(message);
+          else if (redirectList.contains(message['data']['redirect'].toString()))
+            _showMessageDialog(message['notification']['body']);
         },
         onBackgroundMessage: myBackgroundMessageHandler);
   }
@@ -130,9 +155,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
     return true;
   }
 
-  _getJobDetails(Map<String, dynamic> message) {
-
-
+  _getJobDetails(Map<String, dynamic> message) async {
     if (message.containsKey('data')) {
       Map data = message['data'];
       redirect = data['redirect'];
@@ -147,16 +170,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
           ..serviceName = data['service']
           ..userName = userName
           ..cashOnDelivery = paymentMode == 'cod' ? true : false;
-
         setState(() {
           _onNotificationOrderList.add(_orderNotificationModel);
         });
-      } else {
-        Map notification = message['notification'];
-        if (notification['body'] != null && redirect == 'JOB_UPDATE')
-          _showMessageDialog(notification['body']);
-        if (notification['body'] != null && redirect == 'JOB_CANCEL')
-          _showCancelDialog(notification['body']);
       }
     }
   }
@@ -167,13 +183,101 @@ class _NavigationScreenState extends State<NavigationScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             elevation: 4,
-            backgroundColor: Theme.of(context).canvasColor,
+            backgroundColor: Theme
+                .of(context)
+                .canvasColor,
             content: Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor),
+                  color: Theme
+                      .of(context)
+                      .primaryColor),
+            ),
+          );
+        });
+  }
+
+  _showAssignmentNotification(message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            insetPadding: EdgeInsets.all(8),
+            backgroundColor: Theme
+                .of(context)
+                .canvasColor,
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20))),
+              child: Wrap(
+                children: [
+                  Container(
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width,
+                    decoration: BoxDecoration(
+                      color: Theme
+                          .of(context)
+                          .errorColor,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        "ASSIGNED ORDER",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Theme
+                                .of(context)
+                                .accentColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  OrderWidget(
+                    assignedOrder: true,
+                    userName: message['user_name'] ?? '',
+                    orderAddress: message['address'] ?? '',
+                    orderMode:
+                    (message['mode'].toString().toLowerCase() == 'cod')
+                        ? 'COD'
+                        : 'ONLINE',
+                    serviceName: message['service_name'] ?? '',
+                    orderId: message['order_id'] ?? '',
+                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     RaisedButton(
+                  //       onPressed: () {
+                  //         Navigator.pop(context, true);
+                  //       },
+                  //       elevation: 4,
+                  //       color: Theme.of(context).primaryColor,
+                  //       shape: new RoundedRectangleBorder(
+                  //           borderRadius: new BorderRadius.circular(30.0)),
+                  //       child: Padding(
+                  //         padding: const EdgeInsets.all(8.0),
+                  //         child: Text(
+                  //           "Launch",
+                  //           style: TextStyle(
+                  //               color: Theme.of(context).canvasColor,
+                  //               fontWeight: FontWeight.bold),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // SizedBox(
+                  //   height: 10,
+                  // )
+                ],
+              ),
             ),
           );
         });
@@ -182,89 +286,96 @@ class _NavigationScreenState extends State<NavigationScreen> {
   _orderSheet() {
     showModalBottomSheet(
         isScrollControlled: true,
-        backgroundColor: Theme.of(context).canvasColor,
+        backgroundColor: Theme
+            .of(context)
+            .canvasColor,
         context: context,
         builder: (builder) {
           return Container(
             child: SingleChildScrollView(
               child: (_onNotificationOrderList == null ||
-                      _onNotificationOrderList.length == 0)
+                  _onNotificationOrderList.length == 0)
                   ? Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 30.0, horizontal: 8.0),
-                      child: Center(
-                        child: Text(
-                          "NO WORRIES YOU WILL SOON RECEIVE  ORDER!",
-                          style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15),
-                        ),
-                      ),
-                    )
+                padding: const EdgeInsets.symmetric(
+                    vertical: 30.0, horizontal: 8.0),
+                child: Center(
+                  child: Text(
+                    "NO WORRIES YOU WILL SOON RECEIVE  ORDER!",
+                    style: TextStyle(
+                        color: Theme
+                            .of(context)
+                            .primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15),
+                  ),
+                ),
+              )
                   : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          // margin: const EdgeInsets.all(12.0),
-                          padding: const EdgeInsets.all(12.0),
-                          child: Text(
-                            "YOUR ORDERS",
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17),
-                          ),
-                        ),
-                        ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: _onNotificationOrderList.length,
-                            itemBuilder: (ctx, index) {
-                              return OrderWidget(
-                                orderId:
-                                    _onNotificationOrderList[index].orderId,
-                                index: index,
-                                userName:
-                                    _onNotificationOrderList[index].userName,
-                                serviceName:
-                                    _onNotificationOrderList[index].serviceName,
-                                confirm: (value) async {
-                                  setState(() {
-                                    _onNotificationOrderList.clear();
-                                    // orderIdReceivedFromNotification.clear();
-                                  });
-                                  Navigator.pop(context);
-                                  Orders order =
-                                      await _bloc.onConfirmDeclineJob(value);
-                                  if (order == null) {
-                                    _showOrderExpiredDialog(
-                                        "Order request invalid or expired");
-                                  } else {
-                                    Route route = MaterialPageRoute(
-                                        builder: (context) => WorkScreen(
-                                              orderModel: order,
-                                            ));
-                                    Navigator.push(context, route);
-                                  }
-                                },
-                                decline: (value) async {
-                                  setState(() {
-                                    _onNotificationOrderList.removeAt(value);
-                                  });
-
-                                  //Navigator.pop(context);
-                                },
-                                orderAddress: _onNotificationOrderList[index]
-                                    .orderAddress,
-                                orderMode: _onNotificationOrderList[index]
-                                        .cashOnDelivery
-                                    ? 'COD'
-                                    : 'ONLINE',
-                              );
-                            }),
-                      ],
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    // margin: const EdgeInsets.all(12.0),
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      "YOUR ORDERS",
+                      style: TextStyle(
+                          color: Theme
+                              .of(context)
+                              .primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17),
                     ),
+                  ),
+                  ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: _onNotificationOrderList.length,
+                      itemBuilder: (ctx, index) {
+                        return OrderWidget(
+                          orderId:
+                          _onNotificationOrderList[index].orderId,
+                          index: index,
+                          userName:
+                          _onNotificationOrderList[index].userName,
+                          serviceName:
+                          _onNotificationOrderList[index].serviceName,
+                          confirm: (value) async {
+                            setState(() {
+                              _onNotificationOrderList.clear();
+                              // orderIdReceivedFromNotification.clear();
+                            });
+                            Navigator.pop(context);
+                            Orders order =
+                            await _bloc.onConfirmDeclineJob(value);
+                            if (order == null) {
+                              _showOrderExpiredDialog(
+                                  "Order request invalid or expired");
+                            } else {
+                              Route route = MaterialPageRoute(
+                                  builder: (context) =>
+                                      WorkScreen(
+                                        orderModel: order,
+                                      ));
+                              Navigator.push(context, route);
+                            }
+                          },
+                          decline: (value) async {
+                            setState(() {
+                              _onNotificationOrderList.removeAt(value);
+                            });
+
+                            //Navigator.pop(context);
+                          },
+                          orderAddress: _onNotificationOrderList[index]
+                              .orderAddress,
+                          orderMode: _onNotificationOrderList[index]
+                              .cashOnDelivery
+                              ? 'COD'
+                              : 'ONLINE',
+                        );
+                      }),
+                ],
+              ),
             ),
           );
         });
@@ -283,58 +394,64 @@ class _NavigationScreenState extends State<NavigationScreen> {
     return Scaffold(
       floatingActionButton: (_currentIndex != 3 && _currentIndex != 1)
           ? Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              _orderSheet();
+            },
+            child: Stack(
               children: [
-                GestureDetector(
-                  onTap: () {
-                    _orderSheet();
-                  },
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(25.0, 0, 0, 30),
-                        child: Container(
-                          padding: EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).hintColor,
-                              shape: BoxShape.circle),
-                          child: Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Theme.of(context).cardColor),
-                            child: Icon(
-                              Icons.notification_important,
-                              size: 20,
-                              color: Theme.of(context).primaryColor,
-                            ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(25.0, 0, 0, 30),
+                  child: Container(
+                    padding: EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                        color: Theme
+                            .of(context)
+                            .hintColor,
+                        shape: BoxShape.circle),
+                    child: Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme
+                              .of(context)
+                              .cardColor),
+                      child: Icon(
+                        Icons.notification_important,
+                        size: 20,
+                        color: Theme
+                            .of(context)
+                            .primaryColor,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                    right: 8,
+                    top: -3,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: PrimaryColors.whiteColor,
+                          shape: BoxShape.circle),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Center(
+                          child: Text(
+                            _onNotificationOrderList.length.toString(),
+                            style: TextStyle(
+                                color: PrimaryColors.backgroundColor,
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w500),
                           ),
                         ),
                       ),
-                      Positioned(
-                          right: 8,
-                          top: -3,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: PrimaryColors.whiteColor,
-                                shape: BoxShape.circle),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Center(
-                                child: Text(
-                                  _onNotificationOrderList.length.toString(),
-                                  style: TextStyle(
-                                      color: PrimaryColors.backgroundColor,
-                                      fontSize: 12.0,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                          )),
-                    ],
-                  ),
-                ),
+                    )),
               ],
-            )
+            ),
+          ),
+        ],
+      )
           : SizedBox(),
       backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavBar(
@@ -346,10 +463,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
       ),
       body: SafeArea(
           child: Stack(
-        children: [
-          pages[_currentIndex],
-        ],
-      )),
+            children: [
+              pages[_currentIndex],
+            ],
+          )),
     );
   }
 
@@ -358,7 +475,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            backgroundColor: Theme.of(context).canvasColor,
+            backgroundColor: Theme
+                .of(context)
+                .canvasColor,
             content: Text(
               message,
               maxLines: null,
@@ -366,7 +485,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
             ),
             actions: <Widget>[
               RaisedButton(
-                color: Theme.of(context).canvasColor,
+                color: Theme
+                    .of(context)
+                    .canvasColor,
                 onPressed: () {
                   Navigator.pop(context);
                 },
@@ -374,7 +495,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     "OK",
-                    style: TextStyle(color: Theme.of(context).canvasColor),
+                    style: TextStyle(color: Theme
+                        .of(context)
+                        .accentColor),
                   ),
                 ),
               )
@@ -394,7 +517,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
             content: Text(
               'Update Available!',
               style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             actions: [
               RaisedButton(
@@ -427,22 +550,30 @@ class _NavigationScreenState extends State<NavigationScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             elevation: 4,
-            backgroundColor: Theme.of(context).canvasColor,
+            backgroundColor: Theme
+                .of(context)
+                .canvasColor,
             content: Text(
               'Order has been cancelled!',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).errorColor),
+                  color: Theme
+                      .of(context)
+                      .errorColor),
             ),
             actions: [
               RaisedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                color: Theme.of(context).canvasColor,
+                color: Theme
+                    .of(context)
+                    .canvasColor,
                 child: Text('OK'),
-                textColor: Theme.of(context).primaryColor,
+                textColor: Theme
+                    .of(context)
+                    .primaryColor,
               )
             ],
           );

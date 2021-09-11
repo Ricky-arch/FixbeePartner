@@ -4,6 +4,7 @@ import 'package:fixbee_partner/data_store.dart';
 import 'package:fixbee_partner/events/all_services_event.dart';
 import 'package:fixbee_partner/models/all_Service.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
+import 'package:fixbee_partner/utils/colors.dart';
 import 'package:fixbee_partner/utils/excerpt.dart';
 import 'package:flutter/material.dart';
 import '../../Constants.dart';
@@ -16,6 +17,7 @@ class AllServiceSelection extends StatefulWidget {
   final List<String> mySelectOrderId;
 
   const AllServiceSelection({Key key, this.mySelectOrderId}) : super(key: key);
+
   @override
   _AllServiceSelectionState createState() => _AllServiceSelectionState();
 }
@@ -24,6 +26,7 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
   AllServiceBloc _bloc;
   bool addedNewService = false;
   Excerpt excerpt;
+
   @override
   void initState() {
     _bloc = AllServiceBloc(AllService(),
@@ -51,7 +54,7 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                   backgroundColor: Theme.of(context).canvasColor,
                 ))
               : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -93,7 +96,6 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                       child: Stack(
                         children: [
                           ListView.builder(
-
                             itemCount: viewModel.allAvailableServices.length,
                             itemBuilder: (BuildContext context, int index) {
                               var excerpt =
@@ -101,12 +103,14 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                               return GestureDetector(
                                 onTap: () {
                                   viewModel.parentServices = [];
-                                  _bloc.fire(AllServicesEvent.fetchParentService,
+                                  _bloc.fire(
+                                      AllServicesEvent.fetchParentService,
                                       message: {
                                         'ID': viewModel
                                             .allAvailableServices[index].id
                                       }, onHandled: (e, m) {
-                                    var value = _showParentServicesSheet(context);
+                                    var value =
+                                        _showParentServicesSheet(context);
                                   });
                                 },
                                 child: Padding(
@@ -115,9 +119,6 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Theme.of(context).cardColor,
-                                      // borderRadius:
-                                      //     BorderRadius.all(Radius.circular(10)),
-                                      // border: Border.all(color: Theme.of(context).hintColor)
                                     ),
                                     child: Container(
                                       width:
@@ -128,23 +129,56 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                         child: Row(
                                           children: [
                                             Container(
-                                              height: 60,
-                                              width: 75,
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 8),
+                                              height: 100,
+                                              width: 100,
+                                              decoration: BoxDecoration(
+                                                  color: FixbeeColors
+                                                      .kImageBackGroundColor,
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(10))),
+                                              padding: EdgeInsets.all(8),
                                               child: (viewModel
                                                           .allAvailableServices[
                                                               index]
                                                           .imageLink ==
                                                       null)
-                                                  ? Image.asset(
-                                                      "assets/logo/new_launcher_icon.png")
+                                                  ? Container(
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10)),
+                                                        image: DecorationImage(
+                                                            fit: BoxFit.cover,
+                                                            image: AssetImage(
+                                                              "assets/logo/new_launcher_icon.png",
+                                                            )),
+                                                      ),
+                                                    )
                                                   : CachedNetworkImage(
                                                       fit: BoxFit.cover,
                                                       imageUrl: viewModel
                                                           .allAvailableServices[
                                                               index]
                                                           .imageLink,
+                                                      imageBuilder: (context,
+                                                              imageProvider) =>
+                                                          Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                          image: DecorationImage(
+                                                              image:
+                                                                  imageProvider,
+                                                              fit:
+                                                                  BoxFit.cover),
+                                                        ),
+                                                      ),
                                                       httpHeaders: {
                                                         'authorization':
                                                             DataStore.token
@@ -167,12 +201,13 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                                             .serviceName
                                                             .toUpperCase(),
                                                         style: TextStyle(
-                                                            color:
-                                                                Theme.of(context)
-                                                                    .accentColor,
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .accentColor,
                                                             fontSize: 14,
                                                             fontWeight:
-                                                                FontWeight.bold)),
+                                                                FontWeight
+                                                                    .bold)),
                                                   ),
                                                   SizedBox(
                                                     height: 10,
@@ -202,47 +237,49 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                               );
                             },
                           ),
-                          (viewModel
-                              .allAvailableServices.length !=
-                              0)
+                          (viewModel.allAvailableServices.length != 0)
                               ? Positioned(
-                            bottom: 16,
-                            right: 16,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                RaisedButton(
-                                  onPressed: () {
-                                    _showSelectedServicesSheet(context);
-                                  },
-                                  color: Theme.of(context).primaryColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50)),
-                                  child: Text(
-                                    "Check",
-                                    style: TextStyle(
-                                        color: Theme.of(context).canvasColor),
+                                  bottom: 16,
+                                  right: 16,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      RaisedButton(
+                                        onPressed: () {
+                                          _showSelectedServicesSheet(context);
+                                        },
+                                        color: Theme.of(context).primaryColor,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(50)),
+                                        child: Text(
+                                          "Check",
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .canvasColor),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      FloatingActionButton(
+                                        mini: true,
+                                        elevation: 0,
+                                        backgroundColor:
+                                            Theme.of(context).primaryColor,
+                                        child: Icon(
+                                          Icons.add,
+                                          color: Theme.of(context).canvasColor,
+                                          size: 30,
+                                        ),
+                                        onPressed: () {
+                                          _showConfirmDialog();
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                FloatingActionButton(
-                                  mini: true,
-                                  elevation: 0,
-                                  backgroundColor: Theme.of(context).primaryColor,
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Theme.of(context).canvasColor,
-                                    size: 30,
-                                  ),
-                                  onPressed: () {
-                                    _showConfirmDialog();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ):SizedBox()
+                                )
+                              : SizedBox()
                         ],
                       ),
                     )
@@ -357,7 +394,7 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                       horizontal: 12.0, vertical: 8),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                        color: Theme.of(context).cardColor,
+                                      color: Theme.of(context).cardColor,
                                     ),
                                     child: Padding(
                                       padding: EdgeInsets.symmetric(
@@ -367,26 +404,59 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                             MainAxisAlignment.start,
                                         children: [
                                           Container(
-                                            height: 60,
-                                            width: 75,
+                                            height: 100,
+                                            width: 100,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(10)),
+                                                color: FixbeeColors
+                                                    .kImageBackGroundColor),
                                             child: Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      horizontal: 0,
+                                                      horizontal: 8,
                                                       vertical: 8),
                                               child: (_bloc
                                                           .latestViewModel
                                                           .parentServices[index]
                                                           .imageLink ==
                                                       null)
-                                                  ? Image.asset(
-                                                      "assets/logo/new_launcher_icon.png")
+                                                  ? Container(
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10)),
+                                                        image: DecorationImage(
+                                                            fit: BoxFit.cover,
+                                                            image: AssetImage(
+                                                              "assets/logo/new_launcher_icon.png",
+                                                            )),
+                                                      ),
+                                                    )
                                                   : CachedNetworkImage(
                                                       fit: BoxFit.cover,
                                                       imageUrl: _bloc
                                                           .latestViewModel
                                                           .parentServices[index]
                                                           .imageLink,
+                                                      imageBuilder: (context,
+                                                              imageProvider) =>
+                                                          Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10)),
+                                                          image: DecorationImage(
+                                                              image:
+                                                                  imageProvider,
+                                                              fit:
+                                                                  BoxFit.cover),
+                                                        ),
+                                                      ),
                                                       httpHeaders: {
                                                         'authorization':
                                                             DataStore.token
@@ -410,7 +480,9 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                                           .serviceName
                                                           .toUpperCase(),
                                                       style: TextStyle(
-                                                          color: Theme.of(context).accentColor,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .accentColor,
                                                           fontSize: 14,
                                                           fontWeight:
                                                               FontWeight.bold)),
@@ -427,9 +499,10 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                                   .parentServices[index]
                                                   .priceable)
                                               ? Checkbox(
-                                                  checkColor:
-                                                      Theme.of(context).accentColor,
-                                                  activeColor: Theme.of(context).cardColor,
+                                                  checkColor: Theme.of(context)
+                                                      .accentColor,
+                                                  activeColor: Theme.of(context)
+                                                      .cardColor,
                                                   onChanged: (value) {
                                                     _bloc
                                                         .latestViewModel
@@ -506,7 +579,7 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                             child: Text(
                               "YOUR BUCKET OF SKILLS",
                               style: TextStyle(
-                                  color:Theme.of(context).accentColor,
+                                  color: Theme.of(context).accentColor,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15),
                             ),
@@ -519,7 +592,8 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                   _bloc.latestViewModel.selectedServices.length,
                               itemBuilder: (ctx, index) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal:12.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12.0),
                                   child: Row(
                                     children: [
                                       Icon(
@@ -540,8 +614,8 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                                   .selectedServices[index]
                                                   .serviceName,
                                               style: TextStyle(
-                                                  color:
-                                                      Theme.of(context).primaryColor,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
                                                   fontWeight: FontWeight.w500),
                                             ),
                                           ),
@@ -608,7 +682,8 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                               ? "No items selected!"
                               : "Are you Sure?",
                           style: TextStyle(
-                              color: Theme.of(context).accentColor, fontSize: 16),
+                              color: Theme.of(context).accentColor,
+                              fontSize: 16),
                         ),
                       ),
                       SizedBox(
@@ -626,7 +701,8 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                     child: Text(
                                       "Cancel",
                                       style: TextStyle(
-                                          color: Theme.of(context).primaryColor),
+                                          color:
+                                              Theme.of(context).primaryColor),
                                     ),
                                   ),
                                   onPressed: () {
@@ -647,7 +723,8 @@ class _AllServiceSelectionState extends State<AllServiceSelection> {
                                     child: Text(
                                       "Confirm",
                                       style: TextStyle(
-                                          color: Theme.of(context).primaryColor),
+                                          color:
+                                              Theme.of(context).primaryColor),
                                     ),
                                   ),
                                   onPressed: () {

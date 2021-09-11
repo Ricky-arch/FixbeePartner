@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:fixbee_partner/bloc.dart';
+import 'package:fixbee_partner/blocs/flavours.dart';
 import 'package:fixbee_partner/events/custom_profile_event.dart';
 import 'package:fixbee_partner/models/custom_profile_model.dart';
 import 'package:fixbee_partner/utils/custom_graphql_client.dart';
@@ -9,7 +10,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../Constants.dart';
 
-class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
+class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> with Trackable<CustomProfileEvent, CustomProfileModel> {
   CustomProfileBloc(CustomProfileModel genesisViewModel)
       : super(genesisViewModel);
 
@@ -26,6 +27,7 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
     return latestViewModel;
   }
 
+
   Future<double> getRating() async {
     String query = '''{
   rating{
@@ -39,9 +41,6 @@ class CustomProfileBloc extends Bloc<CustomProfileEvent, CustomProfileModel> {
 
   Future<CustomProfileModel> updateDP(
       String path, String filename, String t) async {
-    // List tags = t.map((e) {
-    //   return '"$e"';
-    // }).toList();
     MultipartFile multipartFile = await MultipartFile.fromPath(
       'image',
       path,
@@ -128,4 +127,13 @@ mutation($file: Upload!, $tags: [String], $private: Boolean) {
     Map response = await CustomGraphQLClient.instance.query(query);
     return latestViewModel;
   }
+
+  @override
+  CustomProfileModel setTrackingFlag(CustomProfileEvent event, bool trackFlag, Map message) {
+    if(event== CustomProfileEvent.updateDp)
+      return latestViewModel..whileUploadingDp=trackFlag;
+    return latestViewModel;
+  }
+
+
 }

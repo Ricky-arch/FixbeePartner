@@ -35,6 +35,7 @@ void main() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((value) => runApp(
             MaterialApp(
+              title: "Fixbee Partner",
               themeMode: ThemeMode.dark,
               darkTheme: FixbeeThemes.darkTheme,
               debugShowCheckedModeBanner: false,

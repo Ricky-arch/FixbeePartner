@@ -8,4 +8,5 @@ class CustomProfileModel extends ViewModel {
   String encoding;
   bool verifiedAccount=false;
   bool dpUploaded=false;
+  bool whileUploadingDp=false;
 }

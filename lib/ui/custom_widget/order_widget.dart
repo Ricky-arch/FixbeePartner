@@ -10,6 +10,7 @@ class OrderWidget extends StatefulWidget {
       orderMode,
       orderId;
   final int index;
+  final bool assignedOrder;
   final Future<void> Function(String) confirm;
   final Future<void> Function(int) decline;
 
@@ -23,8 +24,10 @@ class OrderWidget extends StatefulWidget {
       this.confirm,
       this.decline,
       this.orderId,
-      this.index})
+      this.index,
+      this.assignedOrder = false})
       : super(key: key);
+
   @override
   _OrderWidgetState createState() => _OrderWidgetState();
 }
@@ -47,47 +50,60 @@ class _OrderWidgetState extends State<OrderWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                widget.userName.toUpperCase(),
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.orange),
-              ),
-              SizedBox(
-                height: 10,
-              ),
+              RichText(
+                  text: TextSpan(children: [
+                TextSpan(
+                  text: 'NAME :  ',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.orange),
+                ),
+                TextSpan(
+                  text: widget.userName,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Theme.of(context).accentColor),
+                )
+              ])),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        "SERVICE :  ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                            color: Colors.orange),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: Text(
-                          widget.serviceName,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: Theme.of(context).accentColor),
-                        ),
-                      ),
-                    ],
-                  ),
                   Text(
-                    widget.orderMode.toUpperCase(),
+                    "SERVICE :  ",
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 17,
-                        color: Theme.of(context).errorColor),
-                  )
+                        color: Colors.orange),
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.serviceName ?? "Test",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Theme.of(context).accentColor),
+                    ),
+                  ),
                 ],
               ),
+              RichText(
+                  text: TextSpan(children: [
+                TextSpan(
+                  text: 'MODE :  ',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Colors.orange),
+                ),
+                TextSpan(
+                  text: widget.orderMode.toUpperCase(),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: Theme.of(context).accentColor),
+                )
+              ])),
               SizedBox(
                 height: 10,
               ),
@@ -108,75 +124,79 @@ class _OrderWidgetState extends State<OrderWidget> {
                       color: Theme.of(context).accentColor),
                 )
               ])),
-              Divider(
-                color: Colors.tealAccent,
-                thickness: 1,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    child: Dismissible(
-                        key: UniqueKey(),
-                        onDismissed: (DismissDirection direction) async {
-                          if (direction == DismissDirection.startToEnd) {
-                            print('Swiped right');
-                            await widget.confirm(widget.orderId);
-                          } else {
-                            print('Swiped left');
-                            await widget.decline(widget.index);
-                          }
-                        },
-                        background: Container(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                          alignment: Alignment.centerLeft,
-                          color: Colors.green,
-                          child: Text(
-                            'ACCEPT',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        secondaryBackground: Container(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                          alignment: Alignment.centerRight,
-                          color: Colors.red,
-                          child: Text(
-                            'DECLINE',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        child: Container(
-                           width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration( color: Theme.of(context).primaryColor),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'SWIPE RIGHT TO ACCEPT',
-                                  textAlign: TextAlign.center,
+              (!widget.assignedOrder)
+                  ? Divider(
+                      color: Colors.tealAccent,
+                      thickness: 1,
+                    )
+                  : SizedBox(),
+              (!widget.assignedOrder)
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          child: Dismissible(
+                              key: UniqueKey(),
+                              onDismissed: (DismissDirection direction) async {
+                                if (direction == DismissDirection.startToEnd) {
+                                  await widget.confirm(widget.orderId);
+                                } else {
+                                  await widget.decline(widget.index);
+                                }
+                              },
+                              background: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 16),
+                                alignment: Alignment.centerLeft,
+                                color: Colors.green,
+                                child: Text(
+                                  'ACCEPT',
                                   style: TextStyle(
-                                      color: Theme.of(context).canvasColor,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                Icon(
-                                  Icons.arrow_right_alt_rounded,
-                                  color: Theme.of(context).canvasColor,
-                                )
-                              ],
-                            ))),
-                  ),
-                ],
-              ),
+                              ),
+                              secondaryBackground: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 16),
+                                alignment: Alignment.centerRight,
+                                color: Colors.red,
+                                child: Text(
+                                  'DECLINE',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).primaryColor),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 8),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'SWIPE RIGHT TO ACCEPT',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color:
+                                                Theme.of(context).canvasColor,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Icon(
+                                        Icons.arrow_right_alt_rounded,
+                                        color: Theme.of(context).canvasColor,
+                                      )
+                                    ],
+                                  ))),
+                        ),
+                      ],
+                    )
+                  : SizedBox(),
             ],
           ),
         ),

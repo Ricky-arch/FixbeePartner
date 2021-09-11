@@ -1,12 +1,7 @@
-import 'dart:developer';
-
 import 'package:fixbee_partner/blocs/customize_service_bloc.dart';
 import 'package:fixbee_partner/events/customize_service_event.dart';
 import 'package:fixbee_partner/models/customize_service_model.dart';
-import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:fixbee_partner/ui/custom_widget/service_banner.dart';
-import 'package:fixbee_partner/ui/screens/add_services.dart';
-import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,6 +10,10 @@ import '../../Constants.dart';
 import 'all_service_selection_screen.dart';
 
 class CustomizeService extends StatefulWidget {
+  final bool verified;
+
+  const CustomizeService({Key key, this.verified = false}) : super(key: key);
+
   @override
   _CustomizeServiceState createState() => _CustomizeServiceState();
 }
@@ -109,12 +108,12 @@ class _CustomizeServiceState extends State<CustomizeService> {
                                       .serviceName,
                                   viewModel
                                       .selectedServiceOptionModel[index].id);
-                              if(value){
+                              if (value) {
                                 _bloc.fire(
                                     CustomizeServiceEvent.deleteSelectedService,
                                     message: {
                                       'serviceId':
-                                      '${viewModel.selectedServiceOptionModel[index].id}'
+                                          '${viewModel.selectedServiceOptionModel[index].id}'
                                     }, onHandled: (e, m) {
                                   if (m.isDeletedSuccessfully)
                                     _showMessageDialog('Deleted Successfully');
@@ -125,70 +124,80 @@ class _CustomizeServiceState extends State<CustomizeService> {
                             },
                           );
                         }),
+                    (!widget.verified)
+                        ?
                     Positioned(
-                      bottom: 16,
-                      right: 16,
-                      child: (viewModel.selectedServiceOptionModel.length != 0)
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                RaisedButton(
-                                  onPressed: () {
-                                    _bloc.fire(
-                                        CustomizeServiceEvent.checkAvailability,
-                                        onHandled: (e, m) {
-                                      if (m.availableForRemoval) {
-                                        setState(() {
-                                          if (!showDeleteButton)
-                                            showDeleteButton = true;
-                                          else
-                                            showDeleteButton = false;
-                                        });
-                                      } else {
-                                        _showMessageDialog(
-                                            'You cannot remove services if you have an active order!');
-                                      }
-                                    });
-                                  },
-                                  color: Theme.of(context).primaryColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50)),
-                                  child: Text(
-                                    "Remove",
-                                    style: TextStyle(
-                                        color: Theme.of(context).canvasColor),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                FloatingActionButton(
-                                  mini: true,
-                                  elevation: 4,
-                                  backgroundColor:
-                                      Theme.of(context).primaryColor,
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Theme.of(context).canvasColor,
-                                    size: 30,
-                                  ),
-                                  onPressed: () async {
-                                    bool addedNewService =
-                                        await Navigator.push(context,
-                                            MaterialPageRoute(builder: (ctx) {
-                                      return AllServiceSelection(
-                                        mySelectOrderId: mySelectedOrderId,
-                                      );
-                                    }));
-                                    if (addedNewService ?? false)
-                                      _bloc.fire(CustomizeServiceEvent
-                                          .fetchSelectedServices);
-                                  },
-                                ),
-                              ],
-                            )
-                          : SizedBox(),
-                    )
+                            bottom: 16,
+                            right: 16,
+                            child: (viewModel
+                                        .selectedServiceOptionModel.length !=
+                                    0)
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      RaisedButton(
+                                        onPressed: () {
+                                          _bloc.fire(
+                                              CustomizeServiceEvent
+                                                  .checkAvailability,
+                                              onHandled: (e, m) {
+                                            if (m.availableForRemoval) {
+                                              setState(() {
+                                                if (!showDeleteButton)
+                                                  showDeleteButton = true;
+                                                else
+                                                  showDeleteButton = false;
+                                              });
+                                            } else {
+                                              _showMessageDialog(
+                                                  'You cannot remove services if you have an active order!');
+                                            }
+                                          });
+                                        },
+                                        color: Theme.of(context).primaryColor,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(50)),
+                                        child: Text(
+                                          "Remove",
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .canvasColor),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      FloatingActionButton(
+                                        mini: true,
+                                        elevation: 4,
+                                        backgroundColor:
+                                            Theme.of(context).primaryColor,
+                                        child: Icon(
+                                          Icons.add,
+                                          color: Theme.of(context).canvasColor,
+                                          size: 30,
+                                        ),
+                                        onPressed: () async {
+                                          bool addedNewService =
+                                              await Navigator.push(context,
+                                                  MaterialPageRoute(
+                                                      builder: (ctx) {
+                                            return AllServiceSelection(
+                                              mySelectOrderId:
+                                                  mySelectedOrderId,
+                                            );
+                                          }));
+                                          if (addedNewService ?? false)
+                                            _bloc.fire(CustomizeServiceEvent
+                                                .fetchSelectedServices);
+                                        },
+                                      ),
+                                    ],
+                                  )
+                                : SizedBox(),
+                          )
+                        : SizedBox()
                   ],
                 ),
               ),

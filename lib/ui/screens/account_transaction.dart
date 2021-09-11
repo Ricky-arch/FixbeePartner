@@ -1,14 +1,12 @@
 import 'package:fixbee_partner/blocs/bank_details_bloc.dart';
 import 'package:fixbee_partner/events/bank_details_event.dart';
 import 'package:fixbee_partner/models/bank_details_model.dart';
-import 'package:fixbee_partner/ui/custom_widget/available_accounts.dart';
 import 'package:fixbee_partner/ui/custom_widget/bank_account_withdrawl.dart';
 import 'package:fixbee_partner/ui/custom_widget/custom_circular_progress_indicator.dart';
 import 'package:fixbee_partner/ui/custom_widget/fund_account_widget.dart';
 import 'package:fixbee_partner/ui/custom_widget/vpa_withdrawal.dart';
 import 'package:flutter/material.dart';
 
-import '../../Constants.dart';
 
 class AccountTransaction extends StatefulWidget {
   @override
@@ -17,14 +15,7 @@ class AccountTransaction extends StatefulWidget {
 
 class _AccountTransactionState extends State<AccountTransaction> {
   BankDetailsBloc _bloc;
-  TextEditingController _bankAccountNumber = TextEditingController();
-  TextEditingController _ifscCode = TextEditingController();
-  TextEditingController _accountHoldersName = TextEditingController();
-  TextEditingController _vpaController = TextEditingController();
-  final _bankKey = GlobalKey<FormState>();
-  final _vpaKey = GlobalKey<FormState>();
-  bool _bankValidate = false;
-  bool _vpaValidate = false;
+
 
   @override
   void initState() {
@@ -125,13 +116,12 @@ class _AccountTransactionState extends State<AccountTransaction> {
                         : (viewModel.bankAccountList.length == 0)
                             ? Column(
                                 children: [
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  addButton(false),
+
+
                                   Spacer(),
                                   Text('No Bank Account added!'),
                                   Spacer(),
+                                  addButton(true),
                                 ],
                               )
                             : Column(
@@ -150,13 +140,10 @@ class _AccountTransactionState extends State<AccountTransaction> {
                         : (viewModel.vpaList.length == 0)
                             ? Column(
                                 children: [
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  addButton(false),
                                   Spacer(),
                                   Text('No VPA added!'),
                                   Spacer(),
+                                  addButton(false),
                                 ],
                               )
                             : Column(

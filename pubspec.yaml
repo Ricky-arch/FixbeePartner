@@ -11,7 +11,7 @@ description: Fixbee Partner Application
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.0.3+8
+version: 2.2.0+11
 
 environment:
   sdk: ">=2.9.0 <3.0.0"
@@ -64,7 +64,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/logo/new_launcher_icon.png"
+  image_path: "assets/custom_icons/ic_launcher.png"
 
 
 
@@ -112,6 +112,9 @@ flutter:
     - assets/logo/splash_logo.png
     - assets/custom_icons/customer-service.png
     - assets/custom_icons/bucket.svg
+    - assets/custom_icons/ic_launcher.png
+    - assets/logo/fixbee_yellow.svg
+    - assets/logo/bee.svg
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

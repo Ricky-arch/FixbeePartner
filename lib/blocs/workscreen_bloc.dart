@@ -35,6 +35,9 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> with Tracka
     } else if (event == WorkScreenEvents.receivePayment) {
       return await receivePayment();
     }
+    if(event == WorkScreenEvents.fetchOrderPayment){
+      return await fetchOrderPayment(message);
+    }
     // else if(event == WorkScreenEvents.receiptCall){
     //   return await receiptCall(message);
     // }
@@ -220,6 +223,22 @@ class WorkScreenBloc extends Bloc<WorkScreenEvents, WorkScreenModel> with Tracka
     if(event== WorkScreenEvents.receivePayment){
       return latestViewModel..receivingPayment=trackFlag;
     }
+    if(event== WorkScreenEvents.fetchOrderPayment)
+      return latestViewModel..fetchingPaymentAmount=trackFlag;
     return latestViewModel;
   }
+
+  Future<WorkScreenModel>  fetchOrderPayment(Map<String, dynamic> message) async{
+    String id= message['id'];
+    String query='''
+    {
+  receipt(id:"$id"){
+    amount
+  }
+}
+    ''';
+    Map response= await CustomGraphQLClient.instance.query(query);
+    return latestViewModel..payment=response['receipt']['amount'];
+  }
+
 }

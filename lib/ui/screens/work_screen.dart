@@ -38,6 +38,7 @@ class WorkScreen extends StatefulWidget {
     Key key,
     this.orderModel,
   }) : super(key: key);
+
   @override
   _WorkScreenState createState() => _WorkScreenState();
 }
@@ -53,7 +54,7 @@ class _WorkScreenState extends State<WorkScreen> {
   String formattedAddress = "";
   String latitude, longitude;
   String barcode = "";
-  bool showNotification=true;
+  bool showNotification = true;
 
   String _scanBarcode = 'Unknown';
   String result = "Hey there !";
@@ -67,6 +68,8 @@ class _WorkScreenState extends State<WorkScreen> {
   GoogleMap mapWidget;
   Set<Marker> markers = Set();
   Geolocator geoLocator = Geolocator();
+
+  bool _isErrorOnLoadingUserPicture = false;
 
   Future<LatLng> fetchLocationData() async {
     double lat, lng;
@@ -136,6 +139,15 @@ class _WorkScreenState extends State<WorkScreen> {
   }
 
   void _setupFCM() {
+    List<String> redirectList = [
+      'LOW_WALLET_BALANCE',
+      'JOB_UPDATE',
+      'PHOTO_REMOVED',
+      'PHOTO_UPLOAD',
+      'ADDONS_ADDED',
+      'JOB_UPDATE',
+
+    ];
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     additionalReview = TextEditingController();
     rating = 5;
@@ -143,15 +155,54 @@ class _WorkScreenState extends State<WorkScreen> {
       onMessage: (Map<String, dynamic> message) async {
         FlutterRingtonePlayer.playNotification();
         log(message.toString(), name: 'ON_MESSAGE');
-        _getMessage(message);
+        if (redirectList.contains(message['data']['redirect'].toString()) &&
+            showNotification) {
+          if (message['data']['redirect'] == 'ADDONS_ADDED')
+            _refreshServiceDetails();
+
+          _showMessageDialog(message['notification']['body']);
+        } else if (message['data']['redirect'] == 'JOB_CANCEL')
+          _showCancelDialog(message['notification']['body']);
+        else if (message['data']['redirect']=='ORDER_COMPLETE' && !widget.orderModel.cashOnDelivery){
+          _showOrderCompletionSuccessDialog();
+          Future.delayed(Duration(seconds: 5), () {
+            _goToBillingScreen();
+          });
+        }
+
       },
       onResume: (Map<String, dynamic> message) async {
         log(message.toString(), name: 'ON_RESUME');
-        _getMessage(message);
+
+        if (redirectList.contains(message['data']['redirect'].toString()) &&
+            showNotification) {
+          if (message['data']['redirect'] == 'ADDONS_ADDED')
+            _refreshServiceDetails();
+          _showMessageDialog(message['notification']['body']);
+        } else if (message['data']['redirect'] == 'JOB_CANCEL')
+          _showCancelDialog(message['notification']['body']);
+        else if (message['data']['redirect']=='ORDER_COMPLETE' && !widget.orderModel.cashOnDelivery){
+          _showOrderCompletionSuccessDialog();
+          Future.delayed(Duration(seconds: 5), () {
+            _goToBillingScreen();
+          });
+        }
       },
       onLaunch: (message) async {
         log(message.toString(), name: 'ON_LAUNCH');
-        _getMessage(message);
+        if (redirectList.contains(message['data']['redirect'].toString()) &&
+            showNotification) {
+          if (message['data']['redirect'] == 'ADDONS_ADDED')
+            _refreshServiceDetails();
+          _showMessageDialog(message['notification']['body']);
+        } else if (message['data']['redirect'] == 'JOB_CANCEL')
+          _showCancelDialog(message['notification']['body']);
+        else if (message['data']['redirect']=='ORDER_COMPLETE' && !widget.orderModel.cashOnDelivery){
+          _showOrderCompletionSuccessDialog();
+          Future.delayed(Duration(seconds: 5), () {
+            _goToBillingScreen();
+          });
+        }
       },
     );
   }
@@ -164,7 +215,6 @@ class _WorkScreenState extends State<WorkScreen> {
     _bloc = WorkScreenBloc(WorkScreenModel());
     _bloc.fire(WorkScreenEvents.checkActiveOrderStatus);
     _bloc.startTimer();
-
     _setupFCM();
     fetchLocationData().then((value) async {
       try {
@@ -224,7 +274,7 @@ class _WorkScreenState extends State<WorkScreen> {
               ),
             ),
             GestureDetector(
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).push(
                     new MaterialPageRoute(builder: (BuildContext context) {
                   return OrderChat();
@@ -252,22 +302,29 @@ class _WorkScreenState extends State<WorkScreen> {
                 if (widget.orderModel.cashOnDelivery) {
                   if (_bloc.latestViewModel.activeOrderStatus ==
                       'in progress') {
-                    var confirm = await _dialogForPayOnWorkDone();
-                    if (confirm) {
-                      setState(() {
-                        showNotification=false;
-                      });
-                      _bloc.fire(WorkScreenEvents.receivePayment,
-                          onHandled: (e, m) {
-
-                        if (m.paymentReceived) {
-                          _goToBillingScreenCOD();
-                        } else {
-                          _showMessageDialog(
-                              m?.receivePaymentError?.toString() ?? 'Error');
-                        }
-                      });
-                    }
+                    _bloc.fire(WorkScreenEvents.fetchOrderPayment,
+                        message: {'id': widget.orderModel.id},
+                        onHandled: (e, m) async {
+                      bool orderEndRequested =
+                          await _showPaymentSheet(context, m.payment) ?? false;
+                      if (orderEndRequested) {
+                        setState(() {
+                          showNotification = false;
+                        });
+                        _bloc.fire(WorkScreenEvents.receivePayment,
+                            onHandled: (e, m) {
+                          if (m.paymentReceived) {
+                            _showOrderCompletionSuccessDialog();
+                            Future.delayed(Duration(seconds: 5), () {
+                              _goToBillingScreenCOD();
+                            });
+                          } else {
+                            _showMessageDialog(
+                                m?.receivePaymentError?.toString() ?? 'Error');
+                          }
+                        });
+                      }
+                    });
                   } else {
                     _showMessageDialog(
                         'Order cannot be completed until resolved for Pay On Work Done!');
@@ -345,6 +402,15 @@ class _WorkScreenState extends State<WorkScreen> {
                               child: CircleAvatar(
                                 backgroundColor: Theme.of(context).accentColor,
                                 radius: 25,
+                                onBackgroundImageError: (_, __) {
+                                  setState(() {
+                                    this._isErrorOnLoadingUserPicture = true;
+                                  });
+                                },
+                                child: _isErrorOnLoadingUserPicture
+                                    ? Image.asset(
+                                        "assets/custom_icons/user.png")
+                                    : null,
                                 backgroundImage: (widget
                                             .orderModel.user.profilePicId !=
                                         null)
@@ -500,6 +566,13 @@ class _WorkScreenState extends State<WorkScreen> {
                       backgroundColor: Theme.of(context).canvasColor,
                     )
                   : SizedBox(),
+              (viewModel.fetchingPaymentAmount)
+                  ? LinearProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).accentColor),
+                      backgroundColor: Theme.of(context).canvasColor,
+                    )
+                  : SizedBox(),
               (viewModel.activeOrderStatus != "in progress")
                   ? Expanded(
                       child: mapWidget = GoogleMap(
@@ -532,10 +605,23 @@ class _WorkScreenState extends State<WorkScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             backgroundColor: Theme.of(context).canvasColor,
-            content: Text(
-              "Are you done?\n\n*Pay on work done cannot be reverted after bill is fetched..",
-              style:
-                  TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+            content: RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text: "Are you done?",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                      fontSize: 16),
+                ),
+                TextSpan(
+                    text:
+                        "\nPay on work done cannot be reverted after bill is fetched..",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                        fontSize: 14))
+              ]),
             ),
             actions: <Widget>[
               RaisedButton(
@@ -589,6 +675,29 @@ class _WorkScreenState extends State<WorkScreen> {
         cashOnDelivery: widget.orderModel.cashOnDelivery,
       );
     }));
+  }
+
+  _showOrderCompletionSuccessDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          FlutterRingtonePlayer.playNotification();
+          return AlertDialog(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            content: Container(
+              height: 250,
+              width: 250,
+              child: FlareActor(
+                "assets/animations/cms_remix.flr",
+                alignment: Alignment.center,
+                fit: BoxFit.contain,
+                animation: "Untitled",
+              ),
+            ),
+          );
+        });
   }
 
   _verifyOtpSheet(context) {
@@ -685,7 +794,8 @@ class _WorkScreenState extends State<WorkScreen> {
                             textColor: Colors.white,
                             onPressed: () {
                               if (_formOTP.currentState.validate()) {
-                                Navigator.pop(context, otpController.text??null);
+                                Navigator.pop(
+                                    context, otpController.text ?? null);
                                 otpController.clear();
                               }
                             },
@@ -850,6 +960,20 @@ class _WorkScreenState extends State<WorkScreen> {
                       ),
                       InfoPanel(
                         title: "Address:",
+                        answer:
+                            widget.orderModel.address.split('Landmark:')[0] ??
+                                "Test",
+                        maxLines: null,
+                      ),
+                      InfoPanel(
+                        title: "Land-Mark:",
+                        answer:
+                            widget.orderModel.address.split('Landmark:')[1] ??
+                                "Test",
+                        maxLines: null,
+                      ),
+                      InfoPanel(
+                        title: "Formatted-Address:",
                         answer: formattedAddress,
                         maxLines: null,
                       ),
@@ -877,10 +1001,6 @@ class _WorkScreenState extends State<WorkScreen> {
     if (notification['body'] != null) {
       String body = notification['body'];
       String m = map['redirect'];
-      if (m == 'JOB_UPDATE' && showNotification) {
-        _refreshServiceDetails();
-        _showMessageDialog(body);
-      }
       if (m == 'JOB_CANCEL') _showCancelDialog(body);
     }
   }
@@ -949,5 +1069,156 @@ class _WorkScreenState extends State<WorkScreen> {
       }
     }
     return allServices.join(', ');
+  }
+
+  _showPaymentSheet(context, int amount) {
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: Wrap(
+              children: <Widget>[
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(25)),
+                                color: Theme.of(context).cardColor),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(12.0, 8, 12, 8),
+                              child: Text(
+                                "ORDER PAYMENT",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                          child: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(children: [
+                                TextSpan(
+                                    text: Constants.rupeeSign + "\t",
+                                    style: TextStyle(
+                                        color: Theme.of(context).accentColor,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: 22)),
+                                TextSpan(
+                                    text: (amount / 100).toStringAsFixed(2),
+                                    style: TextStyle(
+                                        color: Theme.of(context).accentColor,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: amount.toString().length *
+                                            (MediaQuery.of(context).size.width /
+                                                (amount.toString().length *
+                                                    5)))),
+                              ]))),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 12.0, right: 12, top: 8),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          child: Dismissible(
+                              key: UniqueKey(),
+                              onDismissed: (DismissDirection direction) async {
+                                if (direction == DismissDirection.startToEnd) {
+                                  Navigator.pop(context, true);
+                                } else {
+                                  Navigator.pop(context, false);
+                                }
+                              },
+                              background: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 16),
+                                alignment: Alignment.centerLeft,
+                                color: Colors.red,
+                                child: Text(
+                                  'END',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              secondaryBackground: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 4, horizontal: 16),
+                                alignment: Alignment.centerRight,
+                                color: Colors.green,
+                                child: Text(
+                                  'CANCEL',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              child: Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).primaryColor),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 8),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'SWIPE RIGHT TO END ORDER',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color:
+                                                Theme.of(context).canvasColor,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Icon(
+                                        Icons.arrow_right_alt_rounded,
+                                        color: Theme.of(context).canvasColor,
+                                      )
+                                    ],
+                                  ))),
+                        ),
+                      ),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 8.0, right: 8, bottom: 12, top: 8),
+                          child: RichText(
+                            text: TextSpan(children: [
+                              TextSpan(
+                                  text: "\u2139\t",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20)),
+                              TextSpan(
+                                  text:
+                                      "Pay on work done cannot be reverted after end.",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
+                                      fontSize: 14))
+                            ]),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        });
   }
 }
